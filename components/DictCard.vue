@@ -26,18 +26,18 @@
         </div>
 
         <!-- 粤拼 -->
-        <div class="sm:text-right flex-shrink-0">
+        <div class="sm:text-right">
           <div
             v-for="(jp, idx) in entry.phonetic.jyutping"
             :key="idx"
-            class="font-mono text-lg text-blue-600 font-semibold whitespace-nowrap"
+            class="font-mono text-lg text-blue-600 font-semibold break-words"
           >
             {{ jp }}
           </div>
           <!-- 原书注音（如果不同） -->
           <div
             v-if="entry.phonetic.original && entry.phonetic.original !== entry.phonetic.jyutping[0]"
-            class="text-xs text-gray-400 mt-1"
+            class="text-xs text-gray-400 mt-1 break-words"
           >
             原书: {{ entry.phonetic.original }}
           </div>
