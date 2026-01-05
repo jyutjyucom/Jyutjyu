@@ -20,12 +20,43 @@ export const useDictionary = () => {
     }
     
     try {
-      const response = await fetch('/dictionaries/gz-practical-classified.json')
-      if (response.ok) {
-        const data = await response.json()
-        return Array.isArray(data) ? data : []
+      // 1. 先获取词典索引
+      const indexResponse = await fetch('/dictionaries/index.json')
+      if (!indexResponse.ok) {
+        console.error('获取词典索引失败')
+        return []
       }
-      return []
+      
+      const indexData = await indexResponse.json()
+      const dictionaries = indexData.dictionaries || []
+      
+      if (dictionaries.length === 0) {
+        console.warn('词典索引为空')
+        return []
+      }
+      
+      // 2. 并行加载所有词典的数据
+      const allEntries: DictionaryEntry[] = []
+      
+      await Promise.all(
+        dictionaries.map(async (dict: any) => {
+          try {
+            const response = await fetch(`/dictionaries/${dict.file}`)
+            if (response.ok) {
+              const data = await response.json()
+              if (Array.isArray(data)) {
+                allEntries.push(...data)
+              }
+            } else {
+              console.warn(`加载词典失败: ${dict.file}`)
+            }
+          } catch (error) {
+            console.error(`加载词典 ${dict.file} 时出错:`, error)
+          }
+        })
+      )
+      
+      return allEntries
     } catch (error) {
       console.error('获取词条失败:', error)
       return []

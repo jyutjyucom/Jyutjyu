@@ -146,9 +146,17 @@
       <!-- 备注 -->
       <div
         v-if="entry.meta.notes"
-        class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-gray-700"
+        class="mt-4 p-3 border-l-4 text-sm"
+        :class="entry.meta.note_type === 'proofreader' 
+          ? 'bg-blue-50 border-blue-400 text-gray-700' 
+          : 'bg-yellow-50 border-yellow-400 text-gray-700'"
       >
-        <span class="font-semibold text-yellow-700">备注：</span>
+        <span 
+          class="font-semibold"
+          :class="entry.meta.note_type === 'proofreader' ? 'text-blue-700' : 'text-yellow-700'"
+        >
+          {{ entry.meta.note_type === 'proofreader' ? '校对者备注：' : '备注：' }}
+        </span>
         {{ entry.meta.notes }}
       </div>
 

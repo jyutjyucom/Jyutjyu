@@ -18,8 +18,8 @@ import { parseCSV, validateRequiredFields, cleanRow } from './utils/csv-parser.j
 // 动态导入适配器
 const ADAPTERS = {
   'gz-practical-classified': () => import('./adapters/gz-practical-classified.js'),
+  'gz-colloquialisms': () => import('./adapters/gz-colloquialisms.js'),
   // 未来可以添加更多词典
-  // 'gz-colloquialisms': () => import('./adapters/gz-colloquialisms.js'),
 }
 
 /**
@@ -183,6 +183,7 @@ async function main() {
  */
 function updateDictionaryIndex(dictInfo, entryCount) {
   const indexPath = path.join('content', 'dictionaries', 'index.json')
+  const publicIndexPath = path.join('public', 'dictionaries', 'index.json')
   
   let index = { dictionaries: [], last_updated: '', schema_version: '1.0.0' }
   
@@ -212,8 +213,12 @@ function updateDictionaryIndex(dictInfo, entryCount) {
   // 更新时间戳
   index.last_updated = new Date().toISOString()
 
-  // 写入文件
-  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf-8')
+  // 写入文件到两个位置
+  const indexContent = JSON.stringify(index, null, 2)
+  fs.writeFileSync(indexPath, indexContent, 'utf-8')
+  fs.writeFileSync(publicIndexPath, indexContent, 'utf-8')
+  
+  console.log(`✅ 索引文件已同步到 content/ 和 public/ 目录`)
 }
 
 /**
@@ -235,6 +240,7 @@ CSV 转 JSON 工具
 
 可用的词典适配器:
   - gz-practical-classified    实用广州话分类词典
+  - gz-colloquialisms          广州话俗语词典
 
 示例:
   # 转换实用广州话分类词典

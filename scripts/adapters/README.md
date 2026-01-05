@@ -204,11 +204,17 @@ node scripts/validate.js data/processed/my-dict.csv
 node scripts/csv-to-json.js \
   --dict my-new-dict \
   --input data/processed/my-dict.csv
+
+# 示例：转换广州话俗语词典
+node scripts/csv-to-json.js \
+  --dict gz-colloquialisms \
+  --input data/processed/gz-colloquialisms.csv \
+  --output public/dictionaries/gz-colloquialisms.json
 ```
 
 ---
 
-## 示例：实用广州话分类词典
+## 示例 1：实用广州话分类词典
 
 参考 `gz-practical-classified.js`，它展示了如何处理：
 
@@ -232,6 +238,59 @@ node scripts/csv-to-json.js \
    ```javascript
    meta: {
      notes: parseNote(row.note)
+   }
+   ```
+
+## 示例 2：广州话俗语词典
+
+参考 `gz-colloquialisms.js`，它展示了如何处理：
+
+1. **歇后语结构**（前后半句用逗号分隔）
+   ```javascript
+   function detectColloquialismType(phrase) {
+     if (phrase.includes('，') || phrase.includes(',')) {
+       const parts = phrase.split(/[，,]/)
+       if (parts.length === 2 && parts[0].length > 2 && parts[1].length > 2) {
+         return 'xiehouyu' // 歇后语
+       }
+     }
+     return 'idiom'
+   }
+   ```
+
+2. **多义项聚合**（按 index 和 sense_number）
+   ```javascript
+   export function aggregateEntries(entries) {
+     // 按 index 分组
+     const grouped = new Map()
+     entries.forEach(entry => {
+       const index = entry.meta._originalIndex
+       if (!grouped.has(index)) {
+         grouped.set(index, [])
+       }
+       grouped.get(index).push(entry)
+     })
+     // 聚合每组的 senses
+     // ...
+   }
+   ```
+
+3. **保留广州话拼音方案**（gwongping 作为原始注音）
+   ```javascript
+   phonetic: {
+     original: row.gwongping || row.jyutping,
+     jyutping: jyutpingArray
+   },
+   meta: {
+     gwongping: row.gwongping || null
+   }
+   ```
+
+4. **俗语类型分类**
+   ```javascript
+   meta: {
+     colloquialism_type: detectColloquialismType(row.phrases),
+     // 'xiehouyu' | 'proverb' | 'idiom'
    }
    ```
 
