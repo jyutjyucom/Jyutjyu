@@ -116,24 +116,44 @@ export function cleanHeadword(word) {
 }
 
 /**
- * 解析例句（从释义中提取）
+ * 解析例句（从释义中提取），支持多义项
  * 格式: "释义。例句1。（翻译1。）│例句2。（翻译2。）"
+ * 或: "①释义1。例句1。（翻译1。）②释义2。例句2。（翻译2。）"
  * @param {string} meanings - 释义字段
- * @returns {Object} { definition, examples }
+ * @returns {Array<Object>} [{ definition, examples }, ...] 义项数组
  */
 export function parseExamples(meanings) {
-  if (!meanings) return { definition: '', examples: [] }
+  if (!meanings) return [{ definition: '', examples: [] }]
   
+  // 清理开头的句号
+  let cleanedMeanings = meanings.replace(/^[。\s]+/, '')
+  
+  // 检测是否有编号义项（①②③④⑤⑥⑦⑧⑨⑩ 或 ⑴⑵⑶⑷⑸等）
+  const senseMarkerRegex = /[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽]/g
+  const markers = cleanedMeanings.match(senseMarkerRegex)
+  
+  if (markers && markers.length > 0) {
+    // 有编号义项，需要分割处理
+    return parseMultipleSenses(cleanedMeanings, markers)
+  } else {
+    // 单一义项，使用原有逻辑
+    return [parseSingleSense(cleanedMeanings)]
+  }
+}
+
+/**
+ * 解析单个义项
+ * @param {string} text - 包含释义和例句的文本
+ * @returns {Object} { definition, examples }
+ */
+function parseSingleSense(text) {
   const result = {
     definition: '',
     examples: []
   }
   
-  // 清理开头的句号（某些词条的 meanings 字段以句号开头）
-  let cleanedMeanings = meanings.replace(/^[。\s]+/, '')
-  
   // 先按 │ 分割各个例句组
-  const segments = cleanedMeanings.split('│')
+  const segments = text.split('│')
   
   if (segments.length === 0) return result
   
@@ -141,7 +161,6 @@ export function parseExamples(meanings) {
   const firstSegment = segments[0]
   
   // 寻找第一个 。 作为释义结束（但要排除括号内的句号）
-  // 注意：只有句号 。 才是定义结束标志，分号 ； 是定义内部的分隔符
   let definitionEnd = -1
   let inParentheses = 0
   
@@ -186,6 +205,48 @@ export function parseExamples(meanings) {
   }
   
   return result
+}
+
+/**
+ * 解析多个编号义项
+ * @param {string} text - 包含多个编号义项的文本
+ * @param {Array<string>} markers - 义项编号标记数组
+ * @returns {Array<Object>} 义项数组
+ */
+function parseMultipleSenses(text, markers) {
+  const senses = []
+  
+  // 为每个标记找到其在文本中的位置
+  const markerPositions = []
+  let searchStart = 0
+  
+  markers.forEach(marker => {
+    const pos = text.indexOf(marker, searchStart)
+    if (pos !== -1) {
+      markerPositions.push({ marker, pos })
+      searchStart = pos + 1
+    }
+  })
+  
+  // 按位置分割文本
+  for (let i = 0; i < markerPositions.length; i++) {
+    const start = markerPositions[i].pos
+    const end = i < markerPositions.length - 1 
+      ? markerPositions[i + 1].pos 
+      : text.length
+    
+    // 提取该义项的文本（去掉编号标记）
+    let senseText = text.substring(start, end)
+    senseText = senseText.replace(/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽]/, '').trim()
+    
+    // 解析这个义项
+    const sense = parseSingleSense(senseText)
+    if (sense.definition || sense.examples.length > 0) {
+      senses.push(sense)
+    }
+  }
+  
+  return senses.length > 0 ? senses : [{ definition: text.trim(), examples: [] }]
 }
 
 /**

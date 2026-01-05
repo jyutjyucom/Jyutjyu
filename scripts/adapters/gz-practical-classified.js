@@ -42,8 +42,8 @@ export function transformRow(row) {
   // 1. 清理词头
   const headwordInfo = cleanHeadword(row.words)
   
-  // 2. 解析释义和例句
-  const { definition, examples } = parseExamples(row.meanings)
+  // 2. 解析释义和例句（现在返回数组）
+  const sensesArray = parseExamples(row.meanings)
   
   // 3. 处理粤拼
   const jyutpingArray = row.jyutping
@@ -77,15 +77,13 @@ export function transformRow(row) {
     
     entry_type: guessEntryType(headwordInfo.normalized),
     
-    senses: [
-      {
-        definition,
-        examples: examples.map(ex => ({
-          text: ex.text,
-          translation: ex.translation
-        }))
-      }
-    ],
+    senses: sensesArray.map(sense => ({
+      definition: sense.definition,
+      examples: sense.examples.map(ex => ({
+        text: ex.text,
+        translation: ex.translation
+      }))
+    })),
     
     meta: {
       category: categoryPath,
