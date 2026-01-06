@@ -60,17 +60,9 @@
 
       <!-- 标签：来源、分类等 -->
       <div class="flex flex-wrap gap-2 mt-3">
-        <!-- ID（原书编号） -->
-        <span
-          v-if="entry.source_id"
-          class="px-3 py-1 bg-gray-50 text-gray-500 rounded-full text-sm font-mono"
-        >
-          ID: {{ entry.source_id }}
-        </span>
-
-        <!-- 来源词典 -->
+        <!-- 来源词典: ID -->
         <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-          {{ entry.source_book }}
+          {{ entry.source_book }}：{{ entry.source_id }}
         </span>
 
         <!-- 方言 -->
