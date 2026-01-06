@@ -34,11 +34,11 @@ export const DICTIONARY_INFO = {
 export const REQUIRED_FIELDS = ['index', 'words', 'jyutping', 'meanings']
 
 /**
- * 解析词头的特殊标记并生成异体字组合
+ * 解析词头的特殊标记并生成异形词组合
  * @param {string} words - 原始词头字符串
  * @returns {Object} { 
  *   mainWord: 主词头,
- *   variants: 异体字完整组合数组,
+ *   variants: 异形词完整组合数组,
  *   hasCrossReference: 是否为重见词条,
  *   variantNumber: 同形异义标记数字
  * }
@@ -60,14 +60,14 @@ function parseHeadwordMarkers(words) {
     text = text.substring(1).trim()
   }
   
-  // 2. 解析括号内的异体字并生成所有组合
+  // 2. 解析括号内的异形词并生成所有组合
   // 例如: "阿（亞）崩阿（亞）狗" → ["亞崩阿狗", "阿崩亞狗", "亞崩亞狗"]
   const variants = generateHeadwordVariants(text)
   
   // 3. 主词头是移除所有括号内容后的结果
   result.mainWord = text.replace(/[（(][^）)]+[）)]/g, '').trim()
   
-  // 4. 异体字是除了主词头之外的所有组合
+  // 4. 异形词是除了主词头之外的所有组合
   result.variants = variants.filter(v => v !== result.mainWord)
   
   // 5. 检查是否有数字后缀标记（同形异义）
@@ -81,7 +81,7 @@ function parseHeadwordMarkers(words) {
 }
 
 /**
- * 生成词头的所有异体字组合
+ * 生成词头的所有异形词组合
  * @param {string} text - 包含括号标记的词头
  * @returns {Array<string>} 所有可能的组合（包括原始词头）
  * 
@@ -106,7 +106,7 @@ function generateHeadwordVariants(text) {
       before: beforeBracket,
       options: [
         beforeBracket.slice(-1), // 括号前的最后一个字（外部字）
-        insideBracket             // 括号内的字（异体字）
+        insideBracket             // 括号内的字（异形词）
       ],
       position: match.index
     })
@@ -271,7 +271,7 @@ export function transformRow(row) {
       subcategories: categories,
       notes: cleanedNote || parseNote(row.note),
       
-      // 异体字
+      // 异形词
       headword_variants: headwordMarkers.variants.length > 0 
         ? headwordMarkers.variants 
         : null,
@@ -290,7 +290,7 @@ export function transformRow(row) {
   // 8. 生成搜索关键词
   entry.keywords = generateKeywords(entry)
   
-  // 9. 添加异体字到关键词
+  // 9. 添加异形词到关键词
   if (headwordMarkers.variants.length > 0) {
     headwordMarkers.variants.forEach(variant => {
       entry.keywords.push(variant)

@@ -8,7 +8,7 @@
  * - 歇后语为主，格式通常为 "前半句，后半句"
  * - 同一 index 可能有多个 sense_number（多义项）
  * - gwongping 是广州话拼音方案
- * - jyutping 是标准粤拼
+ * - jyutping 是粤拼
  */
 
 import {
@@ -322,7 +322,7 @@ export function aggregateEntries(entries) {
 export const FIELD_NOTES = {
   phrases: '俗语或歇后语的完整表述，歇后语通常用逗号分隔前后半句',
   gwongping: '广州话拼音方案，保留用于研究对比',
-  jyutping: '标准粤拼',
+  jyutping: '粤拼',
   meanings: '释义，通常会说明俗语的含义和用法',
   examples: '例句，通常包含括号内的普通话翻译',
   sense_number: '义项编号，同一 index 可能有多个义项（0, 1, 2...）'

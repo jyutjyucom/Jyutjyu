@@ -45,7 +45,7 @@ export interface Dialect {
 }
 
 /**
- * 词头信息（处理异体字、括号、推荐写法）
+ * 词头信息（处理异形词、括号、推荐写法）
  */
 export interface Headword {
   /** 原书写法（展示用） */
@@ -64,7 +64,7 @@ export interface Headword {
 export interface Phonetic {
   /** 原书注音（如耶鲁拼音、不规范拼音） */
   original: string
-  /** 标准粤拼（数组支持多音） */
+  /** 粤拼（数组支持多音） */
   jyutping: string[]
   /** 变调信息（可选） */
   tone_sandhi?: string[]

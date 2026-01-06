@@ -23,12 +23,12 @@
               {{ entry.meta.variant_number }}
             </sup>
           </h3>
-          <!-- 异体字 -->
+          <!-- 异形词 -->
           <p
             v-if="entry.meta.headword_variants && entry.meta.headword_variants.length > 0"
             class="text-sm text-gray-600 break-words"
           >
-            异体字: {{ entry.meta.headword_variants.join('、') }}
+            异形词: {{ entry.meta.headword_variants.join('、') }}
           </p>
           <!-- 如果显示词和标准词不同，显示标准词 -->
           <p
@@ -62,7 +62,7 @@
       <div class="flex flex-wrap gap-2 mt-3">
         <!-- 来源词典: ID -->
         <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-          {{ entry.source_book }}：{{ entry.source_id }}
+          {{ entry.source_book }}: {{ entry.source_id }}
         </span>
 
         <!-- 方言 -->

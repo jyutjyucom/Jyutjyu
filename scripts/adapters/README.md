@@ -464,7 +464,7 @@ const headwordInfo = cleanHeadword('□嘢')
 |------|------|
 | `removeTones(jyutping)` | 去除粤拼声调 |
 | `generateKeywords(entry)` | 生成搜索关键词（不含简繁体） |
-| `extractVariants(text)` | 提取异体字 |
+| `extractVariants(text)` | 提取异形词 |
 | `cleanHeadword(word)` | 清理词头标记 |
 | `parseExamples(meanings)` | 解析例句 |
 | `parseNote(note)` | 解析备注 |

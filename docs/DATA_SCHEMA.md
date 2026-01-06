@@ -45,7 +45,7 @@ interface Dialect {
 }
 
 /**
- * 词头信息（处理异体字、括号、推荐写法）
+ * 词头信息（处理异形词、括号、推荐写法）
  */
 interface Headword {
   display: string;        // 原书写法（展示用）: "阿（亚）SIR"
@@ -59,7 +59,7 @@ interface Headword {
  */
 interface Phonetic {
   original: string;       // 原书注音（如耶鲁拼音、不规范拼音）
-  jyutping: string[];     // 标准粤拼（数组支持多音）: ["aa3", "aa3 soe4"]
+  jyutping: string[];     // 粤拼（数组支持多音）: ["aa3", "aa3 soe4"]
   tone_sandhi?: string[]; // 变调信息（可选）
 }
 
@@ -277,7 +277,7 @@ interface DictionaryEntry {
     "□嘢", "mat1je5", "matje5", "什么", "乜嘢", "咩嘢"
   ],
   "meta": {
-    "notes": "有音无字，常见异体写法：乜嘢、咩嘢"
+    "notes": "有音无字，常见异形词写法：乜嘢、咩嘢"
   }
 }
 ```

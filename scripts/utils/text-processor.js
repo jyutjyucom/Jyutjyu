@@ -59,7 +59,7 @@ export function generateKeywords(entry) {
 }
 
 /**
- * 提取括号内的异体字变体
+ * 提取括号内的异形词变体
  * 例如: "阿（亚）SIR" → ["阿SIR", "亚SIR"]
  * @param {string} text - 原文
  * @returns {Array<string>} 变体数组

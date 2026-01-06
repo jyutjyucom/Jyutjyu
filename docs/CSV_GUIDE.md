@@ -24,7 +24,7 @@
 | `parent_id` | 否 | 父条目ID（用于字词关系） | `GZ001` |
 | `headword_display` | **是** | 原书词头（包括括号等） | `阿（亚）SIR` |
 | `headword_normalized` | **是** | 推荐标准写法 | `阿Sir` |
-| `jyutping` | **是** | 标准粤拼（空格分隔音节） | `aa3 soe4` |
+| `jyutping` | **是** | 粤拼（空格分隔音节） | `aa3 soe4` |
 | `original_romanization` | 否 | 原书注音（如不同于粤拼） | `aa sir` (耶鲁) |
 | `entry_type` | **是** | 词条类型 | `word` |
 | `definition` | **是** | 释义 | `警察` |
@@ -63,7 +63,7 @@
 
 ### 3.1 词头处理 (`headword_display` & `headword_normalized`)
 
-#### 场景 1: 括号异体字
+#### 场景 1: 括号异形词
 
 **原书**: 阿（亚）SIR  
 **录入**:
@@ -78,7 +78,7 @@
 **录入**:
 - `headword_display`: `□嘢`
 - `headword_normalized`: `□嘢` （保持不变）
-- `notes`: `有音无字，常见异体写法：乜嘢、咩嘢`
+- `notes`: `有音无字，常见异形词写法：乜嘢、咩嘢`
 
 **说明**: 系统会自动检测 □ 并标记 `is_placeholder: true`。
 
