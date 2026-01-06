@@ -5,12 +5,16 @@
 
 import type { DictionaryEntry, SearchOptions, SearchResult } from '~/types/dictionary'
 
+// 全局缓存，在客户端持久化词典数据
+let cachedEntries: DictionaryEntry[] | null = null
+let cachePromise: Promise<DictionaryEntry[]> | null = null
+
 /**
  * 词典数据管理
  */
 export const useDictionary = () => {
   /**
-   * 获取所有词条
+   * 获取所有词条（带缓存）
    * 注意：搜索功能只在客户端运行，不需要 SSR
    */
   const getAllEntries = async (): Promise<DictionaryEntry[]> => {
@@ -19,48 +23,68 @@ export const useDictionary = () => {
       return []
     }
     
-    try {
-      // 1. 先获取词典索引
-      const indexResponse = await fetch('/dictionaries/index.json')
-      if (!indexResponse.ok) {
-        console.error('获取词典索引失败')
-        return []
-      }
-      
-      const indexData = await indexResponse.json()
-      const dictionaries = indexData.dictionaries || []
-      
-      if (dictionaries.length === 0) {
-        console.warn('词典索引为空')
-        return []
-      }
-      
-      // 2. 并行加载所有词典的数据
-      const allEntries: DictionaryEntry[] = []
-      
-      await Promise.all(
-        dictionaries.map(async (dict: any) => {
-          try {
-            const response = await fetch(`/dictionaries/${dict.file}`)
-            if (response.ok) {
-              const data = await response.json()
-              if (Array.isArray(data)) {
-                allEntries.push(...data)
-              }
-            } else {
-              console.warn(`加载词典失败: ${dict.file}`)
-            }
-          } catch (error) {
-            console.error(`加载词典 ${dict.file} 时出错:`, error)
-          }
-        })
-      )
-      
-      return allEntries
-    } catch (error) {
-      console.error('获取词条失败:', error)
-      return []
+    // 如果已有缓存，直接返回
+    if (cachedEntries) {
+      return cachedEntries
     }
+    
+    // 如果正在加载中，等待加载完成
+    if (cachePromise) {
+      return cachePromise
+    }
+    
+    // 开始加载数据
+    cachePromise = (async () => {
+      try {
+        // 1. 先获取词典索引
+        const indexResponse = await fetch('/dictionaries/index.json')
+        if (!indexResponse.ok) {
+          console.error('获取词典索引失败')
+          return []
+        }
+        
+        const indexData = await indexResponse.json()
+        const dictionaries = indexData.dictionaries || []
+        
+        if (dictionaries.length === 0) {
+          console.warn('词典索引为空')
+          return []
+        }
+        
+        // 2. 并行加载所有词典的数据
+        const allEntries: DictionaryEntry[] = []
+        
+        await Promise.all(
+          dictionaries.map(async (dict: any) => {
+            try {
+              const response = await fetch(`/dictionaries/${dict.file}`)
+              if (response.ok) {
+                const data = await response.json()
+                if (Array.isArray(data)) {
+                  allEntries.push(...data)
+                }
+              } else {
+                console.warn(`加载词典失败: ${dict.file}`)
+              }
+            } catch (error) {
+              console.error(`加载词典 ${dict.file} 时出错:`, error)
+            }
+          })
+        )
+        
+        // 缓存结果
+        cachedEntries = allEntries
+        console.log(`✅ 词典数据已加载并缓存: ${allEntries.length} 条`)
+        return allEntries
+      } catch (error) {
+        console.error('获取词条失败:', error)
+        return []
+      } finally {
+        cachePromise = null
+      }
+    })()
+    
+    return cachePromise
   }
 
   /**
@@ -79,9 +103,10 @@ export const useDictionary = () => {
   /**
    * 基础搜索（精确匹配，支持简繁体）
    * @param query 搜索关键词
+   * @param limit 返回结果数量限制，默认100
    * @returns 匹配的词条数组，按相关度排序
    */
-  const searchBasic = async (query: string): Promise<DictionaryEntry[]> => {
+  const searchBasic = async (query: string, limit: number = 100): Promise<DictionaryEntry[]> => {
     if (!query || query.trim() === '') {
       return []
     }
@@ -159,119 +184,125 @@ export const useDictionary = () => {
       }
       
       // 带优先级的过滤和评分
-      const resultsWithPriority = entries
-        .map(entry => {
-          let priority = 0
-          
-          const normalizedHeadword = entry.headword.normalized?.toLowerCase() || ''
-          const displayHeadword = entry.headword.display?.toLowerCase() || ''
-          
-          // 生成词条的所有变体（用于词头匹配）
-          const headwordVariants = [
-            normalizedHeadword,
-            displayHeadword,
-            toSimplified(normalizedHeadword).toLowerCase(),
-            toSimplified(displayHeadword).toLowerCase(),
-            toTraditional(normalizedHeadword).toLowerCase(),
-            toTraditional(displayHeadword).toLowerCase()
-          ].filter((v, i, arr) => arr.indexOf(v) === i) // 去重
-          
-          // 1. 完全匹配词头 - 最高优先级
-          const exactMatch = queryVariants.some(qv => 
-            headwordVariants.some(hv => hv === qv)
-          )
-          if (exactMatch) {
-            priority = 100
-          }
-          // 2. 词头以搜索词开头
-          else {
-            const startsWithMatch = queryVariants.some(qv =>
-              headwordVariants.some(hv => hv.startsWith(qv))
-            )
-            if (startsWithMatch) {
-              priority = 90
-            }
-            // 3. 词头包含搜索词
-            else {
-              const includesMatch = queryVariants.some(qv =>
-                headwordVariants.some(hv => hv.includes(qv))
-              )
-              if (includesMatch) {
-                priority = 80
-              }
-            }
-          }
-          
-          // 4. 粤拼完全匹配
-          if (priority === 0 && entry.phonetic?.jyutping) {
-            const exactJyutpingMatch = entry.phonetic.jyutping.some(jp =>
-              queryVariants.includes(jp.toLowerCase())
-            )
-            if (exactJyutpingMatch) {
-              priority = 70
-            }
-            // 5. 粤拼包含搜索词
-            else {
-              const partialJyutpingMatch = entry.phonetic.jyutping.some(jp =>
-                queryVariants.some(qv => jp.toLowerCase().includes(qv))
-              )
-              if (partialJyutpingMatch) {
-                priority = 60
-              }
-            }
-          }
-          
-          // 6. 关键词匹配（支持简繁体）
-          if (priority === 0 && entry.keywords) {
-            const keywordMatch = entry.keywords.some(kw => {
-              const kwLower = kw.toLowerCase()
-              return queryVariants.some(qv => kwLower.includes(qv))
-            })
-            if (keywordMatch) {
-              priority = 50
-            }
-          }
-          
-          // 7. 释义匹配（支持简繁体） - 最低优先级
-          if (priority === 0 && entry.senses) {
-            const definitionMatch = entry.senses.some(sense => {
-              if (!sense.definition) return false
-              const defVariants = [
-                sense.definition.toLowerCase(),
-                toSimplified(sense.definition).toLowerCase(),
-                toTraditional(sense.definition).toLowerCase()
-              ]
-              return queryVariants.some(qv =>
-                defVariants.some(dv => dv.includes(qv))
-              )
-            })
-            if (definitionMatch) {
-              priority = 40
-            }
-          }
-          
-          return { entry, priority }
-        })
-        .filter(item => item.priority > 0)
-        .map(item => ({
-          ...item,
-          secondaryScore: calculateSecondaryScore(item.entry)
-        }))
-        .sort((a, b) => {
-          // 先按主优先级降序排序
-          if (a.priority !== b.priority) {
-            return b.priority - a.priority
-          }
-          // 优先级相同时，按次要分数排序
-          if (a.secondaryScore !== b.secondaryScore) {
-            return b.secondaryScore - a.secondaryScore
-          }
-          // 次要分数也相同时，按ID排序（保持稳定排序）
-          return a.entry.id.localeCompare(b.entry.id)
-        })
-        .map(item => item.entry)
+      const resultsWithPriority: Array<{entry: DictionaryEntry, priority: number, secondaryScore: number}> = []
       
-      return resultsWithPriority
+      // 优化：边遍历边评分和筛选，避免处理所有数据
+      for (const entry of entries) {
+        let priority = 0
+        
+        const normalizedHeadword = entry.headword.normalized?.toLowerCase() || ''
+        const displayHeadword = entry.headword.display?.toLowerCase() || ''
+        
+        // 生成词条的所有变体（用于词头匹配）
+        const headwordVariants = [
+          normalizedHeadword,
+          displayHeadword,
+          toSimplified(normalizedHeadword).toLowerCase(),
+          toSimplified(displayHeadword).toLowerCase(),
+          toTraditional(normalizedHeadword).toLowerCase(),
+          toTraditional(displayHeadword).toLowerCase()
+        ].filter((v, i, arr) => arr.indexOf(v) === i) // 去重
+        
+        // 1. 完全匹配词头 - 最高优先级
+        const exactMatch = queryVariants.some(qv => 
+          headwordVariants.some(hv => hv === qv)
+        )
+        if (exactMatch) {
+          priority = 100
+        }
+        // 2. 词头以搜索词开头
+        else {
+          const startsWithMatch = queryVariants.some(qv =>
+            headwordVariants.some(hv => hv.startsWith(qv))
+          )
+          if (startsWithMatch) {
+            priority = 90
+          }
+          // 3. 词头包含搜索词
+          else {
+            const includesMatch = queryVariants.some(qv =>
+              headwordVariants.some(hv => hv.includes(qv))
+            )
+            if (includesMatch) {
+              priority = 80
+            }
+          }
+        }
+        
+        // 4. 粤拼完全匹配
+        if (priority === 0 && entry.phonetic?.jyutping) {
+          const exactJyutpingMatch = entry.phonetic.jyutping.some(jp =>
+            queryVariants.includes(jp.toLowerCase())
+          )
+          if (exactJyutpingMatch) {
+            priority = 70
+          }
+          // 5. 粤拼包含搜索词
+          else {
+            const partialJyutpingMatch = entry.phonetic.jyutping.some(jp =>
+              queryVariants.some(qv => jp.toLowerCase().includes(qv))
+            )
+            if (partialJyutpingMatch) {
+              priority = 60
+            }
+          }
+        }
+        
+        // 6. 关键词匹配（支持简繁体）
+        if (priority === 0 && entry.keywords) {
+          const keywordMatch = entry.keywords.some(kw => {
+            const kwLower = kw.toLowerCase()
+            return queryVariants.some(qv => kwLower.includes(qv))
+          })
+          if (keywordMatch) {
+            priority = 50
+          }
+        }
+        
+        // 7. 释义匹配（支持简繁体） - 最低优先级
+        if (priority === 0 && entry.senses) {
+          const definitionMatch = entry.senses.some(sense => {
+            if (!sense.definition) return false
+            const defVariants = [
+              sense.definition.toLowerCase(),
+              toSimplified(sense.definition).toLowerCase(),
+              toTraditional(sense.definition).toLowerCase()
+            ]
+            return queryVariants.some(qv =>
+              defVariants.some(dv => dv.includes(qv))
+            )
+          })
+          if (definitionMatch) {
+            priority = 40
+          }
+        }
+        
+        // 只保存有匹配的条目
+        if (priority > 0) {
+          resultsWithPriority.push({
+            entry,
+            priority,
+            secondaryScore: calculateSecondaryScore(entry)
+          })
+        }
+      }
+      
+      // 排序并限制返回数量
+      resultsWithPriority.sort((a, b) => {
+        // 先按主优先级降序排序
+        if (a.priority !== b.priority) {
+          return b.priority - a.priority
+        }
+        // 优先级相同时，按次要分数排序
+        if (a.secondaryScore !== b.secondaryScore) {
+          return b.secondaryScore - a.secondaryScore
+        }
+        // 次要分数也相同时，按ID排序（保持稳定排序）
+        return a.entry.id.localeCompare(b.entry.id)
+      })
+      
+      // 只返回前 limit 个结果
+      return resultsWithPriority.slice(0, limit).map(item => item.entry)
     } catch (error) {
       console.error('搜索失败:', error)
       return []
@@ -342,18 +373,18 @@ export const useDictionary = () => {
 
   /**
    * 获取搜索建议（自动补全）
-   * TODO: Phase 3 实现
+   * 限制返回数量以提高性能
    */
   const getSuggestions = async (query: string): Promise<string[]> => {
     if (!query || query.length < 2) {
       return []
     }
 
-    const entries = await searchBasic(query)
+    // 只获取前10个搜索结果用于建议
+    const entries = await searchBasic(query, 10)
     
     // 提取词头作为建议
     const suggestions = entries
-      .slice(0, 10) // 最多 10 个建议
       .map(e => e.headword.normalized)
       .filter((v, i, a) => a.indexOf(v) === i) // 去重
     

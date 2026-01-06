@@ -55,15 +55,18 @@
           搜索结果: "{{ actualSearchQuery }}"
         </h2>
         <p class="text-gray-600 mt-2">
-          找到 <span class="font-semibold">{{ results.length }}</span> 个结果
+          找到 <span class="font-semibold">{{ totalCount }}</span> 个结果
           <span v-if="searchTime > 0" class="text-sm">
             (耗时 {{ searchTime }}ms)
+          </span>
+          <span v-if="totalCount > PAGE_SIZE" class="text-sm">
+            · 显示前 {{ displayedResults.length }} 条
           </span>
         </p>
       </div>
 
       <!-- No Results -->
-      <div v-if="!loading && actualSearchQuery && results.length === 0" class="text-center py-16">
+      <div v-if="!loading && actualSearchQuery && allResults.length === 0" class="text-center py-16">
         <div class="text-6xl mb-4">🔍</div>
         <h3 class="text-2xl font-semibold text-gray-900 mb-2">
           没有找到相关结果
@@ -83,7 +86,7 @@
       </div>
 
       <!-- Results -->
-      <div v-else-if="!loading && results.length > 0" class="space-y-4">
+      <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4">
         <!-- 视图切换（桌面端） -->
         <div class="hidden md:flex justify-end mb-4">
           <div class="inline-flex rounded-lg border border-gray-300">
@@ -117,68 +120,94 @@
         <!-- 卡片视图 -->
         <div v-if="viewMode === 'card'" class="space-y-4">
           <DictCard
-            v-for="entry in results"
+            v-for="entry in displayedResults"
             :key="entry.id"
             :entry="entry"
           />
+          
+          <!-- 加载更多按钮 -->
+          <div v-if="hasMore" class="flex justify-center py-8">
+            <button
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              :disabled="loadingMore"
+              @click="loadMore"
+            >
+              <span v-if="loadingMore">加载中...</span>
+              <span v-else>加载更多 ({{ totalCount - displayedResults.length }} 条)</span>
+            </button>
+          </div>
         </div>
 
         <!-- 列表视图（简洁） -->
-        <div v-else class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    词汇
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    粤拼
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    释义
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    来源
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <template v-for="entry in results" :key="entry.id">
-                  <tr
-                    class="hover:bg-gray-50 cursor-pointer transition-colors"
-                    @click="expandedRow = expandedRow === entry.id ? null : entry.id"
-                  >
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-semibold text-gray-900">
-                        {{ entry.headword.display }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="text-sm font-mono text-blue-600">
-                        {{ entry.phonetic.jyutping[0] }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4">
-                      <div class="text-sm text-gray-700 line-clamp-2">
-                        {{ entry.senses[0]?.definition }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full">
-                        {{ entry.source_book }}
-                      </span>
-                    </td>
+        <div v-else class="space-y-4">
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      词汇
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      粤拼
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      释义
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      来源
+                    </th>
                   </tr>
-                  <!-- 展开详情 -->
-                  <tr v-if="expandedRow === entry.id" :key="`${entry.id}-detail`">
-                    <td colspan="4" class="px-6 py-4 bg-gray-50">
-                      <DictCard :entry="entry" :show-details="false" />
-                    </td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <template v-for="entry in displayedResults" :key="entry.id">
+                    <tr
+                      class="hover:bg-gray-50 cursor-pointer transition-colors"
+                      @click="expandedRow = expandedRow === entry.id ? null : entry.id"
+                    >
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">
+                          {{ entry.headword.display }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-mono text-blue-600">
+                          {{ entry.phonetic.jyutping[0] }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm text-gray-700 line-clamp-2">
+                          {{ entry.senses[0]?.definition }}
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full">
+                          {{ entry.source_book }}
+                        </span>
+                      </td>
+                    </tr>
+                    <!-- 展开详情 -->
+                    <tr v-if="expandedRow === entry.id" :key="`${entry.id}-detail`">
+                      <td colspan="4" class="px-6 py-4 bg-gray-50">
+                        <DictCard :entry="entry" :show-details="false" />
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- 加载更多按钮 -->
+          <div v-if="hasMore" class="flex justify-center py-8">
+            <button
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              :disabled="loadingMore"
+              @click="loadMore"
+            >
+              <span v-if="loadingMore">加载中...</span>
+              <span v-else>加载更多 ({{ totalCount - displayedResults.length }} 条)</span>
+            </button>
           </div>
         </div>
       </div>
@@ -241,22 +270,35 @@ const { searchBasic, getSuggestions } = useDictionary()
 // 状态
 const searchQuery = ref(route.query.q as string || '') // 输入框中的查询词
 const actualSearchQuery = ref(route.query.q as string || '') // 实际已搜索的查询词
-const results = ref<DictionaryEntry[]>([])
+const allResults = ref<DictionaryEntry[]>([]) // 所有搜索结果
+const displayedResults = ref<DictionaryEntry[]>([]) // 当前显示的结果
 const loading = ref(false)
+const loadingMore = ref(false)
 const searchTime = ref(0)
 const suggestions = ref<string[]>([])
 const showSuggestions = ref(false)
 const viewMode = ref<'card' | 'list'>('card')
 const expandedRow = ref<string | null>(null)
 
+// 分页配置
+const PAGE_SIZE = 20 // 每页显示20条
+const currentPage = ref(1)
+
 // 示例搜索
 const exampleSearches = ['我哋', '你哋', '佢', 'dei6', 'ngo5 dei6']
+
+// 计算属性
+const totalPages = computed(() => Math.ceil(allResults.value.length / PAGE_SIZE))
+const hasMore = computed(() => currentPage.value < totalPages.value)
+const totalCount = computed(() => allResults.value.length)
 
 // 执行搜索
 const performSearch = async (query: string) => {
   if (!query || query.trim() === '') {
-    results.value = []
+    allResults.value = []
+    displayedResults.value = []
     actualSearchQuery.value = ''
+    currentPage.value = 1
     return
   }
 
@@ -265,18 +307,40 @@ const performSearch = async (query: string) => {
   
   loading.value = true
   searchTime.value = 0
+  currentPage.value = 1
   const startTime = Date.now()
 
   try {
-    const entries = await searchBasic(query.trim())
-    results.value = entries
+    // 获取前1000个结果（避免返回过多数据）
+    const entries = await searchBasic(query.trim(), 1000)
+    allResults.value = entries
+    // 只显示第一页
+    displayedResults.value = entries.slice(0, PAGE_SIZE)
     searchTime.value = Date.now() - startTime
   } catch (error) {
     console.error('搜索失败:', error)
-    results.value = []
+    allResults.value = []
+    displayedResults.value = []
   } finally {
     loading.value = false
   }
+}
+
+// 加载更多结果
+const loadMore = () => {
+  if (!hasMore.value || loadingMore.value) {
+    return
+  }
+
+  loadingMore.value = true
+  
+  setTimeout(() => {
+    currentPage.value++
+    const startIndex = 0
+    const endIndex = currentPage.value * PAGE_SIZE
+    displayedResults.value = allResults.value.slice(startIndex, endIndex)
+    loadingMore.value = false
+  }, 100) // 小延迟以显示加载状态
 }
 
 // 处理搜索
@@ -324,7 +388,8 @@ watch(() => route.query.q, (newQuery) => {
   if (newQuery) {
     performSearch(newQuery as string)
   } else {
-    results.value = []
+    allResults.value = []
+    displayedResults.value = []
   }
 }, { immediate: true })
 
