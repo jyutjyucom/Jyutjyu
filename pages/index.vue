@@ -154,30 +154,58 @@
           <div 
             v-for="dict in dictionariesData.dictionaries" 
             :key="dict.id"
-            class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+            class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
           >
-            <div>
-              <h4 class="font-semibold text-lg">{{ dict.name }}</h4>
-              <p class="text-sm text-gray-600">
-                {{ dict.author }} · {{ dict.publisher }} · {{ dict.year }}
-              </p>
-              <p v-if="dict.description" class="text-xs text-gray-500 mt-1">
-                {{ dict.description }}
-              </p>
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex-1">
+                <h4 class="font-semibold text-lg">{{ dict.name }}</h4>
+                <p class="text-sm text-gray-600">
+                  {{ dict.author }} · {{ dict.publisher }} · {{ dict.year }}
+                </p>
+                <p v-if="dict.description" class="text-xs text-gray-500 mt-1">
+                  {{ dict.description }}
+                </p>
+              </div>
+              <span 
+                :class="{
+                  'bg-green-100 text-green-800': dict.entries_count > 0,
+                  'bg-yellow-100 text-yellow-800': dict.entries_count === 0
+                }"
+                class="px-3 py-1 rounded-full text-sm whitespace-nowrap ml-4"
+              >
+                {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()} 条` : '整理中' }}
+              </span>
             </div>
-            <span 
-              :class="{
-                'bg-green-100 text-green-800': dict.entries_count > 0,
-                'bg-yellow-100 text-yellow-800': dict.entries_count === 0
-              }"
-              class="px-4 py-1 rounded-full text-sm"
-            >
-              {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()} 条` : '数据整理中' }}
-            </span>
+            
+            <!-- 授权信息 -->
+            <div v-if="dict.license" class="mt-3 pt-3 border-t border-gray-100">
+              <div class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="flex-1">
+                  <p class="text-xs text-gray-600">
+                    <span class="font-medium">许可:</span> {{ dict.license }}
+                  </p>
+                  <p v-if="dict.usage_restriction" class="text-xs text-gray-500 mt-1">
+                    {{ dict.usage_restriction }}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="mt-6 text-center text-gray-500 text-sm">
-          更多词典陆续上架...
+        <div class="mt-6 text-center">
+          <p class="text-gray-500 text-sm mb-3">更多词典陆续上架...</p>
+          <NuxtLink 
+            to="/about" 
+            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            查看完整授权说明
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </NuxtLink>
         </div>
       </div>
 
@@ -187,7 +215,7 @@
         <p class="text-gray-600 mb-6">
           这是一个开源项目，欢迎贡献数据、代码或建议
         </p>
-        <div class="flex gap-4 justify-center">
+        <div class="flex gap-4 justify-center flex-wrap">
           <a
             href="https://github.com/jyutjyucom/jyutjyu"
             target="_blank"
@@ -202,20 +230,29 @@
           >
             贡献数据
           </a>
+          <NuxtLink
+            to="/about"
+            class="px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            关于项目
+          </NuxtLink>
         </div>
       </div>
     </div>
 
     <!-- Footer -->
     <footer class="border-t border-gray-200 py-8 mt-16">
-      <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
-        <p class="mb-2">
-          粤语辞丛 © 2025 · 开源于
-          <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 hover:underline" target="_blank">
-            GitHub
-          </a>
-        </p>
-        <p>为粤语文化保育与传承贡献力量</p>
+      <div class="container mx-auto px-4">
+        <!-- 版权信息 -->
+        <div class="text-center text-gray-600 text-sm">
+          <p class="mb-2">
+            粤语辞丛 © 2025 · 开源于
+            <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 hover:underline" target="_blank">
+              GitHub
+            </a>
+          </p>
+          <p>为粤语文化保育与传承贡献力量</p>
+        </div>
       </div>
     </footer>
   </div>

@@ -206,6 +206,28 @@
         </div>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 py-6 mt-16 bg-white">
+      <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+        <p class="mb-2">
+          粤语辞丛 © 2025 · 
+          <NuxtLink to="/about" class="text-blue-600 hover:underline">
+            关于项目
+          </NuxtLink>
+          · 
+          <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 hover:underline" target="_blank">
+            GitHub
+          </a>
+        </p>
+        <p class="text-xs text-gray-500">
+          收录内容遵循不同授权协议 · 
+          <NuxtLink to="/about#license" class="text-blue-600 hover:underline">
+            查看详情
+          </NuxtLink>
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 

@@ -182,6 +182,11 @@ export interface DictionaryEntry {
 }
 
 /**
+ * 数据来源类型
+ */
+export type SourceType = 'published_book' | 'community_contributed' | 'public_domain' | 'scanned_from_internet'
+
+/**
  * 词典元数据（索引文件）
  */
 export interface DictionaryInfo {
@@ -205,6 +210,16 @@ export interface DictionaryInfo {
   version?: string
   /** 描述 */
   description?: string
+  /** 数据来源 */
+  source?: SourceType
+  /** 许可协议 */
+  license?: string
+  /** 许可协议链接 */
+  license_url?: string
+  /** 使用限制说明 */
+  usage_restriction?: string
+  /** 署名方式 */
+  attribution?: string
 }
 
 /**
