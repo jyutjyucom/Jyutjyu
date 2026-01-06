@@ -33,27 +33,117 @@
           </button>
         </div>
         <div class="mt-4 text-sm text-gray-500 text-center">
-          支持繁简体、粤拼搜索，如：<span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
+          支持繁简体、粤拼及释义反查，如：<span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
           <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3 soe4</span>
         </div>
       </div>
 
-      <!-- Features -->
-      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
-        <div class="text-center p-6 bg-white rounded-lg shadow-md">
-          <div class="text-4xl mb-4">🔍</div>
-          <h3 class="text-xl font-semibold mb-2">智能搜索</h3>
-          <p class="text-gray-600">支持繁简体、粤拼、多音字、模糊匹配</p>
+      <!-- Random Entries -->
+      <div class="max-w-5xl mx-auto mb-16">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-semibold">推荐词条</h3>
+          <button
+            @click="refreshRandomEntries"
+            class="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            换一批
+          </button>
         </div>
-        <div class="text-center p-6 bg-white rounded-lg shadow-md">
-          <div class="text-4xl mb-4">📚</div>
-          <h3 class="text-xl font-semibold mb-2">多词典聚合</h3>
-          <p class="text-gray-600">统一查询不同来源和结构的词典</p>
+
+        <!-- Desktop: 3 cards in grid -->
+        <div v-if="randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
+          <div
+            v-for="entry in randomEntries"
+            :key="entry.id"
+            @click="searchEntry(entry.headword.display)"
+            class="cursor-pointer bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all p-6 group"
+          >
+            <div class="flex flex-col h-full">
+              <div class="mb-3">
+                <h4 class="text-2xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                  {{ entry.headword.display }}
+                </h4>
+                <p class="text-sm font-mono text-blue-600">
+                  {{ entry.phonetic.jyutping[0] }}
+                </p>
+              </div>
+              <p class="text-gray-700 text-sm line-clamp-3 flex-1 group-hover:text-gray-900">
+                {{ entry.senses[0]?.definition || '暂无释义' }}
+              </p>
+              <div class="mt-3 pt-3 border-t border-gray-100">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500 group-hover:text-gray-700">{{ entry.source_book }}</span>
+                  <span class="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    点击查看 →
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="text-center p-6 bg-white rounded-lg shadow-md">
-          <div class="text-4xl mb-4">📱</div>
-          <h3 class="text-xl font-semibold mb-2">多端适配</h3>
-          <p class="text-gray-600">手机、平板、电脑完美显示</p>
+
+        <!-- Mobile: 1 card with navigation -->
+        <div v-if="randomEntries.length > 0" class="md:hidden">
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Card content - clickable to search -->
+            <div
+              @click="searchEntry(randomEntries[mobileIndex].headword.display)"
+              class="cursor-pointer p-6 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            >
+              <div class="flex flex-col">
+                <div class="mb-3">
+                  <h4 class="text-2xl font-bold text-gray-900 mb-1">
+                    {{ randomEntries[mobileIndex].headword.display }}
+                  </h4>
+                  <p class="text-sm font-mono text-blue-600">
+                    {{ randomEntries[mobileIndex].phonetic.jyutping[0] }}
+                  </p>
+                </div>
+                <p class="text-gray-700 text-sm line-clamp-4">
+                  {{ randomEntries[mobileIndex].senses[0]?.definition || '暂无释义' }}
+                </p>
+              </div>
+            </div>
+            
+            <!-- Bottom bar - clickable to go next -->
+            <div class="border-t-2 border-gray-200">
+              <button
+                @click="nextMobileEntry"
+                class="w-full px-6 py-4 flex justify-between items-center hover:bg-blue-50 active:bg-blue-100 transition-colors"
+              >
+                <span class="text-xs text-gray-500">{{ randomEntries[mobileIndex].source_book }}</span>
+                <span class="text-blue-600 font-medium flex items-center gap-1 text-sm">
+                  下一个
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Indicators -->
+          <div class="mt-4 text-center">
+            <div class="flex justify-center gap-2">
+              <button
+                v-for="(_, idx) in randomEntries"
+                :key="idx"
+                @click="mobileIndex = idx"
+                class="w-2 h-2 rounded-full transition-all"
+                :class="idx === mobileIndex ? 'bg-blue-600 w-6' : 'bg-gray-300 hover:bg-gray-400'"
+                :aria-label="`切换到第 ${idx + 1} 个词条`"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div v-if="randomEntries.length === 0" class="text-center py-12 text-gray-500">
+          <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+          <p>加载中...</p>
         </div>
       </div>
 
@@ -133,10 +223,15 @@
 
 <script setup lang="ts">
 import dictionariesIndex from '~/content/dictionaries/index.json'
+import type { DictionaryEntry } from '~/types/dictionary'
 
 const searchQuery = ref('')
 const router = useRouter()
 const dictionariesData = ref(dictionariesIndex)
+const randomEntries = ref<DictionaryEntry[]>([])
+const mobileIndex = ref(0)
+
+const { getAllEntries } = useDictionary()
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -148,6 +243,36 @@ const searchExample = (query: string) => {
   searchQuery.value = query
   handleSearch()
 }
+
+const searchEntry = (headword: string) => {
+  router.push(`/search?q=${encodeURIComponent(headword)}`)
+}
+
+const getRandomEntries = (entries: DictionaryEntry[], count: number): DictionaryEntry[] => {
+  const shuffled = [...entries].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, count)
+}
+
+const refreshRandomEntries = async () => {
+  try {
+    const allEntries = await getAllEntries()
+    if (allEntries.length > 0) {
+      randomEntries.value = getRandomEntries(allEntries, 3)
+      mobileIndex.value = 0
+    }
+  } catch (error) {
+    console.error('加载随机词条失败:', error)
+  }
+}
+
+const nextMobileEntry = () => {
+  mobileIndex.value = (mobileIndex.value + 1) % randomEntries.value.length
+}
+
+// 加载初始随机词条
+onMounted(() => {
+  refreshRandomEntries()
+})
 
 // SEO
 useHead({
