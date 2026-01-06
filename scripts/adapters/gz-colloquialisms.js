@@ -55,33 +55,40 @@ export function transformRow(row) {
   }
   
   // 解析例句（可能包含翻译）
+  // 支持多个例句用 | 分隔，每个例句可能包含括号内的翻译
   if (row.examples && row.examples.trim()) {
     const exampleText = row.examples.trim()
-    // 检查是否有括号包裹的翻译
-    const translationMatch = exampleText.match(/[（(]([^）)]+)[）)]/)
+    // 用 | 分割多个例句
+    const exampleParts = exampleText.split('|').map(part => part.trim()).filter(part => part)
     
-    if (translationMatch) {
-      // 提取翻译
-      const translation = translationMatch[1]
-        .replace(/[。！？]+$/, '')
-        .trim()
+    exampleParts.forEach(part => {
+      // 检查是否有括号包裹的翻译
+      // 匹配最后一个括号（通常是普通话翻译）
+      const translationMatch = part.match(/[（(]([^）)]+)[）)][。！？\s]*$/)
       
-      // 提取例句正文
-      const text = exampleText
-        .replace(/[（(][^）)]+[）)]/g, '')
-        .replace(/[。！？]+$/, '')
-        .trim()
-      
-      sense.examples.push({
-        text: text || exampleText,
-        translation: translation || null
-      })
-    } else {
-      // 没有翻译，直接作为例句
-      sense.examples.push({
-        text: exampleText.replace(/[。！？]+$/, '').trim()
-      })
-    }
+      if (translationMatch) {
+        // 提取翻译
+        const translation = translationMatch[1]
+          .replace(/[。！？]+$/, '')
+          .trim()
+        
+        // 提取例句正文（只移除最后的翻译括号，保留其他括号如注音）
+        const text = part
+          .replace(/[（(][^）)]+[）)][。！？\s]*$/, '')
+          .replace(/[。！？]+$/, '')
+          .trim()
+        
+        sense.examples.push({
+          text: text || part,
+          translation: translation || null
+        })
+      } else {
+        // 没有翻译，直接作为例句
+        sense.examples.push({
+          text: part.replace(/[。！？]+$/, '').trim()
+        })
+      }
+    })
   }
   
   // 3. 处理粤拼
