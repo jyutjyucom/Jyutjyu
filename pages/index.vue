@@ -228,8 +228,10 @@ import type { DictionaryEntry } from '~/types/dictionary'
 const searchQuery = ref('')
 const router = useRouter()
 const dictionariesData = ref(dictionariesIndex)
-const randomEntries = ref<DictionaryEntry[]>([])
-const mobileIndex = ref(0)
+
+// 使用 useState 来保持状态在页面导航时不丢失
+const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
+const mobileIndex = useState<number>('home-mobile-index', () => 0)
 
 const { getAllEntries } = useDictionary()
 
@@ -269,9 +271,11 @@ const nextMobileEntry = () => {
   mobileIndex.value = (mobileIndex.value + 1) % randomEntries.value.length
 }
 
-// 加载初始随机词条
+// 只在首次加载且没有缓存数据时加载推荐词条
 onMounted(() => {
-  refreshRandomEntries()
+  if (randomEntries.value.length === 0) {
+    refreshRandomEntries()
+  }
 })
 
 // SEO
