@@ -90,8 +90,9 @@ export function preprocessRows(rows) {
 /**
  * 解析词头和拼音字符串
  * 格式: "小意思:siu2 ji3 si1,小小意思:siu2 siu2 ji3 si1"
+ * 或: "哽:ang2:ngang2,𬒔:ang2:ngang2" (多个读音用冒号分隔)
  * @param {string} headwordsStr - 词头和拼音字符串
- * @returns {Array} [{headword, jyutping}, ...]
+ * @returns {Array} [{headword, jyutping: [...]}, ...]
  */
 function parseHeadwordsWithJyutping(headwordsStr) {
   if (!headwordsStr || !headwordsStr.trim()) {
@@ -102,13 +103,31 @@ function parseHeadwordsWithJyutping(headwordsStr) {
   const parts = headwordsStr.split(',').map(p => p.trim()).filter(p => p)
 
   parts.forEach(part => {
-    // 分离词头和拼音: "小意思:siu2 ji3 si1"
+    // 分离词头和拼音: "小意思:siu2 ji3 si1" 或 "哽:ang2:ngang2"
     const colonIndex = part.indexOf(':')
     if (colonIndex > 0) {
       const headword = part.substring(0, colonIndex).trim()
-      const jyutping = part.substring(colonIndex + 1).trim()
-      if (headword && jyutping) {
-        variants.push({ headword, jyutping })
+      const jyutpingStr = part.substring(colonIndex + 1).trim()
+      
+      if (headword && jyutpingStr) {
+        // 检查是否有多个读音（用冒号分隔，且每个部分都是单个音节）
+        // 例如: "ang2:ngang2" → ["ang2", "ngang2"]
+        // 但: "siu2 ji3 si1" → ["siu2 ji3 si1"] (包含空格的是完整读音)
+        const jyutpingParts = jyutpingStr.split(':').map(p => p.trim()).filter(p => p)
+        
+        // 如果有多个部分，且每个部分都不包含空格（单音节），则分开处理
+        if (jyutpingParts.length > 1 && jyutpingParts.every(p => !p.includes(' '))) {
+          variants.push({ 
+            headword, 
+            jyutping: jyutpingParts 
+          })
+        } else {
+          // 否则作为单个完整的读音
+          variants.push({ 
+            headword, 
+            jyutping: [jyutpingStr] 
+          })
+        }
       }
     }
   })
@@ -285,8 +304,17 @@ export function transformRow(row) {
     throw new Error('No valid senses found')
   }
 
-  // 3. 收集所有粤拼变体
-  const allJyutping = headwordVariants.map(v => v.jyutping)
+  // 3. 收集所有粤拼读音（展开所有变体的所有读音）
+  const allJyutping = []
+  headwordVariants.forEach(variant => {
+    if (Array.isArray(variant.jyutping)) {
+      allJyutping.push(...variant.jyutping)
+    } else {
+      allJyutping.push(variant.jyutping)
+    }
+  })
+  // 去重
+  const uniqueJyutping = [...new Set(allJyutping)]
 
   // 4. 检测词条类型
   const entryType = guessEntryType(headwordInfo.normalized)
@@ -307,8 +335,10 @@ export function transformRow(row) {
     },
     
     phonetic: {
-      original: primaryVariant.jyutping,
-      jyutping: allJyutping
+      original: Array.isArray(primaryVariant.jyutping) 
+        ? primaryVariant.jyutping[0] 
+        : primaryVariant.jyutping,
+      jyutping: uniqueJyutping
     },
     
     entry_type: entryType,
@@ -340,11 +370,20 @@ export function transformRow(row) {
   // 6. 生成搜索关键词
   entry.keywords = generateKeywords(entry)
   
-  // 7. 添加所有词头变体到关键词
+  // 7. 添加所有词头变体和读音到关键词
   headwordVariants.forEach(variant => {
     entry.keywords.push(variant.headword)
-    entry.keywords.push(variant.jyutping)
-    entry.keywords.push(variant.jyutping.replace(/\s+/g, ''))
+    
+    // 添加读音（可能是数组）
+    if (Array.isArray(variant.jyutping)) {
+      variant.jyutping.forEach(jp => {
+        entry.keywords.push(jp)
+        entry.keywords.push(jp.replace(/\s+/g, ''))
+      })
+    } else {
+      entry.keywords.push(variant.jyutping)
+      entry.keywords.push(variant.jyutping.replace(/\s+/g, ''))
+    }
   })
   
   // 去重

@@ -16,6 +16,13 @@
               □
             </span>
           </h3>
+          <!-- 异体字 -->
+          <p
+            v-if="entry.meta.headword_variants && entry.meta.headword_variants.length > 0"
+            class="text-sm text-gray-600 break-words"
+          >
+            异体字: {{ entry.meta.headword_variants.join('、') }}
+          </p>
           <!-- 如果显示词和标准词不同，显示标准词 -->
           <p
             v-if="entry.headword.display !== entry.headword.normalized"
@@ -126,7 +133,7 @@
                 <!-- 例句粤拼 -->
                 <p
                   v-if="example.jyutping"
-                  class="text-base text-gray-400 font-mono mt-1"
+                  class="text-sm text-blue-600 font-mono mt-1"
                 >
                   {{ example.jyutping }}
                 </p>
