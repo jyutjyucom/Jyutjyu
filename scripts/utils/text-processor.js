@@ -142,6 +142,34 @@ export function parseExamples(meanings) {
 }
 
 /**
+ * 判断文本是否具有例句的特征
+ * @param {string} text - 待判断的文本
+ * @returns {boolean} 是否具有例句特征
+ */
+function hasExampleCharacteristics(text) {
+  // 特征1: 包含波浪号（～）代指词头
+  if (text.includes('～') || text.includes('~')) {
+    return true
+  }
+  
+  // 特征2: 包含括号译文（表示这是一个用例）
+  // 但要排除纯粹的括号注释（整段都被括号包裹）
+  const hasParentheses = /[（(][^）)]+[）)]/.test(text)
+  const isOnlyParenthetical = /^[（(][^）)]+[）)]$/.test(text)
+  if (hasParentheses && !isOnlyParenthetical) {
+    return true
+  }
+  
+  // 特征3: 包含引号，表示引用的话语或用例
+  if (text.includes('「') || text.includes('」') || text.includes('"') || text.includes('"')) {
+    return true
+  }
+  
+  // 如果没有以上特征，可能只是释义的补充说明
+  return false
+}
+
+/**
  * 解析单个义项
  * @param {string} text - 包含释义和例句的文本
  * @returns {Object} { definition, examples }
@@ -186,11 +214,11 @@ function parseSingleSense(text) {
     // 第一段剩余部分可能包含例句
     const firstExample = firstSegment.substring(definitionEnd + 1).trim()
     if (firstExample) {
-      // 检查剩余部分是否只是括号注释（补充说明），而不是真正的例句
-      // 如果整个剩余部分是括号包裹的内容，则应该作为definition的一部分
+      // 判断剩余部分是释义的补充说明还是真正的例句
       const isOnlyParenthetical = /^[（(][^）)]+[）)]$/.test(firstExample)
+      const hasExampleFeatures = hasExampleCharacteristics(firstExample)
       
-      if (isOnlyParenthetical) {
+      if (isOnlyParenthetical || !hasExampleFeatures) {
         // 这是释义的补充说明，应该包含在definition中
         result.definition = firstSegment.substring(0, definitionEnd + 1).trim() + firstExample
       } else {
