@@ -224,12 +224,21 @@ function parseContent(content) {
           // 提取粤语例句
           const yueText = yueLine.replace(/^yue:/, '').trim()
           
+          // 跳过空例句或占位符 "X"
+          if (!yueText || yueText === 'X' || yueText.toLowerCase() === 'x') {
+            return
+          }
+          
           // 尝试匹配对应的英语翻译
           let translation = null
           if (engLines && engLines[index]) {
             translation = engLines[index].replace(/^eng:/, '').trim()
             // 移除首尾的引号
             translation = translation.replace(/^[""]|[""]$/g, '')
+            // 跳过占位符翻译
+            if (translation === 'X' || translation.toLowerCase() === 'x') {
+              translation = null
+            }
           }
 
           // 从粤语例句中分离出例句文本和拼音
