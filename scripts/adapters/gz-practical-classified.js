@@ -60,22 +60,27 @@ function parseHeadwordMarkers(words) {
     text = text.substring(1).trim()
   }
   
-  // 2. 解析括号内的异形词并生成所有组合
+  // 2. 检查并提取数字后缀标记（同形异义）- 在生成异形词之前处理
+  const numberMatch = text.match(/^(.+?)(\d+)(.*)$/)
+  if (numberMatch) {
+    // 暂存数字标记，然后从文本中移除
+    result.variantNumber = parseInt(numberMatch[2])
+    text = numberMatch[1] + numberMatch[3]  // 重组为：数字前的部分 + 数字后的部分
+  }
+  
+  // 3. 解析括号内的异形词并生成所有组合
   // 例如: "阿（亞）崩阿（亞）狗" → ["亞崩阿狗", "阿崩亞狗", "亞崩亞狗"]
   const variants = generateHeadwordVariants(text)
   
-  // 3. 主词头是移除所有括号内容后的结果
-  result.mainWord = text.replace(/[（(][^）)]+[）)]/g, '').trim()
+  // 4. 主词头是移除所有括号内容后的结果
+  // 同时移除括号前后的多余空格
+  result.mainWord = text
+    .replace(/\s*[（(][^）)]+[）)]\s*/g, '')  // 移除括号及其前后的空格
+    .replace(/\s+/g, '')  // 移除所有剩余空格
+    .trim()
   
-  // 4. 异形词是除了主词头之外的所有组合
+  // 5. 异形词是除了主词头之外的所有组合
   result.variants = variants.filter(v => v !== result.mainWord)
-  
-  // 5. 检查是否有数字后缀标记（同形异义）
-  const numberMatch = result.mainWord.match(/^(.+?)(\d+)$/)
-  if (numberMatch) {
-    result.mainWord = numberMatch[1]
-    result.variantNumber = parseInt(numberMatch[2])
-  }
   
   return result
 }
@@ -88,34 +93,14 @@ function parseHeadwordMarkers(words) {
  * 例如:
  * - "牛百頁（葉）" → ["牛百頁", "牛百葉"]
  * - "阿（亞）崩阿（亞）狗" → ["阿崩阿狗", "亞崩阿狗", "阿崩亞狗", "亞崩亞狗"]
+ * - "制（掣）" → ["制", "掣"]
+ * 
+ * 逻辑：
+ * 1. 括号表示异形写法：括号内的字可以替换括号前的最后一个非空白字符
+ * 2. 如果括号前没有非空白字符（如 "（掣）制"），则括号内容被忽略
  */
 function generateHeadwordVariants(text) {
   if (!text) return []
-  
-  // 查找所有括号及其位置
-  const parts = []
-  let currentPos = 0
-  const regex = /([^（(]*)[（(]([^）)]+)[）)]/g
-  let match
-  
-  while ((match = regex.exec(text)) !== null) {
-    const beforeBracket = match[1]
-    const insideBracket = match[2]
-    
-    parts.push({
-      before: beforeBracket,
-      options: [
-        beforeBracket.slice(-1), // 括号前的最后一个字（外部字）
-        insideBracket             // 括号内的字（异形词）
-      ],
-      position: match.index
-    })
-  }
-  
-  // 如果没有括号，直接返回原文
-  if (parts.length === 0) {
-    return [text]
-  }
   
   // 重新解析，按字符分段
   const segments = []
@@ -127,18 +112,33 @@ function generateHeadwordVariants(text) {
   while ((bracketMatch = bracketRegex.exec(text)) !== null) {
     // 添加括号前的文本
     const beforeText = text.substring(lastIndex, bracketMatch.index)
+    
     if (beforeText) {
-      // 括号前的内容，最后一个字是可替换的
-      if (beforeText.length > 1) {
-        segments.push({ type: 'fixed', text: beforeText.slice(0, -1) })
+      // 找到括号前最后一个非空白字符的位置
+      const trimmedBefore = beforeText.trimEnd()
+      
+      if (trimmedBefore.length > 0) {
+        // 有实际内容
+        if (trimmedBefore.length > 1) {
+          // 前面有固定部分
+          segments.push({ type: 'fixed', text: trimmedBefore.slice(0, -1) })
+        }
+        
+        // 最后一个字符是可替换的
+        segments.push({ 
+          type: 'variant', 
+          options: [
+            trimmedBefore.slice(-1),   // 外部字
+            bracketMatch[1]             // 括号内的字
+          ]
+        })
+      } else {
+        // 括号前只有空格，忽略括号内容
+        // 不添加任何 segment，括号内容被丢弃
       }
-      segments.push({ 
-        type: 'variant', 
-        options: [
-          beforeText.slice(-1),      // 外部字
-          bracketMatch[1]             // 括号内的字
-        ]
-      })
+    } else {
+      // 括号在开头，忽略括号内容
+      // 不添加任何 segment
     }
     
     lastIndex = bracketRegex.lastIndex
@@ -146,7 +146,17 @@ function generateHeadwordVariants(text) {
   
   // 添加最后剩余的文本
   if (lastIndex < text.length) {
-    segments.push({ type: 'fixed', text: text.substring(lastIndex) })
+    const remainingText = text.substring(lastIndex)
+    if (remainingText.trim()) {
+      segments.push({ type: 'fixed', text: remainingText })
+    }
+  }
+  
+  // 如果没有任何有效的 segment，返回原文（去除括号后的内容）
+  if (segments.length === 0) {
+    // 移除所有括号及其内容，返回剩余部分
+    const cleaned = text.replace(/[（(][^）)]*[）)]/g, '').trim()
+    return cleaned ? [cleaned] : []
   }
   
   // 生成所有组合
