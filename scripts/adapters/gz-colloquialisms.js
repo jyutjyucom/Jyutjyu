@@ -30,7 +30,13 @@ export const DICTIONARY_INFO = {
   source_book: '广州话俗语词典',
   author: '欧阳觉亚、周无忌、饶秉才',
   publisher: '广东人民出版社',
-  year: 2010
+  year: 2010,
+  version: new Date().toISOString().slice(0, 10),
+  description: '收录广州话歇后语、俗语、谚语等口语表达，附有详细释义和例句',
+  source: 'scanned_from_internet',
+  license: 'Copyrighted. For technical demonstration only.',
+  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+  attribution: '《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版'
 }
 
 /**

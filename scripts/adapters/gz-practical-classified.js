@@ -25,7 +25,13 @@ export const DICTIONARY_INFO = {
   source_book: '实用广州话分类词典',
   author: '麦耘、谭步云',
   publisher: '广东人民出版社',
-  year: 1997
+  year: 1997,
+  version: new Date().toISOString().slice(0, 10),
+  description: '按主题分类的实用广州话词典，收录日常生活各领域词汇',
+  source: 'scanned_from_internet',
+  license: 'Copyrighted. For technical demonstration only.',
+  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+  attribution: '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版'
 }
 
 /**
