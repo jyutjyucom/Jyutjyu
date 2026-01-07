@@ -1,8 +1,8 @@
-# Wiktionary 粤语词条使用指南
+# Wiktionary Cantonese使用指南
 
 ## 概述
 
-本项目已集成 Wiktionary 粤语词条数据，为用户提供开源、社区维护的粤语词典内容。
+本项目已集成 Wiktionary Cantonese数据，为用户提供开源、社区维护的粤语词典内容。
 
 ## 数据来源
 

@@ -158,6 +158,17 @@ async function main() {
     updateDictionaryIndex(adapter.DICTIONARY_INFO, finalEntries.length)
     console.log('✅ 索引更新成功')
 
+    // 9.5. 执行后处理（如自动分片）
+    if (adapter.postProcess && typeof adapter.postProcess === 'function') {
+      console.log('\n⏳ 执行后处理...')
+      try {
+        await adapter.postProcess(finalEntries, outputPath)
+      } catch (error) {
+        console.error('⚠️  后处理出错:', error.message)
+        console.log('⚠️  将继续完成数据生成流程')
+      }
+    }
+
     // 10. 输出统计
     console.log('\n' + '='.repeat(50))
     console.log('📊 转换统计:')
@@ -167,7 +178,12 @@ async function main() {
     console.log(`转换错误:      ${errors.length}`)
     console.log(`成功词条:      ${finalEntries.length}`)
     console.log(`输出文件:      ${outputPath}`)
-    console.log(`文件大小:      ${(fs.statSync(outputPath).size / 1024).toFixed(2)} KB`)
+    // 文件可能在后处理中被删除（分片后）
+    if (fs.existsSync(outputPath)) {
+      console.log(`文件大小:      ${(fs.statSync(outputPath).size / 1024).toFixed(2)} KB`)
+    } else {
+      console.log(`文件大小:      已分片 (完整文件已删除)`)
+    }
     console.log('='.repeat(50))
 
     console.log('\n✅ 转换完成！\n')
@@ -205,11 +221,24 @@ function updateDictionaryIndex(dictInfo, entryCount) {
     index.dictionaries.push(dictEntry)
   }
 
-  // 更新词条数
+  // 更新词条数和元信息
   dictEntry.entries_count = entryCount
   dictEntry.author = dictInfo.author
   dictEntry.publisher = dictInfo.publisher
   dictEntry.year = dictInfo.year
+  dictEntry.version = dictInfo.version
+  dictEntry.description = dictInfo.description
+  dictEntry.source = dictInfo.source
+  dictEntry.license = dictInfo.license
+  dictEntry.license_url = dictInfo.license_url
+  dictEntry.attribution = dictInfo.attribution
+  dictEntry.usage_restriction = dictInfo.usage_restriction
+
+  // 分片配置（如果启用）
+  if (dictInfo.enable_chunking) {
+    dictEntry.chunked = true
+    dictEntry.chunk_dir = dictInfo.chunk_output_dir || dictInfo.id
+  }
 
   // 更新时间戳
   index.last_updated = new Date().toISOString()

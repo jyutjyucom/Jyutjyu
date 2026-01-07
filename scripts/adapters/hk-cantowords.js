@@ -32,11 +32,16 @@ export const DICTIONARY_INFO = {
   author: 'words.hk contributors',
   publisher: 'Hong Kong Lexicography Limited',
   year: 2026,
+  version: new Date().toISOString().slice(0, 10),
+  description: '香港话社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义',
   source: 'community_contributed',
   license: 'Non-Commercial Open Data License 1.0',
   license_url: 'https://words.hk/base/hoifong/',
-  attribution: 'words.hk / Hong Kong Lexicography Limited',
-  usage_restriction: '非商业使用（详见授权协议）'
+  attribution: '粵典 (words.hk) / Hong Kong Lexicography Limited',
+  usage_restriction: '此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。详见授权协议。',
+  // 启用自动分片（大型词典优化）
+  enable_chunking: true,
+  chunk_output_dir: 'cantowords'
 }
 
 /**
@@ -470,5 +475,46 @@ export const FIELD_NOTES = {
   review_status: '审核状态，标记词条是否已经过审核',
   publish_status: '公开状态，标记词条是否公开',
   multiple_senses: '多个义项用 ---- 分隔'
+}
+
+/**
+ * 后处理：分片大词典
+ * @param {Array<Object>} entries - 词条数组
+ * @param {string} outputPath - 完整JSON输出路径
+ */
+export async function postProcess(entries, outputPath) {
+  // 词条数量超过阈值时才分片
+  const CHUNK_THRESHOLD = 10000
+  
+  if (entries.length < CHUNK_THRESHOLD) {
+    console.log(`ℹ️  词条数量 (${entries.length}) 未超过阈值 (${CHUNK_THRESHOLD})，跳过分片`)
+    return
+  }
+  
+  console.log(`\n🔧 检测到大型词典，启用自动分片...`)
+  console.log(`📊 词条总数: ${entries.length}`)
+  
+  const fs = await import('fs')
+  const path = await import('path')
+  
+  const outputDir = path.default.join('public', 'dictionaries', DICTIONARY_INFO.chunk_output_dir)
+  const fileSize = (fs.default.statSync(outputPath).size / 1024 / 1024).toFixed(2)
+  console.log(`📄 完整文件大小: ${fileSize} MB`)
+  console.log(`📁 分片输出目录: ${outputDir}`)
+  
+  // 动态导入分片脚本
+  const { splitDictionary } = await import('../split-dictionary.cjs')
+  
+  // 执行分片
+  await splitDictionary(outputPath, outputDir)
+  
+  console.log(`✅ 粵典数据分片完成！`)
+  console.log(`💡 前端将自动按需加载分片，大幅提升性能`)
+  
+  // 删除完整文件以节省空间
+  console.log(`\n🗑️  清理完整文件...`)
+  fs.default.unlinkSync(outputPath)
+  console.log(`✅ 已删除完整文件 (节省 ${fileSize} MB 磁盘空间)`)
+  console.log(`ℹ️  前端仅使用分片文件，完整文件已不再需要`)
 }
 

@@ -335,7 +335,7 @@ JSONL 转 JSON 工具
   - wiktionary-cantonese    Wiktionary粤语词条
 
 示例:
-  # 转换 Wiktionary 粤语词条
+  # 转换 Wiktionary Cantonese
   node scripts/jsonl-to-json.js \\
     --dict wiktionary-cantonese \\
     --input data/processed/wiktionary_cantonese_entries.jsonl

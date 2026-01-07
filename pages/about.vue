@@ -91,7 +91,75 @@
             </div>
           </div>
 
-          <!-- 社区词表 -->
+          <!-- 社区协作词典 -->
+          <div class="mb-8 border-l-4 border-green-400 pl-6 py-2 bg-green-50 rounded-r-lg">
+            <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+              🌐 社区协作词典
+            </h3>
+            <p class="text-gray-700 mb-4">
+              由开放社区协作编写的词典，采用开放授权协议。
+            </p>
+            
+            <!-- 粵典 -->
+            <div class="bg-white rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-gray-900 mb-2">📚 粵典 (words.hk) - 59,019 词条</h4>
+              <p class="text-sm text-gray-700 mb-3">
+                香港话社区词典，收录大量日常用语、俚语及现代词汇，提供粤语和英语双语释义。
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">📜 许可协议</h5>
+              <p class="text-sm text-gray-700 mb-3">
+                <a href="https://words.hk/base/hoifong/" class="text-blue-600 hover:underline font-medium" target="_blank">Non-Commercial Open Data License 1.0</a>（非商业开放资料授权协议）
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">✅ 允许的使用</h5>
+              <ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">
+                <li>非商业使用、复制、修改、发布</li>
+                <li>必须保留署名和版权告示</li>
+              </ul>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">⚠️ 商业使用</h5>
+              <p class="text-sm text-gray-700 mb-3">
+                需获得授权（收入低于地区中位数 3 倍的小型个人业务可豁免）
+              </p>
+              
+              <p class="text-xs text-gray-600">
+                版权持有人：Hong Kong Lexicography Limited（香港辞书有限公司）
+              </p>
+            </div>
+            
+            <!-- Wiktionary -->
+            <div class="bg-white rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-gray-900 mb-2">📖 Wiktionary Cantonese - 102,195 词条</h4>
+              <p class="text-sm text-gray-700 mb-3">
+                来自维基词典的粤语词条，由全球志愿者协作编写，内容丰富全面。
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">📜 许可协议</h5>
+              <p class="text-sm text-gray-700 mb-3">
+                <a href="https://creativecommons.org/licenses/by-sa/4.0/" class="text-blue-600 hover:underline font-medium" target="_blank">CC BY-SA 4.0</a>（知识共享 署名-相同方式共享 4.0 国际许可协议）
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">✅ 允许的使用</h5>
+              <ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">
+                <li><strong>商业使用</strong>：允许用于商业目的</li>
+                <li><strong>复制与分发</strong>：可以自由复制、分发、传播</li>
+                <li><strong>修改与演绎</strong>：可以修改、混合、转换或基于该作品创作</li>
+              </ul>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">📝 使用条件</h5>
+              <ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">
+                <li><strong>署名</strong>：必须给予适当的署名，提供指向许可协议的链接</li>
+                <li><strong>相同方式共享</strong>：如对本作品进行修改，必须以相同许可协议分发</li>
+              </ul>
+              
+              <p class="text-xs text-gray-600">
+                版权持有人：Wikimedia Foundation & Wiktionary contributors
+              </p>
+            </div>
+          </div>
+
+          <!-- 社区原创词表 -->
           <div class="mb-6 border-l-4 border-blue-400 pl-6 py-2 bg-blue-50 rounded-r-lg">
             <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
               ✍️ 社区原创词表

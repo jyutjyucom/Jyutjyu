@@ -1,5 +1,5 @@
 /**
- * Wiktionary 粤语词条数据适配器
+ * Wiktionary Cantonese数据适配器
  * 
  * 原始数据格式: JSONL (每行一个JSON对象)
  * 数据源: Wiktionary Chinese entries with Cantonese content

@@ -17,7 +17,7 @@
             </span>
             <!-- 同形异义标记 -->
             <sup
-              v-if="entry.meta.variant_number"
+              v-if="entry.meta?.variant_number"
               class="ml-1 text-sm text-gray-500"
             >
               {{ entry.meta.variant_number }}
@@ -25,7 +25,7 @@
           </h3>
           <!-- 异形词 -->
           <p
-            v-if="entry.meta.headword_variants && entry.meta.headword_variants.length > 0"
+            v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
             class="text-sm text-gray-600 break-words"
           >
             异形词: {{ entry.meta.headword_variants.join('、') }}
@@ -77,7 +77,7 @@
 
         <!-- 语域标签（口语、书面、俚语等） -->
         <span
-          v-if="entry.meta.register"
+          v-if="entry.meta?.register"
           class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm"
         >
           {{ entry.meta.register }}
@@ -85,7 +85,7 @@
 
         <!-- 分类（如果有） -->
         <span
-          v-if="entry.meta.category"
+          v-if="entry.meta?.category"
           class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
         >
           {{ entry.meta.category }}
@@ -167,24 +167,24 @@
 
       <!-- 备注 -->
       <div
-        v-if="entry.meta.notes"
+        v-if="entry.meta?.notes"
         class="mt-4 p-3 border-l-4 text-sm"
-        :class="entry.meta.note_type === 'proofreader' 
+        :class="entry.meta?.note_type === 'proofreader' 
           ? 'bg-blue-50 border-blue-400 text-gray-700' 
           : 'bg-yellow-50 border-yellow-400 text-gray-700'"
       >
         <span 
           class="font-semibold"
-          :class="entry.meta.note_type === 'proofreader' ? 'text-blue-700' : 'text-yellow-700'"
+          :class="entry.meta?.note_type === 'proofreader' ? 'text-blue-700' : 'text-yellow-700'"
         >
-          {{ entry.meta.note_type === 'proofreader' ? '校对者备注：' : '备注：' }}
+          {{ entry.meta?.note_type === 'proofreader' ? '校对者备注：' : '备注：' }}
         </span>
         {{ entry.meta.notes }}
       </div>
 
       <!-- 词源 -->
       <div
-        v-if="entry.meta.etymology"
+        v-if="entry.meta?.etymology"
         class="mt-4 p-3 border-l-4 bg-purple-50 border-purple-400 text-sm text-gray-700"
       >
         <span class="font-semibold text-purple-700">词源：</span>
@@ -250,7 +250,7 @@
         v-show="detailsExpanded"
         class="mt-3 text-sm text-gray-600 space-y-1"
       >
-        <p v-if="entry.meta.usage">
+        <p v-if="entry.meta?.usage">
           <span class="font-semibold">用法:</span> {{ entry.meta.usage }}
         </p>
       </div>
@@ -285,7 +285,7 @@ const entryTypeLabel = computed(() => {
 // 是否有额外信息（不包括词源和语域，因为它们已在顶部展示）
 const hasExtraInfo = computed(() => {
   return !!(
-    props.entry.meta.usage
+    props.entry.meta?.usage
   )
 })
 

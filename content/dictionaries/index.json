@@ -41,13 +41,15 @@
       "author": "words.hk contributors",
       "publisher": "Hong Kong Lexicography Limited",
       "year": 2026,
-      "version": "2026-01-06",
+      "version": "2026-01-07",
       "description": "香港话社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义",
       "source": "community_contributed",
       "license": "Non-Commercial Open Data License 1.0",
       "license_url": "https://words.hk/base/hoifong/",
       "usage_restriction": "此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。详见授权协议。",
-      "attribution": "粵典 (words.hk) / Hong Kong Lexicography Limited"
+      "attribution": "粵典 (words.hk) / Hong Kong Lexicography Limited",
+      "chunked": true,
+      "chunk_dir": "cantowords"
     },
     {
       "id": "wiktionary-cantonese",
@@ -67,6 +69,6 @@
       "chunk_dir": "wiktionary"
     }
   ],
-  "last_updated": "2026-01-07T07:03:12.602Z",
+  "last_updated": "2026-01-07T08:00:01.941Z",
   "schema_version": "1.0.0"
 }

@@ -27,11 +27,12 @@
 - ⏳ **Phase 2**: 数据导入 (大规模数据)
 - ⏳ **Phase 3**: 高级搜索 (全文检索、权重排序)
 
-### 首批收录词典
+### 收录词典
 
-- ✅ 实用广州话分类词典（7,530 词条）
-- ✅ 广州话俗语词典（2,524 词条，含歇后语）
-- ✅ 粵典 words.hk（42万+ 词条，社区协作）
+- ✅ **实用广州话分类词典**（7,530 词条）
+- ✅ **广州话俗语词典**（2,516 词条，含歇后语）
+- ✅ **粵典 (words.hk)**（59,019 词条，社区协作）
+- ✅ **Wiktionary Cantonese**（102,195 词条，社区协作）
 - 🔜 更多词典陆续上架...
 
 ## 📜 内容授权说明
@@ -49,13 +50,26 @@
 
 ### ✍️ 社区协作词典
 
-**粵典 (words.hk)** - 采用 [Non-Commercial Open Data License 1.0](https://words.hk/base/hoifong/)（非商业开放资料授权协议）
+#### 粵典 (words.hk)
+
+采用 [Non-Commercial Open Data License 1.0](https://words.hk/base/hoifong/)（非商业开放资料授权协议）
 
 - **版权持有人**: Hong Kong Lexicography Limited（香港辞书有限公司）
 - ✅ 允许非商业使用、复制、修改、发布
 - ✅ 必须保留署名和版权告示
 - ⚠️ 商业使用需获授权（收入低于地区中位数 3 倍的小型个人业务可豁免）
 - 📄 详见：https://words.hk/base/hoifong/
+
+#### Wiktionary Cantonese
+
+采用 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)（知识共享 署名-相同方式共享 4.0 国际许可协议）
+
+- **版权持有人**: Wikimedia Foundation & Wiktionary contributors
+- ✅ 允许复制、分发、传播、修改和创作演绎作品
+- ✅ 允许商业使用
+- ✅ 必须给予适当的署名
+- ✅ 如对本作品进行修改，必须以相同许可协议分发
+- 📄 详见：https://creativecommons.org/licenses/by-sa/4.0/
 
 ### ✍️ 社区原创词表
 

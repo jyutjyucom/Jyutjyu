@@ -52,14 +52,15 @@
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center py-16">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="text-gray-600 mt-4">搜索中...</p>
-      </div>
+      <ClientOnly>
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-16">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p class="text-gray-600 mt-4">搜索中...</p>
+        </div>
 
-      <!-- Results Info -->
-      <div v-else-if="actualSearchQuery" class="mb-6">
+        <!-- Results Info -->
+        <div v-else-if="actualSearchQuery" class="mb-6">
         <h2 class="text-2xl font-semibold text-gray-900">
           {{ enableReverseSearch ? '反查' : '搜索' }}结果: "{{ actualSearchQuery }}"
         </h2>
@@ -247,6 +248,7 @@
           </button>
         </div>
       </div>
+      </ClientOnly>
     </main>
 
     <!-- Footer -->

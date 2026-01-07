@@ -14,7 +14,15 @@ interface ChunkCache {
   [initial: string]: DictionaryEntry[]
 }
 const chunkCache: ChunkCache = {}
-let chunkManifest: any = null
+
+// 分片 manifest 缓存（支持多个分片词典）
+interface ManifestCache {
+  [dictId: string]: any
+}
+const chunkManifests: ManifestCache = {}
+
+// 分片词典列表缓存
+let chunkedDictionaries: Array<{id: string, chunk_dir: string}> | null = null
 
 // 搜索索引结构
 interface SearchIndex {
@@ -55,21 +63,52 @@ export const useDictionary = () => {
   /**
    * 加载分片 manifest
    */
-  const loadChunkManifest = async (dictId: string): Promise<any> => {
+  const loadChunkManifest = async (chunkDir: string): Promise<any> => {
     // 只在客户端运行
     if (!process.client) {
       return null
     }
     
+    // 检查缓存
+    if (chunkManifests[chunkDir]) {
+      return chunkManifests[chunkDir]
+    }
+    
     try {
-      const response = await fetch(`/dictionaries/${dictId}/manifest.json`)
+      const response = await fetch(`/dictionaries/${chunkDir}/manifest.json`)
       if (response.ok) {
-        return await response.json()
+        const manifest = await response.json()
+        chunkManifests[chunkDir] = manifest
+        return manifest
       }
     } catch (error) {
-      console.error(`加载 ${dictId} manifest 失败:`, error)
+      console.error(`加载 ${chunkDir} manifest 失败:`, error)
     }
     return null
+  }
+
+  /**
+   * 获取所有分片词典的配置
+   */
+  const getChunkedDictionaries = async (): Promise<Array<{id: string, chunk_dir: string}>> => {
+    if (chunkedDictionaries) {
+      return chunkedDictionaries
+    }
+    
+    try {
+      const response = await fetch('/dictionaries/index.json')
+      if (response.ok) {
+        const indexData = await response.json()
+        const result = (indexData.dictionaries || [])
+          .filter((d: any) => d.chunked && d.chunk_dir)
+          .map((d: any) => ({ id: d.id, chunk_dir: d.chunk_dir }))
+        chunkedDictionaries = result
+        return result
+      }
+    } catch (error) {
+      console.error('获取分片词典列表失败:', error)
+    }
+    return []
   }
 
   /**
@@ -78,6 +117,7 @@ export const useDictionary = () => {
    * 策略说明：
    * - 分片按粤拼首字母存储（如"明"的粤拼 ming4，存在 m.json）
    * - 汉字查询使用 manifest.headwordIndex 映射到对应分片
+   * - 支持简繁体自动匹配：同时查找简体和繁体对应的分片
    * - 拼音/英文查询按首字母精确匹配分片
    */
   const getRequiredChunks = (query: string, manifest: any): string[] => {
@@ -95,12 +135,26 @@ export const useDictionary = () => {
     
     if (isChineseFirstChar) {
       // 汉字查询：使用 headwordIndex 查找对应的分片
-      if (manifest.headwordIndex && manifest.headwordIndex[firstChar]) {
-        manifest.headwordIndex[firstChar].forEach((initial: string) => {
-          chunks.add(initial)
+      // 同时考虑简繁体变体以支持跨简繁体搜索
+      const { toSimplified, toTraditional } = useChineseConverter()
+      
+      const firstCharVariants = [
+        firstChar,
+        toSimplified(firstChar),
+        toTraditional(firstChar)
+      ].filter((v, i, arr) => arr.indexOf(v) === i) // 去重
+      
+      if (manifest.headwordIndex) {
+        firstCharVariants.forEach(variant => {
+          if (manifest.headwordIndex[variant]) {
+            manifest.headwordIndex[variant].forEach((initial: string) => {
+              chunks.add(initial)
+            })
+          }
         })
       }
-      // 如果 headwordIndex 中没有这个字，返回空（不会有匹配结果）
+      
+      // 如果找到了分片，返回；否则返回空
       return Array.from(chunks)
     }
     
@@ -168,8 +222,8 @@ export const useDictionary = () => {
         await Promise.all(
           dictionaries.map(async (dict: any) => {
             try {
-              // 检查是否为分片词典（wiktionary）
-              if (dict.id === 'wiktionary-cantonese') {
+              // 检查是否为分片词典（chunked: true）
+              if (dict.chunked) {
                 // 分片词典：不在这里加载，而是在搜索时按需加载
                 console.log(`⏭️ 跳过分片词典: ${dict.id} (按需加载)`)
                 return
@@ -530,54 +584,65 @@ export const useDictionary = () => {
         sortAndPush([...allResultsWithPriority], false)
       }
       
-      // 2. 加载 wiktionary 分片数据
-      if (!chunkManifest) {
-        chunkManifest = await loadChunkManifest('wiktionary')
-      }
+      // 2. 加载所有分片词典的数据
+      const chunkedDicts = await getChunkedDictionaries()
       
-      if (chunkManifest) {
-        // 确定需要加载的分片
-        const requiredChunks = getRequiredChunks(normalizedQuery, chunkManifest)
+      for (const { chunk_dir } of chunkedDicts) {
+        const manifest = await loadChunkManifest(chunk_dir)
         
-        if (requiredChunks.length > 0) {
-          // 逐个分片加载并搜索，流式返回结果
-          for (const chunk of requiredChunks) {
-            const chunkKey = `wiktionary_${chunk}`
-            let chunkEntries: DictionaryEntry[] = []
-            
-            // 检查缓存
-            if (chunkCache[chunkKey]) {
-              chunkEntries = chunkCache[chunkKey]
-            } else {
-              try {
-                const response = await fetch(`/dictionaries/wiktionary/${chunk}.json`)
-                if (response.ok) {
-                  const data = await response.json()
-                  if (Array.isArray(data)) {
-                    chunkCache[chunkKey] = data
-                    chunkEntries = data
-                    // 构建索引
-                    buildSearchIndex(data)
+        if (manifest) {
+          // 确定需要加载的分片
+          let requiredChunks: string[]
+          
+          // 反查模式下，对于 cantowords 需要加载所有分片（因为释义可能分布在任何分片）
+          // wiktionary 数据量大，仍使用优化的分片策略
+          if (searchDefinition && chunk_dir === 'cantowords') {
+            requiredChunks = Object.keys(manifest.chunks)
+            console.log(`🔍 反查模式：加载 ${chunk_dir} 所有分片 (${requiredChunks.length} 个)`)
+          } else {
+            requiredChunks = getRequiredChunks(normalizedQuery, manifest)
+          }
+          
+          if (requiredChunks.length > 0) {
+            // 逐个分片加载并搜索，流式返回结果
+            for (const chunk of requiredChunks) {
+              const chunkKey = `${chunk_dir}_${chunk}`
+              let chunkEntries: DictionaryEntry[] = []
+              
+              // 检查缓存
+              if (chunkCache[chunkKey]) {
+                chunkEntries = chunkCache[chunkKey]
+              } else {
+                try {
+                  const response = await fetch(`/dictionaries/${chunk_dir}/${chunk}.json`)
+                  if (response.ok) {
+                    const data = await response.json()
+                    if (Array.isArray(data)) {
+                      chunkCache[chunkKey] = data
+                      chunkEntries = data
+                      // 构建索引
+                      buildSearchIndex(data)
+                    }
                   }
+                } catch (error) {
+                  console.error(`加载分片失败 ${chunk_dir}/${chunk}.json:`, error)
                 }
-              } catch (error) {
-                console.error(`加载分片失败 wiktionary/${chunk}.json:`, error)
               }
-            }
-            
-            // 处理当前分片
-            let hasNewResults = false
-            for (const entry of chunkEntries) {
-              const result = processEntry(entry)
-              if (result) {
-                allResultsWithPriority.push({ entry, ...result })
-                hasNewResults = true
+              
+              // 处理当前分片
+              let hasNewResults = false
+              for (const entry of chunkEntries) {
+                const result = processEntry(entry)
+                if (result) {
+                  allResultsWithPriority.push({ entry, ...result })
+                  hasNewResults = true
+                }
               }
-            }
-            
-            // 如果有新结果，推送更新
-            if (onResults && hasNewResults) {
-              sortAndPush([...allResultsWithPriority], false)
+              
+              // 如果有新结果，推送更新
+              if (onResults && hasNewResults) {
+                sortAndPush([...allResultsWithPriority], false)
+              }
             }
           }
         }
