@@ -48,6 +48,97 @@
           </label>
         </div>
       </div>
+      
+      <!-- 筛选栏 -->
+      <div v-if="actualSearchQuery && allResults.length > 0" class="border-t border-gray-100 bg-gray-50/80">
+        <div class="container mx-auto px-4 py-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="text-sm text-gray-500 font-medium">筛选:</span>
+            
+            <!-- 词典筛选 -->
+            <div class="relative">
+              <button
+                class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors"
+                :class="selectedDict ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                @click="showDictDropdown = !showDictDropdown"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span>{{ selectedDict || '全部词典' }}</span>
+                <svg class="w-4 h-4" :class="showDictDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <!-- 下拉菜单 -->
+              <div
+                v-if="showDictDropdown"
+                class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 min-w-[180px]"
+              >
+                <button
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="!selectedDict ? 'text-blue-600 bg-blue-50' : 'text-gray-700'"
+                  @click="selectDict(null)"
+                >
+                  全部词典
+                </button>
+                <button
+                  v-for="dict in availableDicts"
+                  :key="dict"
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="selectedDict === dict ? 'text-blue-600 bg-blue-50' : 'text-gray-700'"
+                  @click="selectDict(dict)"
+                >
+                  {{ dict }}
+                  <span class="text-gray-400 text-xs ml-1">({{ getDictCount(dict) }})</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- 方言点筛选 -->
+            <div class="relative">
+              <button
+                class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors"
+                :class="selectedDialect ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                @click="showDialectDropdown = !showDialectDropdown"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>{{ selectedDialect || '全部方言' }}</span>
+                <svg class="w-4 h-4" :class="showDialectDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <!-- 下拉菜单 -->
+              <div
+                v-if="showDialectDropdown"
+                class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 min-w-[140px]"
+              >
+                <button
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="!selectedDialect ? 'text-green-600 bg-green-50' : 'text-gray-700'"
+                  @click="selectDialect(null)"
+                >
+                  全部方言
+                </button>
+                <button
+                  v-for="dialect in availableDialects"
+                  :key="dialect"
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="selectedDialect === dialect ? 'text-green-600 bg-green-50' : 'text-gray-700'"
+                  @click="selectDialect(dialect)"
+                >
+                  {{ dialect }}
+                  <span class="text-gray-400 text-xs ml-1">({{ getDialectCount(dialect) }})</span>
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Main Content -->
@@ -64,16 +155,34 @@
         <h2 class="text-2xl font-semibold text-gray-900">
           {{ enableReverseSearch ? '反查' : '搜索' }}结果: "{{ actualSearchQuery }}"
         </h2>
-        <p class="text-gray-600 mt-2">
-          <span v-if="enableReverseSearch" class="text-blue-500 text-sm mr-2">从释义中搜索</span>
-          找到 <span class="font-semibold">{{ totalCount }}</span> 个结果
+        <p class="text-gray-600 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span v-if="enableReverseSearch" class="text-blue-500 text-sm">从释义中搜索</span>
+          <span>
+            找到 <span class="font-semibold">{{ allResults.length }}</span> 个结果
+          </span>
+          <!-- 筛选状态 -->
+          <template v-if="selectedDict || selectedDialect">
+            <span class="text-gray-400">→</span>
+            <span class="text-blue-600">
+              筛选后 <span class="font-semibold">{{ filteredResults.length }}</span> 条
+            </span>
+            <button
+              class="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              @click="clearFilters"
+            >
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              清除
+            </button>
+          </template>
           <span v-if="!isSearchComplete" class="text-sm text-blue-500">
             <span class="inline-block animate-pulse">搜索中...</span>
           </span>
-          <span v-else-if="searchTime > 0" class="text-sm">
-            (耗时 {{ searchTime }}ms)
+          <span v-else-if="searchTime > 0" class="text-sm text-gray-400">
+            ({{ searchTime }}ms)
           </span>
-          <span v-if="totalCount > PAGE_SIZE" class="text-sm">
+          <span v-if="totalCount > PAGE_SIZE" class="text-sm text-gray-400">
             · 显示前 {{ displayedResults.length }} 条
           </span>
         </p>
@@ -297,6 +406,12 @@ const expandedRow = ref<string | null>(null)
 const enableReverseSearch = ref(route.query.reverse === '1') // 从 URL 读取反查状态
 const isSearchComplete = ref(true) // 搜索是否完成（流式搜索中用）
 
+// 筛选相关状态
+const selectedDict = ref<string | null>(null) // 选中的词典
+const selectedDialect = ref<string | null>(null) // 选中的方言点
+const showDictDropdown = ref(false) // 词典下拉菜单显示状态
+const showDialectDropdown = ref(false) // 方言下拉菜单显示状态
+
 // 分页配置
 const PAGE_SIZE = 10 // 每页显示10条
 const currentPage = ref(1)
@@ -304,10 +419,83 @@ const currentPage = ref(1)
 // 示例搜索
 const exampleSearches = ['我哋', '你哋', '佢', 'dei6', 'ngo5 dei6']
 
-// 计算属性
-const totalPages = computed(() => Math.ceil(allResults.value.length / PAGE_SIZE))
+// 筛选函数
+const selectDict = (dict: string | null) => {
+  selectedDict.value = dict
+  showDictDropdown.value = false
+  currentPage.value = 1
+  updateDisplayedResults()
+}
+
+const selectDialect = (dialect: string | null) => {
+  selectedDialect.value = dialect
+  showDialectDropdown.value = false
+  currentPage.value = 1
+  updateDisplayedResults()
+}
+
+const clearFilters = () => {
+  selectedDict.value = null
+  selectedDialect.value = null
+  currentPage.value = 1
+  updateDisplayedResults()
+}
+
+// 更新显示结果（基于筛选）
+const updateDisplayedResults = () => {
+  displayedResults.value = filteredResults.value.slice(0, currentPage.value * PAGE_SIZE)
+}
+
+// 计算属性：从搜索结果中提取可用的词典和方言点
+const availableDicts = computed(() => {
+  const dicts = new Set<string>()
+  allResults.value.forEach(entry => {
+    if (entry.source_book) dicts.add(entry.source_book)
+  })
+  return Array.from(dicts).sort()
+})
+
+const availableDialects = computed(() => {
+  const dialects = new Set<string>()
+  allResults.value.forEach(entry => {
+    if (entry.dialect?.name) dialects.add(entry.dialect.name)
+  })
+  return Array.from(dialects).sort()
+})
+
+// 筛选后的结果
+const filteredResults = computed(() => {
+  let results = allResults.value
+  if (selectedDict.value) {
+    results = results.filter(e => e.source_book === selectedDict.value)
+  }
+  if (selectedDialect.value) {
+    results = results.filter(e => e.dialect?.name === selectedDialect.value)
+  }
+  return results
+})
+
+// 计算各筛选项的数量
+const getDictCount = (dict: string): number => {
+  let results = allResults.value
+  if (selectedDialect.value) {
+    results = results.filter(e => e.dialect?.name === selectedDialect.value)
+  }
+  return results.filter(e => e.source_book === dict).length
+}
+
+const getDialectCount = (dialect: string): number => {
+  let results = allResults.value
+  if (selectedDict.value) {
+    results = results.filter(e => e.source_book === selectedDict.value)
+  }
+  return results.filter(e => e.dialect?.name === dialect).length
+}
+
+// 基于筛选结果的分页
+const totalPages = computed(() => Math.ceil(filteredResults.value.length / PAGE_SIZE))
 const hasMore = computed(() => currentPage.value < totalPages.value)
-const totalCount = computed(() => allResults.value.length)
+const totalCount = computed(() => filteredResults.value.length)
 
 // 执行搜索
 const performSearch = async (query: string) => {
@@ -323,6 +511,10 @@ const performSearch = async (query: string) => {
   // 更新实际搜索的查询词
   actualSearchQuery.value = query.trim()
   
+  // 重置筛选状态
+  selectedDict.value = null
+  selectedDialect.value = null
+  
   loading.value = true
   isSearchComplete.value = false
   searchTime.value = 0
@@ -337,7 +529,8 @@ const performSearch = async (query: string) => {
       onResults: (entries, complete) => {
         // 更新结果
         allResults.value = entries
-        // 重新计算显示的结果（保持当前页数）
+        // 重新计算显示的结果（保持当前页数，使用筛选后的结果）
+        // 新搜索时筛选已重置，所以 filteredResults 等于 allResults
         displayedResults.value = entries.slice(0, currentPage.value * PAGE_SIZE)
         
         // 首次收到结果时关闭 loading
@@ -373,9 +566,8 @@ const loadMore = () => {
   
   setTimeout(() => {
     currentPage.value++
-    const startIndex = 0
     const endIndex = currentPage.value * PAGE_SIZE
-    displayedResults.value = allResults.value.slice(startIndex, endIndex)
+    displayedResults.value = filteredResults.value.slice(0, endIndex)
     loadingMore.value = false
   }, 100) // 小延迟以显示加载状态
 }
@@ -449,12 +641,14 @@ watch(enableReverseSearch, (newValue) => {
   }
 })
 
-// 点击外部关闭建议
+// 点击外部关闭建议和筛选下拉菜单
 onMounted(() => {
   const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target.closest('.relative')) {
       showSuggestions.value = false
+      showDictDropdown.value = false
+      showDialectDropdown.value = false
     }
   }
   document.addEventListener('click', handleClickOutside)
