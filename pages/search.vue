@@ -389,7 +389,12 @@ import type { DictionaryEntry } from '~/types/dictionary'
 
 const route = useRoute()
 const router = useRouter()
-const { searchBasic, getSuggestions } = useDictionary()
+const { searchBasic, getSuggestions, getMode } = useSearch()
+
+// 开发时显示当前模式
+if (process.dev) {
+  console.log(`🔍 搜索模式: ${getMode()}`)
+}
 
 // 状态
 const searchQuery = ref(route.query.q as string || '') // 输入框中的查询词

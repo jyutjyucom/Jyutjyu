@@ -64,10 +64,17 @@ export default defineNuxtConfig({
 
   // 运行时配置
   runtimeConfig: {
+    // 服务端私有配置（从环境变量读取）
+    mongodbUri: process.env.MONGODB_URI,
+    mongodbDbName: process.env.MONGODB_DB_NAME || 'jyutjyu',
+    
+    // 客户端公开配置
     public: {
       siteUrl: 'https://jyutjyu.com',
       siteName: '粤语辞丛',
-      siteDescription: '开放的粤语词典聚合平台'
+      siteDescription: '开放的粤语词典聚合平台',
+      // 是否使用后端 API（false 时回退到静态 JSON）
+      useApi: process.env.NUXT_PUBLIC_USE_API === 'true'
     }
   },
 

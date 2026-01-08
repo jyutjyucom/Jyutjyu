@@ -24,11 +24,14 @@
     "validate:gzpc": "node scripts/validate.js data/processed/gz-practical.csv",
     "validate:gzcl": "node scripts/validate.js data/processed/gz-colloquialisms.csv",
     "validate:hk": "node scripts/validate.js data/processed/hk-cantowords.csv",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "db:import": "node scripts/import-to-mongodb.js"
   },
   "dependencies": {
     "@nuxt/content": "^2.13.2",
+    "mongodb": "^6.12.0",
     "nuxt": "^3.13.2",
+    "opencc-js": "^1.0.5",
     "vue": "^3.5.12"
   },
   "devDependencies": {
@@ -36,7 +39,6 @@
     "@types/node": "^22.9.0",
     "eslint": "^9.14.0",
     "minisearch": "^7.1.0",
-    "opencc-js": "^1.0.5",
     "papaparse": "^5.4.1",
     "typescript": "^5.6.3",
     "vue-tsc": "^3.2.1"

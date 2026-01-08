@@ -406,7 +406,7 @@ const mobileIndex = useState<number>('home-mobile-index', () => 0)
 const dictionaryStartIndex = ref(0)
 const mobileDictionaryIndex = ref(0)
 
-const { getRandomRecommendedEntries } = useDictionary()
+const { getRandomRecommendedEntries } = useSearch()
 
 // 计算总词条数
 const totalEntriesCount = computed(() => {
