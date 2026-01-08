@@ -80,6 +80,8 @@ export default defineNuxtConfig({
 
   // Nitro 配置（服务端）
   nitro: {
+    // Vercel 部署时自动检测，但显式指定更可靠
+    preset: 'vercel',
     prerender: {
       crawlLinks: true,
       routes: ['/']

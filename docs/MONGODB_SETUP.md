@@ -26,10 +26,19 @@
 
 ### 配置网络访问
 
+由于 Vercel Serverless Functions 使用动态 IP，需要允许所有 IP 访问：
+
 1. 左侧菜单 → **Network Access**
 2. 点击 **Add IP Address**
-3. 选择 **Allow Access from Anywhere**（或添加 Vercel IP）
-4. 点击 **Confirm**
+3. 点击 **ALLOW ACCESS FROM ANYWHERE**（会自动填入 `0.0.0.0/0`）
+4. Comment 填写：`Vercel Serverless (all IPs)`
+5. 点击 **Confirm**
+
+> ⚠️ **安全说明**：虽然允许所有 IP，但连接仍需要用户名+密码认证，且使用 TLS 加密。确保使用强密码（16+ 位）。
+
+**本地开发时**，也可以单独添加你的 IP：
+1. 点击 **Add Current IP Address** 添加本机 IP
+2. 这样本地开发和生产环境都能访问
 
 ## 3. 获取连接字符串
 

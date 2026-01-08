@@ -52,7 +52,8 @@ export const useDictionaryAPI = () => {
    * 检查是否启用 API 模式
    */
   const isAPIEnabled = () => {
-    return config.public.useApi === true
+    // 环境变量可能是字符串 'true' 或布尔值 true
+    return config.public.useApi === true || config.public.useApi === 'true'
   }
 
   /**
