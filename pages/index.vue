@@ -159,53 +159,173 @@
       </div>
 
       <!-- Dictionary Status -->
-      <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
-        <h3 class="text-2xl font-semibold mb-6 text-center">收录词典</h3>
-        <div v-if="dictionariesData" class="space-y-4">
-          <div 
-            v-for="dict in dictionariesData.dictionaries" 
+      <div class="max-w-5xl mx-auto mb-16">
+        <div class="flex flex-col items-center mb-6">
+          <div class="flex justify-between items-center w-full mb-2">
+            <h3 class="text-2xl font-semibold">收录词典</h3>
+            <div class="flex items-center gap-4">
+              <!-- Navigation buttons for desktop -->
+              <div class="hidden md:flex items-center gap-2">
+                <button
+                  @click="prevDictionary"
+                  :disabled="dictionaryStartIndex === 0"
+                  class="p-2 rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="上一组词典"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  @click="nextDictionary"
+                  :disabled="dictionaryStartIndex + 3 >= (dictionariesData?.dictionaries.length || 0)"
+                  class="p-2 rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="下一组词典"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="text-sm text-gray-600">
+            共收录 <span class="text-blue-600 font-semibold text-lg">{{ totalEntriesCount.toLocaleString() }}</span> 条词条
+          </p>
+        </div>
+
+        <!-- Desktop: 3 cards in grid -->
+        <div v-if="dictionariesData" class="hidden md:grid md:grid-cols-3 gap-6">
+          <div
+            v-for="dict in visibleDictionaries"
             :key="dict.id"
-            class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+            class="bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all p-6"
           >
-            <div class="flex items-start justify-between mb-2">
-              <div class="flex-1">
-                <h4 class="font-semibold text-lg">{{ dict.name }}</h4>
-                <p class="text-sm text-gray-600">
-                  {{ dict.author }} · {{ dict.publisher }} · {{ dict.year }}
+            <div class="flex flex-col h-full">
+              <div class="mb-3">
+                <h4 class="text-xl font-bold text-gray-900 mb-2">
+                  {{ dict.name }}
+                </h4>
+                <p class="text-sm text-gray-600 mb-1">
+                  {{ dict.author }}
                 </p>
-                <p v-if="dict.description" class="text-xs text-gray-500 mt-1">
-                  {{ dict.description }}
+                <p class="text-xs text-gray-500">
+                  {{ dict.publisher }} · {{ dict.year }}
                 </p>
               </div>
-              <span 
-                :class="{
-                  'bg-green-100 text-green-800': dict.entries_count > 0,
-                  'bg-yellow-100 text-yellow-800': dict.entries_count === 0
-                }"
-                class="px-3 py-1 rounded-full text-sm whitespace-nowrap ml-4"
-              >
-                {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()} 条` : '整理中' }}
-              </span>
-            </div>
-            
-            <!-- 授权信息 -->
-            <div v-if="dict.license" class="mt-3 pt-3 border-t border-gray-100">
-              <div class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div class="flex-1">
-                  <p class="text-xs text-gray-600">
-                    <span class="font-medium">许可:</span> {{ dict.license }}
-                  </p>
-                  <p v-if="dict.usage_restriction" class="text-xs text-gray-500 mt-1">
-                    {{ dict.usage_restriction }}
-                  </p>
+              <p v-if="dict.description" class="text-gray-700 text-sm line-clamp-2 flex-1 mb-3">
+                {{ dict.description }}
+              </p>
+              <div class="mt-auto">
+                <span 
+                  :class="{
+                    'bg-green-100 text-green-800': dict.entries_count > 0,
+                    'bg-yellow-100 text-yellow-800': dict.entries_count === 0
+                  }"
+                  class="inline-block px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()} 条` : '整理中' }}
+                </span>
+              </div>
+              
+              <!-- 授权信息 -->
+              <div v-if="dict.license" class="mt-3 pt-3 border-t border-gray-100">
+                <div class="flex items-start gap-2">
+                  <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div class="flex-1">
+                    <p class="text-xs text-gray-600">
+                      <span class="font-medium">许可:</span> {{ dict.license }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Mobile: 1 card with navigation -->
+        <div v-if="dictionariesData" class="md:hidden">
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+              <div class="flex flex-col">
+                <div class="mb-3">
+                  <h4 class="text-xl font-bold text-gray-900 mb-2">
+                    {{ mobileDictionary.name }}
+                  </h4>
+                  <p class="text-sm text-gray-600 mb-1">
+                    {{ mobileDictionary.author }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    {{ mobileDictionary.publisher }} · {{ mobileDictionary.year }}
+                  </p>
+                </div>
+                <p v-if="mobileDictionary.description" class="text-gray-700 text-sm mb-3">
+                  {{ mobileDictionary.description }}
+                </p>
+                <div>
+                  <span 
+                    :class="{
+                      'bg-green-100 text-green-800': mobileDictionary.entries_count > 0,
+                      'bg-yellow-100 text-yellow-800': mobileDictionary.entries_count === 0
+                    }"
+                    class="inline-block px-3 py-1 rounded-full text-sm font-medium"
+                  >
+                    {{ mobileDictionary.entries_count > 0 ? `${mobileDictionary.entries_count.toLocaleString()} 条` : '整理中' }}
+                  </span>
+                </div>
+                
+                <!-- 授权信息 -->
+                <div v-if="mobileDictionary.license" class="mt-3 pt-3 border-t border-gray-100">
+                  <div class="flex items-start gap-2">
+                    <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-xs text-gray-600">
+                        <span class="font-medium">许可:</span> {{ mobileDictionary.license }}
+                      </p>
+                      <p v-if="mobileDictionary.usage_restriction" class="text-xs text-gray-500 mt-1">
+                        {{ mobileDictionary.usage_restriction }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Bottom bar - clickable to go next -->
+            <div class="border-t-2 border-gray-200">
+              <button
+                @click="nextMobileDictionary"
+                class="w-full px-6 py-4 flex justify-center items-center hover:bg-blue-50 active:bg-blue-100 transition-colors"
+              >
+                <span class="text-blue-600 font-medium flex items-center gap-1 text-sm">
+                  下一个
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Indicators -->
+          <div class="mt-4 text-center">
+            <div class="flex justify-center gap-2">
+              <button
+                v-for="(_, idx) in dictionariesData.dictionaries"
+                :key="idx"
+                @click="mobileDictionaryIndex = idx"
+                class="w-2 h-2 rounded-full transition-all"
+                :class="idx === mobileDictionaryIndex ? 'bg-blue-600 w-6' : 'bg-gray-300 hover:bg-gray-400'"
+                :aria-label="`切换到第 ${idx + 1} 个词典`"
+              />
+            </div>
+          </div>
+        </div>
+
         <div class="mt-6 text-center">
           <p class="text-gray-500 text-sm mb-3">更多词典陆续上架...</p>
           <NuxtLink 
@@ -282,7 +402,41 @@ const dictionariesData = ref(dictionariesIndex)
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
 const mobileIndex = useState<number>('home-mobile-index', () => 0)
 
+// 词典切换相关状态
+const dictionaryStartIndex = ref(0)
+const mobileDictionaryIndex = ref(0)
+
 const { getRandomRecommendedEntries } = useDictionary()
+
+// 计算总词条数
+const totalEntriesCount = computed(() => {
+  if (!dictionariesData.value) return 0
+  return dictionariesData.value.dictionaries.reduce((sum, dict) => sum + dict.entries_count, 0)
+})
+
+// 计算桌面端显示的词典（3个）
+const visibleDictionaries = computed(() => {
+  if (!dictionariesData.value) return []
+  return dictionariesData.value.dictionaries.slice(dictionaryStartIndex.value, dictionaryStartIndex.value + 3)
+})
+
+// 计算移动端显示的词典
+const mobileDictionary = computed(() => {
+  if (!dictionariesData.value || dictionariesData.value.dictionaries.length === 0) {
+    return {
+      id: '',
+      name: '',
+      author: '',
+      publisher: '',
+      year: '',
+      entries_count: 0,
+      description: '',
+      license: '',
+      usage_restriction: ''
+    }
+  }
+  return dictionariesData.value.dictionaries[mobileDictionaryIndex.value]
+})
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -317,6 +471,28 @@ const refreshRandomEntries = async () => {
 
 const nextMobileEntry = () => {
   mobileIndex.value = (mobileIndex.value + 1) % randomEntries.value.length
+}
+
+// 词典切换方法
+const prevDictionary = () => {
+  if (dictionaryStartIndex.value > 0) {
+    dictionaryStartIndex.value = Math.max(0, dictionaryStartIndex.value - 3)
+  }
+}
+
+const nextDictionary = () => {
+  if (dictionariesData.value && dictionaryStartIndex.value + 3 < dictionariesData.value.dictionaries.length) {
+    dictionaryStartIndex.value = Math.min(
+      dictionariesData.value.dictionaries.length - 3,
+      dictionaryStartIndex.value + 3
+    )
+  }
+}
+
+const nextMobileDictionary = () => {
+  if (dictionariesData.value) {
+    mobileDictionaryIndex.value = (mobileDictionaryIndex.value + 1) % dictionariesData.value.dictionaries.length
+  }
 }
 
 // 只在首次加载且没有缓存数据时加载推荐词条
