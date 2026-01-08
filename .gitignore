@@ -35,5 +35,12 @@ public/search-index.json
 # OS
 Thumbs.db
 
+# Wiktionary 原始数据（太大，不提交）
+scripts/preprocess/wiktionary/kaikki.org-dictionary-Chinese.jsonl
+scripts/preprocess/wiktionary/wiktionary_cantonese_entries.jsonl
+scripts/preprocess/wiktionary/cantonese_entries.jsonl
+scripts/preprocess/wiktionary/structure_analysis.txt
+
+# Wiktionary 处理后的数据（由用户自行生成）
 data/processed/wiktionary_cantonese_entries.jsonl
 data/processed/structure_analysis.txt

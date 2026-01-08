@@ -125,7 +125,12 @@ npm run build:data:hk
 
 # 转换广州话分类词典
 npm run build:data:gzpc
+
+# 转换 Wiktionary 数据
+npm run build:data:wiktionary
 ```
+
+> **📥 关于 Wiktionary 数据**: 由于原始文件过大（约1.1GB），项目不直接提供源文件。请参考 [Wiktionary 使用指南](./docs/WIKTIONARY_GUIDE.md) 了解如何从 [Kaikki.org](https://kaikki.org/dictionary/Chinese/) 下载并筛选粤语词条。
 
 ## 项目结构
 
@@ -189,6 +194,7 @@ jyutjyu/
 - [贡献指南](./CONTRIBUTING.md) - 如何参与贡献（含授权政策）
 - [CSV录入规范](./docs/CSV_GUIDE.md) - 如何整理和录入数据
 - [数据结构设计](./docs/DATA_SCHEMA.md) - TypeScript 类型和 JSON 格式
+- [Wiktionary 使用指南](./docs/WIKTIONARY_GUIDE.md) - 如何获取和处理 Wiktionary 数据
 - [适配器开发](./scripts/adapters/README.md) - 如何为新词典创建适配器
 - [测试指南](./scripts/TEST_GUIDE.md) - 如何测试数据处理脚本
 
