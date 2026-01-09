@@ -20,6 +20,7 @@ const ADAPTERS = {
   'gz-practical-classified': () => import('./adapters/gz-practical-classified.js'),
   'gz-colloquialisms': () => import('./adapters/gz-colloquialisms.js'),
   'gz-word-origins': () => import('./adapters/gz-word-origins.js'),
+  'gz-dialect': () => import('./adapters/gz-dialect.js'),
   'hk-cantowords': () => import('./adapters/hk-cantowords.js'),
   // 未来可以添加更多词典
 }
@@ -116,13 +117,20 @@ async function main() {
 
     // 5. 转换数据
     console.log('⏳ 转换数据格式...')
-    const { entries, errors } = adapter.transformAll(validRows)
+    const result = adapter.transformAll(validRows)
+    const entries = result.entries
+    const errors = result.errors || []
+    const filteredCount = result.filteredCount || 0
     
     if (errors.length > 0) {
       console.warn(`⚠️  转换过程中发现 ${errors.length} 个错误:`)
       errors.slice(0, 3).forEach(err => {
         console.warn(`   行 ${err.row}: ${err.error}`)
       })
+    }
+
+    if (filteredCount > 0) {
+      console.log(`⚠️  过滤了 ${filteredCount} 行未校对完成的数据`)
     }
 
     console.log(`✅ 成功转换 ${entries.length} 个词条`)
@@ -177,6 +185,9 @@ async function main() {
     console.log(`总行数:        ${rawData.length}`)
     console.log(`验证错误:      ${validationErrors.length}`)
     console.log(`转换错误:      ${errors.length}`)
+    if (filteredCount > 0) {
+      console.log(`过滤行数:      ${filteredCount}`)
+    }
     console.log(`成功词条:      ${finalEntries.length}`)
     console.log(`输出文件:      ${outputPath}`)
     // 文件可能在后处理中被删除（分片后）
@@ -273,6 +284,7 @@ CSV 转 JSON 工具
   - gz-practical-classified    实用广州话分类词典
   - gz-colloquialisms          广州话俗语词典
   - gz-word-origins            粵語辭源
+  - gz-dialect                 廣州方言詞典
   - hk-cantowords              粵典 (words.hk)
 
 示例:

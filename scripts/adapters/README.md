@@ -591,7 +591,156 @@ node scripts/jsonl-to-json.js \
    }
    ```
 
-## 示例 5：粵語辭源
+## 示例 5：廣州方言詞典
+
+参考 `gz-dialect.js`，它展示了如何处理：
+
+### CSV 格式特点
+
+廣州方言詞典是一本综合性方言词典，CSV格式包含校对状态字段：
+
+```csv
+index,headword,verified_headword,jyutping,verified_jyutping,definition,page,source_file,verification_status,verification_notes
+1,巴閉,,baa1' bai3,,①副詞。表程度加深...,48,...
+```
+
+**关键特性**：
+- `verified_headword` 和 `verified_jyutping`：如果有内容，说明还在校对中
+- 数据处理时需要过滤掉未完成校对的行
+
+### 核心功能实现
+
+1. **过滤未校对数据**
+   
+   ```javascript
+   function shouldFilterRow(row) {
+     // 如果 verified_headword 或 verified_jyutping 有内容，说明还没校对好
+     return (row.verified_headword && row.verified_headword.trim() !== '') ||
+            (row.verified_jyutping && row.verified_jyutping.trim() !== '')
+   }
+   
+   export function transformRow(row) {
+     if (shouldFilterRow(row)) {
+       return null // 过滤掉
+     }
+     // ... 继续处理
+   }
+   ```
+
+2. **解析多义项和例句**
+   
+   释义格式：`①副詞。表程度：例句1丨例句2<翻译>`
+   
+   ```javascript
+   function parseSenses(definition) {
+     // 检查是否包含 ① ② ③ 等标记
+     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g
+     const matches = [...text.matchAll(sensePattern)]
+     
+     if (matches.length === 0) {
+       // 没有多义项标记，整个作为一个义项
+       return parseExamplesInDefinition(text)
+     }
+     
+     // 有多义项标记，分割处理
+     // ...
+   }
+   ```
+
+3. **提取例句和翻译**
+   
+   支持多种格式：
+   - `释义：例句1丨例句2`
+   - `释义<翻译>`
+   - `释义 ‖ 备注`
+   
+   ```javascript
+   function parseExamplesInDefinition(text) {
+     // 先提取备注（‖ 后面的内容）
+     const noteMatch = text.match(/\s*‖\s*(.+)$/)
+     
+     // 检查是否有例句（用冒号或丨分隔）
+     const exampleSplit = mainText.split(/[:：]/)
+     
+     if (exampleSplit.length > 1) {
+       sense.definition = exampleSplit[0].trim()
+       // 解析例句（可能用丨分隔多个例句）
+       const exampleParts = exampleText.split(/[丨｜|]/)
+       // ...
+     }
+   }
+   ```
+
+4. **忽略特定字段**
+   
+   按照要求，以下字段不需要处理：
+   
+   ```javascript
+   // ❌ 不处理的字段：
+   // - source_file
+   // - verification_status
+   // - verification_notes
+   
+   meta: {
+     page: row.page || null,
+     // 注：source_file, verification_status, verification_notes 字段已省略
+   }
+   ```
+
+### 使用说明
+
+```bash
+# 转换廣州方言詞典数据
+node scripts/csv-to-json.js \
+  --dict gz-dialect \
+  --input data/processed/gz-dialect.csv
+
+# 查看统计信息
+# - 会显示被过滤的行数（未校对完成的数据）
+# - 会显示转换成功的词条数
+```
+
+### 数据质量说明
+
+- ✅ 多义项标记清晰（①②③）
+- ✅ 例句和翻译格式规范
+- ✅ 备注信息完整（‖ 标记）
+- ⚠️ 部分数据仍在校对中（会被自动过滤）
+- ⚠️ 页码格式为数字
+
+### 返回格式
+
+```javascript
+// transformAll 返回包含过滤统计的对象
+{
+  entries: [...],        // 成功转换的词条
+  errors: [...],         // 错误列表
+  filteredCount: 123     // 被过滤的行数（未校对完成）
+}
+```
+
+### 注意事项
+
+⚠️ **重要**：
+- 有 `verified_headword` 或 `verified_jyutping` 的行会被自动过滤
+- 这些字段有内容说明数据还在校对中，暂不纳入最终词典
+- `source_file`、`verification_status`、`verification_notes` 字段不处理
+- 转换完成后会显示过滤掉的行数
+
+### 词典信息
+
+```javascript
+export const DICTIONARY_INFO = {
+  id: 'gz-dialect',
+  name: '廣州方言詞典',
+  author: '白宛如',
+  publisher: '江苏教育出版社',
+  year: 1998,
+  description: '收录广州话词汇，包含释义、读音、用例等'
+}
+```
+
+## 示例 6：粵語辭源
 
 参考 `gz-word-origins.js`，它展示了如何处理：
 
