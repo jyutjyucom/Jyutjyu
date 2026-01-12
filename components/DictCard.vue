@@ -142,9 +142,69 @@
               {{ sense.definition }}
             </p>
 
-            <!-- 例句 -->
+            <!-- 子义项（A) B) C) 等） -->
             <div
-              v-if="sense.examples && sense.examples.length > 0"
+              v-if="sense.sub_senses && sense.sub_senses.length > 0"
+              class="space-y-3 mt-3"
+            >
+              <div
+                v-for="(subSense, subIdx) in sense.sub_senses"
+                :key="subIdx"
+                class="pl-4 border-l-2 border-blue-200"
+              >
+                <!-- 子义项标签和释义 -->
+                <div class="mb-2">
+                  <span class="inline-block font-semibold text-blue-700 mr-2">
+                    {{ subSense.label }})
+                  </span>
+                  <span class="text-gray-800">
+                    {{ subSense.definition }}
+                  </span>
+                </div>
+                
+                <!-- 子义项的例句 -->
+                <div
+                  v-if="subSense.examples && subSense.examples.length > 0"
+                  class="space-y-2"
+                >
+                  <div
+                    v-for="(example, exIdx) in subSense.examples"
+                    :key="exIdx"
+                    class="pl-4 border-l-2 border-gray-200"
+                  >
+                    <p
+                      v-if="isCantoDict"
+                      class="text-gray-700 text-base"
+                      v-html="formatDefinitionWithLinks(example.text)"
+                    ></p>
+                    <p
+                      v-else
+                      class="text-gray-700 text-base"
+                    >
+                      {{ example.text }}
+                    </p>
+                    <!-- 例句粤拼 -->
+                    <p
+                      v-if="example.jyutping"
+                      class="text-sm text-blue-600 font-mono mt-1"
+                    >
+                      {{ example.jyutping }}
+                    </p>
+                    <!-- 例句翻译 -->
+                    <p
+                      v-if="example.translation"
+                      class="text-base text-gray-500 mt-1"
+                    >
+                      → {{ example.translation }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 例句（仅在没有子义项时显示） -->
+            <div
+              v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
               class="space-y-2"
             >
               <div

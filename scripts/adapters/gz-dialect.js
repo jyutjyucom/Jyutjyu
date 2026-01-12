@@ -132,6 +132,16 @@ function parseExamplesInDefinition(text) {
     }]
   }
   
+  // 检查是否包含 A) B) C) 等子分类标记
+  const subSensePattern = /\b([A-Z])\)\s*/g
+  const subSenseMatches = [...text.matchAll(subSensePattern)]
+  
+  if (subSenseMatches.length > 0) {
+    // 有子分类，需要特殊处理
+    return parseWithSubSenses(text, subSenseMatches)
+  }
+  
+  // 没有子分类，按原有逻辑处理
   const sense = {
     definition: '',
     examples: []
@@ -176,6 +186,92 @@ function parseExamplesInDefinition(text) {
   }
   
   return [sense]
+}
+
+/**
+ * 处理包含 A) B) C) 子分类的义项
+ * @param {string} text - 义项文本
+ * @param {Array} subSenseMatches - 子分类匹配结果
+ * @returns {Array<Object>} 包含单个义项的数组
+ */
+function parseWithSubSenses(text, subSenseMatches) {
+  const sense = {
+    definition: '',
+    examples: [],
+    sub_senses: []
+  }
+  
+  // 提取主释义（A) 之前的部分）
+  const firstSubSenseIndex = subSenseMatches[0].index
+  const mainDefinition = text.substring(0, firstSubSenseIndex).trim()
+  
+  // 去除主释义末尾的句号或冒号
+  sense.definition = mainDefinition.replace(/[。：:]$/, '').trim()
+  
+  // 解析每个子义项
+  for (let i = 0; i < subSenseMatches.length; i++) {
+    const match = subSenseMatches[i]
+    const label = match[1] // A, B, C, etc.
+    const start = match.index + match[0].length
+    const end = i < subSenseMatches.length - 1 ? subSenseMatches[i + 1].index : text.length
+    const subSenseText = text.substring(start, end).trim()
+    
+    if (subSenseText) {
+      const subSense = parseSubSenseText(subSenseText, label)
+      sense.sub_senses.push(subSense)
+    }
+  }
+  
+  return [sense]
+}
+
+/**
+ * 解析单个子义项的文本
+ * @param {string} text - 子义项文本
+ * @param {string} label - 标签（A, B, C等）
+ * @returns {Object} 子义项对象
+ */
+function parseSubSenseText(text, label) {
+  const subSense = {
+    label: label,
+    definition: '',
+    examples: []
+  }
+  
+  // 检查是否有例句（用冒号分隔）
+  const exampleSplit = text.split(/[:：]/)
+  
+  if (exampleSplit.length > 1) {
+    // 有冒号分隔，第一部分是释义，后面是例句
+    subSense.definition = exampleSplit[0].trim()
+    
+    // 解析例句（可能用丨分隔多个例句）
+    const exampleText = exampleSplit.slice(1).join('：').trim()
+    const exampleParts = exampleText.split(/[丨｜|]/).map(part => part.trim()).filter(part => part)
+    
+    exampleParts.forEach(part => {
+      // 检查是否有尖括号包裹的翻译
+      const translationMatch = part.match(/<([^>]+)>/)
+      
+      if (translationMatch) {
+        const translation = translationMatch[1].trim()
+        const exampleText = part.replace(/<[^>]+>/, '').trim()
+        subSense.examples.push({
+          text: exampleText,
+          translation: translation
+        })
+      } else {
+        subSense.examples.push({
+          text: part
+        })
+      }
+    })
+  } else {
+    // 没有冒号分隔，整个作为释义
+    subSense.definition = text
+  }
+  
+  return subSense
 }
 
 /**

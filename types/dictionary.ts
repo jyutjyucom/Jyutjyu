@@ -86,6 +86,18 @@ export interface Example {
 }
 
 /**
+ * 子义项（用于 A) B) C) 等分类）
+ */
+export interface SubSense {
+  /** 标签（A, B, C等） */
+  label: string
+  /** 释义内容 */
+  definition: string
+  /** 例句/组词数组 */
+  examples?: Example[]
+}
+
+/**
  * 释义单元（支持多义项）
  */
 export interface Sense {
@@ -95,6 +107,8 @@ export interface Sense {
   label?: string
   /** 例句/组词数组 */
   examples?: Example[]
+  /** 子义项（用于 A) B) C) 等分类） */
+  sub_senses?: SubSense[]
 }
 
 /**
