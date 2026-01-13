@@ -77,10 +77,10 @@ function parseSenses(definition) {
   
   const text = definition.trim()
   
-  // 先提取备注（|| 后面的内容）
+  // 先提取备注（‖ 或 || 后面的内容，兼容OCR识别差异）
   let mainText = text
   let notes = null
-  const noteMatch = text.match(/\s*\|\|\s*(.+)$/)
+  const noteMatch = text.match(/\s*(?:‖|\|\|)\s*(.+)$/)
   if (noteMatch) {
     notes = noteMatch[1].trim()
     mainText = text.substring(0, noteMatch.index).trim()
@@ -342,7 +342,7 @@ export const FIELD_NOTES = {
   headword: '词头，主词条',
   pronunciation: '原书拼音标注',
   jyutping: '转换后的粤拼，用于词典展示和搜索优化',
-  definition: '释义，可能包含多义项（①②③）、例句。双竖线（||）后的内容会被提取为作者备注，存入 meta.notes',
+  definition: '释义，可能包含多义项（①②③）、例句。双竖线后的内容会被提取为作者备注，存入 meta.notes',
   page: '词典页码',
   entry_type: '原书词条类型（字头/词头），映射为标准格式（character/word/phrase），原值保存到 meta.original_entry_type',
   api_suggestion: '已省略，不处理',
