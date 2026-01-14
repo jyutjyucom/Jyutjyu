@@ -2,8 +2,8 @@
   <div class="dict-card bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
     <!-- 头部：词头 + 粤拼 -->
     <div class="card-header px-6 py-4 border-b border-gray-100">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
-        <!-- 词头 -->
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
+        <!-- 词头部分 -->
         <div class="flex-1 min-w-0">
           <h3 class="text-2xl font-bold text-gray-900 mb-1 break-words">
             {{ entry.headword.display }}
@@ -23,83 +23,78 @@
               {{ entry.meta.variant_number }}
             </sup>
           </h3>
+          
+          <!-- 粤拼 + 原书注音（紧跟在词头下方） -->
+          <div class="mt-2">
+            <!-- 多个粤拼读音 -->
+            <div
+              v-for="(jp, idx) in entry.phonetic.jyutping"
+              :key="idx"
+              class="flex items-center gap-1.5 flex-wrap"
+            >
+              <!-- 粤拼 -->
+              <div class="font-mono text-lg text-blue-600 font-semibold break-words">
+                {{ jp }}
+              </div>
+              <!-- 原书注音（始终在粤拼右边，空间不足时换行） -->
+              <div
+                v-if="getOriginalPhonetic(entry, idx)"
+                class="text-xs text-gray-500 break-words"
+              >
+                <span class="text-gray-400">原书: </span>{{ getOriginalPhonetic(entry, idx) }}
+              </div>
+            </div>
+          </div>
+          
           <!-- 异形词 -->
           <p
             v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
-            class="text-sm text-gray-600 break-words"
+            class="text-sm text-gray-600 break-words mt-2"
           >
             异形词: {{ entry.meta.headword_variants.join('、') }}
           </p>
           <!-- 如果显示词和标准词不同，显示标准词 -->
           <p
             v-if="entry.headword.display !== entry.headword.normalized"
-            class="text-sm text-gray-500 break-words"
+            class="text-sm text-gray-500 break-words mt-1"
           >
             参考标准写法: {{ entry.headword.normalized }}
           </p>
         </div>
 
-        <!-- 粤拼 + 原书注音 -->
-        <div class="sm:text-right">
-          <div
-            v-for="(jp, idx) in entry.phonetic.jyutping"
-            :key="idx"
-            class="flex items-center justify-start sm:justify-end gap-2"
+        <!-- 标签：来源、分类等（大屏幕右上角，移动端下方） -->
+        <div class="flex flex-wrap gap-2 md:justify-end md:mt-0 md:ml-4">
+          <!-- 来源词典: ID -->
+          <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm whitespace-nowrap">
+            {{ entry.source_book }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+          </span>
+
+          <!-- 方言 -->
+          <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm whitespace-nowrap">
+            {{ entry.dialect.name }}
+          </span>
+
+          <!-- 词条类型 -->
+          <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm whitespace-nowrap">
+            {{ entryTypeLabel }}
+          </span>
+
+          <!-- 语域标签（口语、书面、俚语等） -->
+          <span
+            v-if="entry.meta?.register"
+            class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm whitespace-nowrap"
           >
-            <!-- 粤拼 -->
-            <div class="font-mono text-lg text-blue-600 font-semibold break-words">
-              {{ jp }}
-            </div>
-            <!-- 原书注音（与粤拼对应，左右并排） -->
-            <div
-              v-if="getOriginalForIndex(entry, idx)"
-              class="text-xs text-gray-400 break-words"
-            >
-              原书：{{ getOriginalForIndex(entry, idx) }}
-            </div>
-          </div>
-          <!-- 单个原书注音（不对应粤拼，兜底显示） -->
-          <div
-            v-if="shouldShowSingleOriginal(entry)"
-            class="text-xs text-gray-400 mt-1 break-words"
+            {{ entry.meta.register }}
+          </span>
+
+          <!-- 分类（如果有） -->
+          <span
+            v-if="entry.meta?.category"
+            class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm whitespace-nowrap"
           >
-            原书: {{ Array.isArray(entry.phonetic.original) ? entry.phonetic.original[0] : entry.phonetic.original }}
-          </div>
+            {{ entry.meta.category }}
+          </span>
         </div>
-      </div>
-
-      <!-- 标签：来源、分类等 -->
-      <div class="flex flex-wrap gap-2 mt-3">
-        <!-- 来源词典: ID -->
-        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-          {{ entry.source_book }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
-        </span>
-
-        <!-- 方言 -->
-        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
-          {{ entry.dialect.name }}
-        </span>
-
-        <!-- 词条类型 -->
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-          {{ entryTypeLabel }}
-        </span>
-
-        <!-- 语域标签（口语、书面、俚语等） -->
-        <span
-          v-if="entry.meta?.register"
-          class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm"
-        >
-          {{ entry.meta.register }}
-        </span>
-
-        <!-- 分类（如果有） -->
-        <span
-          v-if="entry.meta?.category"
-          class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
-        >
-          {{ entry.meta.category }}
-        </span>
       </div>
     </div>
 
@@ -416,98 +411,91 @@ const formatDefinitionWithLinks = (definition: string): string => {
 }
 
 /**
- * 获取指定索引的原书注音
- * 如果original是数组且索引有效，返回对应的注音
+ * 统一获取指定索引的原书注音
+ * 原书注音始终显示在对应粤拼的右边，空间不足时自动换行
  * @param entry - 词条对象
- * @param idx - 索引
+ * @param idx - 粤拼索引
  * @returns 原书注音字符串或null
  */
-const getOriginalForIndex = (entry: any, idx: number): string | null => {
+const getOriginalPhonetic = (entry: any, idx: number): string | null => {
   const original = entry.phonetic.original
+  const jyutpingArray = entry.phonetic.jyutping || []
+  const currentJyutping = jyutpingArray[idx]
   
-  // 如果original是数组
+  if (!original || (Array.isArray(original) && original.length === 0)) {
+    return null
+  }
+  
+  // 如果 original 是数组
   if (Array.isArray(original)) {
-    // 如果数组只有一个元素，不在这里显示（应该在兜底位置显示）
+    // 如果数组只有一个元素，只在第一个粤拼时显示
     if (original.length === 1) {
+      if (idx === 0) {
+        const singleOriginal = original[0]
+        // 如果原书注音等于当前粤拼，不显示
+        if (singleOriginal === currentJyutping) return null
+        return singleOriginal
+      }
       return null
     }
     // 数组有多个元素时，返回对应索引的值
-    return original[idx] || null
+    const matchedOriginal = original[idx]
+    if (matchedOriginal && matchedOriginal !== currentJyutping) {
+      return matchedOriginal
+    }
+    return null
   }
   
-  // 否则不显示（由shouldShowSingleOriginal处理）
+  // 如果 original 是单个值，只在第一个粤拼时显示
+  if (idx === 0) {
+    // 如果原书注音等于当前粤拼，不显示
+    if (original === currentJyutping) return null
+    
+    // 检查是否是冒号分隔的多读音格式 (hk-cantowords)
+    if (original.includes(':')) {
+      const originalParts = original.split(':').map((p: string) => p.trim())
+      const jyutpingSet = new Set(jyutpingArray)
+      
+      // 如果所有原始读音部分都在 jyutping 数组中，说明已经正确拆分显示，不显示
+      if (originalParts.every((part: string) => jyutpingSet.has(part))) {
+        return null
+      }
+    }
+    
+    // 检查是否是括号变体格式 (gz-practical-classified)
+    // 例如: "baau6 (biu6, beu6)" 或 "dit1 (dik1) gam3 doe1 (do1)"
+    if (original.includes('(') || original.includes('（')) {
+      // 提取所有独立的读音：去掉括号，用空格和逗号分割
+      const cleanedOriginal = original
+        .replace(/[（(]/g, ' ')
+        .replace(/[）)]/g, ' ')
+        .replace(/[,，]/g, ' ')
+      const allSyllables = cleanedOriginal.split(/\s+/).filter((s: string) => s.trim())
+      
+      // 检查 jyutping 数组是否覆盖了所有提取的读音
+      const syllableSet = new Set(allSyllables)
+      
+      // 方法1：检查所有独立音节是否都出现在 jyutping 数组中（单字多音情况）
+      const allSyllablesInJyutping = allSyllables.every((s: string) => 
+        jyutpingArray.includes(s) || jyutpingArray.some((jp: string) => jp.includes(s))
+      )
+      
+      // 方法2：检查 jyutping 数组中的所有项是否都由原始音节组成
+      const allJyutpingFromSyllables = jyutpingArray.every((jp: string) => {
+        const jpSyllables = jp.split(/\s+/)
+        return jpSyllables.every((s: string) => syllableSet.has(s))
+      })
+      
+      if (allSyllablesInJyutping || allJyutpingFromSyllables) {
+        return null
+      }
+    }
+    
+    // 其他情况显示原书注音（如耶鲁拼音等不同的注音系统）
+    return original
+  }
+  
   return null
-}
-
-/**
- * 判断是否应该显示单个原书注音（不与jyutping对应的情况）
- * @param entry - 词条对象
- * @returns 是否显示
- */
-const shouldShowSingleOriginal = (entry: any): boolean => {
-  const original = entry.phonetic.original
-  
-  // 如果original是数组
-  if (Array.isArray(original)) {
-    // 如果数组只有一个元素，在这里显示
-    if (original.length === 1) {
-      // 继续后续逻辑判断
-    } else {
-      // 如果数组有多个元素，不在这里显示（已经与jyutping对应显示了）
-      return false
-    }
-  }
-  
-  if (!original || (Array.isArray(original) && original.length === 0)) return false
-  
-  const jyutpingArray = entry.phonetic.jyutping || []
-  
-  // 如果 original 等于 jyutping[0]，不显示
-  if (original === jyutpingArray[0]) return false
-  
-  // 检查是否是冒号分隔的多读音格式 (hk-cantowords)
-  if (original.includes(':')) {
-    const originalParts = original.split(':').map((p: string) => p.trim())
-    const jyutpingSet = new Set(jyutpingArray)
-    
-    // 如果所有原始读音部分都在 jyutping 数组中，说明已经正确拆分显示
-    if (originalParts.every((part: string) => jyutpingSet.has(part))) {
-      return false
-    }
-  }
-  
-  // 检查是否是括号变体格式 (gz-practical-classified)
-  // 例如: "baau6 (biu6, beu6)" 或 "dit1 (dik1) gam3 doe1 (do1)"
-  if (original.includes('(') || original.includes('（')) {
-    // 提取所有独立的读音：去掉括号，用空格和逗号分割
-    const cleanedOriginal = original
-      .replace(/[（(]/g, ' ')
-      .replace(/[）)]/g, ' ')
-      .replace(/[,，]/g, ' ')
-    const allSyllables = cleanedOriginal.split(/\s+/).filter((s: string) => s.trim())
-    
-    // 检查 jyutping 数组是否覆盖了所有提取的读音
-    // 或者 jyutping 数组的所有项都是由这些音节组成的组合
-    const syllableSet = new Set(allSyllables)
-    
-    // 方法1：检查所有独立音节是否都出现在 jyutping 数组中（单字多音情况）
-    const allSyllablesInJyutping = allSyllables.every((s: string) => 
-      jyutpingArray.includes(s) || jyutpingArray.some((jp: string) => jp.includes(s))
-    )
-    
-    // 方法2：检查 jyutping 数组中的所有项是否都由原始音节组成
-    const allJyutpingFromSyllables = jyutpingArray.every((jp: string) => {
-      const jpSyllables = jp.split(/\s+/)
-      return jpSyllables.every((s: string) => syllableSet.has(s))
-    })
-    
-    if (allSyllablesInJyutping || allJyutpingFromSyllables) {
-      return false
-    }
-  }
-  
-  // 其他情况显示原书标签（如耶鲁拼音等不同的注音系统）
-  return true
 }
 </script>
 
