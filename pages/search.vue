@@ -242,8 +242,8 @@
       <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4">
         <!-- 卡片视图 -->
         <div v-if="viewMode === 'card'" class="space-y-4">
-          <!-- 完全匹配的结果 -->
-          <template v-if="!enableReverseSearch && displayedGroupedResults.exactMatches.length > 0">
+          <!-- 完全匹配的结果（仅文字搜索时显示） -->
+          <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
             <div class="mb-2">
               <div class="flex items-center gap-2 mb-3">
                 <span class="text-green-800">
@@ -260,9 +260,9 @@
           
           <!-- 其他相关结果 -->
           <template v-if="displayedGroupedResults.otherResults.length > 0">
-            <div class="mb-2" :class="{ 'mt-6': !enableReverseSearch && displayedGroupedResults.exactMatches.length > 0 }">
+            <div class="mb-2" :class="{ 'mt-6': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-blue-800">
+                <span v-if="isTextSearch" class="text-blue-800">
                   → {{ t('common.otherResultsLabel') }} <span class="font-semibold">{{ groupedResults.otherResults.length }}</span> {{ t('common.remainingSuffix') }}
                 </span>
               </div>
@@ -289,8 +289,8 @@
 
         <!-- 列表视图（简洁） -->
         <div v-else class="space-y-4">
-          <!-- 完全匹配的结果 -->
-          <template v-if="!enableReverseSearch && displayedGroupedResults.exactMatches.length > 0">
+          <!-- 完全匹配的结果（仅文字搜索时显示） -->
+          <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
             <div class="mb-2">
               <div class="flex items-center gap-2 mb-3">
                 <span class="text-green-800">
@@ -359,9 +359,9 @@
           
           <!-- 其他相关结果 -->
           <template v-if="displayedGroupedResults.otherResults.length > 0">
-            <div class="mb-2" :class="{ 'mt-6': !enableReverseSearch && displayedGroupedResults.exactMatches.length > 0 }">
+            <div class="mb-2" :class="{ 'mt-6': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
               <div class="flex items-center gap-2 mb-3">
-                <span class="text-blue-800">
+                <span v-if="isTextSearch" class="text-blue-800">
                   → {{ t('common.otherResultsLabel') }} <span class="font-semibold">{{ groupedResults.otherResults.length }}</span> {{ t('common.remainingSuffix') }}
                 </span>
               </div>
@@ -588,7 +588,16 @@ const filteredResults = computed(() => {
   return results
 })
 
-// 检查词条是否与查询词完全匹配（仅正常查询时，支持简繁转换）
+// 判断查询是否是粤拼查询（只包含字母、数字和空格，不包含中文字符）
+const isJyutpingQuery = (query: string): boolean => {
+  const trimmed = query.trim()
+  if (!trimmed) return false
+  // 粤拼查询：只包含字母、数字、空格和常见标点，不包含中文字符
+  // 中文字符范围：\u4e00-\u9fa5
+  return !/[\u4e00-\u9fa5]/.test(trimmed)
+}
+
+// 检查词条是否与查询词完全匹配（仅文字搜索时，支持简繁转换）
 const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
   if (enableReverseSearch.value) {
     return false // 反查时不进行完全匹配判断
@@ -619,10 +628,16 @@ const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
   }
 }
 
-// 将结果分为完全匹配和其他结果（仅正常查询时）
+// 判断是否是文字搜索（非反查且非粤拼）
+const isTextSearch = computed(() => {
+  if (!actualSearchQuery.value) return false
+  return !enableReverseSearch.value && !isJyutpingQuery(actualSearchQuery.value)
+})
+
+// 将结果分为完全匹配和其他结果（仅文字搜索时）
 const groupedResults = computed(() => {
-  if (enableReverseSearch.value || !actualSearchQuery.value) {
-    // 反查或没有查询词时，不分组
+  // 反查、粤拼搜索或没有查询词时，不分组
+  if (!isTextSearch.value) {
     return {
       exactMatches: [] as DictionaryEntry[],
       otherResults: filteredResults.value
