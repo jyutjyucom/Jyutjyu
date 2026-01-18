@@ -198,6 +198,75 @@ function parseExamplesInDefinition(text) {
 }
 
 /**
+ * 解析字头中的圆括号和方括号，提取异形词
+ * @param {string} headword - 原始字头字符串
+ * @returns {Object} { 
+ *   mainWord: 主词头（去除所有括号）,
+ *   variants: 异形词数组,
+ *   normalized: 规范化词头（去除所有括号）
+ * }
+ * 
+ * 例如:
+ * - "鳌（鼇）［鼇］" → { mainWord: "鳌", variants: ["鼇"], normalized: "鳌" }
+ * - "暗［唵、闇］" → { mainWord: "暗", variants: ["唵", "闇"], normalized: "暗" }
+ * - "肮（骯）" → { mainWord: "肮", variants: ["骯"], normalized: "肮" }
+ * - "奔［奔、犇］" → { mainWord: "奔", variants: ["奔", "犇"], normalized: "奔" }
+ */
+function parseHeadwordVariants(headword) {
+  if (!headword) {
+    return { mainWord: '', variants: [], normalized: '' }
+  }
+  
+  const variants = []
+  let text = headword.trim()
+  
+  // 提取所有括号中的内容（圆括号和方括号）
+  // 圆括号: （）
+  const roundBracketRegex = /[（(]([^）)]+)[）)]/g
+  let match
+  
+  while ((match = roundBracketRegex.exec(text)) !== null) {
+    const content = match[1].trim()
+    // 如果内容包含顿号，分别提取
+    if (content.includes('、') || content.includes(',')) {
+      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
+      variants.push(...parts)
+    } else {
+      variants.push(content)
+    }
+  }
+  
+  // 方括号: ［］
+  const squareBracketRegex = /［([^］]+)］/g
+  while ((match = squareBracketRegex.exec(text)) !== null) {
+    const content = match[1].trim()
+    // 如果内容包含顿号，分别提取
+    if (content.includes('、') || content.includes(',')) {
+      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
+      variants.push(...parts)
+    } else {
+      variants.push(content)
+    }
+  }
+  
+  // 主词头：去除所有括号及其内容
+  const mainWord = text
+    .replace(/\s*[（(][^）)]+[）)]\s*/g, '')  // 移除圆括号及其内容
+    .replace(/\s*［[^］]+］\s*/g, '')        // 移除方括号及其内容
+    .replace(/\s+/g, '')                      // 移除多余空格
+    .trim()
+  
+  // 去重异形词
+  const uniqueVariants = [...new Set(variants)].filter(v => v && v !== mainWord)
+  
+  return {
+    mainWord,
+    variants: uniqueVariants,
+    normalized: mainWord
+  }
+}
+
+/**
  * 将原书的词条类型映射到标准格式
  * @param {string} originalType - 原书分类（字头/词头）
  * @param {string} headword - 词头文本
@@ -241,23 +310,26 @@ export function transformRow(row) {
     return null
   }
   
-  // 2. 清理词头
-  const headwordInfo = cleanHeadword(row.headword)
+  // 2. 解析字头中的异形词（圆括号和方括号）
+  const variantInfo = parseHeadwordVariants(row.headword)
   
-  // 3. 处理粤拼（已经是转换后的格式）
+  // 3. 清理词头（处理星号、数字等标记）
+  const headwordInfo = cleanHeadword(variantInfo.normalized)
+  
+  // 4. 处理粤拼（已经是转换后的格式）
   const jyutpingArray = row.jyutping
     ? row.jyutping.split(/[,;/]/)
         .map(j => j.trim())
         .filter(j => j)
     : []
   
-  // 4. 解析释义和例句（包括提取作者备注）
+  // 5. 解析释义和例句（包括提取作者备注）
   const parseResult = parseSenses(row.definition)
   
-  // 5. 映射词条类型：原书分类 → 标准格式
+  // 6. 映射词条类型：原书分类 → 标准格式
   const entryType = mapEntryType(row.entry_type, headwordInfo.normalized)
   
-  // 6. 构建标准词条
+  // 7. 构建标准词条
   const entry = {
     id: `${DICTIONARY_INFO.id}_${String(row.index).padStart(6, '0')}`,
     source_book: DICTIONARY_INFO.source_book,
@@ -289,7 +361,12 @@ export function transformRow(row) {
       original_entry_type: row.entry_type || null,
       
       // 作者备注（从释义中提取的 || 后的内容）
-      notes: parseResult.notes || undefined
+      notes: parseResult.notes || undefined,
+      
+      // 异形词（从圆括号和方括号中提取）
+      headword_variants: variantInfo.variants.length > 0 
+        ? variantInfo.variants 
+        : null
       
       // 注：api_suggestion, verification_status, source_file 字段已省略
     },
@@ -297,8 +374,16 @@ export function transformRow(row) {
     created_at: new Date().toISOString()
   }
   
-  // 7. 生成搜索关键词
+  // 8. 生成搜索关键词
   entry.keywords = generateKeywords(entry)
+  
+  // 9. 添加异形词到关键词
+  if (variantInfo.variants.length > 0) {
+    variantInfo.variants.forEach(variant => {
+      entry.keywords.push(variant)
+    })
+    entry.keywords = [...new Set(entry.keywords)]
+  }
   
   return entry
 }
@@ -339,7 +424,7 @@ export function transformAll(rows) {
  * 特殊字段处理说明
  */
 export const FIELD_NOTES = {
-  headword: '词头，主词条',
+  headword: '词头，主词条。圆括号（ ）和方括号［ ］中的内容会被提取为异形词，存入 meta.headword_variants',
   pronunciation: '原书拼音标注',
   jyutping: '转换后的粤拼，用于词典展示和搜索优化',
   definition: '释义，可能包含多义项（①②③）、例句。双竖线后的内容会被提取为作者备注，存入 meta.notes',
@@ -347,5 +432,6 @@ export const FIELD_NOTES = {
   entry_type: '原书词条类型（字头/词头），映射为标准格式（character/word/phrase），原值保存到 meta.original_entry_type',
   api_suggestion: '已省略，不处理',
   verification_status: '用于过滤，只保留"✓ 匹配"的词条，不存入metadata',
-  source_file: '已省略，不处理'
+  source_file: '已省略，不处理',
+  headword_variants: '异形词数组，从字头的圆括号和方括号中提取。例如："鳌（鼇）［鼇］" → ["鼇"]，"暗［唵、闇］" → ["唵", "闇"]'
 }
