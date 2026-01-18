@@ -338,7 +338,7 @@ export function transformRow(row) {
     dialect: DICTIONARY_INFO.dialect,
     
     headword: {
-      display: row.headword,
+      display: headwordInfo.normalized, // 只显示首选词头（去除括号）
       search: headwordInfo.normalized,
       normalized: headwordInfo.normalized,
       is_placeholder: headwordInfo.isPlaceholder || false
