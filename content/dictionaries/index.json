@@ -121,7 +121,7 @@
       "name": "广州话词典（第2版）",
       "dialect": "广州话",
       "file": "gz-dict.json",
-      "entries_count": 10803,
+      "entries_count": 10823,
       "author": "饶秉才、欧阳觉亚、周无忌",
       "publisher": "广东人民出版社",
       "year": 2020,
@@ -133,6 +133,6 @@
       "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。"
     }
   ],
-  "last_updated": "2026-01-18T16:23:52.888Z",
+  "last_updated": "2026-01-18T16:46:04.275Z",
   "schema_version": "1.0.0"
 }
