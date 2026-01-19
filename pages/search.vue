@@ -219,7 +219,7 @@
         </div>
 
       <!-- No Results -->
-      <div v-if="!loading && actualSearchQuery && allResults.length === 0" class="text-center py-16">
+      <div v-if="!loading && isSearchComplete && actualSearchQuery && allResults.length === 0" class="text-center py-16">
         <div class="text-6xl mb-4">🔍</div>
         <h3 class="text-2xl font-semibold text-gray-900 mb-2">
           {{ t('common.noResultsTitle') }}
@@ -726,9 +726,18 @@ const performSearch = async (query: string) => {
     actualSearchQuery.value = ''
     currentPage.value = 1
     isSearchComplete.value = true
+    loading.value = false
     return
   }
 
+  // 先设置加载状态和清空结果，避免显示旧结果
+  loading.value = true
+  isSearchComplete.value = false
+  allResults.value = []
+  displayedResults.value = []
+  searchTime.value = 0
+  currentPage.value = 1
+  
   // 更新实际搜索的查询词
   actualSearchQuery.value = query.trim()
   
@@ -739,10 +748,6 @@ const performSearch = async (query: string) => {
   // 确保转换器已初始化（用于完全匹配判断）
   await ensureInitialized()
   
-  loading.value = true
-  isSearchComplete.value = false
-  searchTime.value = 0
-  currentPage.value = 1
   const startTime = Date.now()
 
   try {

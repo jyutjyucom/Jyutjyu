@@ -64,17 +64,39 @@
           <h3 class="text-2xl font-semibold">{{ t('common.recommendedEntries') }}</h3>
           <button
             @click="refreshRandomEntries"
-            class="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm"
+            :disabled="loadingRandomEntries"
+            class="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg 
+              v-if="loadingRandomEntries"
+              class="w-4 h-4 animate-spin" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <svg 
+              v-else
+              class="w-4 h-4" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             {{ t('common.changeBatch') }}
           </button>
         </div>
 
+        <!-- Loading state when refreshing -->
+        <div v-if="loadingRandomEntries && randomEntries.length > 0" class="text-center py-12 text-gray-500">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p class="text-gray-600 mt-4">{{ t('common.loading') }}</p>
+        </div>
+
         <!-- Desktop: 3 cards in grid -->
-        <div v-if="randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
+        <div v-else-if="randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
           <div
             v-for="entry in randomEntries"
             :key="entry.id"
@@ -106,7 +128,7 @@
         </div>
 
         <!-- Mobile: 1 card with navigation -->
-        <div v-if="randomEntries.length > 0" class="md:hidden">
+        <div v-else-if="randomEntries.length > 0" class="md:hidden">
           <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <!-- Card content - clickable to search -->
             <div
@@ -434,6 +456,7 @@ const { data: dictionariesData } = await useAsyncData('dictionaries-index', () =
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
 const mobileIndex = useState<number>('home-mobile-index', () => 0)
+const loadingRandomEntries = ref(false)
 
 // 词典切换相关状态
 const dictionaryStartIndex = ref(0)
@@ -495,6 +518,9 @@ const searchEntry = (headword: string) => {
 }
 
 const refreshRandomEntries = async () => {
+  if (loadingRandomEntries.value) return
+  
+  loadingRandomEntries.value = true
   try {
     const entries = await getRandomRecommendedEntries(3)
     if (entries.length > 0) {
@@ -503,6 +529,8 @@ const refreshRandomEntries = async () => {
     }
   } catch (error) {
     console.error('加载随机词条失败:', error)
+  } finally {
+    loadingRandomEntries.value = false
   }
 }
 
