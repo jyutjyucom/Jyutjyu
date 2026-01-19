@@ -115,7 +115,8 @@ export function transformRow(row) {
     dialect: DICTIONARY_INFO.dialect,
     
     headword: {
-      display: row.phrases,
+      // 使用清理后的词头，避免零宽字符污染显示和搜索
+      display: headwordInfo.display,
       search: headwordInfo.normalized,
       normalized: headwordInfo.normalized,
       is_placeholder: headwordInfo.isPlaceholder || false
