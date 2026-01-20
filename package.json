@@ -1,7 +1,7 @@
 {
   "name": "jyutjyu",
   "version": "0.1.0",
-  "description": "粤语辞丛 - 开放的粤语词典聚合平台",
+  "description": "粵語詞叢 - 開放粵語詞典平台",
   "author": "jyutjyucom",
   "license": "MIT",
   "type": "module",
@@ -64,9 +64,9 @@
     "cantonese",
     "dictionary",
     "jyutping",
-    "粤语",
-    "词典",
-    "粤拼"
+    "粵語",
+    "詞典",
+    "粵拼"
   ],
   "repository": {
     "type": "git",

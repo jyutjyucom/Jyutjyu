@@ -1,13 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  
+
   devtools: { enabled: true },
-  
+
   devServer: {
     port: 3002
   },
-  
+
   modules: [
     '@nuxt/content',
     '@nuxtjs/tailwindcss',
@@ -16,7 +16,7 @@ export default defineNuxtConfig({
 
   i18n: {
     vueI18n: './i18n.config.ts',
-    defaultLocale: 'zh-Hans',
+    defaultLocale: 'yue-Hant',
     strategy: 'no_prefix',
     detectBrowserLanguage: {
       useCookie: true,
@@ -25,6 +25,14 @@ export default defineNuxtConfig({
     },
     locales: [
       {
+        code: 'yue-Hant',
+        name: '粵文'
+      },
+      {
+        code: 'yue-Hans',
+        name: '简体粤文'
+      },
+      {
         code: 'zh-Hans',
         name: '简体中文'
       },
@@ -32,14 +40,8 @@ export default defineNuxtConfig({
         code: 'zh-Hant',
         name: '繁體中文'
       },
-      {
-        code: 'yue-Hans',
-        name: '简体粤语'
-      },
-      {
-        code: 'yue-Hant',
-        name: '繁體粵語'
-      }
+
+
     ]
   },
 
@@ -66,9 +68,9 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'color-scheme', content: 'light only' },
-        { 
-          name: 'description', 
-          content: '开放的粤语词典聚合平台，支持多词典统一查询、粤拼搜索，为粤语学习者和研究者提供便捷的工具。' 
+        {
+          name: 'description',
+          content: '开放的粤语词典聚合平台，支持多词典统一查询、粤拼搜索，为粤语学习者和研究者提供便捷的工具。'
         },
         { name: 'keywords', content: '粤语,广州话,词典,粤拼,Cantonese,Jyutping' },
         { name: 'author', content: 'Jyut Collection' },
@@ -97,7 +99,7 @@ export default defineNuxtConfig({
     // 服务端私有配置（从环境变量读取）
     mongodbUri: process.env.MONGODB_URI,
     mongodbDbName: process.env.MONGODB_DB_NAME || 'jyutjyu',
-    
+
     // 客户端公开配置
     public: {
       siteUrl: 'https://jyutjyu.com',
