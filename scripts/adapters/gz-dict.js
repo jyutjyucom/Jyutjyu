@@ -198,6 +198,75 @@ export const DICTIONARY_INFO = {
 export const REQUIRED_FIELDS = ['index', 'headword', 'jyutping', 'definition']
 
 /**
+ * 解析字头中的圆括号和方括号，提取异形词
+ * @param {string} headword - 原始字头字符串
+ * @returns {Object} { 
+ *   mainWord: 主词头（去除所有括号）,
+ *   variants: 异形词数组,
+ *   normalized: 规范化词头（去除所有括号）
+ * }
+ * 
+ * 例如:
+ * - "鳌（鼇）［鼇］" → { mainWord: "鳌", variants: ["鼇"], normalized: "鳌" }
+ * - "暗［唵、闇］" → { mainWord: "暗", variants: ["唵", "闇"], normalized: "暗" }
+ * - "肮（骯）" → { mainWord: "肮", variants: ["骯"], normalized: "肮" }
+ * - "奔［奔、犇］" → { mainWord: "奔", variants: ["奔", "犇"], normalized: "奔" }
+ */
+function parseHeadwordVariants(headword) {
+  if (!headword) {
+    return { mainWord: '', variants: [], normalized: '' }
+  }
+  
+  const variants = []
+  let text = headword.trim()
+  
+  // 提取所有括号中的内容（圆括号和方括号）
+  // 圆括号: （）
+  const roundBracketRegex = /[（(]([^）)]+)[）)]/g
+  let match
+  
+  while ((match = roundBracketRegex.exec(text)) !== null) {
+    const content = match[1].trim()
+    // 如果内容包含顿号，分别提取
+    if (content.includes('、') || content.includes(',')) {
+      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
+      variants.push(...parts)
+    } else {
+      variants.push(content)
+    }
+  }
+  
+  // 方括号: ［］
+  const squareBracketRegex = /［([^］]+)］/g
+  while ((match = squareBracketRegex.exec(text)) !== null) {
+    const content = match[1].trim()
+    // 如果内容包含顿号，分别提取
+    if (content.includes('、') || content.includes(',')) {
+      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
+      variants.push(...parts)
+    } else {
+      variants.push(content)
+    }
+  }
+  
+  // 主词头：去除所有括号及其内容
+  const mainWord = text
+    .replace(/\s*[（(][^）)]+[）)]\s*/g, '')  // 移除圆括号及其内容
+    .replace(/\s*［[^］]+］\s*/g, '')        // 移除方括号及其内容
+    .replace(/\s+/g, '')                      // 移除多余空格
+    .trim()
+  
+  // 去重异形词
+  const uniqueVariants = [...new Set(variants)].filter(v => v && v !== mainWord)
+  
+  return {
+    mainWord,
+    variants: uniqueVariants,
+    normalized: mainWord
+  }
+}
+
+/**
  * 解析词头的特殊标记（星号和数字前缀）
  * @param {string} headword - 原始词头字符串
  * @returns {Object} { 
@@ -365,8 +434,11 @@ export function transformRow(row) {
   // 1. 解析词头标记（星号和数字前缀）
   const headwordMarkers = parseHeadwordMarkers(row.headword)
   
-  // 2. 清理词头（去除其他标记，如末尾数字等）
-  const headwordInfo = cleanHeadword(headwordMarkers.cleanedHeadword)
+  // 2. 解析字头中的异形词（圆括号和方括号）
+  const variantInfo = parseHeadwordVariants(headwordMarkers.cleanedHeadword)
+  
+  // 3. 清理词头（去除其他标记，如末尾数字等）
+  const headwordInfo = cleanHeadword(variantInfo.normalized)
 
   // 3. 处理粤拼（已是转换后的格式，支持变体标记）
   let jyutpingArray = []
@@ -423,7 +495,11 @@ export function transformRow(row) {
       // 同形异义标记（数字前缀）
       variant_number: headwordMarkers.variantNumber || null,
       // 作者备注（从释义中提取的 〖...〗 内容）
-      notes: authorNotes || undefined
+      notes: authorNotes || undefined,
+      // 异形词（从圆括号和方括号中提取）
+      headword_variants: variantInfo.variants.length > 0 
+        ? variantInfo.variants 
+        : undefined
       // 注：entry_type, source_file 字段按要求忽略，不写入 metadata
     },
 
@@ -432,6 +508,14 @@ export function transformRow(row) {
 
   // 6. 生成搜索关键词
   entry.keywords = generateKeywords(entry)
+
+  // 7. 添加异形词到关键词
+  if (variantInfo.variants.length > 0) {
+    variantInfo.variants.forEach(variant => {
+      entry.keywords.push(variant)
+    })
+    entry.keywords = [...new Set(entry.keywords)]
+  }
 
   return entry
 }
@@ -465,12 +549,13 @@ export function transformAll(rows) {
  * 特殊字段处理说明
  */
 export const FIELD_NOTES = {
-  headword: '词头，主词条',
+  headword: '词头，主词条。圆括号（ ）和方括号［ ］中的内容会被提取为异形词，存入 meta.headword_variants',
   pronunciation: '原书拼音标注（保存到 phonetic.original）',
   jyutping: '转换后的粤拼（保存到 phonetic.jyutping，用于词典展示和搜索优化）',
   definition: '释义，可能包含多义项（❶❷❸ 或 ①②③）与例句；例句翻译常用〔〕表示。释义中的 〖...〗 会被提取为作者备注，存入 meta.notes',
   page: '词典页码',
   entry_type: '已忽略（不写入 metadata）',
-  source_file: '已忽略（不写入 metadata）'
+  source_file: '已忽略（不写入 metadata）',
+  headword_variants: '异形词数组，从字头的圆括号和方括号中提取。例如："鳌（鼇）［鼇］" → ["鼇"]，"暗［唵、闇］" → ["唵", "闇"]'
 }
 
