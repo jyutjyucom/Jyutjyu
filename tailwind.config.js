@@ -44,10 +44,15 @@ export default {
       fontFamily: {
         // 中文字体优化
         sans: [
+          '"Chiron Hei HK"',
           'PingFang SC',
           'Microsoft YaHei',
           'Noto Sans SC',
           'sans-serif'
+        ],
+        serif: [
+          '"Chiron Sung HK"',
+          'serif'
         ],
         // 粤拼字体
         mono: [

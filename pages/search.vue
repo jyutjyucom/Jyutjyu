@@ -130,7 +130,7 @@
             </div>
 
             <!-- 类型筛选 (字/词/短语) -->
-            <div v-if="availableTypes.length > 1" class="relative">
+            <div class="relative">
               <button
                 class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors"
                 :class="selectedType ? 'bg-amber-50 border-amber-300 text-amber-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
