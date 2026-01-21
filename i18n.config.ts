@@ -205,12 +205,9 @@ export default defineI18nConfig(() => ({
         buttonTitle: '提交反馈',
         type: {
           label: '反馈类型',
-          bug: '🐛 报告问题',
-          bugDesc: '应用错误或异常行为',
-          feature: '✨ 功能建议',
-          featureDesc: '新功能或改进建议',
-          entryError: '📝 词条纠错',
-          entryErrorDesc: '词条内容错误或需要完善'
+          bug: '网站BUG',
+          feature: '功能建议',
+          entryError: '词条纠错'
         },
         titleField: {
           label: '标题',
@@ -454,12 +451,9 @@ export default defineI18nConfig(() => ({
         buttonTitle: '提交反饋',
         type: {
           label: '反饋類型',
-          bug: '🐛 報告問題',
-          bugDesc: '應用錯誤或異常行為',
-          feature: '✨ 功能建議',
-          featureDesc: '新功能或改進建議',
-          entryError: '📝 詞條糾錯',
-          entryErrorDesc: '詞條內容錯誤或需要完善'
+          bug: '網站BUG',
+          feature: '功能建議',
+          entryError: '詞條糾錯',
         },
         titleField: {
           label: '標題',
@@ -703,12 +697,9 @@ export default defineI18nConfig(() => ({
         buttonTitle: '提交反馈',
         type: {
           label: '反馈类型',
-          bug: '🐛 报告问题',
-          bugDesc: '网站错误或异常行为',
-          feature: '✨ 功能建议',
-          featureDesc: '新功能或改进建议',
-          entryError: '📝 词条纠错',
-          entryErrorDesc: '词条内容错误或需要完善'
+          bug: '网站BUG',
+          feature: '功能建议',
+          entryError: '词条纠错'
         },
         titleField: {
           label: '标题',
@@ -951,12 +942,9 @@ export default defineI18nConfig(() => ({
         buttonTitle: '提交反饋',
         type: {
           label: '反饋類型',
-          bug: '🐛 報告問題',
-          bugDesc: '網站錯誤或異常行為',
-          feature: '✨ 功能建議',
-          featureDesc: '新功能或改進建議',
-          entryError: '📝 詞條糾錯',
-          entryErrorDesc: '詞條內容錯誤或需要完善'
+          bug: '網站BUG',
+          feature: '功能建議',
+          entryError: '詞條糾錯',
         },
         titleField: {
           label: '標題',

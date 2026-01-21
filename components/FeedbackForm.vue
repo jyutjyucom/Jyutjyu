@@ -18,11 +18,11 @@
         <label class="block text-sm font-medium text-gray-700 mb-2">
           {{ t('feedback.type.label') }}
         </label>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
           <label
             v-for="type in feedbackTypes"
             :key="type.value"
-            class="relative flex cursor-pointer rounded-md border-2 bg-white p-4 focus:outline-none"
+            class="relative flex cursor-pointer rounded-md border-2 bg-white px-1.5 py-2 sm:px-2 sm:py-2.5 focus:outline-none"
             :class="feedbackType === type.value ? 'border-blue-500' : 'border-gray-300'"
           >
             <input
@@ -32,20 +32,9 @@
               name="feedback-type"
               class="sr-only"
             >
-            <span class="flex flex-1">
-              <span class="flex flex-col">
-                <span class="text-sm font-medium text-gray-900">{{ type.label }}</span>
-                <span class="text-sm text-gray-500">{{ type.description }}</span>
-              </span>
+            <span class="flex flex-1 items-center justify-center">
+              <span class="text-sm sm:text-sm font-medium text-gray-900 text-center leading-tight">{{ type.label }}</span>
             </span>
-            <svg
-              v-if="feedbackType === type.value"
-              class="h-5 w-5 text-blue-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
           </label>
         </div>
       </div>
@@ -84,7 +73,7 @@
           id="description"
           v-model="description"
           :placeholder="t('feedback.description.placeholder')"
-          rows="4"
+          rows="10"
           class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500 resize-vertical"
           required
         ></textarea>
@@ -242,18 +231,15 @@ const emit = defineEmits<{
 const feedbackTypes = [
   {
     value: 'bug',
-    label: t('feedback.type.bug'),
-    description: t('feedback.type.bugDesc')
+    label: t('feedback.type.bug')
   },
   {
     value: 'feature',
-    label: t('feedback.type.feature'),
-    description: t('feedback.type.featureDesc')
+    label: t('feedback.type.feature')
   },
   {
     value: 'entry-error',
-    label: t('feedback.type.entryError'),
-    description: t('feedback.type.entryErrorDesc')
+    label: t('feedback.type.entryError')
   }
 ]
 
