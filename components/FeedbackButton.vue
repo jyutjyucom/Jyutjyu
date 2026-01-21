@@ -47,6 +47,7 @@
             >
               <FeedbackForm
                 :entry-data="entryData"
+                :initial-description="initialDescription"
                 :initial-type="initialType"
                 @close="showFeedbackModal = false"
                 @submitted="handleFeedbackSubmitted"
@@ -67,7 +68,13 @@ interface Props {
   entryData?: {
     word: string
     source?: string
+    id?: string
   }
+  /**
+   * 外部提供的初始描述内容
+   * 例如：从词条卡片传入完整词条信息，方便用户在反馈时直接修改
+   */
+  initialDescription?: string
   buttonClass?: string
   iconOnly?: boolean
   initialType?: 'bug' | 'feature' | 'entry-error'
@@ -75,6 +82,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   entryData: undefined,
+  initialDescription: undefined,
   buttonClass: 'inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors',
   iconOnly: false,
   initialType: undefined

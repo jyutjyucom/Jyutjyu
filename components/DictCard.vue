@@ -99,8 +99,10 @@
           <FeedbackButton
             :entry-data="{
               word: entry.headword.display,
-              source: entry.source_book
+              source: entry.source_book,
+              id: entry.id
             }"
+            :initial-description="entryFeedbackDescription"
             :icon-only="true"
             initial-type="entry-error"
             button-class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200"
@@ -380,6 +382,88 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const detailsExpanded = ref(false)
+
+// 为反馈构造包含当前词条完整信息的描述文本，方便用户直接在此基础上修改
+const entryFeedbackDescription = computed(() => {
+  const e = props.entry
+
+  const headerLines: string[] = [
+    '【當前詞條信息，請喺呢度直接修改有問題嘅部分】',
+    '',
+    `詞頭：${e.headword.display}`,
+    e.headword.normalized && e.headword.normalized !== e.headword.display
+      ? `參考詞頭：${e.headword.normalized}`
+      : '',
+    `粵拼：${(e.phonetic.jyutping || []).join(' / ')}`,
+    e.phonetic.original ? `原書注音：${e.phonetic.original}` : '',
+    (e.meta?.headword_variants && e.meta.headword_variants.length > 0)
+      ? `異形詞：${e.meta.headword_variants.join('、')}`
+      : '',
+    e.entry_type ? `類型：${e.entry_type}` : '',
+    ''
+  ].filter(Boolean)
+
+  const senseLines: string[] = []
+  e.senses.forEach((sense, idx) => {
+    const indexLabel = e.senses.length > 1 ? `【義項 ${idx + 1}】` : '【義項】'
+    senseLines.push(indexLabel)
+    if (sense.label) {
+      senseLines.push(`詞性：${sense.label}`)
+    }
+    senseLines.push(`釋義：${sense.definition}`)
+
+    // 子義項
+    if (sense.sub_senses && sense.sub_senses.length > 0) {
+      sense.sub_senses.forEach((sub) => {
+        senseLines.push(`- 子義項 ${sub.label}）：${sub.definition}`)
+        if (sub.examples && sub.examples.length > 0) {
+          sub.examples.forEach((ex) => {
+            senseLines.push(`  · 例句：${ex.text}`)
+            if (ex.jyutping) senseLines.push(`    粵拼：${ex.jyutping}`)
+            if (ex.translation) senseLines.push(`    翻譯：${ex.translation}`)
+          })
+        }
+      })
+    } else if (sense.examples && sense.examples.length > 0) {
+      // 直接掛在義項下的例句
+      sense.examples.forEach((ex) => {
+        senseLines.push(`- 例句：${ex.text}`)
+        if (ex.jyutping) senseLines.push(`  粵拼：${ex.jyutping}`)
+        if (ex.translation) senseLines.push(`  翻譯：${ex.translation}`)
+      })
+    }
+
+    senseLines.push('') // 義項之間留空行
+  })
+
+  if (e.meta?.notes) {
+    headerLines.push('備註：' + e.meta.notes, '')
+  }
+
+  if (e.meta?.etymology && typeof e.meta.etymology === 'string') {
+    headerLines.push('詞源：' + e.meta.etymology, '')
+  }
+
+  if (e.meta?.references && e.meta.references.length > 0) {
+    headerLines.push('參考文獻：')
+    e.meta.references.forEach((ref) => {
+      const parts: string[] = []
+      if (ref.author) parts.push(ref.author)
+      if (ref.work) parts.push(`《${ref.work}》`)
+      if (ref.quote) parts.push(ref.quote)
+      if (ref.source) parts.push(`（${ref.source}）`)
+      headerLines.push('- ' + parts.join('：'))
+    })
+    headerLines.push('')
+  }
+
+  if (e.refs && e.refs.length > 0) {
+    headerLines.push('參見：' + e.refs.map((r) => r.target).join('、'), '')
+  }
+
+  const summary = [...headerLines, ...senseLines].join('\n')
+  return summary
+})
 
 // 词条类型标签
 const entryTypeLabel = computed(() => {

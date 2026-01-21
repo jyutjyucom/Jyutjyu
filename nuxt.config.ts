@@ -102,6 +102,8 @@ export default defineNuxtConfig({
     // 服务端私有配置（从环境变量读取）
     mongodbUri: process.env.MONGODB_URI,
     mongodbDbName: process.env.MONGODB_DB_NAME || 'jyutjyu',
+    githubToken: process.env.GITHUB_TOKEN,
+    githubRepo: process.env.GITHUB_REPO,
 
     // 客户端公开配置
     public: {
