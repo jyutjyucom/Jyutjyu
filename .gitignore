@@ -32,6 +32,9 @@ coverage
 # Build outputs
 public/search-index.json
 
+# Vercel (local project metadata / build outputs)
+.vercel/
+
 # OS
 Thumbs.db
 

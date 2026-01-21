@@ -117,31 +117,36 @@
 
         <!-- Mobile: 1 card with navigation -->
         <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="md:hidden">
-          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden relative">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <!-- Card content - clickable to search -->
             <div @click="searchEntry(randomEntries[mobileIndex].headword.display)"
-              class="cursor-pointer p-6 hover:bg-gray-50 active:bg-gray-100 transition-colors">
-              <div class="flex flex-col">
-                <div class="mb-3">
-                  <h4 class="text-2xl font-bold text-gray-900 mb-1">
+              class="cursor-pointer p-7 active:bg-gray-50 transition-colors">
+              <div class="flex flex-col h-full items-center text-center">
+                <div class="w-full">
+                  <h4 class="text-2xl font-bold text-gray-900 mb-2">
                     {{ randomEntries[mobileIndex].headword.display }}
                   </h4>
-                  <p class="text-sm font-mono text-blue-600">
+                  <p class="text-base font-mono text-blue-600 font-medium">
                     {{ randomEntries[mobileIndex].phonetic.jyutping[0] }}
                   </p>
                 </div>
-                <p class="text-gray-700 text-sm line-clamp-4">
+
+                <div class="w-16 h-0.5 bg-blue-100 my-4"></div>
+
+                <p class="text-gray-600 text-base leading-relaxed line-clamp-4 mb-1">
                   {{ randomEntries[mobileIndex].senses[0]?.definition || t('common.noDefinition') }}
                 </p>
               </div>
             </div>
 
             <!-- Bottom bar - clickable to go next -->
-            <div class="border-t-2 border-gray-200">
+            <div class="border-t border-gray-50">
               <button @click="nextMobileEntry"
-                class="w-full px-6 py-4 flex justify-between items-center hover:bg-blue-50 active:bg-blue-100 transition-colors">
-                <span class="text-xs text-gray-500">{{ randomEntries[mobileIndex].source_book }}</span>
-                <span class="text-blue-600 font-medium flex items-center gap-1 text-sm">
+                class="w-full px-7 py-4 flex justify-between items-center active:bg-blue-50 transition-colors">
+                <span class="text-xs text-gray-400 font-medium">{{ randomEntries[mobileIndex].source_book }}</span>
+                <span class="text-blue-500 font-medium flex items-center gap-1 text-sm">
                   {{ t('common.next') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -174,7 +179,7 @@
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex flex-col items-center mb-6">
           <div class="flex justify-between items-center w-full mb-2">
-            <h3 class="text-3xl font-semibold text-blue-700">{{ t('common.includedDictionaries') }}</h3>
+            <h3 class="text-2xl font-semibold text-blue-700">{{ t('common.includedDictionaries') }}</h3>
           </div>
           <p class="text-lg text-gray-600">
             {{ t('common.totalEntriesPrefix') }}
@@ -342,9 +347,13 @@ const totalEntriesCount = computed(() => {
 // 按名称排序词典
 const sortedDictionaries = computed(() => {
   if (!dictionariesData.value) return []
-  return [...dictionariesData.value.dictionaries].sort((a, b) =>
-    a.name.localeCompare(b.name, locale.value)
-  )
+  return [...dictionariesData.value.dictionaries].sort((a, b) => {
+    // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成“相等”(返回 0)，
+    // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
+    const cmp = a.name.localeCompare(b.name, locale.value || undefined)
+    if (cmp !== 0) return cmp
+    return String(a.id).localeCompare(String(b.id))
+  })
 })
 
 // 词典封面映射
