@@ -199,9 +199,9 @@
               <div class="flex items-start mb-4">
                 <!-- Cover Image (Left) -->
                 <div class="flex-shrink-0 mr-4 relative group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gray-200 rounded-md animate-pulse" v-if="!dictionaryCovers[dict.id]">
+                  <div class="absolute inset-0 bg-gray-200 rounded-md animate-pulse" v-if="!dict.cover">
                   </div>
-                  <img v-if="dictionaryCovers[dict.id]" :src="dictionaryCovers[dict.id]" :alt="dict.name"
+                  <img v-if="dict.cover" :src="dict.cover" :alt="dict.name"
                     class="w-16 h-20 object-contain bg-white rounded-md shadow-md border border-gray-100" />
                   <div v-else
                     class="w-16 h-20 bg-blue-50 rounded-md flex items-center justify-center text-blue-300 shadow-sm border border-blue-100">
@@ -355,18 +355,6 @@ const sortedDictionaries = computed(() => {
     return String(a.id).localeCompare(String(b.id))
   })
 })
-
-// 词典封面映射
-const dictionaryCovers: Record<string, string> = {
-  'gz-practical-classified': '/gz-practical-classified.jpg',
-  'gz-colloquialisms': '/gz-colloquialisms.jpg',
-  'gz-dict': '/gz-dict.jpg',
-  'gz-modern': '/gz-modern.jpg',
-  'gz-dialect': '/gz-dialect.png',
-  'gz-word-origins': '/gz-word-origins.png',
-  'hk-cantowords': '/hk-cantowords.png',
-  'wiktionary-cantonese': '/wiktionary-cantonese.png'
-}
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
