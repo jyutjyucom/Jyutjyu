@@ -4,31 +4,31 @@
 
 > 開放粵語詞典聚合平台 | The Open Platform for Cantonese Dictionaries
 
-## 📖 項目簡介
+## 項目簡介
 
 **粵語辭叢**（jyutjyu.com）係一個致力保存同傳播粵語文化嘅開放平台。我哋集合咗各類粵語詞典（分類、俗語、詞源等），為粵語學習者、愛好者同研究人員提供一個統一、方便嘅查詢入口。
 
-### ✨ 核心功能
+### 核心功能
 
-- 🔍 **智能搜尋**：支援繁簡轉換、粵拼、多音字、模糊匹配
-- 📚 **多典聚合**：一次過查晒唔同來源、結構嘅詞典
-- 📱 **響應式設計**：手機、電腦都睇得舒服
-- 🚀 **雙存儲模式**：支援靜態 JSON（零成本）或 MongoDB（高性能）
+- **智能搜尋**：支援繁簡轉換、粵拼、多音字、模糊匹配
+- **多典聚合**：一次過查曬唔同來源、結構嘅詞典
+- **響應式設計**：手機、電腦都睇得舒服
+- **雙存儲模式**：支援靜態 JSON（零成本）或 MongoDB（高性能）
 
-## 📚 收錄詞典
+## 收錄詞典
 
 目前已收錄多部珍貴詞典：
 
-- ✅ **實用廣州話分類詞典**（7,549 條）
-- ✅ **廣州話俗語詞典**（2,516 條）
-- ✅ **廣州方言詞典**（7,461 條）
-- ✅ **現代粵語詞典**（16,347 條）
-- ✅ **廣州話詞典 (第2版)**（10,803 條）
-- ✅ **粵典 (words.hk)**（59,019 條，社區協作）
-- ✅ **Wiktionary Cantonese**（10萬+ 條，社區協作）
-- ✅ **粵語辭源**（3,951 條）
+- [x] **實用廣州話分類詞典**（7,549 條）
+- [x] **廣州話俗語詞典**（2,516 條）
+- [x] **廣州方言詞典**（7,461 條）
+- [x] **現代粵語詞典**（16,347 條）
+- [x] **廣州話詞典 (第2版)**（10,803 條）
+- [x] **粵典 (words.hk)**（59,019 條，社區協作）
+- [x] **Wiktionary Cantonese**（10萬+ 條，社區協作）
+- [x] **粵語辭源**（3,951 條）
 
-## 📜 內容授權
+## 內容授權
 
 本平台收錄嘅內容根據來源有唔同授權，請留意：
 
@@ -39,7 +39,7 @@
 
 詳情請參閱 [貢獻指南](./CONTRIBUTING.md#內容授權政策)。
 
-## 🛠 技術棧
+## 技術棧
 
 - **框架**: [Nuxt 3](https://nuxt.com/) (Vue 3 + SSR)
 - **UI**: [Tailwind CSS](https://tailwindcss.com/)
@@ -47,10 +47,9 @@
 - **中文轉換**: [OpenCC.js](https://github.com/nk2028/opencc-js)
 - **部署**: [Vercel](https://vercel.com/)
 
-## 🚀 快速開始
+## 快速開始
 
 ### 環境要求
-
 - Node.js >= 18.0.0
 
 ### 安裝與運行
@@ -66,13 +65,12 @@ npm install
 # Start dev server
 npm run dev
 ```
-
-瀏覽 <http://localhost:3002>
+瀏覽 http://localhost:3002
 
 ### 數據存儲模式
 
-1. **靜態 JSON (預設)**：適合小型項目或測試，無需數據庫，數據喺 `public/dictionaries/`。
-2. **MongoDB (生產環境)**：適合大規模數據同高性能搜尋。配置 `.env` 啟用。
+1.  **靜態 JSON (預設)**：適合小型項目或測試，無需數據庫，數據喺 `public/dictionaries/`。
+2.  **MongoDB (生產環境)**：適合大規模數據同高性能搜尋。配置 `.env` 啟用。
 
 詳細配置見 [MongoDB 指南](./docs/MONGODB_SETUP.md)。
 
@@ -92,24 +90,23 @@ npm run build:data:gzpc   # 分類詞典
 
 更多資料：[Wiktionary 指南](./docs/WIKTIONARY_GUIDE.md) | [CSV 規範](./docs/CSV_GUIDE.md)
 
-## 🤝 參與貢獻
+## 參與貢獻
 
 歡迎大家幫手校對或提供詞典資料！
-
 - [貢獻指南](./CONTRIBUTING.md)
 - [CSV 錄入規範](./docs/CSV_GUIDE.md)
 
-## 📄 許可證
+## 許可證
 
 - **代碼**: [MIT License](./LICENSE)
-- **數據**: 見上文[內容授權](#-內容授權)
+- **數據**: 見上文[內容授權](#內容授權)
 
-## 🙏 致謝
+## 致謝
 
 感謝所有為粵語文化保育做出貢獻嘅學者、編者同義工。
 
 ---
 
-**網站**: <https://jyutjyu.com>  
+**網站**: https://jyutjyu.com  
 **討論**: [GitHub Discussions](https://github.com/jyutjyucom/jyutjyu/discussions)  
 **反饋**: [GitHub Issues](https://github.com/jyutjyucom/jyutjyu/issues)
