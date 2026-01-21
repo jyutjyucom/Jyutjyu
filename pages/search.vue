@@ -128,6 +128,43 @@
                 </button>
               </div>
             </div>
+
+            <!-- 类型筛选 (字/词/短语) -->
+            <div v-if="availableTypes.length > 1" class="relative">
+              <button
+                class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors"
+                :class="selectedType ? 'bg-amber-50 border-amber-300 text-amber-700' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'"
+                @click="showTypeDropdown = !showTypeDropdown"
+              >
+                <span>{{ selectedType ? getTypeName(selectedType) : t('common.allTypes') }}</span>
+                <svg class="w-4 h-4" :class="showTypeDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <!-- 下拉菜单 -->
+              <div
+                v-if="showTypeDropdown"
+                class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 min-w-[120px]"
+              >
+                <button
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="!selectedType ? 'text-amber-600 bg-amber-50' : 'text-gray-700'"
+                  @click="selectType(null)"
+                >
+                  {{ t('common.allTypes') }}
+                </button>
+                <button
+                  v-for="type in availableTypes"
+                  :key="type"
+                  class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                  :class="selectedType === type ? 'text-amber-600 bg-amber-50' : 'text-gray-700'"
+                  @click="selectType(type)"
+                >
+                  {{ getTypeName(type) }}
+                  <span class="text-gray-400 text-xs ml-1">({{ getTypeCount(type) }})</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -159,7 +196,7 @@
                 {{ t('common.remainingSuffix') }}
               </span>
               <!-- 筛选状态 -->
-              <template v-if="selectedDict || selectedDialect">
+              <template v-if="selectedDict || selectedDialect || selectedType">
                 <span class="text-gray-400">→</span>
                 <span class="text-blue-600">
                   {{ t('common.filterLabel') }}
@@ -520,8 +557,10 @@ const isSearchComplete = ref(true) // 搜索是否完成（流式搜索中用）
 // 筛选相关状态
 const selectedDict = ref<string | null>(null) // 选中的词典
 const selectedDialect = ref<string | null>(null) // 选中的方言点
+const selectedType = ref<string | null>(null) // 选中的类型 (character|word|phrase)
 const showDictDropdown = ref(false) // 词典下拉菜单显示状态
 const showDialectDropdown = ref(false) // 方言下拉菜单显示状态
+const showTypeDropdown = ref(false) // 类型下拉菜单显示状态
 
 // 分页配置
 const PAGE_SIZE = 10 // 每页显示10条
@@ -545,9 +584,17 @@ const selectDialect = (dialect: string | null) => {
   updateDisplayedResults()
 }
 
+const selectType = (type: string | null) => {
+  selectedType.value = type
+  showTypeDropdown.value = false
+  currentPage.value = 1
+  updateDisplayedResults()
+}
+
 const clearFilters = () => {
   selectedDict.value = null
   selectedDialect.value = null
+  selectedType.value = null
   currentPage.value = 1
   updateDisplayedResults()
 }
@@ -576,6 +623,27 @@ const availableDialects = computed(() => {
   return Array.from(dialects).sort()
 })
 
+const availableTypes = computed(() => {
+  const types = new Set<string>()
+  allResults.value.forEach(entry => {
+    if (entry.entry_type) types.add(entry.entry_type)
+  })
+  return Array.from(types).sort((a, b) => {
+    // 排序: 字, 词, 短语
+    const order = { 'character': 1, 'word': 2, 'phrase': 3 } as Record<string, number>
+    return (order[a] || 9) - (order[b] || 9)
+  })
+})
+
+const getTypeName = (type: string) => {
+  switch (type) {
+    case 'character': return t('common.entryTypeCharacter')
+    case 'word': return t('common.entryTypeWord')
+    case 'phrase': return t('common.entryTypePhrase')
+    default: return type
+  }
+}
+
 // 筛选后的结果
 const filteredResults = computed(() => {
   let results = allResults.value
@@ -584,6 +652,9 @@ const filteredResults = computed(() => {
   }
   if (selectedDialect.value) {
     results = results.filter(e => e.dialect?.name === selectedDialect.value)
+  }
+  if (selectedType.value) {
+    results = results.filter(e => e.entry_type === selectedType.value)
   }
   return results
 })
@@ -708,7 +779,21 @@ const getDialectCount = (dialect: string): number => {
   if (selectedDict.value) {
     results = results.filter(e => e.source_book === selectedDict.value)
   }
+  if (selectedType.value) {
+    results = results.filter(e => e.entry_type === selectedType.value)
+  }
   return results.filter(e => e.dialect?.name === dialect).length
+}
+
+const getTypeCount = (type: string): number => {
+  let results = allResults.value
+  if (selectedDict.value) {
+    results = results.filter(e => e.source_book === selectedDict.value)
+  }
+  if (selectedDialect.value) {
+    results = results.filter(e => e.dialect?.name === selectedDialect.value)
+  }
+  return results.filter(e => e.entry_type === type).length
 }
 
 // 基于筛选结果的分页
@@ -744,6 +829,7 @@ const performSearch = async (query: string) => {
   // 重置筛选状态
   selectedDict.value = null
   selectedDialect.value = null
+  selectedType.value = null
   
   // 确保转换器已初始化（用于完全匹配判断）
   await ensureInitialized()
@@ -880,6 +966,7 @@ onMounted(async () => {
       showSuggestions.value = false
       showDictDropdown.value = false
       showDialectDropdown.value = false
+      showTypeDropdown.value = false
     }
   }
   document.addEventListener('click', handleClickOutside)
