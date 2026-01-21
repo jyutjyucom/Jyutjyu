@@ -71,7 +71,7 @@
 
           <!-- 方言 -->
           <span class="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-sm whitespace-nowrap">
-            {{ entry.dialect.name }}
+            {{ dialectLabel }}
           </span>
 
           <!-- 词条类型 -->
@@ -378,6 +378,16 @@ const entryTypeLabel = computed(() => {
     phrase: t('dictCard.entryTypePhrase')
   }
   return labels[props.entry.entry_type] || props.entry.entry_type
+})
+
+// 方言标签：使用地区代码映射（便于 i18n）
+const dialectLabel = computed(() => {
+  const code = props.entry.dialect?.region_code?.toUpperCase()
+  if (code === 'GZ' || code === 'HK' || code === 'YUE') {
+    return t(`dictCard.dialect.${code}`)
+  }
+  // 回退：无地区代码时使用原始名称（兼容旧数据）
+  return props.entry.dialect?.name || ''
 })
 
 // 是否有额外信息（不包括词源和语域，因为它们已在顶部展示）

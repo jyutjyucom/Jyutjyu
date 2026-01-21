@@ -90,6 +90,11 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原书: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
+        dialect: {
+          GZ: '广州',
+          HK: '香港',
+          YUE: '粤语'
+        },
         entryTypeCharacter: '字',
         entryTypeWord: '词',
         entryTypePhrase: '短语',
@@ -279,6 +284,11 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原書: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
+        dialect: {
+          GZ: '廣州',
+          HK: '香港',
+          YUE: '粵語'
+        },
         entryTypeCharacter: '字',
         entryTypeWord: '詞',
         entryTypePhrase: '短語',
@@ -468,6 +478,11 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原书: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
+        dialect: {
+          GZ: '广州',
+          HK: '香港',
+          YUE: '粤语'
+        },
         entryTypeCharacter: '字',
         entryTypeWord: '词',
         entryTypePhrase: '短语',
@@ -656,6 +671,11 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原書: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
+        dialect: {
+          GZ: '廣州',
+          HK: '香港',
+          YUE: '粵語'
+        },
         entryTypeCharacter: '字',
         entryTypeWord: '詞',
         entryTypePhrase: '短語',
