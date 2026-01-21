@@ -1,4 +1,4 @@
-# 粤语辞丛 The Jyut Collection
+# 粤语辞丛 Open Cantonese Dictionary Collection Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

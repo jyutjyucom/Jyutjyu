@@ -10,7 +10,7 @@
 
       <!-- Logo & Title -->
       <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+        <h1 class="text-4xl md:text-6xl font-bold text-blue-600 mb-4">
           {{ t('common.siteName') }}
         </h1>
         <h2 class="text-xl md:text-2xl text-gray-600 mb-2">
@@ -52,7 +52,7 @@
       <!-- Random Entries -->
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-2xl font-semibold">{{ t('common.recommendedEntries') }}</h3>
+          <h3 class="text-2xl font-semibold text-blue-700">{{ t('common.recommendedEntries') }}</h3>
           <button @click="refreshRandomEntries" :disabled="loadingRandomEntries"
             class="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
             <svg v-if="loadingRandomEntries" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor"
@@ -77,26 +77,39 @@
         <!-- Desktop: 3 cards in grid -->
         <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
           <div v-for="entry in randomEntries" :key="entry.id" @click="searchEntry(entry.headword.display)"
-            class="cursor-pointer bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all p-6 group">
-            <div class="flex flex-col h-full">
-              <div class="mb-3">
-                <h4 class="text-2xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+            class="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-8 group relative overflow-hidden">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 transition-opacity">
+            </div>
+
+            <div class="flex flex-col h-full items-center text-center">
+              <div class="w-full">
+                <h4 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {{ entry.headword.display }}
                 </h4>
-                <p class="text-sm font-mono text-blue-600">
+
+                <p class="text-base font-mono text-blue-600 font-medium">
                   {{ entry.phonetic.jyutping[0] }}
                 </p>
+
               </div>
-              <p class="text-gray-700 text-sm line-clamp-3 flex-1 group-hover:text-gray-900">
+
+              <div class="w-16 h-0.5 bg-blue-100 my-4"></div>
+
+              <p class="text-gray-600 text-lg leading-relaxed line-clamp-3 mb-6">
                 {{ entry.senses[0]?.definition || t('common.noDefinition') }}
               </p>
-              <div class="mt-3 pt-3 border-t border-gray-100">
-                <div class="flex justify-between items-center">
-                  <span class="text-xs text-gray-500 group-hover:text-gray-700">{{ entry.source_book }}</span>
-                  <span class="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {{ t('common.clickToView') }}
-                  </span>
-                </div>
+
+              <div class="mt-auto w-full pt-4 border-t border-gray-50 flex justify-between items-center text-sm">
+                <span class="text-gray-400 font-medium">{{ entry.source_book }}</span>
+                <span
+                  class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  {{ t('common.clickToView') }}
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                  </svg>
+                </span>
               </div>
             </div>
           </div>
@@ -161,9 +174,9 @@
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex flex-col items-center mb-6">
           <div class="flex justify-between items-center w-full mb-2">
-            <h3 class="text-2xl font-semibold">{{ t('common.includedDictionaries') }}</h3>
+            <h3 class="text-3xl font-semibold text-blue-700">{{ t('common.includedDictionaries') }}</h3>
           </div>
-          <p class="text-sm text-gray-600">
+          <p class="text-lg text-gray-600">
             {{ t('common.totalEntriesPrefix') }}
             <span class="text-blue-600 font-semibold text-lg">{{ totalEntriesCount.toLocaleString() }}</span>
             {{ t('common.totalEntriesSuffix') }}
@@ -172,57 +185,69 @@
 
         <!-- Dictionary Grid -->
         <div v-if="dictionariesData" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="dict in sortedDictionaries" :key="dict.id" class="bg-white rounded-lg transition-all p-6">
-            <div class="flex flex-col h-full">
-              <div class="mb-3">
-                <h4 class="text-xl font-bold text-gray-900 mb-2">
-                  {{ dict.name }} <span :class="{
-                    'bg-green-100 text-green-800': dict.entries_count > 0,
-                    'bg-yellow-100 text-yellow-800': dict.entries_count === 0
-                  }" class="inline-block px-3 py-1 rounded-full text-sm font-medium">
-                    {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()}
-                    ${t('common.entriesCountSuffix')}`
-                      : t('common.inProgress') }}
-                  </span>
-                </h4>
+          <div v-for="dict in sortedDictionaries" :key="dict.id"
+            class="bg-slate-50 rounded-lg border border-blue-100 hover:border hover:border-blue-300 transition-all p-0 overflow-hidden flex flex-col h-full group">
+            <!-- Header with colored top border -->
+            <!-- <div class="h-1.5 w-full bg-gradient-to-r from-blue-400 to-indigo-500"></div> -->
 
-                <p class="text-sm text-gray-600 mb-1">
-                  {{ dict.author }}
-                </p>
-                <p class="text-xs text-gray-500">
-                  {{ dict.publisher }} · {{ dict.year }}
-                </p>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="flex items-start mb-4">
+                <!-- Cover Image (Left) -->
+                <div class="flex-shrink-0 mr-4 relative group-hover:scale-105 transition-transform duration-300">
+                  <div class="absolute inset-0 bg-gray-200 rounded-md animate-pulse" v-if="!dictionaryCovers[dict.id]">
+                  </div>
+                  <img v-if="dictionaryCovers[dict.id]" :src="dictionaryCovers[dict.id]" :alt="dict.name"
+                    class="w-16 h-20 object-contain bg-white rounded-md shadow-md border border-gray-100" />
+                  <div v-else
+                    class="w-16 h-20 bg-blue-50 rounded-md flex items-center justify-center text-blue-300 shadow-sm border border-blue-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                      </path>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Title & Metadata (Right) -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2 mb-1">
+                    <h4
+                      class="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-700 transition-colors">
+                      {{ dict.name }}
+                    </h4>
+                    <span :class="{
+                      'bg-green-100 text-green-700 border border-green-200': dict.entries_count > 0,
+                      'bg-yellow-100 text-yellow-700 border border-yellow-200': dict.entries_count === 0
+                    }" class="flex-shrink-0 px-2 py-0.5 rounded text-sm font-semibold whitespace-nowrap">
+                      {{ dict.entries_count > 0 ? `${dict.entries_count.toLocaleString()}
+                      ${t('common.entriesCountSuffix')}` : t('common.inProgress') }}
+                    </span>
+                  </div>
+
+                  <p class="text-sm font-medium text-gray-700 mb-0.5 truncate">
+                    {{ dict.author }}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ dict.publisher }} · {{ dict.year }}
+                  </p>
+                </div>
               </div>
-              <p v-if="dict.description" class="text-gray-700 text-sm line-clamp-2 flex-1 mb-3">
+
+              <p v-if="dict.description" class="text-gray-600 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
                 {{ dict.description }}
               </p>
-              <div class="mt-auto">
 
-              </div>
-
-              <!-- 授权信息和免责说明 -->
-              <div v-if="dict.license" class="mt-3 pt-3 border-t border-gray-100">
+              <!-- Footer with License -->
+              <div v-if="dict.license" class="pt-4 border-t border-gray-200 mt-auto">
                 <div class="flex items-start gap-2">
-                  <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                  <svg class="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div class="flex-1">
-                    <p class="text-xs text-gray-600 mb-2">
-                      <span class="font-medium">{{ t('common.licenseLabel') }}</span> {{ dict.license }}
-                    </p>
-                    <!-- 免责说明 - 社区词典 -->
-                    <p v-if="dict.source === 'community_contributed'" class="text-xs text-gray-500 leading-relaxed">
-                      {{ t('common.licenseCommunityDisclaimer') }}
-                    </p>
-                    <!-- 免责说明 - 出版词典 -->
-                    <p v-else-if="dict.source === 'scanned_from_internet'"
-                      class="text-xs text-gray-500 leading-relaxed">
-                      {{ t('common.licenseScannedDisclaimerPrefix') }}
-                      <a href="https://github.com/jyutjyucom/jyutjyu/issues" target="_blank"
-                        class="text-blue-600 hover:underline">GitHub Issue</a>
-                      {{ t('common.licenseScannedDisclaimerSuffix') }}
+                    <p class="text-xs text-gray-500">
+                      {{ dict.license }}
                     </p>
                   </div>
                 </div>
@@ -322,6 +347,18 @@ const sortedDictionaries = computed(() => {
   )
 })
 
+// 词典封面映射
+const dictionaryCovers: Record<string, string> = {
+  'gz-practical-classified': '/gz-practical-classified.jpg',
+  'gz-colloquialisms': '/gz-colloquialisms.jpg',
+  'gz-dict': '/gz-dict.jpg',
+  'gz-modern': '/gz-modern.jpg',
+  'gz-dialect': '/gz-dialect.png',
+  'gz-word-origins': '/gz-word-origins.png',
+  'hk-cantowords': '/hk-cantowords.png',
+  'wiktionary-cantonese': '/wiktionary-cantonese.png'
+}
+
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
     const params = new URLSearchParams({ q: searchQuery.value })
@@ -358,7 +395,7 @@ const refreshRandomEntries = async () => {
       mobileIndex.value = 0
     }
   } catch (error) {
-    console.error('加载随机词条失败:', error)
+    console.error('加載隨機詞條失敗:', error)
   } finally {
     loadingRandomEntries.value = false
     // 确保 Vue 响应式更新完成

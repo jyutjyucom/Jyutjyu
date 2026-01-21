@@ -63,20 +63,20 @@ export default defineNuxtConfig({
   // App 配置
   app: {
     head: {
-      title: '粤语辞丛 | The Jyut Collection',
+      title: '粵語辭叢 | The Cantonese Dictionary Collection',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'color-scheme', content: 'light only' },
         {
           name: 'description',
-          content: '开放的粤语词典聚合平台，支持多词典统一查询、粤拼搜索，为粤语学习者和研究者提供便捷的工具。'
+          content: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries'
         },
-        { name: 'keywords', content: '粤语,广州话,词典,粤拼,Cantonese,Jyutping' },
+        { name: 'keywords', content: '粵語,廣州話,詞典,粵拼,Cantonese,Jyutping' },
         { name: 'author', content: 'Jyut Collection' },
         // Open Graph
-        { property: 'og:title', content: '粤语辞丛 | The Jyut Collection' },
-        { property: 'og:description', content: '开放的粤语词典聚合平台' },
+        { property: 'og:title', content: '粵語辭叢 | The Cantonese Dictionary Collection' },
+        { property: 'og:description', content: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://jyutjyu.com' },
         // Twitter
@@ -103,8 +103,8 @@ export default defineNuxtConfig({
     // 客户端公开配置
     public: {
       siteUrl: 'https://jyutjyu.com',
-      siteName: '粤语辞丛',
-      siteDescription: '开放的粤语词典聚合平台',
+      siteName: '粵語辭叢',
+      siteDescription: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries',
       // 是否使用后端 API（false 时回退到静态 JSON）
       useApi: process.env.NUXT_PUBLIC_USE_API === 'true'
     }
