@@ -24,6 +24,7 @@ const ADAPTERS = {
   'gz-modern': () => import('./adapters/gz-modern.js'),
   'gz-dict': () => import('./adapters/gz-dict.js'),
   'hk-cantowords': () => import('./adapters/hk-cantowords.js'),
+  'qz-jyutping': () => import('./adapters/qz-jyutping.js'),
   // 未来可以添加更多词典
 }
 

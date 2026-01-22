@@ -81,7 +81,7 @@ export default defineI18nConfig(() => ({
         langZhHans: '简体中文',
         langZhHant: '繁體中文',
         langYueHans: '简体粤文',
-        langYueHant: '粵文',
+        langYueHant: '粤文',
         exactMatchLabel: '完全匹配',
         otherResultsLabel: '其他相关结果',
         sortByRelevance: '相关度',
@@ -97,6 +97,7 @@ export default defineI18nConfig(() => ({
         dialect: {
           GZ: '广州',
           HK: '香港',
+          QZ: '钦州',
           YUE: '粤语'
         },
         entryTypeCharacter: '字',
@@ -343,6 +344,7 @@ export default defineI18nConfig(() => ({
         dialect: {
           GZ: '廣州',
           HK: '香港',
+          QZ: '欽州',
           YUE: '粵語'
         },
         entryTypeCharacter: '字',
@@ -589,6 +591,7 @@ export default defineI18nConfig(() => ({
         dialect: {
           GZ: '广州',
           HK: '香港',
+          QZ: '钦州',
           YUE: '粤语'
         },
         entryTypeCharacter: '字',
@@ -834,6 +837,7 @@ export default defineI18nConfig(() => ({
         dialect: {
           GZ: '廣州',
           HK: '香港',
+          QZ: '欽州',
           YUE: '粵語'
         },
         entryTypeCharacter: '字',
