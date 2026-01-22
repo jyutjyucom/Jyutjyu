@@ -9,8 +9,8 @@
       </div>
 
       <!-- Logo & Title -->
-      <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-6xl font-bold text-blue-600 mb-4">
+      <div class="text-center mb-12 font-r">
+        <h1 class="text-4xl md:text-6xl text-blue-600 mb-4">
           {{ t('common.siteName') }}
         </h1>
         <h2 class="text-xl md:text-2xl text-gray-600 mb-2">

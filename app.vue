@@ -17,6 +17,12 @@ useHead({
 </script>
 
 <style>
+@font-face {
+  font-family: 'R';
+  src: url('/R.woff2') format('woff2');
+  font-display: swap;
+}
+
 /* 全局样式 */
 * {
   margin: 0;
@@ -38,5 +44,8 @@ body {
   background-color: #ffffff;
   color: #000000;
 }
-</style>
 
+.font-r {
+  font-family: 'R', 'Chiron Hei HK', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+</style>
