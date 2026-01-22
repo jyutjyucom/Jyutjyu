@@ -27,7 +27,7 @@ export const DICTIONARY_INFO = {
   id: 'gz-word-origins',
   name: '粵語辭源',
   dialect: {
-    name: '广州话',
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '粵語辭源',

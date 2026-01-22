@@ -24,7 +24,7 @@ export const DICTIONARY_INFO = {
   id: 'gz-colloquialisms',
   name: '广州话俗语词典',
   dialect: {
-    name: '广州话',
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '广州话俗语词典',

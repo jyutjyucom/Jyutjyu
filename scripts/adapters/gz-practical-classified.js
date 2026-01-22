@@ -19,7 +19,7 @@ export const DICTIONARY_INFO = {
   id: 'gz-practical-classified',
   name: '实用广州话分类词典',
   dialect: {
-    name: '广州话',
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '实用广州话分类词典',

@@ -25,7 +25,7 @@ export const DICTIONARY_INFO = {
   id: 'hk-cantowords',
   name: '粵典',
   dialect: {
-    name: '香港话',
+    name: '香港',
     region_code: 'HK'
   },
   source_book: '粵典 (words.hk)',
@@ -33,7 +33,7 @@ export const DICTIONARY_INFO = {
   publisher: 'Hong Kong Lexicography Limited',
   year: 2026,
   version: new Date().toISOString().slice(0, 10),
-  description: '香港话社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义',
+  description: '香港粤语社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义',
   source: 'community_contributed',
   license: 'Non-Commercial Open Data License 1.0',
   license_url: 'https://words.hk/base/hoifong/',

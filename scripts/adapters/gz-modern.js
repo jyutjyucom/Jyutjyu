@@ -29,7 +29,7 @@ export const DICTIONARY_INFO = {
   id: 'gz-modern',
   name: '现代粤语词典',
   dialect: {
-    name: '广州话',
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '现代粤语词典',

@@ -176,7 +176,7 @@ export const DICTIONARY_INFO = {
   id: 'gz-dict',
   name: '广州话词典（第2版）',
   dialect: {
-    name: '广州话',
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '广州话词典（第2版）',
