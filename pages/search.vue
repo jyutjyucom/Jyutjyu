@@ -224,7 +224,7 @@
               </span>
             </p>
             
-            <div class="flex items-center gap-4">
+            <div class="flex flex-wrap items-center gap-4">
               <!-- 排序下拉菜单 -->
               <div class="relative">
                 <button
@@ -256,7 +256,7 @@
               </div>
 
               <!-- 视图切换 (桌面端) -->
-              <div v-if="displayedResults.length > 0" class="hidden md:flex">
+              <div v-if="displayedResults.length > 0" class="flex">
               <div class="inline-flex rounded-lg border border-gray-300">
                 <button
                   class="px-4 py-2 text-sm font-medium transition-colors"
@@ -383,16 +383,16 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.wordColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.jyutpingColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.definitionColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.sourceColumn') }}
                       </th>
                     </tr>
@@ -403,22 +403,22 @@
                         class="hover:bg-gray-50 cursor-pointer transition-colors"
                         @click="expandedRow = expandedRow === entry.id ? null : entry.id"
                       >
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <div class="text-sm font-semibold text-gray-900">
                             {{ entry.headword.display }}
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <div class="text-sm font-mono text-blue-600">
                             {{ entry.phonetic.jyutping[0] }}
                           </div>
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-3 py-2 sm:px-6 sm:py-4">
                           <div class="text-sm text-gray-700 line-clamp-2">
                             {{ entry.senses[0]?.definition }}
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full">
                             {{ entry.source_book }}
                           </span>
@@ -426,7 +426,7 @@
                       </tr>
                       <!-- 展开详情 -->
                       <tr v-if="expandedRow === entry.id" :key="`${entry.id}-detail`">
-                        <td colspan="4" class="px-6 py-4 bg-gray-50">
+                        <td colspan="4" class="px-3 py-3 sm:px-6 sm:py-4 bg-gray-50">
                           <DictCard :entry="entry" :show-details="false" />
                         </td>
                       </tr>
@@ -455,16 +455,16 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.wordColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.jyutpingColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.definitionColumn') }}
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6 sm:py-3">
                         {{ t('common.sourceColumn') }}
                       </th>
                     </tr>
@@ -475,22 +475,22 @@
                         class="hover:bg-gray-50 cursor-pointer transition-colors"
                         @click="expandedRow = expandedRow === entry.id ? null : entry.id"
                       >
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <div class="text-sm font-semibold text-gray-900">
                             {{ entry.headword.display }}
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <div class="text-sm font-mono text-blue-600">
                             {{ entry.phonetic.jyutping[0] }}
                           </div>
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-3 py-2 sm:px-6 sm:py-4">
                           <div class="text-sm text-gray-700 line-clamp-2">
                             {{ entry.senses[0]?.definition }}
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-2 whitespace-nowrap sm:px-6 sm:py-4">
                           <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full">
                             {{ entry.source_book }}
                           </span>
@@ -498,7 +498,7 @@
                       </tr>
                       <!-- 展开详情 -->
                       <tr v-if="expandedRow === entry.id" :key="`${entry.id}-detail`">
-                        <td colspan="4" class="px-6 py-4 bg-gray-50">
+                        <td colspan="4" class="px-3 py-3 sm:px-6 sm:py-4 bg-gray-50">
                           <DictCard :entry="entry" :show-details="false" />
                         </td>
                       </tr>
@@ -1113,4 +1113,3 @@ useHead({
   overflow: hidden;
 }
 </style>
-
