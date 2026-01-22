@@ -248,6 +248,44 @@
                 </p>
               </div>
             </div>
+            
+            <!-- 欽州粵拼 -->
+            <div class="bg-white rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-gray-900 mb-2">
+                📚 {{ t('about.original.qzTitle') }}
+              </h4>
+              <p class="text-sm text-gray-700 mb-3">
+                {{ t('about.original.qzDesc') }}
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">
+                📜 {{ t('about.original.licenseTitle') }}
+              </h5>
+              <p class="text-sm text-gray-700 mb-3">
+                <a href="https://www.gnu.org/licenses/gpl-3.0.html" class="text-blue-600 hover:underline font-medium" target="_blank">GPL-3.0</a>（GNU 通用公共许可证 3.0）
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">
+                ✅ {{ t('about.original.allowedTitle') }}
+              </h5>
+              <ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">
+                <li>{{ t('about.original.qzAllowed1') }}</li>
+                <li>{{ t('about.original.qzAllowed2') }}</li>
+                <li>{{ t('about.original.qzAllowed3') }}</li>
+              </ul>
+              
+              <h5 class="font-semibold text-gray-900 text-sm mb-2">
+                📝 {{ t('about.original.conditionsTitle') }}
+              </h5>
+              <ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">
+                <li>{{ t('about.original.qzConditions1') }}</li>
+                <li>{{ t('about.original.qzConditions2') }}</li>
+              </ul>
+              
+              <p class="text-xs text-gray-600">
+                {{ t('about.original.qzCopyright') }}
+              </p>
+            </div>
           </div>
 
           <!-- 权利声明 -->

@@ -27,6 +27,7 @@
 - [x] **粵典 (words.hk)**（59,019 條，社區協作）
 - [x] **維基辭典**（10萬+ 條，社區協作）
 - [x] **粵語辭源**（3,951 條）
+- [x] **欽州粵拼**（13,915 條）
 
 ## 內容授權
 
@@ -35,6 +36,7 @@
 - **出版詞典**：如《實用廣州話分類詞典》、《廣州方言詞典》等，受著作權法保護，數據源於網絡公開資源，**僅供學術研究同技術演示，不可商用**。
 - **粵典 (words.hk)**：採用 [Non-Commercial Open Data License 1.0](https://words.hk/base/hoifong/)，允許非商業使用。
 - **維基辭典**：採用 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)，允許商用（需署名及相同方式分享）。
+- **欽州粵拼**：採用 [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)，允許商用。
 - **社區原創**：建議採用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hant)。
 
 詳情請參閱 [貢獻指南](./CONTRIBUTING.md#內容授權政策)。

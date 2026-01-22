@@ -178,7 +178,15 @@ export default defineI18nConfig(() => ({
           conditions2: '标明修改：如进行了修改，需说明已作出的修改',
           conditions3: '非商业性：不得将该内容用于商业目的',
           attributionExample: '📋 署名格式示例：',
-          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)'
+          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
+          qzTitle: '欽州粵拼 - 13,915 词条',
+          qzDesc: '《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发布。',
+          qzAllowed1: '商业使用：允许用于商业目的',
+          qzAllowed2: '复制与分发：可以自由复制、分发、传播',
+          qzAllowed3: '修改与演绎：可以修改、混合、转换或基于该作品创作',
+          qzConditions1: '保留版权声明：必须保留原始版权声明和许可协议',
+          qzConditions2: '相同方式共享：如对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
+          qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
         rights: {
           title: '权利声明与联系方式',
@@ -425,7 +433,15 @@ export default defineI18nConfig(() => ({
           conditions2: '標明修改：如進行了修改，需說明已作出的修改',
           conditions3: '非商業性：不得將該內容用於商業目的',
           attributionExample: '📋 署名格式示例：',
-          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)'
+          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
+          qzTitle: '欽州粵拼 - 13,915 詞條',
+          qzDesc: '《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
+          qzAllowed1: '商業使用：允許用於商業目的',
+          qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
+          qzAllowed3: '修改與演繹：可以修改、混合、轉換或基於該作品創作',
+          qzConditions1: '保留版權聲明：必須保留原始版權聲明和許可協議',
+          qzConditions2: '相同方式共享：如對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
+          qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
         rights: {
           title: '權利聲明與聯絡方式',
@@ -672,7 +688,15 @@ export default defineI18nConfig(() => ({
           conditions2: '标明修改：如果做咗修改，需要说明改动内容',
           conditions3: '非商业性：唔可以将相关内容用于商业目的',
           attributionExample: '📋 署名格式示例：',
-          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)'
+          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
+          qzTitle: '欽州粵拼 - 13,915 词条',
+          qzDesc: '《钦州白话》嘅词头同注音部分，收录钦州话词汇同粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发佈。',
+          qzAllowed1: '商业使用：允许用于商业目的',
+          qzAllowed2: '复制与分发：可以自由复制、分发、传播',
+          qzAllowed3: '修改与演绎：可以修改、混合、转换或者基于呢个作品创作',
+          qzConditions1: '保留版权声明：必须保留原始版权声明同许可协议',
+          qzConditions2: '相同方式共享：如果对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
+          qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
         rights: {
           title: '权利声明与联络方式',
@@ -918,7 +942,15 @@ export default defineI18nConfig(() => ({
           conditions2: '標明修改：如果做咗修改，需要說明改動內容',
           conditions3: '非商業性：唔可以將相關內容用於商業目的',
           attributionExample: '📋 署名格式示例：',
-          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)'
+          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
+          qzTitle: '欽州粵拼 - 13,915 詞條',
+          qzDesc: '《欽州白話》嘅詞頭同注音部分，收錄欽州話詞彙同粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
+          qzAllowed1: '商業使用：允許用於商業目的',
+          qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
+          qzAllowed3: '修改與演繹：可以修改、混合、轉換或者基於呢個作品創作',
+          qzConditions1: '保留版權聲明：必須保留原始版權聲明同許可協議',
+          qzConditions2: '相同方式共享：如果對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
+          qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
         rights: {
           title: '權利聲明與聯絡方式',
