@@ -32,6 +32,8 @@ export const DICTIONARY_INFO = {
   author: '維基辭典貢獻者',
   publisher: '維基媒體基金會',
   year: 2026,
+  version: new Date().toISOString().slice(0, 10),
+  description: '維基辭典的粵語詞條，包含釋義、讀音、例句等。',
   source: 'community_contributed',
   license: 'CC BY-SA 4.0',
   license_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
