@@ -3,7 +3,7 @@
     {
       "id": "gz-practical-classified",
       "name": "实用广州话分类词典",
-      "dialect": "广州话",
+      "dialect": "广州",
       "entries_count": 7549,
       "author": "麦耘、谭步云",
       "publisher": "广东人民出版社",
@@ -14,12 +14,13 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
-      "attribution": "《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版"
+      "attribution": "《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版",
+      "cover": "/gz-practical-classified.jpg"
     },
     {
       "id": "gz-colloquialisms",
       "name": "广州话俗语词典",
-      "dialect": "广州话",
+      "dialect": "广州",
       "entries_count": 2516,
       "author": "欧阳觉亚、周无忌、饶秉才",
       "publisher": "广东人民出版社",
@@ -30,12 +31,13 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
-      "attribution": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版"
+      "attribution": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版",
+      "cover": "/gz-colloquialisms.jpg"
     },
     {
       "id": "hk-cantowords",
       "name": "粵典 (words.hk)",
-      "dialect": "香港话",
+      "dialect": "香港",
       "file": "hk-cantowords.json",
       "entries_count": 59019,
       "author": "words.hk contributors",
@@ -49,7 +51,8 @@
       "usage_restriction": "此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。详见授权协议。",
       "attribution": "粵典 (words.hk) / Hong Kong Lexicography Limited",
       "chunked": true,
-      "chunk_dir": "cantowords"
+      "chunk_dir": "cantowords",
+      "cover": "/hk-cantowords.png"
     },
     {
       "id": "wiktionary-cantonese",
@@ -66,12 +69,13 @@
       "attribution": "維基辭典貢獻者",
       "usage_restriction": "需遵循CC BY-SA 4.0协议",
       "chunked": true,
-      "chunk_dir": "wiktionary"
+      "chunk_dir": "wiktionary",
+      "cover": "/wiktionary-cantonese.png"
     },
     {
       "id": "gz-word-origins",
       "name": "粵語辭源",
-      "dialect": "广州话",
+      "dialect": "广州",
       "file": "gz-word-origins.json",
       "entries_count": 3951,
       "author": "谭步云",
@@ -82,12 +86,13 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "attribution": "《粵語辭源》，谭步云编，广东人民出版社，2025年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。"
+      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "cover": "/gz-word-origins.png"
     },
     {
       "id": "gz-dialect",
       "name": "廣州方言詞典",
-      "dialect": "广州话",
+      "dialect": "广州",
       "file": "gz-dialect.json",
       "entries_count": 7476,
       "author": "白宛如",
@@ -98,12 +103,13 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "attribution": "《廣州方言詞典》，白宛如编，江苏教育出版社，1998年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。"
+      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "cover": "/gz-dialect.png"
     },
     {
       "id": "gz-modern",
       "name": "现代粤语词典",
-      "dialect": "广州话",
+      "dialect": "广州",
       "file": "gz-modern.json",
       "entries_count": 16347,
       "author": "范俊军、范兰德等",
@@ -114,12 +120,13 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "attribution": "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。"
+      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "cover": "/gz-modern.jpg"
     },
     {
       "id": "gz-dict",
       "name": "广州话词典（第2版）",
-      "dialect": "广州话",
+      "dialect": "广州",
       "file": "gz-dict.json",
       "entries_count": 10823,
       "author": "饶秉才、欧阳觉亚、周无忌",
@@ -130,9 +137,10 @@
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
       "attribution": "《广州话词典（第2版）》，饶秉才、欧阳觉亚、周无忌编，广东人民出版社，2020年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。"
+      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "cover": "/gz-dict.jpg"
     }
   ],
-  "last_updated": "2026-01-20T02:39:52.828Z",
+  "last_updated": "2026-01-22T04:09:38.604Z",
   "schema_version": "1.0.0"
 }
