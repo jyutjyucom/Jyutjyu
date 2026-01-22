@@ -41,7 +41,8 @@ export const DICTIONARY_INFO = {
   usage_restriction: '此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。详见授权协议。',
   // 启用自动分片（大型词典优化）
   enable_chunking: true,
-  chunk_output_dir: 'cantowords'
+  chunk_output_dir: 'cantowords',
+  cover: '/hk-cantowords.png'
 }
 
 /**

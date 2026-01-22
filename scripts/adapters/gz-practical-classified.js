@@ -31,7 +31,8 @@ export const DICTIONARY_INFO = {
   source: 'scanned_from_internet',
   license: 'Copyrighted. For technical demonstration only.',
   usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版'
+  attribution: '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版',
+  cover: '/gz-practical-classified.png'
 }
 
 /**

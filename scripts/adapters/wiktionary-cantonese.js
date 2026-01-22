@@ -40,7 +40,8 @@ export const DICTIONARY_INFO = {
   
   // 启用自动分片（大型词典优化）
   enable_chunking: true,
-  chunk_output_dir: 'wiktionary'
+  chunk_output_dir: 'wiktionary',
+  cover: '/wiktionary-cantonese.png'
 }
 
 /**

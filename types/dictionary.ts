@@ -253,6 +253,8 @@ export interface DictionaryInfo {
   usage_restriction?: string
   /** 署名方式 */
   attribution?: string
+  /** 封面图片路径 */
+  cover?: string
 }
 
 /**

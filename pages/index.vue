@@ -320,7 +320,7 @@
 <script setup lang="ts">
 import type { DictionaryEntry } from '~/types/dictionary'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const enableReverseSearch = ref(false)
@@ -350,12 +350,14 @@ const totalEntriesCount = computed(() => {
 // 按名称排序词典
 const sortedDictionaries = computed(() => {
   if (!dictionariesData.value) return []
+  // 使用固定的 locale 'zh-CN' 来确保排序在 SSR 和客户端一致
+  const sortLocale = 'zh-CN'
   return [...dictionariesData.value.dictionaries].sort((a, b) => {
     // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成“相等”(返回 0)，
     // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
-    const cmp = a.name.localeCompare(b.name, locale.value || undefined)
+    const cmp = a.name.localeCompare(b.name, sortLocale)
     if (cmp !== 0) return cmp
-    return String(a.id).localeCompare(String(b.id))
+    return String(a.id).localeCompare(String(b.id), sortLocale)
   })
 })
 
