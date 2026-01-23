@@ -87,7 +87,7 @@ function parseSenses(definition) {
   }
   
   // 检查是否包含 ❶❷❸❹❺❻❼❽❾❿ 或 ①②③④⑤⑥⑦⑧⑨⑩ 等标记
-  const sensePattern = /[❶❷❸❹❺❻❼❽❾❿①②③④⑤⑥⑦⑧⑨⑩]/g
+  const sensePattern = /[❶❷❸❹❺❻❼❽❾❿⓫⓬⓭⓮⓯⓰⓱⓲⓳⓴①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/g
   const matches = [...mainText.matchAll(sensePattern)]
   
   if (matches.length === 0) {

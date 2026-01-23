@@ -356,7 +356,8 @@ function parseSenses(definition) {
   const text = definition.trim()
 
   // 支持两种编号：❶❷❸… 以及 ①②③…
-  const markerPattern = /[❶❷❸❹❺❻❼❽❾❿①②③④⑤⑥⑦⑧⑨⑩]/g
+  // 覆盖更多编号的数字符号
+  const markerPattern = /[❶❷❸❹❺❻❼❽❾❿⓫⓬⓭⓮⓯⓰⓱⓲⓳⓴①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/g
   const matches = [...text.matchAll(markerPattern)]
 
   if (matches.length === 0) {
