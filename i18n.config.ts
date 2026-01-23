@@ -91,7 +91,7 @@ export default defineI18nConfig(() => ({
       },
       dictCard: {
         placeholderWord: '有音无字',
-        originalPhonetic: '原书: ',
+        originalPhonetic: '原书拼音: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
         collectedBy: '收录于 {count} 本词典',
@@ -348,7 +348,7 @@ export default defineI18nConfig(() => ({
       },
       dictCard: {
         placeholderWord: '有音無字',
-        originalPhonetic: '原書: ',
+        originalPhonetic: '原書拼音: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
         collectedBy: '收錄於 {count} 本詞典',
@@ -605,7 +605,7 @@ export default defineI18nConfig(() => ({
       },
       dictCard: {
         placeholderWord: '有音无字',
-        originalPhonetic: '原书: ',
+        originalPhonetic: '原书拼音: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
         collectedBy: '收录于 {count} 本词典',
@@ -861,7 +861,7 @@ export default defineI18nConfig(() => ({
       },
       dictCard: {
         placeholderWord: '有音無字',
-        originalPhonetic: '原書: ',
+        originalPhonetic: '原書拼音: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
         collectedBy: '收錄於 {count} 本詞典',

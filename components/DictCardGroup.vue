@@ -15,7 +15,7 @@
             </span>
             <sup
               v-if="primary.meta?.variant_number"
-              class="ml-1 text-sm text-gray-500"
+              class="ml-1 text-base text-gray-500"
             >
               {{ primary.meta.variant_number }}
             </sup>
@@ -30,24 +30,12 @@
               <div class="font-mono text-lg text-blue-600 font-semibold break-words">
                 {{ jp }}
               </div>
-              <div
-                v-if="getOriginalPhonetic(primary, idx)"
-                class="text-sm text-gray-500 break-words"
-              >
-                <span class="text-gray-400">{{ t('dictCard.originalPhonetic') }}</span>{{ getOriginalPhonetic(primary, idx) }}
-              </div>
             </div>
           </div>
           <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-gray-500">
             {{ t('dictCard.collectedBy', { count: dictionaryCount }) }}
           </p>
 
-          <p
-            v-if="primary.meta?.headword_variants && primary.meta.headword_variants.length > 0"
-            class="text-sm text-gray-600 break-words mt-2"
-          >
-            {{ t('dictCard.variantWords') }}{{ primary.meta.headword_variants.join('、') }}
-          </p>
           <p
             v-if="primary.headword.display !== primary.headword.normalized"
             class="text-sm text-gray-500 break-words mt-1"
@@ -112,6 +100,18 @@
           <span class="font-mono text-blue-600 font-semibold">{{ getEntryJyutping(entry) }}</span>
         </div>
 
+        <div v-if="getEntryOriginalPhonetic(entry)" class="mt-2 text-sm">
+          <span class="text-sm text-gray-500 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
+          <span class="text-gray-700 break-words">{{ getEntryOriginalPhonetic(entry) }}</span>
+        </div>
+
+        <p
+          v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
+          class="text-base text-gray-900 break-words mt-3"
+        >
+          {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
+        </p>
+
         <!-- 释义 -->
         <div class="mt-4">
           <div
@@ -137,12 +137,12 @@
 
                 <p
                   v-if="isCantoDict(entry)"
-                  class="text-gray-800 text-base leading-relaxed mb-2"
+                  class="text-gray-900 text-base leading-relaxed mb-2"
                   v-html="formatDefinitionWithLinks(sense.definition)"
                 ></p>
                 <p
                   v-else
-                  class="text-gray-800 text-base leading-relaxed mb-2"
+                  class="text-gray-900 text-base leading-relaxed mb-2"
                 >
                   {{ sense.definition }}
                 </p>
@@ -160,7 +160,7 @@
                       <span class="inline-block font-semibold text-blue-700 mr-2">
                         {{ subSense.label }})
                       </span>
-                      <span class="text-gray-800">
+                      <span class="text-gray-900">
                         {{ subSense.definition }}
                       </span>
                     </div>
@@ -409,6 +409,26 @@ const getEntryJyutping = (entry: DictionaryEntry): string => {
   return getEntryJyutpingList(entry).join('; ')
 }
 
+const getEntryOriginalPhonetic = (entry: DictionaryEntry): string => {
+  const original = entry.phonetic?.original as string | string[] | undefined | null
+  if (!original) return ''
+  if (Array.isArray(original)) {
+    const seen = new Set<string>()
+    const result: string[] = []
+    original.forEach((item: string) => {
+      const value = item?.trim()
+      if (!value) return
+      if (!seen.has(value)) {
+        seen.add(value)
+        result.push(value)
+      }
+    })
+    return result.join('; ')
+  }
+  const value = original.trim()
+  return value
+}
+
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
   if (!entry || entry.id === primary.value?.id) return false
   const entryJps = getEntryJyutpingList(entry)
@@ -495,66 +515,6 @@ const getEntryFeedbackDescription = (entry: DictionaryEntry): string => {
   return [...headerLines, ...senseLines].join('\n')
 }
 
-const getOriginalPhonetic = (entry: DictionaryEntry, idx: number): string | null => {
-  const original = entry.phonetic.original
-  const jyutpingArray = entry.phonetic.jyutping || []
-  const currentJyutping = jyutpingArray[idx]
-
-  if (!original || (Array.isArray(original) && original.length === 0)) {
-    return null
-  }
-
-  if (Array.isArray(original)) {
-    if (original.length === 1) {
-      if (idx === 0) {
-        const singleOriginal = original[0]
-        if (singleOriginal === currentJyutping) return null
-        return singleOriginal
-      }
-      return null
-    }
-    const matchedOriginal = original[idx]
-    if (matchedOriginal && matchedOriginal !== currentJyutping) {
-      return matchedOriginal
-    }
-    return null
-  }
-
-  if (idx === 0) {
-    if (original === currentJyutping) return null
-
-    if (original.includes(':')) {
-      const originalParts = original.split(':').map((p: string) => p.trim())
-      const jyutpingSet = new Set(jyutpingArray)
-      if (originalParts.every((part: string) => jyutpingSet.has(part))) {
-        return null
-      }
-    }
-
-    if (original.includes('(') || original.includes('（')) {
-      const cleanedOriginal = original
-        .replace(/[（(]/g, ' ')
-        .replace(/[）)]/g, ' ')
-        .replace(/[,，]/g, ' ')
-      const allSyllables = cleanedOriginal.split(/\s+/).filter((s: string) => s.trim())
-      const syllableSet = new Set(allSyllables)
-      const allSyllablesInJyutping = allSyllables.every((s: string) =>
-        jyutpingArray.includes(s) || jyutpingArray.some((jp: string) => jp.includes(s))
-      )
-      const allJyutpingFromSyllables = jyutpingArray.every((jp: string) => {
-        const jpSyllables = jp.split(/\s+/)
-        return jpSyllables.every((s: string) => syllableSet.has(s))
-      })
-      if (allSyllablesInJyutping || allJyutpingFromSyllables) {
-        return null
-      }
-    }
-
-    return original
-  }
-
-  return null
-}
 </script>
 
 <style scoped>

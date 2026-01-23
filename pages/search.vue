@@ -383,16 +383,16 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-400">
                     <tr>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.wordColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.jyutpingColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.definitionColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.sourceColumn') }}
                       </th>
                     </tr>
@@ -403,27 +403,27 @@
                         class="hover:bg-gray-50 cursor-pointer transition-colors"
                         @click="expandedRow = expandedRow === group.key ? null : group.key"
                       >
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
+                        <td class="px-3 whitespace-nowrap py-2">
                           <div class="text-base font-semibold text-gray-900">
                             {{ group.primary.headword.display }}
                           </div>
                         </td>
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
-                          <div class="text-sm font-mono font-semibold text-blue-600">
+                        <td class="px-3 whitespace-nowrap py-2">
+                          <div class="text-base font-mono font-semibold text-blue-600">
                             {{ getGroupJyutping(group) || '-' }}
                           </div>
                         </td>
-                        <td class="px-3 sm:px-6 sm:py-4">
-                          <div class="text-sm text-gray-700 line-clamp-2">
+                        <td class="px-3 py-2">
+                          <div class="text-base text-gray-700 line-clamp-2">
                             {{ getGroupDefinitions(group) || '-' }}
                           </div>
                         </td>
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
+                        <td class="px-3 whitespace-nowrap py-2">
                           <div class="flex flex-wrap gap-1">
                             <span
                               v-for="source in getGroupSources(group)"
                               :key="source"
-                              class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full"
+                              class="px-2 py-1 text-sm bg-blue-50 text-blue-700 rounded-full"
                             >
                               {{ source }}
                             </span>
@@ -432,7 +432,7 @@
                       </tr>
                       <!-- 展开详情 -->
                       <tr v-if="expandedRow === group.key" :key="`${group.key}-detail`">
-                        <td colspan="4" class="px-3 py-3 sm:px-6 sm:py-4 bg-gray-50">
+                        <td colspan="4" class="px-3 py-3 py-2 bg-gray-50">
                           <DictCardGroup :entries="group.entries" :show-details="false" />
                         </td>
                       </tr>
@@ -461,16 +461,16 @@
                 <table class="w-full">
                   <thead class="bg-gray-50 border-b border-gray-400">
                     <tr>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.wordColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.jyutpingColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.definitionColumn') }}
                       </th>
-                      <th class="px-3 text-left text-sm font-medium uppercase tracking-wider sm:px-6 sm:py-3">
+                      <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
                         {{ t('common.sourceColumn') }}
                       </th>
                     </tr>
@@ -481,27 +481,27 @@
                         class="hover:bg-gray-50 cursor-pointer transition-colors"
                         @click="expandedRow = expandedRow === group.key ? null : group.key"
                       >
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
+                        <td class="px-3 whitespace-nowrap py-2">
                           <div class="text-base font-semibold text-gray-900">
                             {{ group.primary.headword.display }}
                           </div>
                         </td>
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
-                          <div class="text-sm font-mono font-semibold text-blue-600">
+                        <td class="px-3 whitespace-nowrap py-2">
+                          <div class="text-base font-mono font-semibold text-blue-600">
                             {{ getGroupJyutping(group) || '-' }}
                           </div>
                         </td>
-                        <td class="px-3 sm:px-6 sm:py-4">
-                          <div class="text-sm text-gray-700 line-clamp-2">
+                        <td class="px-3 py-2">
+                          <div class="text-base text-gray-700 line-clamp-2">
                             {{ getGroupDefinitions(group) || '-' }}
                           </div>
                         </td>
-                        <td class="px-3 whitespace-nowrap sm:px-6 sm:py-4">
+                        <td class="px-3 whitespace-nowrap py-2">
                           <div class="flex flex-wrap gap-1">
                             <span
                               v-for="source in getGroupSources(group)"
                               :key="source"
-                              class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full"
+                              class="px-2 py-1 text-sm bg-blue-50 text-blue-700 rounded-full"
                             >
                               {{ source }}
                             </span>
@@ -510,7 +510,7 @@
                       </tr>
                       <!-- 展开详情 -->
                       <tr v-if="expandedRow === group.key" :key="`${group.key}-detail`">
-                        <td colspan="4" class="px-3 py-3 sm:px-6 sm:py-4 bg-gray-50">
+                        <td colspan="4" class="px-3 py-3 py-2 bg-gray-50">
                           <DictCardGroup :entries="group.entries" :show-details="false" />
                         </td>
                       </tr>
