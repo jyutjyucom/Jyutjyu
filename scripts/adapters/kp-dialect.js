@@ -77,7 +77,15 @@ function mapEntryType(headword) {
 
 /**
  * 清理词头中的特殊标记
- * 开平方言词典使用了一些特殊标记，如 ], 〉, -, 等
+ * 开平方言词典使用了一些特殊标记：
+ * - ] 或 ］: 白读
+ * - ) 或 ）或 〉: 训读
+ * - } 或 ｝: 同音代替
+ * - ・: 中平调(33)
+ * - - 或 － 或 ⁻: 高平调(55)
+ * - * 或 ＊: 低平调(11)
+ * - ›: 低降调(21)
+ * - ' 或 ' 或 ' 或 ': 中降调(32)
  * @param {string} text - 原始词头
  * @returns {string} 清理后的词头
  */
@@ -86,18 +94,27 @@ function cleanKpText(text) {
     return ''
   }
   
-  // 移除特殊标记：], 〉, -, 等
-  // 但保留基本的中文和标点
+  // 移除所有特殊标记符号（考虑全半角及各种变体）
   let cleaned = text
-    .replace(/\]/g, '')      // 移除 ]
-    .replace(/〉/g, '')      // 移除 〉
-    .replace(/^-/g, '')      // 移除开头的 -
-    .replace(/^-/g, '')      // 移除结尾的 -
+    // 白读标记：] (半角) 和 ］ (全角)
+    .replace(/[\]］]/g, '')
+    // 训读标记：) (半角)、）(全角)、〉(角括号)
+    .replace(/[\)）〉]/g, '')
+    // 同音代替标记：} (半角) 和 ｝ (全角)
+    .replace(/[\}｝]/g, '')
+    // 中平调标记：・ (中点)
+    .replace(/・/g, '')
+    // 高平调标记：- (半角连字符)、－(全角连字符)、⁻(上标减号)
+    .replace(/[-－⁻]/g, '')
+    // 低平调标记：* (半角星号) 和 ＊ (全角星号)
+    .replace(/[*＊]/g, '')
+    // 低降调标记：› (单右角引号)
+    .replace(/›/g, '')
+    // 中降调标记：各种单引号变体
+    // U+0027 (APOSTROPHE), U+2018 (LEFT SINGLE QUOTATION MARK),
+    // U+2019 (RIGHT SINGLE QUOTATION MARK), U+02BC (MODIFIER LETTER APOSTROPHE)
+    .replace(/['''']/g, '')
     .trim()
-  
-  // 处理包含冒号的情况（如 "啊.:乜~"）
-  // 如果包含冒号，可能需要分割，但这里先保留原样
-  // 实际使用时可能需要根据具体情况调整
   
   return cleaned
 }
@@ -187,8 +204,8 @@ export function transformRow(row, rowIndex = 0) {
     dialect: DICTIONARY_INFO.dialect,
     
     headword: {
-      display: headwordInfo.normalized,
-      search: headwordInfo.normalized,
+      display: rawKpText,  // 使用原始词头（保留所有符号用于显示）
+      search: headwordInfo.normalized,  // 使用清理后的词头（用于搜索）
       normalized: headwordInfo.normalized,
       is_placeholder: headwordInfo.isPlaceholder || false
     },
@@ -206,8 +223,6 @@ export function transformRow(row, rowIndex = 0) {
     }],
     
     meta: {
-      // 保存原始字段信息
-      original_kp_text: rawKpText,
       image_page: row.image_page || undefined,
       book_page: row.book_page || undefined,
       section: row.section || undefined

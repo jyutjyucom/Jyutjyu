@@ -1187,7 +1187,7 @@ index,image_page,book_page,section,kp_text,ipa,jyutping,mandarin
 1186,150,136,lexicon,匣,hap21,haap5,匣子
 1187,150,136,lexicon,合心水,hap32 ɬem33 sui55,haap6 slem1 sui2,合心意
 1188,150,136,lexicon,合枚,hap32 mɔi11,haap6 moi4,合上
-1189,151,137,lexicon,合埋眼,hap32 mɔi11 ηan55,haap6 moi4 aan2,闭眼
+1189,151,137,lexicon,合埋眼,hap32 mɔi11 ηan55,haap6 moi4 ngaan2,闭眼
 1190,151,137,lexicon,合枚本书,hap32 mɔi11 vɔn55 si33,haap6 moi4 von2 si1,把书合上
 1191,151,137,lexicon,押,at33,aat1,押
 1192,151,137,lexicon,押},at33,aat1,从高处摔下
@@ -1201,16 +1201,16 @@ index,image_page,book_page,section,kp_text,ipa,jyutping,mandarin
 1200,151,137,lexicon,袜擦},mat32 ts‘at33,maat6 caat1,(小孩)身体粗壮
 1201,151,137,lexicon,发,fat33,faat1,"发财;发病,复发"
 1202,151,137,lexicon,发大水,fat33 ai32 sui55,faat1 aai6 sui2,洪水暴发
-1203,151,137,lexicon,发开口梦,fat33 hɔi33 hau55 muη32,faat1 hoi1 haau2,说梦话
-1204,151,137,lexicon,发夜游梦,fat33 jiε32 jiu11 muη32,faat1 jiu4,梦游
-1205,151,137,lexicon,发鸡盲,fat33 kai33 maη11,faat1 gaai1,夜盲症
-1206,151,137,lexicon,发冷,fat33 laη21,faat1,发疟疾
+1203,151,137,lexicon,发开口梦,fat33 hɔi33 hau55 muη32,faat1 hoi1 haau2 mung6,说梦话
+1204,151,137,lexicon,发夜游梦,fat33 jiε32 jiu11 muη32,faat1 jiu4 mung6,梦游
+1205,151,137,lexicon,发鸡盲,fat33 kai33 maη11,faat1 gaai1 maang4,夜盲症
+1206,151,137,lexicon,发冷,fat33 laη21,faat1 laang5,发疟疾
 1207,151,137,lexicon,发力极,fat33 let32 ket32,faat1 let6 get6,赌气
-1208,151,137,lexicon,发猛狰,fat33 maη21 tsaη33,faat1,"心急如焚,发脾气"
-1209,151,137,lexicon,发蜢},fat33 maη55,faat1,羊角风
+1208,151,137,lexicon,发猛狰,fat33 maη21 tsaη33,faat1 maang5 zaang1,"心急如焚,发脾气"
+1209,151,137,lexicon,发蜢},fat33 maη55,faat1 maang2,羊角风
 1210,151,137,lexicon,发毛,fat33 mɔ11,faat1 mo4,发霉
-1211,151,137,lexicon,发梦,fat33 muη32,faat1,做梦
-1212,151,137,lexicon,发岩,‘,‘,语 fat33 ηam32 ηui15 自言自语
+1211,151,137,lexicon,发梦,fat33 muη32,faat1 mung6,做梦
+1212,151,137,lexicon,发岩语,fat33 ηam32 ηui15,faat1 ngaam6 ngui4*,自言自语
 1213,151,137,lexicon,发烧友,fat33 seu33 jiu215,faat1 seu1 jiu5*,狂热爱好者
 1214,152,138,lexicon,发水,fat33 sui55,faat1 sui2,泡水
 1215,152,138,lexicon,发青光〉,fat33 t‘en33 kɔŋ215,faat1 ten1 gong5*,青光眼
@@ -1268,9 +1268,9 @@ index,image_page,book_page,section,kp_text,ipa,jyutping,mandarin
 1267,153,139,lexicon,讫｝牙,ŋat32 ŋa11,ngaat6 ngaa4,磨牙
 1268,154,140,lexicon,乞.,hat33,haat1,作废
 1269,154,140,lexicon,乞米,hat55 mai55,haat2 maai2,讨饭
-1270,154,140,lexicon,乞人憎,hat55 ηen11 taη33,haat2 en4,惹人憎恶
-1271,154,140,lexicon,乞儿,hat55 ηi55,haat2 ji2,乞丐
-1272,154,140,lexicon,乞儿相,hat55 ηi55 ɬiεn35,haat2 ji2 n1*,贱模样
+1270,154,140,lexicon,乞人憎,hat55 ηen11 taη33,haat2 ngen4 daang1,惹人憎恶
+1271,154,140,lexicon,乞儿,hat55 ηi55,haat2 ngi2,乞丐
+1272,154,140,lexicon,乞儿相,hat55 ηi55 ɬiεn35,haat2 ngi2 n1*,贱模样
 1273,154,140,lexicon,乞嗤,hat55 ts‘i32,haat2 ci6,喷嚏
 1274,154,140,lexicon,得(唔～了),ak33,aak1,得(不～了)
 1275,154,140,lexicon,得闲,ak33 han11,aak1 haan4,有空
@@ -1281,15 +1281,15 @@ index,image_page,book_page,section,kp_text,ipa,jyutping,mandarin
 1280,154,140,lexicon,特.,ak33,aak1,握
 1281,154,140,lexicon,得个倾字,ak55 kɔi33 k‘en33 tu33,aak2 goi1 ken1 du1,只谈不成交
 1282,154,140,lexicon,得个做字,ak55 kɔi33 tu33 tu32,aak2 goi1 du1 du6,只做事无效益
-1283,154,140,lexicon,得人憎,ak55 ηen11 taη33,aak2 en4,使人生气
+1283,154,140,lexicon,得人憎,ak55 ηen11 taη33,aak2 ngen4 daang1,使人生气
 1284,154,140,lexicon,镯,ak21,aak5,镯子
 1285,154,140,lexicon,特},ak32,aak6,"敲,钉"
-1286,154,140,lexicon,特等,ak32 aη55,aak6,"专门,特别地"
+1286,154,140,lexicon,特等,ak32 aη55,aak6 aang2,"专门,特别地"
 1287,154,140,lexicon,啪钮,pak55 neu55,baak2 neu2,摁钮
 1288,154,140,lexicon,拍拖,p‘ak33 hu33,paak1 hu1,谈恋爱
 1289,154,140,lexicon,拍心口,p‘ak33 ɬem33 hau55,paak1 slem1 haau2,拍胸脯
-1290,154,140,lexicon,拍硬档,p‘ak33 ηaη32 ɔη33,paak1,通力合作
-1291,154,140,lexicon,拍档,p‘ak33 ɔη33,paak1,合作
+1290,154,140,lexicon,拍硬档,p‘ak33 ηaη32 ɔη33,paak1 ngaang6 ong1,通力合作
+1291,154,140,lexicon,拍档,p‘ak33 ɔη33,paak1 ong1,合作
 1292,154,140,lexicon,拍车,p‘ak33 ts‘iε33,paak1,停车
 1293,155,141,lexicon,拍住行,p‘ak33 tsi32 haŋ11,paak1 zi6 haang4,(船)并排着
 1294,155,141,lexicon,拍纸簿,p‘ak55 tsi55 vu325,paak2 zi2 vu6*,白纸本子

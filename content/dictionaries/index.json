@@ -163,11 +163,11 @@
       "name": "开平方言",
       "dialect": "开平",
       "file": "kp-dialect.json",
-      "entries_count": 3745,
+      "entries_count": 3725,
       "author": "邓钧",
       "publisher": "湖南电子音像出版社",
       "year": 2000,
-      "version": "2026-01-22",
+      "version": "2026-01-23",
       "description": "收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书",
       "source": "scanned_from_internet",
       "license": "Copyrighted. For technical demonstration only.",
@@ -176,6 +176,6 @@
       "cover": "/kp-dialect.jpg"
     }
   ],
-  "last_updated": "2026-01-22T13:32:05.759Z",
+  "last_updated": "2026-01-23T06:12:47.564Z",
   "schema_version": "1.0.0"
 }
