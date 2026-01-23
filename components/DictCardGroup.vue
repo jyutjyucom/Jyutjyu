@@ -38,6 +38,9 @@
               </div>
             </div>
           </div>
+          <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-gray-500">
+            {{ t('dictCard.collectedBy', { count: dictionaryCount }) }}
+          </p>
 
           <p
             v-if="primary.meta?.headword_variants && primary.meta.headword_variants.length > 0"
@@ -339,6 +342,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const entries = computed(() => props.entries || [])
 const primary = computed(() => entries.value[0] as DictionaryEntry)
+const dictionaryCount = computed(() => {
+  const sources = new Set<string>()
+  entries.value.forEach(entry => {
+    const value = entry.source_book?.trim()
+    if (value) sources.add(value)
+  })
+  return sources.size || entries.value.length
+})
 const primaryJyutpingSet = computed(() => {
   const set = new Set<string>()
   const jps = primary.value?.phonetic?.jyutping || []

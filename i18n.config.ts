@@ -94,6 +94,7 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原书: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
+        collectedBy: '收录于 {count} 本词典',
         dialect: {
           GZ: '广州',
           HK: '香港',
@@ -350,6 +351,7 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原書: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
+        collectedBy: '收錄於 {count} 本詞典',
         dialect: {
           GZ: '廣州',
           HK: '香港',
@@ -606,6 +608,7 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原书: ',
         variantWords: '异形词: ',
         standardWriting: '参考词头: ',
+        collectedBy: '收录于 {count} 本词典',
         dialect: {
           GZ: '广州',
           HK: '香港',
@@ -861,6 +864,7 @@ export default defineI18nConfig(() => ({
         originalPhonetic: '原書: ',
         variantWords: '異形詞: ',
         standardWriting: '參考詞頭: ',
+        collectedBy: '收錄於 {count} 本詞典',
         dialect: {
           GZ: '廣州',
           HK: '香港',
@@ -1027,4 +1031,3 @@ export default defineI18nConfig(() => ({
     }
   }
 }))
-
