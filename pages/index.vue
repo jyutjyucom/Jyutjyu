@@ -299,21 +299,7 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-t border-gray-200 py-8 mt-16">
-      <div class="container mx-auto px-4">
-        <!-- 版权信息 -->
-        <div class="text-center text-gray-600 text-sm">
-          <p class="mb-2">
-            {{ t('common.footerCopyright') }}
-            <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 hover:underline" target="_blank">
-              {{ t('common.github') }}
-            </a>
-          </p>
-          <p>{{ t('common.footerMission') }}</p>
-        </div>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
