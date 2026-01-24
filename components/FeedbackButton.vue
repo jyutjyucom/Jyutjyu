@@ -8,14 +8,12 @@
       :class="buttonClass"
       :aria-label="t('feedback.buttonTitle')"
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
+      <MessageSquare class="w-4 h-4" aria-hidden="true" />
       <template v-if="iconOnly">
         <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
       </template>
       <template v-else>
-        <span class="text-xs">{{ t('feedback.buttonShort') }}</span>
+        <span :class="labelClass">{{ t('feedback.buttonShort') }}</span>
       </template>
     </button>
 
@@ -62,6 +60,8 @@
 </template>
 
 <script setup lang="ts">
+import { MessageSquare } from 'lucide-vue-next'
+
 const { t } = useI18n()
 
 // Props
@@ -78,6 +78,7 @@ interface Props {
   initialDescription?: string
   buttonClass?: string
   iconOnly?: boolean
+  labelClass?: string
   initialType?: 'bug' | 'feature' | 'entry-error'
 }
 
@@ -86,6 +87,7 @@ const props = withDefaults(defineProps<Props>(), {
   initialDescription: undefined,
   buttonClass: 'inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors',
   iconOnly: false,
+  labelClass: 'text-base',
   initialType: undefined
 })
 

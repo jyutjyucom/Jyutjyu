@@ -217,8 +217,10 @@ interface DictionaryIndex {
   dictionaries: DictionaryIndexItem[]
 }
 
+const dictIndexUrl: string = '/dictionaries/index.json'
+
 const { data: dictIndex } = await useAsyncData<DictionaryIndex>('feedback-dictionaries', () =>
-  $fetch('/dictionaries/index.json')
+  $fetch<DictionaryIndex>(dictIndexUrl)
 )
 
 // Emits

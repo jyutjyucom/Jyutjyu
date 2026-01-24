@@ -281,18 +281,21 @@
         </p>
         <div class="flex gap-4 justify-center flex-wrap">
           <a href="https://github.com/jyutjyucom/jyutjyu" target="_blank"
-            class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+            <Github class="w-4 h-4" aria-hidden="true" />
             {{ t('common.github') }}
           </a>
           <a href="https://github.com/jyutjyucom/jyutjyu/blob/main/docs/CSV_GUIDE.md" target="_blank"
-            class="px-6 py-3 border-2 border-gray-900 text-gray-900 rounded-lg hover:bg-gray-50 transition-colors">
+            class="inline-flex items-center gap-2 px-6 py-3 border-2 border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition-colors">
+            <Database class="w-4 h-4" aria-hidden="true" />
             {{ t('common.contributeData') }}
           </a>
           <FeedbackButton
             button-class="px-6 py-3 border-2 border-amber-600 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors"
           />
           <NuxtLink to="/about"
-            class="px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+            class="inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+            <Info class="w-4 h-4" aria-hidden="true" />
             {{ t('common.aboutProject') }}
           </NuxtLink>
         </div>
@@ -304,6 +307,7 @@
 </template>
 
 <script setup lang="ts">
+import { Database, Github, Info } from 'lucide-vue-next'
 import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t } = useI18n()

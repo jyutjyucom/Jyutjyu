@@ -52,6 +52,7 @@
   "dependencies": {
     "@nuxt/content": "^2.13.2",
     "@nuxtjs/i18n": "^8.5.5",
+    "lucide-vue-next": "^0.563.0",
     "mongodb": "^6.12.0",
     "nuxt": "^3.13.2",
     "opencc-js": "^1.0.5",
