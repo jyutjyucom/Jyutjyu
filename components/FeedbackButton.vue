@@ -8,7 +8,7 @@
       :class="buttonClass"
       :aria-label="t('feedback.buttonTitle')"
     >
-      <MessageSquare class="w-4 h-4" aria-hidden="true" />
+      <MessageSquare class="w-3.5 h-3.5" aria-hidden="true" />
       <template v-if="iconOnly">
         <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
       </template>
@@ -85,9 +85,9 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   entryData: undefined,
   initialDescription: undefined,
-  buttonClass: 'inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors',
+  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 transition-colors',
   iconOnly: false,
-  labelClass: 'text-base',
+  labelClass: 'text-sm',
   initialType: undefined
 })
 

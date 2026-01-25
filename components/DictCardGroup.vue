@@ -92,7 +92,7 @@
               }"
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
-              button-class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-sm whitespace-nowrap"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 transition-colors"
               label-class="text-sm"
             />
           </div>
