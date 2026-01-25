@@ -92,6 +92,7 @@
               }"
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
+              icon-only-on-mobile
               button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 transition-colors"
               label-class="text-sm"
             />

@@ -13,7 +13,7 @@
         <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
       </template>
       <template v-else>
-        <span class="hidden sm:inline" :class="labelClass">{{ t('feedback.buttonShort') }}</span>
+        <span :class="[labelClass, iconOnlyOnMobile && 'hidden sm:inline']">{{ t('feedback.buttonShort') }}</span>
       </template>
     </button>
 
@@ -78,6 +78,10 @@ interface Props {
   initialDescription?: string
   buttonClass?: string
   iconOnly?: boolean
+  /**
+   * 为 true 时，移动端仅显示图标以节省空间；首页、关于页等大按钮场景不传即可
+   */
+  iconOnlyOnMobile?: boolean
   labelClass?: string
   initialType?: 'bug' | 'feature' | 'entry-error'
 }
@@ -87,6 +91,7 @@ const props = withDefaults(defineProps<Props>(), {
   initialDescription: undefined,
   buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 transition-colors',
   iconOnly: false,
+  iconOnlyOnMobile: false,
   labelClass: 'text-sm',
   initialType: undefined
 })

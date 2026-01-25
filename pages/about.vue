@@ -34,6 +34,7 @@
             </a>
             <FeedbackButton
               button-class="inline-flex items-center gap-2 px-4 py-2 border-2 border-amber-600 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors whitespace-nowrap flex-shrink-0"
+              label-class="text-base"
             />
             <NuxtLink
               to="/"

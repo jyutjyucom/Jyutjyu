@@ -104,6 +104,7 @@
             }"
             :initial-description="entryFeedbackDescription"
             initial-type="entry-error"
+            icon-only-on-mobile
             button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 transition-colors"
             label-class="text-sm"
           />
