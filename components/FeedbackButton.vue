@@ -4,7 +4,7 @@
     <button
       type="button"
       @click="showFeedbackModal = true"
-      class="inline-flex items-center gap-2"
+      class="inline-flex items-center gap-2 min-h-7"
       :class="buttonClass"
       :aria-label="t('feedback.buttonTitle')"
     >
@@ -13,7 +13,7 @@
         <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
       </template>
       <template v-else>
-        <span :class="labelClass">{{ t('feedback.buttonShort') }}</span>
+        <span class="hidden sm:inline" :class="labelClass">{{ t('feedback.buttonShort') }}</span>
       </template>
     </button>
 
