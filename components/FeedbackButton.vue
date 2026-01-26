@@ -4,11 +4,11 @@
     <button
       type="button"
       @click="showFeedbackModal = true"
-      class="inline-flex items-center gap-2 min-h-7"
-      :class="buttonClass"
+      class="inline-flex items-center min-h-7"
+      :class="[hideIcon ? 'gap-0' : 'gap-2', buttonClass]"
       :aria-label="t('feedback.buttonTitle')"
     >
-      <MessageSquare class="w-3.5 h-3.5" aria-hidden="true" />
+      <MessageSquare v-if="!hideIcon" class="w-3.5 h-3.5" aria-hidden="true" />
       <template v-if="iconOnly">
         <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
       </template>
@@ -84,6 +84,8 @@ interface Props {
   iconOnlyOnMobile?: boolean
   labelClass?: string
   initialType?: 'bug' | 'feature' | 'entry-error'
+  /** 为 true 时不显示图标，仅显示文字，便于内联链接样式使用 */
+  hideIcon?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -93,7 +95,8 @@ const props = withDefaults(defineProps<Props>(), {
   iconOnly: false,
   iconOnlyOnMobile: false,
   labelClass: 'text-sm',
-  initialType: undefined
+  initialType: undefined,
+  hideIcon: false
 })
 
 // 状态

@@ -30,12 +30,13 @@
             {{ t('common.footerJyutNet') }}
           </a>
         </p>
-        <p v-if="showMission" class="text-sm text-gray-500">{{ t('common.footerMission') }}</p>
-        <p v-if="showLicense" class="text-sm text-gray-500">
-          {{ t('common.footerLicenseIntro') }} ·
-          <NuxtLink to="/about#license" class="text-blue-600 hover:underline">
-            {{ t('common.licenseDetails') }}
-          </NuxtLink>
+        <p class="mb-2 text-sm text-gray-500">
+          {{ t('common.footerOcrDisclaimerPrefix') }}
+          <FeedbackButton
+            hide-icon
+            :button-class="'p-0 !min-h-0 bg-transparent text-blue-600 hover:underline rounded-none border-0 shadow-none'"
+            :label-class="'text-inherit'"
+          />
         </p>
       </div>
     </div>
@@ -60,6 +61,4 @@ const footerClass = computed(() => {
 })
 
 const showAboutLink = computed(() => props.variant === 'search')
-const showMission = computed(() => props.variant === 'home')
-const showLicense = computed(() => props.variant === 'search')
 </script>
