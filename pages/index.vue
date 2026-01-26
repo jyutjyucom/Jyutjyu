@@ -37,9 +37,15 @@
         <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
           <div class="text-sm text-gray-500">
             {{ t('common.examplesPrefix') }}
-            <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
-            <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3
-              soe4</span>
+            <template v-if="enableReverseSearch">
+              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('為什麼')">為什麼</span>、
+              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('奇怪')">奇怪</span>
+            </template>
+            <template v-else>
+              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
+              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3
+                soe4</span>
+            </template>
           </div>
           <label class="flex items-center gap-2 cursor-pointer select-none" :title="t('common.reverseSearchTitle')">
             <input v-model="enableReverseSearch" type="checkbox"
