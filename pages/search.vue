@@ -160,9 +160,6 @@
           </h2>
           <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
             <p class="text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span v-if="enableReverseSearch" class="text-blue-500 text-sm">
-                {{ t('common.searching') }}
-              </span>
               <span>
                 {{ t('common.searchHeader') }}
                 <span class="font-semibold">{{ allAggregatedCount }}</span>
