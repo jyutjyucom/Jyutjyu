@@ -23,22 +23,62 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'wiktionary-cantonese',
-  name: '維基辭典',
+  name: {
+    'zh-Hans': '维基词典',
+    'zh-Hant': '維基詞典',
+    'yue-Hans': '维基辞典',
+    'yue-Hant': '維基辭典'
+  },
   dialect: {
-    name: '粤语',
+    name: {
+      'zh-Hans': '粤语',
+      'zh-Hant': '粵語',
+      'yue-Hans': '粤语',
+      'yue-Hant': '粵語'
+    },
     region_code: 'YUE'
   },
   source_book: '維基辭典',
-  author: '维基词典贡献者',
-  publisher: '维基媒体基金会',
+  author: {
+    'zh-Hans': '维基词典贡献者',
+    'zh-Hant': '維基詞典貢獻者',
+    'yue-Hans': '维基辞典贡献者',
+    'yue-Hant': '維基辭典貢獻者'
+  },
+  publisher: {
+    'zh-Hans': '维基媒体基金会',
+    'zh-Hant': '維基媒體基金會',
+    'yue-Hans': '维基媒体基金会',
+    'yue-Hant': '維基媒體基金會'
+  },
   year: 2026,
   version: new Date().toISOString().slice(0, 10),
-  description: '维基词典的粤语词条，包含释义、读音、例句等。',
+  description: {
+    'zh-Hans': '维基词典的粤语词条，包含释义、读音、例句等',
+    'zh-Hant': '維基詞典的粵語詞條，包含釋義、讀音、例句等',
+    'yue-Hans': '维基辞典嘅粤语词条，包含释义、读音、例句等',
+    'yue-Hant': '維基辭典嘅粵語詞條，包含釋義、讀音、例句等'
+  },
   source: 'community_contributed',
-  license: 'CC BY-SA 4.0',
+  license: {
+    'zh-Hans': 'CC BY-SA 4.0',
+    'zh-Hant': 'CC BY-SA 4.0',
+    'yue-Hans': 'CC BY-SA 4.0',
+    'yue-Hant': 'CC BY-SA 4.0'
+  },
   license_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
-  attribution: '维基词典贡献者',
-  usage_restriction: '需遵循CC BY-SA 4.0协议',
+  usage_restriction: {
+    'zh-Hans': '需遵循CC BY-SA 4.0协议',
+    'zh-Hant': '需遵循CC BY-SA 4.0協議',
+    'yue-Hans': '需要遵循CC BY-SA 4.0协议',
+    'yue-Hant': '需要遵循CC BY-SA 4.0協議'
+  },
+  attribution: {
+    'zh-Hans': '维基词典贡献者',
+    'zh-Hant': '維基詞典貢獻者',
+    'yue-Hans': '维基辞典贡献者',
+    'yue-Hant': '維基辭典貢獻者'
+  },
   
   // 启用自动分片（大型词典优化）
   enable_chunking: true,

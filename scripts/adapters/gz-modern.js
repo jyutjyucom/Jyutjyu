@@ -27,21 +27,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'gz-modern',
-  name: '现代粤语词典',
+  name: {
+    'zh-Hans': '现代粤语词典',
+    'zh-Hant': '現代粵語詞典',
+    'yue-Hans': '现代粤语词典',
+    'yue-Hant': '現代粵語詞典'
+  },
   dialect: {
-    name: '广州',
+    name: {
+      'zh-Hans': '广州',
+      'zh-Hant': '廣州',
+      'yue-Hans': '广州',
+      'yue-Hant': '廣州'
+    },
     region_code: 'GZ'
   },
   source_book: '现代粤语词典',
-  author: '范俊军、范兰德等',
-  publisher: '广东人民出版社',
+  author: {
+    'zh-Hans': '范俊军、范兰德等',
+    'zh-Hant': '范俊軍、范蘭德等',
+    'yue-Hans': '范俊军、范兰德等',
+    'yue-Hant': '范俊軍、范蘭德等'
+  },
+  publisher: {
+    'zh-Hans': '广东人民出版社',
+    'zh-Hant': '廣東人民出版社',
+    'yue-Hans': '广东人民出版社',
+    'yue-Hant': '廣東人民出版社'
+  },
   year: 2021,
   version: new Date().toISOString().slice(0, 10),
-  description: '现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等',
+  description: {
+    'zh-Hans': '现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等',
+    'zh-Hant': '現代權威粵語詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等',
+    'yue-Hans': '现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等',
+    'yue-Hant': '現代權威粵語詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等'
+  },
   source: 'scanned_from_internet',
-  license: 'Copyrighted. For technical demonstration only.',
-  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版',
+  license: {
+    'zh-Hans': '版权所有，仅供技术演示',
+    'zh-Hant': '版權所有，僅供技術演示',
+    'yue-Hans': '版权所有，只供技术演示',
+    'yue-Hant': '版權所有，只供技术演示'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
+    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
+    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+  },
+  attribution: {
+    'zh-Hans': '《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版',
+    'zh-Hant': '《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版',
+    'yue-Hans': '《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版',
+    'yue-Hant': '《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版'
+  },
   cover: '/gz-modern.jpg'
 }
 

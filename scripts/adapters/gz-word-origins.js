@@ -25,21 +25,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'gz-word-origins',
-  name: '粵語辭源',
+  name: {
+    'zh-Hans': '粤语辞源',
+    'zh-Hant': '粵語辭源',
+    'yue-Hans': '粤语辞源',
+    'yue-Hant': '粵語辭源'
+  },
   dialect: {
-    name: '广州',
+    name: {
+      'zh-Hans': '广州',
+      'zh-Hant': '廣州',
+      'yue-Hans': '广州',
+      'yue-Hant': '廣州'
+    },
     region_code: 'GZ'
   },
   source_book: '粵語辭源',
-  author: '谭步云',
-  publisher: '广东人民出版社',
+  author: {
+    'zh-Hans': '谭步云',
+    'zh-Hant': '譚步雲',
+    'yue-Hans': '谭步云',
+    'yue-Hant': '譚步雲'
+  },
+  publisher: {
+    'zh-Hans': '广东人民出版社',
+    'zh-Hant': '廣東人民出版社',
+    'yue-Hans': '广东人民出版社',
+    'yue-Hant': '廣東人民出版社'
+  },
   year: 2025,
   version: new Date().toISOString().slice(0, 10),
-  description: '追溯粤语词汇的来源和演变，引用大量古籍文献，展示粤语词汇的历史渊源',
+  description: {
+    'zh-Hans': '追溯粤语词汇的来源和演变，引用大量古籍文献，展示粤语词汇的历史渊源',
+    'zh-Hant': '追溯粵語詞彙的來源和演變，引用大量古籍文獻，展示粵語詞彙的歷史淵源',
+    'yue-Hans': '追溯粤语词汇嘅来源同演变，引用大量古籍文献，展示粤语词汇嘅历史渊源',
+    'yue-Hant': '追溯粵語詞彙嘅來源同演變，引用大量古籍文獻，展示粵語詞彙嘅歷史淵源'
+  },
   source: 'scanned_from_internet',
-  license: 'Copyrighted. For technical demonstration only.',
-  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《粵語辭源》，谭步云编，广东人民出版社，2025年版',
+  license: {
+    'zh-Hans': '版权所有，仅供技术演示',
+    'zh-Hant': '版權所有，僅供技術演示',
+    'yue-Hans': '版权所有，只供技术演示',
+    'yue-Hant': '版權所有，只供技术演示'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
+    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
+    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+  },
+  attribution: {
+    'zh-Hans': '《粤语辞源》，谭步云编，广东人民出版社，2025年版',
+    'zh-Hant': '《粵語辭源》，譚步雲編，廣東人民出版社，2025年版',
+    'yue-Hans': '《粤语辞源》，谭步云编，广东人民出版社，2025年版',
+    'yue-Hant': '《粵語辭源》，譚步雲編，廣東人民出版社，2025年版'
+  },
   cover: '/gz-word-origins.png'
 }
 

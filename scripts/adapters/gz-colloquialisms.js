@@ -22,21 +22,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'gz-colloquialisms',
-  name: '广州话俗语词典',
+  name: {
+    'zh-Hans': '广州话俗语词典',
+    'zh-Hant': '廣州話俗語詞典',
+    'yue-Hans': '广州话俗语词典',
+    'yue-Hant': '廣州話俗語詞典'
+  },
   dialect: {
-    name: '广州',
+    name: {
+      'zh-Hans': '广州',
+      'zh-Hant': '廣州',
+      'yue-Hans': '广州',
+      'yue-Hant': '廣州'
+    },
     region_code: 'GZ'
   },
   source_book: '广州话俗语词典',
-  author: '欧阳觉亚、周无忌、饶秉才',
-  publisher: '广东人民出版社',
+  author: {
+    'zh-Hans': '欧阳觉亚、周无忌、饶秉才',
+    'zh-Hant': '歐陽覺亞、周無忌、饒秉才',
+    'yue-Hans': '欧阳觉亚、周无忌、饶秉才',
+    'yue-Hant': '歐陽覺亞、周無忌、饒秉才'
+  },
+  publisher: {
+    'zh-Hans': '广东人民出版社',
+    'zh-Hant': '廣東人民出版社',
+    'yue-Hans': '广东人民出版社',
+    'yue-Hant': '廣東人民出版社'
+  },
   year: 2010,
   version: new Date().toISOString().slice(0, 10),
-  description: '收录广州话歇后语、俗语、谚语等口语表达，附有详细释义和例句',
+  description: {
+    'zh-Hans': '收录广州话歇后语、俗语、谚语等口语表达，附有详细释义和例句',
+    'zh-Hant': '收錄廣州話歇後語、俗語、諺語等口語表達，附有詳細釋義和例句',
+    'yue-Hans': '收录广州话歇后语、俗语、谚语等口语表达，附有详细释义同例句',
+    'yue-Hant': '收錄廣州話歇後語、俗語、諺語等口語表達，附有詳細釋義同例句'
+  },
   source: 'scanned_from_internet',
-  license: 'Copyrighted. For technical demonstration only.',
-  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版',
+  license: {
+    'zh-Hans': '版权所有，仅供技术演示',
+    'zh-Hant': '版權所有，僅供技術演示',
+    'yue-Hans': '版权所有，只供技术演示',
+    'yue-Hant': '版權所有，只供技术演示'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
+    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
+    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+  },
+  attribution: {
+    'zh-Hans': '《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版',
+    'zh-Hant': '《廣州話俗語詞典》，歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010年版',
+    'yue-Hans': '《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版',
+    'yue-Hant': '《廣州話俗語詞典》，歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010年版'
+  },
   cover: '/gz-colloquialisms.png'
 }
 

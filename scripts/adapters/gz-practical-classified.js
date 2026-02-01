@@ -17,21 +17,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'gz-practical-classified',
-  name: '实用广州话分类词典',
+  name: {
+    'zh-Hans': '实用广州话分类词典',
+    'zh-Hant': '實用廣州話分類詞典',
+    'yue-Hans': '实用广州话分类词典',
+    'yue-Hant': '實用廣州話分類詞典'
+  },
   dialect: {
-    name: '广州',
+    name: {
+      'zh-Hans': '广州',
+      'zh-Hant': '廣州',
+      'yue-Hans': '广州',
+      'yue-Hant': '廣州'
+    },
     region_code: 'GZ'
   },
   source_book: '实用广州话分类词典',
-  author: '麦耘、谭步云',
-  publisher: '广东人民出版社',
+  author: {
+    'zh-Hans': '麦耘、谭步云',
+    'zh-Hant': '麥耘、譚步雲',
+    'yue-Hans': '麦耘、谭步云',
+    'yue-Hant': '麥耘、譚步雲'
+  },
+  publisher: {
+    'zh-Hans': '广东人民出版社',
+    'zh-Hant': '廣東人民出版社',
+    'yue-Hans': '广东人民出版社',
+    'yue-Hant': '廣東人民出版社'
+  },
   year: 1997,
   version: new Date().toISOString().slice(0, 10),
-  description: '按主题分类的实用广州话词典，收录日常生活各领域词汇',
+  description: {
+    'zh-Hans': '按主题分类的实用广州话词典，收录日常生活各领域词汇',
+    'zh-Hant': '按主題分類的實用廣州話詞典，收錄日常生活各領域詞彙',
+    'yue-Hans': '按主题分类嘅实用广州话词典，收录日常生活各领域词汇',
+    'yue-Hant': '按主題分類嘅實用廣州話詞典，收錄日常生活各領域詞彙'
+  },
   source: 'scanned_from_internet',
-  license: 'Copyrighted. For technical demonstration only.',
-  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版',
+  license: {
+    'zh-Hans': '版权所有，仅供技术演示',
+    'zh-Hant': '版權所有，僅供技術演示',
+    'yue-Hans': '版权所有，只供技术演示',
+    'yue-Hant': '版權所有，只供技术演示'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
+    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
+    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+  },
+  attribution: {
+    'zh-Hans': '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版',
+    'zh-Hant': '《實用廣州話分類詞典》，麥耘、譚步雲編，廣東人民出版社，1997年版',
+    'yue-Hans': '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版',
+    'yue-Hant': '《實用廣州話分類詞典》，麥耘、譚步雲編，廣東人民出版社，1997年版'
+  },
   cover: '/gz-practical-classified.png'
 }
 

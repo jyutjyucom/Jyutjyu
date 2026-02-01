@@ -29,21 +29,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'kp-dialect',
-  name: '开平方言',
+  name: {
+    'zh-Hans': '开平方言',
+    'zh-Hant': '開平方言',
+    'yue-Hans': '开平方言',
+    'yue-Hant': '開平方言'
+  },
   dialect: {
-    name: '开平',
+    name: {
+      'zh-Hans': '开平',
+      'zh-Hant': '開平',
+      'yue-Hans': '开平',
+      'yue-Hant': '開平'
+    },
     region_code: 'KP'
   },
   source_book: '开平方言',
-  author: '邓钧',
-  publisher: '湖南电子音像出版社',
+  author: {
+    'zh-Hans': '邓钧',
+    'zh-Hant': '鄧鈞',
+    'yue-Hans': '邓钧',
+    'yue-Hant': '鄧鈞'
+  },
+  publisher: {
+    'zh-Hans': '湖南电子音像出版社',
+    'zh-Hant': '湖南電子音像出版社',
+    'yue-Hans': '湖南电子音像出版社',
+    'yue-Hant': '湖南電子音像出版社'
+  },
   year: 2000,
   version: new Date().toISOString().slice(0, 10),
-  description: '收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书',
+  description: {
+    'zh-Hans': '收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书',
+    'zh-Hant': '收錄開平話詞彙，包含國際音標、粵拼及普通話釋義，是研究開平方言的重要工具書',
+    'yue-Hans': '收录开平话词汇，包含国际音标、粤拼同普通话释义，系研究开平方言嘅重要工具书',
+    'yue-Hant': '收錄開平話詞彙，包含國際音標、粵拼同普通話釋義，係研究開平方言嘅重要工具書'
+  },
   source: 'scanned_from_internet',
-  license: 'Copyrighted. For technical demonstration only.',
-  usage_restriction: '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-  attribution: '《开平方言》，邓钧编，湖南电子音像出版社，2000年版',
+  license: {
+    'zh-Hans': '版权所有，仅供技术演示',
+    'zh-Hant': '版權所有，僅供技術演示',
+    'yue-Hans': '版权所有，只供技术演示',
+    'yue-Hant': '版權所有，只供技术演示'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
+    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
+    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
+    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+  },
+  attribution: {
+    'zh-Hans': '《开平方言》，邓钧编，湖南电子音像出版社，2000年版',
+    'zh-Hant': '《開平方言》，鄧鈞編，湖南電子音像出版社，2000年版',
+    'yue-Hans': '《开平方言》，邓钧编，湖南电子音像出版社，2000年版',
+    'yue-Hant': '《開平方言》，鄧鈞編，湖南電子音像出版社，2000年版'
+  },
   cover: '/kp-dialect.jpg'
 }
 

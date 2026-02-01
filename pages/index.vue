@@ -224,7 +224,7 @@
                   <div class="flex items-start justify-between gap-2 mb-1">
                     <h4
                       class="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-700 transition-colors">
-                      {{ dict.name }}
+                      {{ dict.lName }}
                     </h4>
                     <span :class="{
                       'bg-green-100 text-green-700 border border-green-200': dict.entries_count > 0,
@@ -236,16 +236,16 @@
                   </div>
 
                   <p class="text-sm font-medium text-gray-700 mb-0.5 truncate">
-                    {{ dict.author }}
+                    {{ dict.lAuthor }}
                   </p>
                   <p class="text-sm text-gray-500 truncate">
-                    {{ dict.publisher }} · {{ dict.year }}
+                    {{ dict.lPublisher }} · {{ dict.year }}
                   </p>
                 </div>
               </div>
 
-              <p v-if="dict.description" class="text-gray-600 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
-                {{ dict.description }}
+              <p v-if="dict.lDescription" class="text-gray-600 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+                {{ dict.lDescription }}
               </p>
 
               <!-- Footer with License -->
@@ -258,7 +258,7 @@
                   </svg>
                   <div class="flex-1">
                     <p class="text-sm text-gray-500">
-                      {{ dict.license }}
+                      {{ dict.lLicense }}
                     </p>
                   </div>
                 </div>
@@ -318,6 +318,7 @@ import { Database, Github, Info } from 'lucide-vue-next'
 import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t, locale } = useI18n()
+const { localizeDictionary } = useLocalizedDictionary()
 
 // 判断是否为简体中文（简体中文或简体粤文）
 const isSimplified = computed(() => {
@@ -354,10 +355,12 @@ const sortedDictionaries = computed(() => {
   if (!dictionariesData.value) return []
   // 使用固定的 locale 'zh-CN' 来确保排序在 SSR 和客户端一致
   const sortLocale = 'zh-CN'
-  return [...dictionariesData.value.dictionaries].sort((a, b) => {
+  return [...dictionariesData.value.dictionaries]
+    .map(localizeDictionary)
+    .sort((a, b) => {
     // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成“相等”(返回 0)，
     // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
-    const cmp = a.name.localeCompare(b.name, sortLocale)
+    const cmp = a.lName.localeCompare(b.lName, sortLocale)
     if (cmp !== 0) return cmp
     return String(a.id).localeCompare(String(b.id), sortLocale)
   })

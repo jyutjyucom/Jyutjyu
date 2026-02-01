@@ -1,182 +1,558 @@
+
 {
   "dictionaries": [
     {
       "id": "gz-practical-classified",
-      "name": "实用广州话分类词典",
-      "dialect": "广州",
+      "name": {
+        "zh-Hans": "实用广州话分类词典",
+        "zh-Hant": "實用廣州話分類詞典",
+        "yue-Hans": "实用广州话分类词典",
+        "yue-Hant": "實用廣州話分類詞典"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 7549,
-      "author": "麦耘、谭步云",
-      "publisher": "广东人民出版社",
+      "author": {
+        "zh-Hans": "麦耘、谭步云",
+        "zh-Hant": "麥耘、譚步雲",
+        "yue-Hans": "麦耘、谭步云",
+        "yue-Hant": "麥耘、譚步雲"
+      },
+      "publisher": {
+        "zh-Hans": "广东人民出版社",
+        "zh-Hant": "廣東人民出版社",
+        "yue-Hans": "广东人民出版社",
+        "yue-Hant": "廣東人民出版社"
+      },
       "year": 1997,
       "file": "gz-practical-classified.json",
       "version": "2026-01-12",
-      "description": "按主题分类的实用广州话词典，收录日常生活各领域词汇",
+      "description": {
+        "zh-Hans": "按主题分类的实用广州话词典，收录日常生活各领域词汇",
+        "zh-Hant": "按主題分類的實用廣州話詞典，收錄日常生活各領域詞彙",
+        "yue-Hans": "按主题分类嘅实用广州话词典，收录日常生活各领域词汇",
+        "yue-Hant": "按主題分類嘅實用廣州話詞典，收錄日常生活各領域詞彙"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
-      "attribution": "《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版",
+        "zh-Hant": "《實用廣州話分類詞典》，麥耘、譚步雲編，廣東人民出版社，1997年版",
+        "yue-Hans": "《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版",
+        "yue-Hant": "《實用廣州話分類詞典》，麥耘、譚步雲編，廣東人民出版社，1997年版"
+      },
       "cover": "/gz-practical-classified.jpg"
     },
     {
       "id": "gz-colloquialisms",
-      "name": "广州话俗语词典",
-      "dialect": "广州",
+      "name": {
+        "zh-Hans": "广州话俗语词典",
+        "zh-Hant": "廣州話俗語詞典",
+        "yue-Hans": "广州话俗语词典",
+        "yue-Hant": "廣州話俗語詞典"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 2516,
-      "author": "欧阳觉亚、周无忌、饶秉才",
-      "publisher": "广东人民出版社",
+      "author": {
+        "zh-Hans": "欧阳觉亚、周无忌、饶秉才",
+        "zh-Hant": "歐陽覺亞、周無忌、饒秉才",
+        "yue-Hans": "欧阳觉亚、周无忌、饶秉才",
+        "yue-Hant": "歐陽覺亞、周無忌、饒秉才"
+      },
+      "publisher": {
+        "zh-Hans": "广东人民出版社",
+        "zh-Hant": "廣東人民出版社",
+        "yue-Hans": "广东人民出版社",
+        "yue-Hant": "廣東人民出版社"
+      },
       "year": 2010,
       "file": "gz-colloquialisms.json",
       "version": "2026-01-19",
-      "description": "收录广州话歇后语、俗语、谚语等口语表达，附有详细释义和例句",
+      "description": {
+        "zh-Hans": "收录广州话歇后语、俗语、谚语等口语表达，附有详细释义和例句",
+        "zh-Hant": "收錄廣州話歇後語、俗語、諺語等口語表達，附有詳細釋義和例句",
+        "yue-Hans": "收录广州话歇后语、俗语、谚语等口语表达，附有详细释义同例句",
+        "yue-Hant": "收錄廣州話歇後語、俗語、諺語等口語表達，附有詳細釋義同例句"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
-      "attribution": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版",
+        "zh-Hant": "《廣州話俗語詞典》，歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010年版",
+        "yue-Hans": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版",
+        "yue-Hant": "《廣州話俗語詞典》，歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010年版"
+      },
       "cover": "/gz-colloquialisms.jpg"
     },
     {
       "id": "hk-cantowords",
-      "name": "粵典 (words.hk)",
-      "dialect": "香港",
-      "file": "hk-cantowords.json",
+      "name": {
+        "zh-Hans": "粤典 (words.hk)",
+        "zh-Hant": "粵典 (words.hk)",
+        "yue-Hans": "粤典 (words.hk)",
+        "yue-Hant": "粵典 (words.hk)"
+      },
+      "dialect": {
+        "zh-Hans": "香港",
+        "zh-Hant": "香港",
+        "yue-Hans": "香港",
+        "yue-Hant": "香港"
+      },
       "entries_count": 59019,
-      "author": "粵典贡献者",
-      "publisher": "香港辞书有限公司",
+      "author": {
+        "zh-Hans": "粤典贡献者",
+        "zh-Hant": "粵典貢獻者",
+        "yue-Hans": "粤典贡献者",
+        "yue-Hant": "粵典貢獻者"
+      },
+      "publisher": {
+        "zh-Hans": "香港辞书有限公司",
+        "zh-Hant": "香港辭書有限公司",
+        "yue-Hans": "香港辞书有限公司",
+        "yue-Hant": "香港辭書有限公司"
+      },
       "year": 2026,
+      "file": "hk-cantowords.json",
       "version": "2026-01-07",
-      "description": "香港粤语社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义",
+      "description": {
+        "zh-Hans": "香港粤语社区词典，收录大量日常用语、俚语及现代词汇，提供香港粤语和英语双语释义",
+        "zh-Hant": "香港粵語社區詞典，收錄大量日常用語、俚語及現代詞彙，提供香港粵語和英語雙語釋義",
+        "yue-Hans": "香港粤语社区词典，收录大量日常用语、俚语同现代词汇，提供香港粤语同英语双语释义",
+        "yue-Hant": "香港粵語社區詞典，收錄大量日常用語、俚語同現代詞彙，提供香港粵語同英語雙語釋義"
+      },
       "source": "community_contributed",
-      "license": "Non-Commercial Open Data License 1.0",
+      "license": {
+        "zh-Hans": "非商业开放资料授权协议 1.0",
+        "zh-Hant": "非商業開放資料授權協議 1.0",
+        "yue-Hans": "非商业开放资料授权协议 1.0",
+        "yue-Hant": "非商業開放資料授權協議 1.0"
+      },
       "license_url": "https://words.hk/base/hoifong/",
-      "usage_restriction": "此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。详见授权协议。",
-      "attribution": "粵典 (words.hk) / 香港辞书有限公司",
+      "usage_restriction": {
+        "zh-Hans": "此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制和修改。商业使用需获得授权（小型个人业务可豁免）。",
+        "zh-Hant": "此詞典採用《非商業開放資料授權協議 1.0》，允許非商業使用、複製和修改。商業使用需獲得授權（小型個人業務可豁免）。",
+        "yue-Hans": "此词典采用《非商业开放资料授权协议 1.0》，允许非商业使用、复制同修改。商业使用需要攞授权（小型个人业务可豁免）。",
+        "yue-Hant": "此詞典採用《非商業開放資料授權協議 1.0》，允許非商業使用、複製同修改。商業使用需要攞授權（小型個人業務可豁免）。"
+      },
+      "attribution": {
+        "zh-Hans": "粤典 (words.hk) / 香港辞书有限公司",
+        "zh-Hant": "粵典 (words.hk) / 香港辭書有限公司",
+        "yue-Hans": "粤典 (words.hk) / 香港辞书有限公司",
+        "yue-Hant": "粵典 (words.hk) / 香港辭書有限公司"
+      },
       "chunked": true,
       "chunk_dir": "cantowords",
       "cover": "/hk-cantowords.png"
     },
     {
       "id": "wiktionary-cantonese",
-      "name": "維基辭典",
-      "dialect": "粤语",
-      "file": "wiktionary-cantonese.json",
+      "name": {
+        "zh-Hans": "维基词典",
+        "zh-Hant": "維基詞典",
+        "yue-Hans": "维基辞典",
+        "yue-Hant": "維基辭典"
+      },
+      "dialect": {
+        "zh-Hans": "粤语",
+        "zh-Hant": "粵語",
+        "yue-Hans": "粤语",
+        "yue-Hant": "粵語"
+      },
       "entries_count": 102195,
-      "author": "维基词典贡献者",
-      "publisher": "维基媒体基金会",
+      "author": {
+        "zh-Hans": "维基词典贡献者",
+        "zh-Hant": "維基詞典貢獻者",
+        "yue-Hans": "维基辞典贡献者",
+        "yue-Hant": "維基辭典貢獻者"
+      },
+      "publisher": {
+        "zh-Hans": "维基媒体基金会",
+        "zh-Hant": "維基媒體基金會",
+        "yue-Hans": "维基媒体基金会",
+        "yue-Hant": "維基媒體基金會"
+      },
       "year": 2026,
+      "file": "wiktionary-cantonese.json",
       "version": "2026-01-22",
-      "description": "维基词典的粤语词条，包含释义、读音、例句等。",
+      "description": {
+        "zh-Hans": "维基词典的粤语词条，包含释义、读音、例句等",
+        "zh-Hant": "維基詞典的粵語詞條，包含釋義、讀音、例句等",
+        "yue-Hans": "维基辞典嘅粤语词条，包含释义、读音、例句等",
+        "yue-Hant": "維基辭典嘅粵語詞條，包含釋義、讀音、例句等"
+      },
       "source": "community_contributed",
       "license": "CC BY-SA 4.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
-      "attribution": "维基词典贡献者",
-      "usage_restriction": "需遵循CC BY-SA 4.0协议",
+      "usage_restriction": {
+        "zh-Hans": "需遵循 CC BY-SA 4.0 协议",
+        "zh-Hant": "需遵循 CC BY-SA 4.0 協議",
+        "yue-Hans": "需要遵循 CC BY-SA 4.0 协议",
+        "yue-Hant": "需要遵循 CC BY-SA 4.0 協議"
+      },
+      "attribution": {
+        "zh-Hans": "维基词典贡献者",
+        "zh-Hant": "維基詞典貢獻者",
+        "yue-Hans": "维基辞典贡献者",
+        "yue-Hant": "維基辭典貢獻者"
+      },
       "chunked": true,
       "chunk_dir": "wiktionary",
       "cover": "/wiktionary-cantonese.png"
     },
     {
       "id": "gz-word-origins",
-      "name": "粵語辭源",
-      "dialect": "广州",
-      "file": "gz-word-origins.json",
+      "name": {
+        "zh-Hans": "粤语辞源",
+        "zh-Hant": "粵語辭源",
+        "yue-Hans": "粤语辞源",
+        "yue-Hant": "粵語辭源"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 3951,
-      "author": "谭步云",
-      "publisher": "广东人民出版社",
+      "author": {
+        "zh-Hans": "谭步云",
+        "zh-Hant": "譚步雲",
+        "yue-Hans": "谭步云",
+        "yue-Hant": "譚步雲"
+      },
+      "publisher": {
+        "zh-Hans": "广东人民出版社",
+        "zh-Hant": "廣東人民出版社",
+        "yue-Hans": "广东人民出版社",
+        "yue-Hant": "廣東人民出版社"
+      },
       "year": 2025,
+      "file": "gz-word-origins.json",
       "version": "2026-01-11",
-      "description": "追溯粤语词汇的来源和演变，引用大量古籍文献，展示粤语词汇的历史渊源",
+      "description": {
+        "zh-Hans": "追溯粤语词汇的来源和演变，引用大量古籍文献，展示粤语词汇的历史渊源",
+        "zh-Hant": "追溯粵語詞彙的來源和演變，引用大量古籍文獻，展示粵語詞彙的歷史淵源",
+        "yue-Hans": "追溯粤语词汇嘅来源同演变，引用大量古籍文献，展示粤语词汇嘅历史渊源",
+        "yue-Hant": "追溯粵語詞彙嘅來源同演變，引用大量古籍文獻，展示粵語詞彙嘅歷史淵源"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "attribution": "《粵語辭源》，谭步云编，广东人民出版社，2025年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《粤语辞源》，谭步云编，广东人民出版社，2025年版",
+        "zh-Hant": "《粵語辭源》，譚步雲編，廣東人民出版社，2025年版",
+        "yue-Hans": "《粤语辞源》，谭步云编，广东人民出版社，2025年版",
+        "yue-Hant": "《粵語辭源》，譚步雲編，廣東人民出版社，2025年版"
+      },
       "cover": "/gz-word-origins.png"
     },
     {
       "id": "gz-dialect",
-      "name": "廣州方言詞典",
-      "dialect": "广州",
-      "file": "gz-dialect.json",
+      "name": {
+        "zh-Hans": "广州方言词典",
+        "zh-Hant": "廣州方言詞典",
+        "yue-Hans": "广州方言词典",
+        "yue-Hant": "廣州方言詞典"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 7476,
-      "author": "白宛如",
-      "publisher": "江苏教育出版社",
+      "author": {
+        "zh-Hans": "白宛如",
+        "zh-Hant": "白宛如",
+        "yue-Hans": "白宛如",
+        "yue-Hant": "白宛如"
+      },
+      "publisher": {
+        "zh-Hans": "江苏教育出版社",
+        "zh-Hant": "江蘇教育出版社",
+        "yue-Hans": "江苏教育出版社",
+        "yue-Hant": "江蘇教育出版社"
+      },
       "year": 1998,
+      "file": "gz-dialect.json",
       "version": "2026-01-23",
-      "description": "收录广州话词汇，包含释义、读音、用例等，是研究粤语（广州话）的重要工具书",
+      "description": {
+        "zh-Hans": "收录广州话词汇，包含释义、读音、用例等，是研究粤语（广州话）的重要工具书",
+        "zh-Hant": "收錄廣州話詞彙，包含釋義、讀音、用例等，是研究粵語（廣州話）的重要工具書",
+        "yue-Hans": "收录广州话词汇，包含释义、读音、用例等，系研究粤语（广州话）嘅重要工具书",
+        "yue-Hant": "收錄廣州話詞彙，包含釋義、讀音、用例等，係研究粵語（廣州話）嘅重要工具書"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "attribution": "《廣州方言詞典》，白宛如编，江苏教育出版社，1998年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《广州方言词典》，白宛如编，江苏教育出版社，1998年版",
+        "zh-Hant": "《廣州方言詞典》，白宛如編，江蘇教育出版社，1998年版",
+        "yue-Hans": "《广州方言词典》，白宛如编，江苏教育出版社，1998年版",
+        "yue-Hant": "《廣州方言詞典》，白宛如編，江蘇教育出版社，1998年版"
+      },
       "cover": "/gz-dialect.png"
     },
     {
       "id": "gz-modern",
-      "name": "现代粤语词典",
-      "dialect": "广州",
-      "file": "gz-modern.json",
+      "name": {
+        "zh-Hans": "现代粤语词典",
+        "zh-Hant": "現代粵語詞典",
+        "yue-Hans": "现代粤语词典",
+        "yue-Hant": "現代粵語詞典"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 16347,
-      "author": "范俊军、范兰德等",
-      "publisher": "广东人民出版社",
+      "author": {
+        "zh-Hans": "范俊军、范兰德等",
+        "zh-Hant": "范俊軍、范蘭德等",
+        "yue-Hans": "范俊军、范兰德等",
+        "yue-Hant": "范俊軍、范蘭德等"
+      },
+      "publisher": {
+        "zh-Hans": "广东人民出版社",
+        "zh-Hant": "廣東人民出版社",
+        "yue-Hans": "广东人民出版社",
+        "yue-Hant": "廣東人民出版社"
+      },
       "year": 2021,
+      "file": "gz-modern.json",
       "version": "2026-01-23",
-      "description": "现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等",
+      "description": {
+        "zh-Hans": "现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等",
+        "zh-Hant": "現代權威粵語詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等",
+        "yue-Hans": "现代权威粤语词典，系统收录广州话词汇，包含详细释义、读音、用例等",
+        "yue-Hant": "現代權威粵語詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "attribution": "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
+        "zh-Hant": "《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版",
+        "yue-Hans": "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
+        "yue-Hant": "《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版"
+      },
       "cover": "/gz-modern.jpg"
     },
     {
       "id": "gz-dict",
-      "name": "广州话词典（第2版）",
-      "dialect": "广州",
-      "file": "gz-dict.json",
+      "name": {
+        "zh-Hans": "广州话词典（第2版）",
+        "zh-Hant": "廣州話詞典（第2版）",
+        "yue-Hans": "广州话词典（第2版）",
+        "yue-Hant": "廣州話詞典（第2版）"
+      },
+      "dialect": {
+        "zh-Hans": "广州",
+        "zh-Hant": "廣州",
+        "yue-Hans": "广州",
+        "yue-Hant": "廣州"
+      },
       "entries_count": 10823,
-      "author": "饶秉才、欧阳觉亚、周无忌",
-      "publisher": "广东人民出版社",
+      "author": {
+        "zh-Hans": "饶秉才、欧阳觉亚、周无忌",
+        "zh-Hant": "饒秉才、歐陽覺亞、周無忌",
+        "yue-Hans": "饶秉才、欧阳觉亚、周无忌",
+        "yue-Hant": "饒秉才、歐陽覺亞、周無忌"
+      },
+      "publisher": {
+        "zh-Hans": "广东人民出版社",
+        "zh-Hant": "廣東人民出版社",
+        "yue-Hans": "广东人民出版社",
+        "yue-Hant": "廣東人民出版社"
+      },
       "year": 2020,
+      "file": "gz-dict.json",
       "version": "2026-01-23",
-      "description": "系统收录广州话词汇，包含释义、读音与用例。",
+      "description": {
+        "zh-Hans": "系统收录广州话词汇，包含释义、读音与用例",
+        "zh-Hant": "系統收錄廣州話詞彙，包含釋義、讀音與用例",
+        "yue-Hans": "系统收录广州话词汇，包含释义、读音同用例",
+        "yue-Hant": "系統收錄廣州話詞彙，包含釋義、讀音同用例"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "attribution": "《广州话词典（第2版）》，饶秉才、欧阳觉亚、周无忌编，广东人民出版社，2020年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《广州话词典（第2版）》，饶秉才、欧阳觉亚、周无忌编，广东人民出版社，2020年版",
+        "zh-Hant": "《廣州話詞典（第2版）》，饒秉才、歐陽覺亞、周無忌編，廣東人民出版社，2020年版",
+        "yue-Hans": "《广州话词典（第2版）》，饶秉才、欧阳觉亚、周无忌编，广东人民出版社，2020年版",
+        "yue-Hant": "《廣州話詞典（第2版）》，饒秉才、歐陽覺亞、周無忌編，廣東人民出版社，2020年版"
+      },
       "cover": "/gz-dict.jpg"
     },
     {
       "id": "qz-jyutping",
-      "name": "欽州粵拼",
-      "dialect": "钦州",
-      "file": "qz-jyutping.json",
+      "name": {
+        "zh-Hans": "钦州粤拼",
+        "zh-Hant": "欽州粵拼",
+        "yue-Hans": "钦州粤拼",
+        "yue-Hant": "欽州粵拼"
+      },
+      "dialect": {
+        "zh-Hans": "钦州",
+        "zh-Hant": "欽州",
+        "yue-Hans": "钦州",
+        "yue-Hant": "欽州"
+      },
       "entries_count": 12657,
       "author": "Lai Joengzit等",
       "publisher": "Lai Joengzit",
       "year": 2020,
+      "file": "qz-jyutping.json",
       "version": "201026",
-      "description": "《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。",
+      "description": {
+        "zh-Hans": "《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼",
+        "zh-Hant": "《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼",
+        "yue-Hans": "《钦州白话》嘅词头同注音部分，收录钦州话词汇同粤拼",
+        "yue-Hant": "《欽州白話》嘅詞頭同注音部分，收錄欽州話詞彙同粵拼"
+      },
       "source": "https://github.com/LaiJoengzit/hamzau_jyutping",
       "license": "GPL-3.0",
       "attribution": "欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。",
-      "usage_restriction": "此词典数据遵循 GPL-3.0 许可证，使用本数据时请遵守相应的许可证要求。",
+      "usage_restriction": {
+        "zh-Hans": "此词典数据遵循 GPL-3.0 许可证，使用本数据时请遵守相应的许可证要求。",
+        "zh-Hant": "此詞典數據遵循 GPL-3.0 許可證，使用本數據時請遵守相應的許可證要求。",
+        "yue-Hans": "此词典数据遵循 GPL-3.0 许可证，使用本数据时请遵守相应嘅许可证要求。",
+        "yue-Hant": "此詞典數據遵循 GPL-3.0 許可證，使用本數據時請遵守相應嘅許可證要求。"
+      },
       "cover": "/qz-jyutping.jpg"
     },
     {
       "id": "kp-dialect",
-      "name": "开平方言",
-      "dialect": "开平",
-      "file": "kp-dialect.json",
+      "name": {
+        "zh-Hans": "开平方言",
+        "zh-Hant": "開平方言",
+        "yue-Hans": "开平方言",
+        "yue-Hant": "開平方言"
+      },
+      "dialect": {
+        "zh-Hans": "开平",
+        "zh-Hant": "開平",
+        "yue-Hans": "开平",
+        "yue-Hant": "開平"
+      },
       "entries_count": 3725,
-      "author": "邓钧",
-      "publisher": "湖南电子音像出版社",
+      "author": {
+        "zh-Hans": "邓钧",
+        "zh-Hant": "鄧鈞",
+        "yue-Hans": "邓钧",
+        "yue-Hant": "鄧鈞"
+      },
+      "publisher": {
+        "zh-Hans": "湖南电子音像出版社",
+        "zh-Hant": "湖南電子音像出版社",
+        "yue-Hans": "湖南电子音像出版社",
+        "yue-Hant": "湖南電子音像出版社"
+      },
       "year": 2000,
+      "file": "kp-dialect.json",
       "version": "2026-01-23",
-      "description": "收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书",
+      "description": {
+        "zh-Hans": "收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书",
+        "zh-Hant": "收錄開平話詞彙，包含國際音標、粵拼及普通話釋義，是研究開平方言的重要工具書",
+        "yue-Hans": "收录开平话词汇，包含国际音标、粤拼同普通话释义，系研究开平方言嘅重要工具书",
+        "yue-Hant": "收錄開平話詞彙，包含國際音標、粵拼同普通話釋義，係研究開平方言嘅重要工具書"
+      },
       "source": "scanned_from_internet",
-      "license": "Copyrighted. For technical demonstration only.",
-      "attribution": "《开平方言》，邓钧编，湖南电子音像出版社，2000年版",
-      "usage_restriction": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+      "license": {
+        "zh-Hans": "版权所有，仅供技术演示",
+        "zh-Hant": "版權所有，僅供技術演示",
+        "yue-Hans": "版权所有，只供技术演示",
+        "yue-Hant": "版權所有，只供技術演示"
+      },
+      "usage_restriction": {
+        "zh-Hans": "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+        "zh-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+        "yue-Hans": "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+        "yue-Hant": "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。"
+      },
+      "attribution": {
+        "zh-Hans": "《开平方言》，邓钧编，湖南电子音像出版社，2000年版",
+        "zh-Hant": "《開平方言》，鄧鈞編，湖南電子音像出版社，2000年版",
+        "yue-Hans": "《开平方言》，邓钧编，湖南电子音像出版社，2000年版",
+        "yue-Hant": "《開平方言》，鄧鈞編，湖南電子音像出版社，2000年版"
+      },
       "cover": "/kp-dialect.jpg"
     }
   ],
-  "last_updated": "2026-01-23T06:26:08.044Z",
-  "schema_version": "1.0.0"
+  "last_updated": "2026-02-01T12:00:00.000Z",
+  "schema_version": "1.1.0"
 }

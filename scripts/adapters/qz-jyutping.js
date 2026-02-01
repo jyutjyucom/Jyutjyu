@@ -30,21 +30,61 @@ import {
  */
 export const DICTIONARY_INFO = {
   id: 'qz-jyutping',
-  name: '欽州粵拼',
+  name: {
+    'zh-Hans': '欽州粵拼',
+    'zh-Hant': '欽州粵拼',
+    'yue-Hans': '欽州粵拼',
+    'yue-Hant': '欽州粵拼'
+  },
   dialect: {
-    name: '钦州',
+    name: {
+      'zh-Hans': '钦州',
+      'zh-Hant': '欽州',
+      'yue-Hans': '钦州',
+      'yue-Hant': '欽州'
+    },
     region_code: 'QZ'
   },
   source_book: '欽州粵拼',
-  author: 'Lai Joengzit等',
-  publisher: 'Lai Joengzit',
+  author: {
+    'zh-Hans': 'Lai Joengzit等',
+    'zh-Hant': 'Lai Joengzit等',
+    'yue-Hans': 'Lai Joengzit等',
+    'yue-Hant': 'Lai Joengzit等'
+  },
+  publisher: {
+    'zh-Hans': 'Lai Joengzit',
+    'zh-Hant': 'Lai Joengzit',
+    'yue-Hans': 'Lai Joengzit',
+    'yue-Hant': 'Lai Joengzit'
+  },
   year: 2020,
   version: '201026',
-  description: '《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。',
+  description: {
+    'zh-Hans': '《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。',
+    'zh-Hant': '《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼。',
+    'yue-Hans': '《欽州白話》的詞頭同注音部分，收錄欽州話詞彙同粵拼。',
+    'yue-Hant': '《欽州白話》的詞頭同注音部分，收錄欽州話詞彙同粵拼。'
+  },
   source: 'https://github.com/LaiJoengzit/hamzau_jyutping',
-  license: 'GPL-3.0',
-  usage_restriction: '此词典数据遵循 GPL-3.0 许可证，使用本数据时请遵守相应的许可证要求。',
-  attribution: '欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。',
+  license: {
+    'zh-Hans': 'GPL-3.0',
+    'zh-Hant': 'GPL-3.0',
+    'yue-Hans': 'GPL-3.0',
+    'yue-Hant': 'GPL-3.0'
+  },
+  usage_restriction: {
+    'zh-Hans': '此词典数据遵循 GPL-3.0 许可证，使用本数据时请遵守相应的许可证要求。',
+    'zh-Hant': '此詞典數據遵循 GPL-3.0 許可證，使用本數據時請遵守相應的許可證要求。',
+    'yue-Hans': '此詞典數據遵循 GPL-3.0 許可證，使用本數據時請遵守相應的許可證要求。',
+    'yue-Hant': '此詞典數據遵循 GPL-3.0 許可證，使用本數據時請遵守相應的許可證要求。'
+  },
+  attribution: {
+    'zh-Hans': '欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。',
+    'zh-Hant': '欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。',
+    'yue-Hans': '欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。',
+    'yue-Hant': '欽州粵拼，Lai Joengzit等，2020年。爱好者原创作品。'
+  },
   cover: '/qz-jyutping.jpg'
 }
 
