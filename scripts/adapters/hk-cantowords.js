@@ -30,12 +30,7 @@ export const DICTIONARY_INFO = {
     'yue-Hant': '粵典'
   },
   dialect: {
-    name: {
-      'zh-Hans': '香港',
-      'zh-Hant': '香港',
-      'yue-Hans': '香港',
-      'yue-Hant': '香港'
-    },
+    name: '香港',
     region_code: 'HK'
   },
   source_book: '粵典 (words.hk)',

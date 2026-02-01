@@ -36,12 +36,7 @@ export const DICTIONARY_INFO = {
     'yue-Hant': '開平方言'
   },
   dialect: {
-    name: {
-      'zh-Hans': '开平',
-      'zh-Hant': '開平',
-      'yue-Hans': '开平',
-      'yue-Hant': '開平'
-    },
+    name: '开平',
     region_code: 'KP'
   },
   source_book: '开平方言',

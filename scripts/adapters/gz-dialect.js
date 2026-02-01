@@ -32,12 +32,7 @@ export const DICTIONARY_INFO = {
     'yue-Hant': '廣州方言詞典'
   },
   dialect: {
-    name: {
-      'zh-Hans': '广州',
-      'zh-Hant': '廣州',
-      'yue-Hans': '广州',
-      'yue-Hant': '廣州'
-    },
+    name: '广州',
     region_code: 'GZ'
   },
   source_book: '廣州方言詞典',

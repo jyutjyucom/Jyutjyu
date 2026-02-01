@@ -30,12 +30,7 @@ export const DICTIONARY_INFO = {
     'yue-Hant': '維基辭典'
   },
   dialect: {
-    name: {
-      'zh-Hans': '粤语',
-      'zh-Hant': '粵語',
-      'yue-Hans': '粤语',
-      'yue-Hant': '粵語'
-    },
+    name: '粤语',
     region_code: 'YUE'
   },
   source_book: '維基辭典',

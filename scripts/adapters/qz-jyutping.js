@@ -37,12 +37,7 @@ export const DICTIONARY_INFO = {
     'yue-Hant': '欽州粵拼'
   },
   dialect: {
-    name: {
-      'zh-Hans': '钦州',
-      'zh-Hant': '欽州',
-      'yue-Hans': '钦州',
-      'yue-Hant': '欽州'
-    },
+    name: '钦州',
     region_code: 'QZ'
   },
   source_book: '欽州粵拼',
