@@ -402,9 +402,12 @@ export function transformRow(row) {
   // 3. 解析释义和例句（现在返回数组）
   const sensesArray = parseExamples(row.meanings)
   
-  // 4. 处理粤拼（支持括号变体语法）
-  const jyutpingArray = row.jyutping
-    ? parseJyutpingVariants(row.jyutping)
+  // 4. 处理粤拼（支持括号变体语法）；粤拼变调符号统一为 "*"
+  const rawJyutping = row.jyutping
+    ? String(row.jyutping).replace(/(\d)-/g, '$1*')
+    : ''
+  const jyutpingArray = rawJyutping
+    ? parseJyutpingVariants(rawJyutping)
     : []
   
   // 5. 构建分类路径
@@ -431,7 +434,7 @@ export function transformRow(row) {
     },
     
     phonetic: {
-      original: row.jyutping,
+      original: rawJyutping || row.jyutping,
       jyutping: jyutpingArray
     },
     
