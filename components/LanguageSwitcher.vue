@@ -1,12 +1,5 @@
 <template>
   <div class="flex items-center gap-2">
-    <!-- 桌面端 & 非搜索页：完整标签，和筛选栏样式一致 -->
-    <span
-      class="text-sm text-gray-500 dark:text-gray-400 font-medium"
-    >
-      {{ t('common.languageSwitcherLabel') }}:
-    </span>
-
     <!-- 自定义下拉按钮，统一成和筛选栏一致的 UI 样式 -->
     <div class="relative">
       <button
