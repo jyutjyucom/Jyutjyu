@@ -67,7 +67,7 @@ export const DICTIONARY_INFO = {
     'yue-Hans': '《实用广州话分类词典》，麦耘、谭步云编，广东人民出版社，1997年版',
     'yue-Hant': '《實用廣州話分類詞典》，麥耘、譚步雲編，廣東人民出版社，1997年版'
   },
-  cover: '/gz-practical-classified.png'
+  cover: '/gz-practical-classified.jpg'
 }
 
 /**
