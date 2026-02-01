@@ -191,13 +191,18 @@
         "yue-Hant": "維基辭典嘅粵語詞條，包含釋義、讀音、例句等"
       },
       "source": "community_contributed",
-      "license": "CC BY-SA 4.0",
+      "license": {
+        "zh-Hans": "CC BY-SA 4.0",
+        "zh-Hant": "CC BY-SA 4.0",
+        "yue-Hans": "CC BY-SA 4.0",
+        "yue-Hant": "CC BY-SA 4.0"
+      },
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
       "usage_restriction": {
-        "zh-Hans": "需遵循 CC BY-SA 4.0 协议",
-        "zh-Hant": "需遵循 CC BY-SA 4.0 協議",
-        "yue-Hans": "需要遵循 CC BY-SA 4.0 协议",
-        "yue-Hant": "需要遵循 CC BY-SA 4.0 協議"
+        "zh-Hans": "需遵循CC BY-SA 4.0协议",
+        "zh-Hant": "需遵循CC BY-SA 4.0協議",
+        "yue-Hans": "需要遵循CC BY-SA 4.0协议",
+        "yue-Hant": "需要遵循CC BY-SA 4.0協議"
       },
       "attribution": {
         "zh-Hans": "维基词典贡献者",
@@ -502,6 +507,6 @@
       "cover": "/kp-dialect.jpg"
     }
   ],
-  "last_updated": "2026-02-01T16:35:37.210Z",
+  "last_updated": "2026-02-01T16:46:49.747Z",
   "schema_version": "1.1.0"
 }

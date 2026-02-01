@@ -132,7 +132,7 @@ function extractCantonesePhonetics(sounds) {
       )
       
       if (hasCantonese && hasJyutping && sound.zh_pron) {
-        // 标准化粤拼为数字声调格式
+        // 标准化粤拼为数字声调格式；粤拼变调符号统一为 "*"
         let jyutping = sound.zh_pron
           .replace(/⁰/g, '0')
           .replace(/¹/g, '1')
@@ -144,7 +144,7 @@ function extractCantonesePhonetics(sounds) {
           .replace(/⁷/g, '7')
           .replace(/⁸/g, '8')
           .replace(/⁹/g, '9')
-          .replace(/⁻/g, '-')
+          .replace(/⁻/g, '*')
           .trim()
         
         if (jyutping && !seenJyutping.has(jyutping)) {
