@@ -3,8 +3,9 @@
     <div class="container mx-auto px-4 py-16">
       <!-- 页面标题 -->
       <div class="max-w-4xl mx-auto mb-12">
-        <div class="flex justify-end mb-6">
+        <div class="flex justify-end items-center gap-3 mb-6">
           <ThemeToggle />
+          <LanguageSwitcher />
         </div>
         <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           {{ t('about.title') }}
