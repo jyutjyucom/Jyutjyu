@@ -10,7 +10,7 @@
 
       <!-- Logo & Title -->
       <div class="text-center mb-12" :class="isSimplified ? '' : 'font-r'">
-        <h1 class="text-4xl md:text-6xl text-blue-600 mb-4">
+        <h1 class="text-4xl md:text-6xl text-blue-600 dark:text-blue-400 mb-4">
           {{ t('common.siteName') }}
         </h1>
         <h2 class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-2">
@@ -38,18 +38,18 @@
           <div class="text-sm text-gray-500 dark:text-gray-400">
             {{ t('common.examplesPrefix') }}
             <template v-if="enableReverseSearch">
-              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('為什麼')">為什麼</span>、
-              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('奇怪')">奇怪</span>
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('為什麼')">為什麼</span>、
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('奇怪')">奇怪</span>
             </template>
             <template v-else>
-              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
-              <span class="text-blue-600 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3
                 soe4</span>
             </template>
           </div>
           <label class="flex items-center gap-2 cursor-pointer select-none" :title="t('common.reverseSearchTitle')">
             <input v-model="enableReverseSearch" type="checkbox"
-              class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+              class="w-4 h-4 text-blue-600 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400">
             <span class="text-sm text-gray-600 dark:text-gray-300">{{ t('common.reverseSearch') }}</span>
           </label>
         </div>
@@ -58,9 +58,9 @@
       <!-- Random Entries -->
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex justify-between items-center mb-6">
-          <h3 class="text-2xl font-semibold text-blue-700">{{ t('common.recommendedEntries') }}</h3>
+          <h3 class="text-2xl font-semibold text-blue-700 dark:text-blue-300">{{ t('common.recommendedEntries') }}</h3>
           <button @click="refreshRandomEntries" :disabled="loadingRandomEntries"
-            class="text-blue-600 hover:text-blue-700 flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
             <svg v-if="loadingRandomEntries" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -90,11 +90,11 @@
 
             <div class="flex flex-col h-full items-center text-center">
               <div class="w-full">
-                <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 transition-colors">
+                <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {{ entry.headword.display }}
                 </h4>
 
-                <p class="text-base font-mono text-blue-600 font-semibold">
+                <p class="text-base font-mono text-blue-600 dark:text-blue-400 font-semibold">
                   {{ entry.phonetic.jyutping[0] }}
                 </p>
 
@@ -109,7 +109,7 @@
               <div class="mt-auto w-full pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-between items-center text-sm">
                 <span class="text-gray-400 dark:text-gray-500 font-medium">{{ entry.source_book }}</span>
                 <span
-                  class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  class="text-blue-500 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                   {{ t('common.clickToView') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
@@ -134,7 +134,7 @@
                   <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                     {{ randomEntries[mobileIndex].headword.display }}
                   </h4>
-                  <p class="text-base font-mono text-blue-600 font-medium">
+                  <p class="text-base font-mono text-blue-600 dark:text-blue-400 font-medium">
                     {{ randomEntries[mobileIndex].phonetic.jyutping[0] }}
                   </p>
                 </div>
@@ -152,7 +152,7 @@
               <button @click="nextMobileEntry"
                 class="w-full px-7 py-4 flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 transition-colors">
                 <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ randomEntries[mobileIndex].source_book }}</span>
-                <span class="text-blue-500 font-medium flex items-center gap-1 text-sm">
+                <span class="text-blue-500 dark:text-blue-400 font-medium flex items-center gap-1 text-sm">
                   {{ t('common.next') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -185,11 +185,11 @@
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex flex-col items-center mb-6">
           <div class="flex justify-between items-center w-full mb-2">
-            <h3 class="text-2xl font-semibold text-blue-700">{{ t('common.includedDictionaries') }}</h3>
+            <h3 class="text-2xl font-semibold text-blue-700 dark:text-blue-300">{{ t('common.includedDictionaries') }}</h3>
           </div>
           <p class="text-lg text-gray-600 dark:text-gray-300">
             {{ t('common.totalEntriesPrefix') }}
-            <span class="text-blue-600 font-semibold text-lg">{{ totalEntriesCount.toLocaleString() }}</span>
+            <span class="text-blue-600 dark:text-blue-400 font-semibold text-lg">{{ totalEntriesCount.toLocaleString() }}</span>
             {{ t('common.totalEntriesSuffix') }}
           </p>
         </div>
@@ -223,7 +223,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-start justify-between gap-2 mb-1">
                     <h4
-                      class="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight group-hover:text-blue-700 transition-colors">
+                      class="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                       {{ dict.lName }}
                     </h4>
                     <span :class="{
@@ -270,7 +270,7 @@
         <div class="mt-6 text-center">
           <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">{{ t('common.moreDictionariesComing') }}</p>
           <NuxtLink to="/about"
-            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+            class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
             {{ t('common.viewLicense') }}
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -281,7 +281,7 @@
 
       <!-- Call to Action -->
       <div class="mt-16 text-center">
-        <h3 class="text-2xl font-semibold mb-4">{{ t('common.contribute') }}</h3>
+        <h3 class="text-2xl font-semibold text-blue-700 dark:text-blue-300 mb-4">{{ t('common.contribute') }}</h3>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
           {{ t('common.contributeDescription') }}
         </p>

@@ -5,11 +5,11 @@
       <div
         class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600 rounded-r-lg flex items-center gap-2 shadow-sm"
       >
-        <svg class="w-4 h-4 text-green-700 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="text-green-800 dark:text-green-300 text-sm font-semibold">
+        <span class="text-green-800 dark:text-green-200 text-sm font-semibold">
           {{ t('common.exactMatchLabel') }}
           <span class="ml-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-800 rounded text-green-900 dark:text-green-200">{{
             groupedResults.exactMatches.length
@@ -88,18 +88,18 @@
         class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
         :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }"
       >
-        <svg class="w-4 h-4 text-blue-700 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span v-if="isTextSearch && sortBy === 'relevance'" class="text-blue-800 dark:text-blue-300 text-sm font-semibold">
+        <span v-if="isTextSearch && sortBy === 'relevance'" class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
           {{ t('common.otherResultsLabel') }}
           <span class="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-200">{{
             groupedResults.otherResults.length
           }}</span>
           {{ t('common.remainingSuffix') }}
         </span>
-        <span v-else class="text-blue-800 dark:text-blue-300 text-sm font-semibold">
+        <span v-else class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
           {{ t('common.searchHeader') }}
           <span class="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-200">{{
             groupedResults.otherResults.length

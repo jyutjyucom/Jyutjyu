@@ -159,7 +159,7 @@
               <div
                 v-for="(subSense, subIdx) in sense.sub_senses"
                 :key="subIdx"
-                class="pl-4 border-l-2 border-blue-200"
+                class="pl-4 border-l-2 border-blue-200 dark:border-blue-700"
               >
                 <!-- 子义项标签和释义 -->
                 <div class="mb-2">
@@ -179,7 +179,7 @@
                   <div
                     v-for="(example, exIdx) in subSense.examples"
                     :key="exIdx"
-                    class="pl-4 border-l-2 border-gray-200"
+                    class="pl-4 border-l-2 border-gray-200 dark:border-gray-600"
                   >
                     <p
                       v-if="isCantoDict"
@@ -219,7 +219,7 @@
               <div
                 v-for="(example, exIdx) in sense.examples"
                 :key="exIdx"
-                class="pl-4 border-l-2 border-gray-200"
+                class="pl-4 border-l-2 border-gray-200 dark:border-gray-600"
               >
                 <p
                   v-if="isCantoDict"
@@ -274,7 +274,7 @@
         v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
         class="mt-4 p-3 border-l-4 bg-purple-50 dark:bg-purple-900/20 border-purple-400 dark:border-purple-600 text-sm text-gray-700 dark:text-gray-300"
       >
-        <span class="font-semibold text-purple-700">{{ t('dictCard.etymology') }}</span>
+        <span class="font-semibold text-purple-700 dark:text-purple-300">{{ t('dictCard.etymology') }}</span>
         {{ entry.meta.etymology }}
       </div>
 
@@ -283,7 +283,7 @@
         v-if="entry.meta?.references && entry.meta.references.length > 0"
         class="mt-4 p-3 border-l-4 bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-600 text-sm text-gray-700 dark:text-gray-300"
       >
-        <span class="font-semibold text-amber-700">{{ t('dictCard.references') }}</span>
+        <span class="font-semibold text-amber-700 dark:text-amber-300">{{ t('dictCard.references') }}</span>
         <ul class="mt-2 space-y-2">
           <li
             v-for="(ref, refIdx) in entry.meta.references"
@@ -516,7 +516,7 @@ const formatDefinitionWithLinks = (definition: string): string => {
   return definition.replace(regex, (match, word) => {
     // 生成搜索链接
     const searchUrl = `/search?q=${encodeURIComponent(word)}`
-    return `<a href="${searchUrl}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
+    return `<a href="${searchUrl}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }
 

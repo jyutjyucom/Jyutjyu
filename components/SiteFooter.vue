@@ -15,7 +15,7 @@
             </NuxtLink>
           </template>
         </p>
-        <p class="mb-2 text-sm text-gray-500 dark:text-gray-500">
+        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
           {{ t('common.footerFriendLinks') }}
           <a href="https://jyutping.org/jyutping/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank"
             rel="noopener noreferrer">
@@ -30,7 +30,7 @@
             {{ t('common.footerJyutNet') }}
           </a>
         </p>
-        <p class="mb-2 text-sm text-gray-500 dark:text-gray-500">
+        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
           {{ t('common.footerOcrDisclaimerPrefix') }}
           <FeedbackButton
             hide-icon
