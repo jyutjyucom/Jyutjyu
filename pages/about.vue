@@ -187,17 +187,17 @@
                 ✅ {{ t('about.community.allowedTitle') }}
               </h5>
               <ul class="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1 mb-3">
-                <li><strong>商业使用</strong>：允许用于商业目的</li>
-                <li><strong>复制与分发</strong>：可以自由复制、分发、传播</li>
-                <li><strong>修改与演绎</strong>：可以修改、混合、转换或基于该作品创作</li>
+                <li>{{ t('about.community.wiktAllowed1') }}</li>
+                <li>{{ t('about.community.wiktAllowed2') }}</li>
+                <li>{{ t('about.community.wiktAllowed3') }}</li>
               </ul>
               
               <h5 class="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2">
                 📝 {{ t('about.community.conditionsTitle') }}
               </h5>
               <ul class="text-sm text-gray-700 dark:text-gray-300 list-disc list-inside space-y-1 mb-3">
-                <li><strong>署名</strong>：必须给予适当的署名，提供指向许可协议的链接</li>
-                <li><strong>相同方式共享</strong>：如对本作品进行修改，必须以相同许可协议分发</li>
+                <li>{{ t('about.community.wiktCond1') }}</li>
+                <li>{{ t('about.community.wiktCond2') }}</li>
               </ul>
               
               <p class="text-xs text-gray-600 dark:text-gray-400">
