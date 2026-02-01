@@ -95,7 +95,11 @@ export default defineI18nConfig(() => ({
         sortByHeadword: '词头',
         sortByDictionary: '词典',
         optionsExpand: '展开选项',
-        optionsCollapse: '收起选项'
+        optionsCollapse: '收起选项',
+        themeLight: '亮色模式',
+        themeDark: '暗色模式',
+        themeSystem: '跟随系统',
+        themeToggle: '切换主题'
       },
       dictCard: {
         placeholderWord: '有音无字',
@@ -361,7 +365,11 @@ export default defineI18nConfig(() => ({
         sortByHeadword: '詞頭',
         sortByDictionary: '詞典',
         optionsExpand: '展開選項',
-        optionsCollapse: '收起選項'
+        optionsCollapse: '收起選項',
+        themeLight: '亮色模式',
+        themeDark: '暗色模式',
+        themeSystem: '跟隨系統',
+        themeToggle: '切換主題'
       },
       dictCard: {
         placeholderWord: '有音無字',
@@ -627,7 +635,11 @@ export default defineI18nConfig(() => ({
         sortByHeadword: '词头',
         sortByDictionary: '词典',
         optionsExpand: '展开选项',
-        optionsCollapse: '收起选项'
+        optionsCollapse: '收起选项',
+        themeLight: '亮色模式',
+        themeDark: '暗色模式',
+        themeSystem: '跟随系统',
+        themeToggle: '切换主题'
       },
       dictCard: {
         placeholderWord: '有音无字',
@@ -892,7 +904,11 @@ export default defineI18nConfig(() => ({
         sortByHeadword: '詞頭',
         sortByDictionary: '詞典',
         optionsExpand: '展開選項',
-        optionsCollapse: '收起選項'
+        optionsCollapse: '收起選項',
+        themeLight: '亮色模式',
+        themeDark: '暗色模式',
+        themeSystem: '跟隨系統',
+        themeToggle: '切換主題'
       },
       dictCard: {
         placeholderWord: '有音無字',

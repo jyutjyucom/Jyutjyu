@@ -1,29 +1,29 @@
 <template>
-  <div class="bg-white rounded-lg shadow-lg p-6 w-full">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full">
     <div class="flex items-center gap-3 mb-6">
-      <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       </div>
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">{{ t('feedback.title') }}</h3>
-        <p class="text-sm text-gray-600">{{ t('feedback.subtitle') }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ t('feedback.title') }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ t('feedback.subtitle') }}</p>
       </div>
     </div>
 
     <form @submit.prevent="submitFeedback" class="space-y-4">
       <!-- 反馈类型 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {{ t('feedback.type.label') }}
         </label>
         <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
           <label
             v-for="type in feedbackTypes"
             :key="type.value"
-            class="relative flex cursor-pointer rounded-md border-2 bg-white px-1.5 py-2 sm:px-2 sm:py-2.5 focus:outline-none"
-            :class="feedbackType === type.value ? 'border-blue-500' : 'border-gray-300'"
+            class="relative flex cursor-pointer rounded-md border-2 bg-white dark:bg-gray-800 px-1.5 py-2 sm:px-2 sm:py-2.5 focus:outline-none"
+            :class="feedbackType === type.value ? 'border-blue-500' : 'border-gray-300 dark:border-gray-600'"
           >
             <input
               v-model="feedbackType"
@@ -33,7 +33,7 @@
               class="sr-only"
             >
             <span class="flex flex-1 items-center justify-center">
-              <span class="text-sm sm:text-sm font-medium text-gray-900 text-center leading-tight">{{ type.label }}</span>
+              <span class="text-sm sm:text-sm font-medium text-gray-900 dark:text-gray-100 text-center leading-tight">{{ type.label }}</span>
             </span>
           </label>
         </div>
@@ -41,7 +41,7 @@
 
       <!-- 标题 -->
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {{ t('feedback.titleField.label') }}
         </label>
         <input
@@ -49,7 +49,7 @@
           v-model="title"
           type="text"
           :placeholder="t('feedback.titleField.placeholder')"
-          class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+          class="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
           required
         >
       </div>
@@ -57,12 +57,12 @@
       <!-- 描述 -->
       <div>
         <div class="flex items-center justify-between gap-3 mb-2">
-          <label for="description" class="block text-sm font-medium text-gray-700">
+          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ t('feedback.description.label') }}
           </label>
           <button
             type="button"
-            class="text-sm font-medium text-gray-500 hover:text-gray-700 underline underline-offset-2 disabled:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
+            class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 underline underline-offset-2 disabled:no-underline disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="!description"
             @click="description = ''"
           >
@@ -74,7 +74,7 @@
           v-model="description"
           :placeholder="t('feedback.description.placeholder')"
           rows="10"
-          class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500 resize-vertical"
+          class="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500 resize-vertical"
           required
         ></textarea>
       </div>
@@ -82,7 +82,7 @@
       <!-- 词条相关信息（当反馈类型为词条错误时显示） -->
       <div v-if="feedbackType === 'entry-error'" class="space-y-3">
         <div>
-          <label for="entry-word" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="entry-word" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ t('feedback.entry.word.label') }}
           </label>
           <input
@@ -90,17 +90,17 @@
             v-model="entryWord"
             type="text"
             :placeholder="t('feedback.entry.word.placeholder')"
-            class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+            class="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
           >
         </div>
         <div>
-          <label for="entry-source" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="entry-source" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ t('feedback.entry.source.label') }}
           </label>
           <select
             id="entry-source"
             v-model="entrySource"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">{{ t('feedback.entry.source.placeholder') }}</option>
             <option v-for="source in dictionarySources" :key="source.value" :value="source.value">
@@ -112,7 +112,7 @@
 
       <!-- 联系方式（可选） -->
       <div>
-        <label for="contact" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="contact" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {{ t('feedback.contact.label') }}
         </label>
         <input
@@ -120,19 +120,19 @@
           v-model="contact"
           type="text"
           :placeholder="t('feedback.contact.placeholder')"
-          class="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+          class="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
         >
-        <p class="text-xs text-gray-500 mt-1">{{ t('feedback.contact.hint') }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('feedback.contact.hint') }}</p>
       </div>
 
       <!-- 提交行：左侧提示，右侧按钮 -->
       <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
-        <div class="text-sm flex items-center gap-2 min-h-[28px] text-gray-700">
+        <div class="text-sm flex items-center gap-2 min-h-[28px] text-gray-700 dark:text-gray-300">
           <template v-if="showSuccess && successUrl">
-            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
-            <span class="text-green-700">
+            <span class="text-green-700 dark:text-green-300">
               {{ t('feedback.success.message') }}
               <a :href="successUrl" target="_blank" class="underline font-medium">
                 {{ t('feedback.success.linkText') }} {{ successIssueNumber ? `#${successIssueNumber}` : successUrl }}
@@ -140,10 +140,10 @@
             </span>
           </template>
           <template v-else-if="errorMessage">
-            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m-6 4h8a2 2 0 002-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            <span class="text-red-700">{{ errorMessage }}</span>
+            <span class="text-red-700 dark:text-red-300">{{ errorMessage }}</span>
           </template>
         </div>
 
@@ -151,7 +151,7 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border-2 border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:border-blue-500"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:border-blue-500"
           >
             {{ t('feedback.cancel') }}
           </button>
@@ -279,7 +279,7 @@ const normalizeEntrySource = (source?: string) => {
   return matched?.value || ''
 }
 
-// 初始化/同步：来自外部上下文时，默认切到“词条纠错”，并预填词语/来源
+// 初始化/同步：来自外部上下文时，默认切到"词条纠错"，并预填词语/来源
 watchEffect(() => {
   if (props.initialType) {
     feedbackType.value = props.initialType

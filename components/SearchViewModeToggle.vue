@@ -1,8 +1,8 @@
 <template>
-  <div class="inline-flex rounded-lg border border-gray-300">
+  <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600">
     <button
       class="text-sm font-medium transition-colors"
-      :class="[modelValue === 'card' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
+      :class="[modelValue === 'card' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
       @click="$emit('update:modelValue', 'card')">
       <span v-if="showIcons" class="flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,8 +14,8 @@
       <span v-else>{{ t('common.cardView') }}</span>
     </button>
     <button
-      class="text-sm font-medium transition-colors border-l border-gray-300"
-      :class="[modelValue === 'list' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
+      class="text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600"
+      :class="[modelValue === 'list' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
       @click="$emit('update:modelValue', 'list')">
       <span v-if="showIcons" class="flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

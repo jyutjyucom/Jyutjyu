@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header with Search Bar -->
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
       <div class="container mx-auto px-4 py-4">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
@@ -12,7 +12,7 @@
             <div class="flex flex-nowrap items-center gap-2 flex-1 min-w-0">
               <div class="flex-1 min-w-0 max-w-2xl relative">
                 <input v-model="searchQuery" type="text" :placeholder="t('common.searchPlaceholder')"
-                  class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  class="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
                   @keyup.enter="handleSearch" @input="handleInput">
                 <button
                   class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
@@ -21,9 +21,9 @@
                 </button>
                 <!-- 搜索建议 -->
                 <div v-if="suggestions.length > 0 && showSuggestions"
-                  class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
+                  class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
                   <button v-for="(suggestion, idx) in suggestions" :key="idx"
-                    class="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors"
+                    class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
                     @click="selectSuggestion(suggestion)">
                     {{ suggestion }}
                   </button>
@@ -31,7 +31,7 @@
               </div>
               <!-- 仅当筛选栏隐藏时显示（< lg）：展开/收起选项按钮 -->
               <button type="button"
-                class="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors shrink-0"
+                class="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors shrink-0"
                 :aria-label="optionsExpanded ? t('common.optionsCollapse') : t('common.optionsExpand')"
                 :aria-expanded="optionsExpanded"
                 @click="optionsExpanded = !optionsExpanded">
@@ -45,14 +45,16 @@
               <SearchReverseCheckbox v-model="enableReverseSearch" />
             </div>
           </div>
-          <div class="hidden lg:flex flex-shrink-0">
+          <div class="hidden lg:flex items-center gap-3 flex-shrink-0">
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
         </div>
         <!-- 较窄屏（< lg）：选项面板，筛选栏不单独占行时复用反查、LanguageSwitcher、筛选、排序、视图 -->
-        <div v-show="optionsExpanded" class="lg:hidden border-t border-gray-100 pt-3 mt-1 space-y-4">
+        <div v-show="optionsExpanded" class="lg:hidden border-t border-gray-100 dark:border-gray-700 pt-3 mt-1 space-y-4">
           <div class="flex flex-wrap items-center gap-3">
             <SearchReverseCheckbox v-model="enableReverseSearch" />
+            <ThemeToggle />
             <LanguageSwitcher />
           </div>
           <template v-if="actualSearchQuery && allResults.length > 0">
@@ -98,7 +100,7 @@
       </div>
 
       <!-- 筛选栏（仅 lg+ 且保证单行；< lg 或会换行时隐藏，改在选项面板显示） -->
-      <div v-if="actualSearchQuery && allResults.length > 0" class="hidden lg:block border-t border-gray-100 bg-gray-50/80">
+      <div v-if="actualSearchQuery && allResults.length > 0" class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
         <div class="container mx-auto px-4 py-3">
           <div class="flex flex-nowrap items-center gap-3">
             <SearchFilterControls
@@ -149,17 +151,17 @@
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p class="text-gray-600 mt-4">{{ t('common.searching') }}</p>
+          <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.searching') }}</p>
         </div>
 
         <!-- Results Info -->
         <div v-else-if="actualSearchQuery" class="mb-6">
-          <h2 class="text-2xl font-semibold text-gray-900">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {{ enableReverseSearch ? t('common.reverseSearchResultsPrefix') : t('common.searchResultsPrefix') }}
             "{{ actualSearchQuery }}"
           </h2>
           <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p class="text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p class="text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-x-2 gap-y-1">
               <span>
                 {{ t('common.searchHeader') }}
                 <span class="font-semibold">{{ allAggregatedCount }}</span>
@@ -167,14 +169,14 @@
               </span>
               <!-- 筛选状态 -->
               <template v-if="selectedDict || selectedDialect || selectedType">
-                <span class="text-gray-400">→</span>
+                <span class="text-gray-400 dark:text-gray-500">→</span>
                 <span class="text-blue-600">
                   {{ t('common.filterLabel') }}
                   <span class="font-semibold">{{ totalCount }}</span>
                   {{ t('common.remainingSuffix') }}
                 </span>
                 <button
-                  class="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                   @click="clearFilters">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -185,10 +187,10 @@
               <span v-if="!isSearchComplete" class="text-sm text-blue-500">
                 <span class="inline-block animate-pulse">{{ t('common.searching') }}</span>
               </span>
-              <span v-else-if="searchTime > 0" class="text-sm text-gray-400">
+              <span v-else-if="searchTime > 0" class="text-sm text-gray-400 dark:text-gray-500">
                 ({{ searchTime }}ms)
               </span>
-              <span v-if="totalCount > PAGE_SIZE" class="text-sm text-gray-400">
+              <span v-if="totalCount > PAGE_SIZE" class="text-sm text-gray-400 dark:text-gray-500">
                 · {{ t('common.showFirstPrefix') }} {{ displayedResults.length }} {{ t('common.showFirstSuffix') }}
               </span>
             </p>
@@ -199,13 +201,13 @@
         <div v-if="!loading && isSearchComplete && actualSearchQuery && allResults.length === 0"
           class="text-center py-16">
           <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-2xl font-semibold text-gray-900 mb-2">
+          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             {{ t('common.noResultsTitle') }}
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
             {{ t('common.noResultsDescription') }}
           </p>
-          <div class="text-sm text-gray-500">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
             <p class="font-semibold mb-2">{{ t('common.noResultsTipsTitle') }}</p>
             <ul class="space-y-1">
               <li>• {{ t('common.noResultsTip1') }}</li>
@@ -223,14 +225,14 @@
             <!-- 完全匹配的结果（仅文字搜索时显示） -->
             <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
               <div
-                class="mb-6 p-3 border-l-4 bg-green-50 border-green-400 rounded-r-lg flex items-center gap-2 shadow-sm">
+                class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 rounded-r-lg flex items-center gap-2 shadow-sm">
                 <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span class="text-green-800 text-sm font-semibold">
                   {{ t('common.exactMatchLabel') }} <span
-                    class="ml-1 px-1.5 py-0.5 bg-green-100 rounded text-green-900">{{ groupedResults.exactMatches.length
+                    class="ml-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-800 rounded text-green-900 dark:text-green-100">{{ groupedResults.exactMatches.length
                     }}</span> {{ t('common.remainingSuffix') }}
                 </span>
               </div>
@@ -242,7 +244,7 @@
 
             <!-- 其他相关结果 -->
             <template v-if="displayedGroupedResults.otherResults.length > 0">
-              <div class="mb-6 p-3 border-l-4 bg-blue-50 border-blue-400 rounded-r-lg flex items-center gap-2 shadow-sm"
+              <div class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 rounded-r-lg flex items-center gap-2 shadow-sm"
                 :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
                 <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -250,7 +252,7 @@
                 </svg>
                 <span v-if="isTextSearch && sortBy === 'relevance'" class="text-blue-800 text-sm font-semibold">
                   {{ t('common.otherResultsLabel') }} <span
-                    class="ml-1 px-1.5 py-0.5 bg-blue-100 rounded text-blue-900">{{ groupedResults.otherResults.length
+                    class="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-100">{{ groupedResults.otherResults.length
                     }}</span> {{ t('common.remainingSuffix') }}
                 </span>
                 <span v-else class="text-blue-800 text-sm font-semibold">
@@ -307,17 +309,17 @@
         <!-- Empty State -->
         <div v-else-if="!loading" class="text-center py-16">
           <div class="text-6xl mb-4">📚</div>
-          <h3 class="text-2xl font-semibold text-gray-900 mb-2">
+          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
             {{ t('common.startSearchTitle') }}
           </h3>
-          <p class="text-gray-600 mb-6">
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
             {{ t('common.startSearchDescription') }}
           </p>
           <!-- 示例搜索 -->
           <div class="flex flex-wrap gap-2 justify-center">
-            <span class="text-sm text-gray-500">{{ t('common.exampleSearchPrefix') }}</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('common.exampleSearchPrefix') }}</span>
             <button v-for="example in exampleSearches" :key="example"
-              class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
+              class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full transition-colors"
               @click="searchExample(example)">
               {{ example }}
             </button>

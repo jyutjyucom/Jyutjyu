@@ -29,7 +29,7 @@
       >
         <div
           v-if="showFeedbackModal"
-          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4 z-50"
           @click.self="showFeedbackModal = false"
         >
           <Transition
@@ -91,7 +91,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   entryData: undefined,
   initialDescription: undefined,
-  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 transition-colors',
+  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors',
   iconOnly: false,
   iconOnlyOnMobile: false,
   labelClass: 'text-sm',

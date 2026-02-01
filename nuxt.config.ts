@@ -67,7 +67,7 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'color-scheme', content: 'light only' },
+        { name: 'color-scheme', content: 'light dark' },
         {
           name: 'description',
           content: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries'

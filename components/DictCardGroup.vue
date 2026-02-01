@@ -1,10 +1,10 @@
 <template>
-  <div v-if="entries.length > 0" class="dict-card bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+  <div v-if="entries.length > 0" class="dict-card bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
     <!-- 头部：词头 + 粤拼（共享信息） -->
-    <div class="card-header px-6 py-4 border-b border-gray-100">
+    <div class="card-header px-6 py-4 border-b border-gray-100 dark:border-gray-700">
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-2xl font-bold text-gray-900 mb-1 break-words">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
             {{ primary.headword.display }}
             <span
               v-if="primary.headword.is_placeholder"
@@ -15,7 +15,7 @@
             </span>
             <sup
               v-if="primary.meta?.variant_number"
-              class="ml-1 text-base text-gray-500"
+              class="ml-1 text-base text-gray-500 dark:text-gray-400"
             >
               {{ primary.meta.variant_number }}
             </sup>
@@ -27,18 +27,18 @@
               :key="idx"
               class="flex items-center gap-1.5 flex-wrap"
             >
-              <div class="font-mono text-lg text-blue-600 font-semibold break-words">
+              <div class="font-mono text-lg text-blue-600 dark:text-blue-400 font-semibold break-words">
                 {{ jp }}
               </div>
             </div>
           </div>
-          <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-gray-500">
+          <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {{ t('dictCard.collectedBy', { count: dictionaryCount }) }}
           </p>
 
           <p
             v-if="primary.headword.display !== primary.headword.normalized"
-            class="text-sm text-gray-500 break-words mt-1"
+            class="text-sm text-gray-500 dark:text-gray-400 break-words mt-1"
           >
             {{ t('dictCard.standardWriting') }}{{ primary.headword.normalized }}
           </p>
@@ -51,33 +51,33 @@
       <div
         v-for="entry in entries"
         :key="entry.id"
-        class="mt-4 pt-4 first:mt-0 first:pt-0 border-t first:border-t-0 border-gray-200"
+        class="mt-4 pt-4 first:mt-0 first:pt-0 border-t first:border-t-0 border-gray-200 dark:border-gray-700"
       >
         <!-- 词典标签区 -->
         <div class="flex items-start gap-3">
           <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
-            <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap">
               {{ entry.source_book }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
             </span>
 
-            <span class="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm whitespace-nowrap">
               {{ getDialectLabel(entry) }}
             </span>
 
-            <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-lg text-sm whitespace-nowrap">
               {{ getEntryTypeLabel(entry) }}
             </span>
 
             <span
               v-if="entry.meta?.register"
-              class="px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm whitespace-nowrap"
+              class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg text-sm whitespace-nowrap"
             >
               {{ entry.meta.register }}
             </span>
 
             <span
               v-if="entry.meta?.category"
-              class="px-3 py-1 bg-purple-50 text-purple-700 rounded-lg text-sm break-words max-w-full"
+              class="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-sm break-words max-w-full"
             >
               {{ entry.meta.category }}
             </span>
@@ -93,7 +93,7 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
               label-class="text-sm"
             />
           </div>
@@ -101,18 +101,18 @@
 
         <!-- 仅当该词典粤拼与主词条不同才显示 -->
         <div v-if="shouldShowEntryJyutping(entry)" class="mt-3 text-sm">
-          <span class="text-sm text-gray-500 mr-2">{{ t('common.jyutpingColumn') }}:</span>
-          <span class="font-mono text-blue-600 font-semibold">{{ getEntryJyutping(entry) }}</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">{{ t('common.jyutpingColumn') }}:</span>
+          <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold">{{ getEntryJyutping(entry) }}</span>
         </div>
 
         <div v-if="shouldShowEntryOriginalPhonetic(entry)" class="mt-2 text-sm">
-          <span class="text-sm text-gray-500 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
-          <span class="text-gray-700 break-words">{{ getEntryOriginalPhonetic(entry) }}</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
+          <span class="text-gray-700 dark:text-gray-300 break-words">{{ getEntryOriginalPhonetic(entry) }}</span>
         </div>
 
         <p
           v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
-          class="text-base text-gray-900 break-words mt-3"
+          class="text-base text-gray-900 dark:text-gray-100 break-words mt-3"
         >
           {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
         </p>
@@ -127,7 +127,7 @@
             <div class="flex items-start gap-3">
               <span
                 v-if="entry.senses.length > 1"
-                class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-sm flex items-center justify-center font-semibold"
+                class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm flex items-center justify-center font-semibold"
               >
                 {{ senseIdx + 1 }}
               </span>
@@ -135,19 +135,19 @@
               <div class="flex-1">
                 <span
                   v-if="sense.label"
-                  class="inline-block text-sm text-gray-500 mb-1"
+                  class="inline-block text-sm text-gray-500 dark:text-gray-400 mb-1"
                 >
                   {{ sense.label }}
                 </span>
 
                 <p
                   v-if="isCantoDict(entry)"
-                  class="text-gray-900 text-base leading-relaxed mb-2"
+                  class="text-gray-900 dark:text-gray-100 text-base leading-relaxed mb-2"
                   v-html="formatDefinitionWithLinks(sense.definition)"
                 ></p>
                 <p
                   v-else
-                  class="text-gray-900 text-base leading-relaxed mb-2"
+                  class="text-gray-900 dark:text-gray-100 text-base leading-relaxed mb-2"
                 >
                   {{ sense.definition }}
                 </p>
@@ -159,13 +159,13 @@
                   <div
                     v-for="(subSense, subIdx) in sense.sub_senses"
                     :key="subIdx"
-                    class="pl-4 border-l-2 border-blue-200"
+                    class="pl-4 border-l-2 border-blue-200 dark:border-blue-700"
                   >
                     <div class="mb-2">
-                      <span class="inline-block font-semibold text-blue-700 mr-2">
+                      <span class="inline-block font-semibold text-blue-700 dark:text-blue-300 mr-2">
                         {{ subSense.label }})
                       </span>
-                      <span class="text-gray-900">
+                      <span class="text-gray-900 dark:text-gray-100">
                         {{ subSense.definition }}
                       </span>
                     </div>
@@ -176,28 +176,28 @@
                       <div
                         v-for="(example, exIdx) in subSense.examples"
                         :key="exIdx"
-                        class="pl-4 border-l-2 border-gray-200"
+                        class="pl-4 border-l-2 border-gray-200 dark:border-gray-700"
                       >
                         <p
                           v-if="isCantoDict(entry)"
-                          class="text-gray-700 text-base"
+                          class="text-gray-700 dark:text-gray-300 text-base"
                           v-html="formatDefinitionWithLinks(example.text)"
                         ></p>
                         <p
                           v-else
-                          class="text-gray-700 text-base"
+                          class="text-gray-700 dark:text-gray-300 text-base"
                         >
                           {{ example.text }}
                         </p>
                         <p
                           v-if="example.jyutping"
-                          class="text-sm text-blue-600 font-mono mt-1"
+                          class="text-sm text-blue-600 dark:text-blue-400 font-mono mt-1"
                         >
                           {{ example.jyutping }}
                         </p>
                         <p
                           v-if="example.translation"
-                          class="text-base text-gray-500 mt-1"
+                          class="text-base text-gray-500 dark:text-gray-400 mt-1"
                         >
                           → {{ example.translation }}
                         </p>
@@ -213,28 +213,28 @@
                   <div
                     v-for="(example, exIdx) in sense.examples"
                     :key="exIdx"
-                    class="pl-4 border-l-2 border-gray-200"
+                    class="pl-4 border-l-2 border-gray-200 dark:border-gray-700"
                   >
                     <p
                       v-if="isCantoDict(entry)"
-                      class="text-gray-700 text-base"
+                      class="text-gray-700 dark:text-gray-300 text-base"
                       v-html="formatDefinitionWithLinks(example.text)"
                     ></p>
                     <p
                       v-else
-                      class="text-gray-700 text-base"
+                      class="text-gray-700 dark:text-gray-300 text-base"
                     >
                       {{ example.text }}
                     </p>
                     <p
                       v-if="example.jyutping"
-                      class="text-sm text-blue-600 font-mono mt-1"
+                      class="text-sm text-blue-600 dark:text-blue-400 font-mono mt-1"
                     >
                       {{ example.jyutping }}
                     </p>
                     <p
                       v-if="example.translation"
-                      class="text-base text-gray-500 mt-1"
+                      class="text-base text-gray-500 dark:text-gray-400 mt-1"
                     >
                       → {{ example.translation }}
                     </p>
@@ -248,12 +248,12 @@
             v-if="entry.meta?.notes"
             class="mt-4 p-3 border-l-4 text-sm"
             :class="entry.meta?.note_type === 'proofreader' 
-              ? 'bg-blue-50 border-blue-400 text-gray-700' 
-              : 'bg-yellow-50 border-yellow-400 text-gray-700'"
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 text-gray-700 dark:text-gray-300' 
+              : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600 text-gray-700 dark:text-gray-300'"
           >
             <span 
               class="font-semibold"
-              :class="entry.meta?.note_type === 'proofreader' ? 'text-blue-700' : 'text-yellow-700'"
+              :class="entry.meta?.note_type === 'proofreader' ? 'text-blue-700 dark:text-blue-300' : 'text-yellow-700 dark:text-yellow-300'"
             >
               {{ entry.meta?.note_type === 'proofreader' ? t('dictCard.proofreaderNote') : t('dictCard.note') }}
             </span>
@@ -262,17 +262,17 @@
 
           <div
             v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
-            class="mt-4 p-3 border-l-4 bg-purple-50 border-purple-400 text-sm text-gray-700"
+            class="mt-4 p-3 border-l-4 bg-purple-50 dark:bg-purple-900/20 border-purple-400 dark:border-purple-600 text-sm text-gray-700 dark:text-gray-300"
           >
-            <span class="font-semibold text-purple-700">{{ t('dictCard.etymology') }}</span>
+            <span class="font-semibold text-purple-700 dark:text-purple-300">{{ t('dictCard.etymology') }}</span>
             {{ entry.meta.etymology }}
           </div>
 
           <div
             v-if="entry.meta?.references && entry.meta.references.length > 0"
-            class="mt-4 p-3 border-l-4 bg-amber-50 border-amber-400 text-sm text-gray-700"
+            class="mt-4 p-3 border-l-4 bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-600 text-sm text-gray-700 dark:text-gray-300"
           >
-            <span class="font-semibold text-amber-700">{{ t('dictCard.references') }}</span>
+            <span class="font-semibold text-amber-700 dark:text-amber-300">{{ t('dictCard.references') }}</span>
             <ul class="mt-2 space-y-2">
               <li
                 v-for="(ref, refIdx) in entry.meta.references"
@@ -282,7 +282,7 @@
                 <span v-if="ref.work">《{{ ref.work }}》</span>
                 <span v-if="ref.author || ref.work">：</span>
                 <span v-if="ref.quote">{{ ref.quote }}</span>
-                <span v-if="ref.source" class="text-gray-500">（{{ ref.source }}）</span>
+                <span v-if="ref.source" class="text-gray-500 dark:text-gray-400">（{{ ref.source }}）</span>
               </li>
             </ul>
           </div>
@@ -291,7 +291,7 @@
             v-if="entry.refs && entry.refs.length > 0"
             class="mt-4 text-sm"
           >
-            <span class="text-gray-500">{{ t('dictCard.seeAlso') }}</span>
+            <span class="text-gray-500 dark:text-gray-400">{{ t('dictCard.seeAlso') }}</span>
             <span
               v-for="(ref, refIdx) in entry.refs"
               :key="refIdx"
@@ -300,19 +300,19 @@
               <NuxtLink
                 v-if="ref.type === 'word'"
                 :to="`/search?q=${encodeURIComponent(ref.target)}`"
-                class="text-blue-600 hover:underline"
+                class="text-blue-600 dark:text-blue-400 hover:underline"
               >
                 {{ ref.target }}
               </NuxtLink>
               <span
                 v-else
-                class="text-gray-600"
+                class="text-gray-600 dark:text-gray-400"
               >
                 {{ ref.target }}
               </span>
               <span
                 v-if="refIdx < entry.refs.length - 1"
-                class="text-gray-400"
+                class="text-gray-400 dark:text-gray-500"
               >
                 、
               </span>
@@ -321,7 +321,7 @@
 
           <div
             v-if="showDetails && entry.meta?.usage"
-            class="mt-4 text-sm text-gray-600"
+            class="mt-4 text-sm text-gray-600 dark:text-gray-400"
           >
             <span class="font-semibold">{{ t('dictCard.usage') }}</span> {{ entry.meta.usage }}
           </div>
