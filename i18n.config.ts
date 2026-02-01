@@ -273,7 +273,7 @@ export default defineI18nConfig(() => ({
       common: {
         siteName: '粵語辭叢',
         siteSubtitle: 'Open Yue Dictionary Collection Platform',
-        siteDescription: '開放粵語詞典平台',
+        siteDescription: '開放的粵語詞典聚合平台',
         contribute: '參與貢獻',
         contributeDescription: '本平台開源於 GitHub，歡迎外部貢獻',
         github: 'GitHub',
