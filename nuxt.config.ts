@@ -79,8 +79,15 @@ export default defineNuxtConfig({
         { property: 'og:description', content: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://jyutjyu.com' },
+        { property: 'og:image', content: 'https://jyutjyu.com/og.png' },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:image:alt', content: '粵語辭叢' },
         // Twitter
-        { name: 'twitter:card', content: 'summary_large_image' }
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:image', content: 'https://jyutjyu.com/og.png' },
+        { name: 'twitter:image:alt', content: '粵語辭叢' }
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
