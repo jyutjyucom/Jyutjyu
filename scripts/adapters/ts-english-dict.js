@@ -86,17 +86,31 @@ export const DICTIONARY_INFO = {
 export const REQUIRED_FIELDS = []
 
 /**
+ * 判断字符串是否像粤拼（含拉丁字母与声调数字 1–6，可有 *），而非中文等
+ * 若整段为 CJK 或主要为 CJK，则视为非粤拼
+ */
+function looksLikeJyutping(str) {
+  if (!str || !str.trim()) return false
+  const t = str.trim()
+  const cjkCount = (t.match(/[\u4e00-\u9fa5]/g) || []).length
+  const hasLatinOrDigit = /[a-zA-Z1-6*]/.test(t)
+  return hasLatinOrDigit && cjkCount === 0
+}
+
+/**
  * 解析 Jyutping 列：支持 "aa2 baa1"、"aa2 len4 or aa2 lieng5"、"aa2 gaau5*"（* 为变调符号，保留）
+ * 若该列误填为中文（如部分 CSV 行），则忽略，不加入 jyutping 数组
  * @param {string} jyutpingStr
  * @returns {string[]}
  */
 function parseJyutping(jyutpingStr) {
   if (!jyutpingStr || !jyutpingStr.trim()) return []
   const s = jyutpingStr.trim()
+  if (!looksLikeJyutping(s)) return []
   const parts = s.split(/\s+or\s+|\s*[,;]\s*/).map(p => p.trim()).filter(Boolean)
   const out = []
   for (const p of parts) {
-    if (p) out.push(p)
+    if (p && looksLikeJyutping(p)) out.push(p)
   }
   return [...new Set(out)]
 }
@@ -135,7 +149,10 @@ export function transformRow(row, rowIndex) {
 
   const headwordInfo = cleanHeadword(headwordRaw)
   const jyutpingArray = parseJyutping(row['Jyutping'] || '')
-  const gps = (row['GPS'] || '').trim()
+  let gps = (row['GPS'] || '').trim()
+  if (gps && (gps.match(/[\u4e00-\u9fa5]/) || !/[a-zA-Z]/.test(gps))) {
+    gps = ''
+  }
 
   const entry = {
     id: `${DICTIONARY_INFO.id}_${String(rowIndex).padStart(6, '0')}`,
@@ -153,7 +170,7 @@ export function transformRow(row, rowIndex) {
 
     phonetic: {
       original: gps || (jyutpingArray[0] || ''),
-      jyutping: jyutpingArray.length ? jyutpingArray : []
+      jyutping: jyutpingArray
     },
 
     entry_type: guessEntryType(recordType, headwordInfo.normalized),

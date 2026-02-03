@@ -516,7 +516,7 @@
       },
       "dialect": "台山",
       "file": "ts-english-dict.json",
-      "entries_count": 42442,
+      "entries_count": 42499,
       "author": {
         "zh-Hans": "Gene M. Chin",
         "zh-Hant": "Gene M. Chin",
@@ -559,6 +559,6 @@
       "cover": "ts-english-dict.png"
     }
   ],
-  "last_updated": "2026-02-03T17:40:11.564Z",
+  "last_updated": "2026-02-03T18:30:31.711Z",
   "schema_version": "1.1.0"
 }
