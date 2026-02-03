@@ -112,6 +112,7 @@ export default defineI18nConfig(() => ({
           HK: '香港',
           QZ: '钦州',
           KP: '开平',
+          TS: '台山',
           YUE: '粤语'
         },
         entryTypeCharacter: '字',
@@ -391,6 +392,7 @@ export default defineI18nConfig(() => ({
           HK: '香港',
           QZ: '欽州',
           KP: '開平',
+          TS: '台山',
           YUE: '粵語'
         },
         entryTypeCharacter: '字',
@@ -670,6 +672,7 @@ export default defineI18nConfig(() => ({
           HK: '香港',
           QZ: '钦州',
           KP: '开平',
+          TS: '台山',
           YUE: '粤语'
         },
         entryTypeCharacter: '字',
@@ -948,6 +951,7 @@ export default defineI18nConfig(() => ({
           HK: '香港',
           QZ: '欽州',
           KP: '開平',
+          TS: '台山',
           YUE: '粵語'
         },
         entryTypeCharacter: '字',

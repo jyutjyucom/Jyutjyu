@@ -370,6 +370,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from '~/types/dictionary'
+import { hasDialectI18n } from '~/constants/dialect'
 
 const { t } = useI18n()
 
@@ -481,7 +482,7 @@ const entryTypeLabel = computed(() => {
 // 方言标签：使用地区代码映射（便于 i18n）
 const dialectLabel = computed(() => {
   const code = props.entry.dialect?.region_code?.toUpperCase()
-  if (code === 'GZ' || code === 'HK' || code === 'YUE' || code === 'QZ' || code === 'KP') {
+  if (hasDialectI18n(code)) {
     return t(`dictCard.dialect.${code}`)
   }
   // 回退：无地区代码时使用原始名称（兼容旧数据）

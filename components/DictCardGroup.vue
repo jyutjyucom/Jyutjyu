@@ -333,6 +333,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from '~/types/dictionary'
+import { hasDialectI18n } from '~/constants/dialect'
 
 const { t } = useI18n()
 
@@ -376,7 +377,7 @@ const getEntryTypeLabel = (entry: DictionaryEntry) => {
 
 const getDialectLabel = (entry: DictionaryEntry) => {
   const code = entry.dialect?.region_code?.toUpperCase()
-  if (code === 'GZ' || code === 'HK' || code === 'YUE' || code === 'QZ' || code === 'KP') {
+  if (hasDialectI18n(code)) {
     return t(`dictCard.dialect.${code}`)
   }
   return entry.dialect?.name || ''

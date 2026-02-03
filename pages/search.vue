@@ -334,6 +334,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from '~/types/dictionary'
+import { hasDialectI18n } from '~/constants/dialect'
 
 interface AggregatedEntry {
   key: string
@@ -555,7 +556,7 @@ const availableDialects = computed(() => {
 // 方言显示名：使用地区代码映射（便于 i18n）
 const getDialectLabel = (code: string) => {
   const normalized = code?.toUpperCase()
-  if (normalized === 'GZ' || normalized === 'HK' || normalized === 'YUE' || normalized === 'QZ' || normalized === 'KP') {
+  if (hasDialectI18n(normalized)) {
     return t(`dictCard.dialect.${normalized}`)
   }
   return normalized || code
