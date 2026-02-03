@@ -85,6 +85,14 @@
 - 本项目仅用于技术演示和学习研究
 - 如需商业使用，请直接联系 words.hk (info@words.hk)
 
+#### 🔹 网络公开词典（台山話英文字典）
+
+📖 **台山話英文字典**（Taishan English Dictionary）为网络词典，直接公开于 https://www.chinfamilytree.com/hed/index.htm。
+
+- **版权**：Copyright © 2005-2024 Gene M. Chin
+- **协议**：**未标明具体协议**，使用与再分发时请**注明出处**并尊重原作者
+- **建议**：仅建议在注明来源、非商业或取得授权的前提下使用；商业或再分发前请自行评估或联系原作者
+
 #### 🔹 社区原创词表授权政策
 
 💡 **默认协议**：所有个人原创词表的贡献者，默认同意将其内容以 **[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)** 协议发布。

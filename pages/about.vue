@@ -292,6 +292,36 @@
             </div>
           </div>
 
+          <!-- 网络公开词典（协议不明） -->
+          <div class="mb-6 border-l-4 border-slate-400 dark:border-slate-500 pl-6 py-2 bg-slate-50 dark:bg-slate-900/20 rounded-r-lg">
+            <h3 class="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+              🌐 {{ t('about.webDict.title') }}
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-4">
+              {{ t('about.webDict.intro') }}
+            </p>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                📚 {{ t('about.webDict.tsTitle', { count: tsCountDisplay }) }}
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                {{ t('about.webDict.tsDesc') }}
+              </p>
+              
+              <h5 class="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2">
+                📜 {{ t('about.webDict.tsLicense') }}
+              </h5>
+              <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                {{ t('about.webDict.tsNotice') }}
+              </p>
+              
+              <p class="text-xs text-gray-600 dark:text-gray-400">
+                {{ t('about.webDict.tsCopyright') }}
+              </p>
+            </div>
+          </div>
+
           <!-- 权利声明 -->
           <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mt-6">
             <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
@@ -420,6 +450,13 @@ const qzCountDisplay = computed(() => {
   const data = dictionariesData.value as any
   if (!data?.dictionaries) return '0'
   const dict = data.dictionaries.find((d: any) => d.id === 'qz-jyutping')
+  return (dict?.entries_count || 0).toLocaleString()
+})
+
+const tsCountDisplay = computed(() => {
+  const data = dictionariesData.value as any
+  if (!data?.dictionaries) return '0'
+  const dict = data.dictionaries.find((d: any) => d.id === 'ts-english-dict')
   return (dict?.entries_count || 0).toLocaleString()
 })
 

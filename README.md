@@ -29,6 +29,7 @@
 - [x] **粵語辭源**（3,951 條）
 - [x] **欽州粵拼**（12,657 條）
 - [x] **开平方言**（3,986 條）
+- [x] **台山話英文字典**（42,442 條，網絡詞典）
 
 ## 內容授權
 
@@ -38,6 +39,7 @@
 - **粵典 (words.hk)**：採用 [Non-Commercial Open Data License 1.0](https://words.hk/base/hoifong/)，允許非商業使用。
 - **維基辭典**：採用 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)，允許商用（需署名及相同方式分享）。
 - **欽州粵拼**：採用 [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)，允許商用。
+- **台山話英文字典**：網絡詞典，直接公開於 [chinfamilytree.com/hed](https://www.chinfamilytree.com/hed/index.htm)，**協議不明**；版權 © 2005-2024 Gene M. Chin。使用與再分發時請**註明出處**並尊重原作者。
 - **社區原創**：建議採用 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hant)。
 
 詳情請參閱 [貢獻指南](./CONTRIBUTING.md#內容授權政策)。

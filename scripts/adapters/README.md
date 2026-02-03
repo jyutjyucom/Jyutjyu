@@ -1131,6 +1131,57 @@ node scripts/csv-to-json.js \
 - 包含按语的词条：约 487 条（12%）
 - 多义项词条：约 619 条（16%）
 
+## 示例 8：台山話英文字典
+
+参考 `ts-english-dict.js`，用于**台山话—英语网络词典**。
+
+### 词典信息与来源
+
+- **名称**：台山話英文字典 (Taishan English Dictionary)
+- **年份**：2024
+- **网址**：https://www.chinfamilytree.com/hed/index.htm
+- **类型**：网络词典，直接公开在网上
+- **版权**：Copyright © 2005-2024 Gene M. Chin
+- **协议**：未标明具体协议，使用与再分发时请注明出处并尊重原作者
+
+### CSV 格式特点
+
+```csv
+RecordType,DialectTag,号,部,画,繁,简,GPS,Jyutping,汉拼,英译与词句,gps#,Nos.
+HEAD,,30,口,8,咑,,ā,aa2,dā,(brief utterance to urge draft animals on) giddyap.⁶,a1,1
+PHRASE,,,,,啞巴,哑巴,ā-bä,aa2 baa1,yǎba,"a dumb person, mute.⁵",a1,2
+```
+
+- `RecordType`：HEAD（字头/词头）或 PHRASE（词组）
+- `繁` / `简`：繁体/简体词头，至少其一有值；无词头的行（如纯例句翻译）会被跳过
+- `GPS`：台山话罗马字（原书注音）→ `phonetic.original`
+- `Jyutping`：粤拼，支持 " or " 与逗号分隔多读，尾随 `*` 为转换好的变调符号，须保留
+- `英译与词句`：英文释义
+- `DialectTag`：如「台」表示台山特有，存入 `meta.dialect_tag`
+
+### 核心实现要点
+
+1. **词头**：优先取 `繁`，空则取 `简`；两者皆空则跳过该行。
+2. **粤拼解析**：支持 `aa2 len4 or aa2 lieng5`、`aa2 gaau5*` 等；尾随 `*` 为变调符号，保留不去除，解析后去重。
+3. **词条类型**：按 `RecordType` 与汉字数量：单字→character，2–4 字→word，PHRASE 或更长→phrase。
+4. **元数据**：`record_type`、`dialect_tag`、`radical_no`、`部`、`画`、`mandarin_pinyin`、`gps#`、`Nos.` 等保留在 `meta`。
+
+### 使用说明
+
+```bash
+# 转换台山話英文字典
+node scripts/csv-to-json.js \
+  --dict ts-english-dict \
+  --input data/processed/ts-english-dict.csv
+
+# 输出默认到 public/dictionaries/ts-english-dict.json
+```
+
+### 注意事项
+
+- 数据来源于网络公开词典，协议不明，仅建议在注明出处、非商业或取得授权的前提下使用。
+- 无词头行（繁、简均为空）会在转换时自动跳过并统计数量。
+
 ---
 
 ## 常见问题

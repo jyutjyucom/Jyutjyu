@@ -202,6 +202,15 @@ export default defineI18nConfig(() => ({
           qzConditions2: '相同方式共享：如对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
           qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
+        webDict: {
+          title: '网络公开词典（协议不明）',
+          intro: '以下词典直接公开于网络，未标明具体授权协议。使用与再分发时请注明出处并尊重原作者。',
+          tsTitle: '台山話英文字典 - {count} 词条',
+          tsDesc: '台山话—英语网络词典，收录字头、词组及例句，提供台山话罗马字与汉语拼音，英文释义。',
+          tsLicense: '协议状态',
+          tsNotice: '数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。未标明具体协议。',
+          tsCopyright: '来源：https://www.chinfamilytree.com/hed/index.htm · 使用与再分发时请注明出处并尊重原作者。'
+        },
         rights: {
           title: '权利声明与联系方式',
           intro: '我们尊重知识产权，致力于在法律框架内推动粤语文化的保育与传承。',
@@ -471,6 +480,15 @@ export default defineI18nConfig(() => ({
           qzConditions1: '保留版權聲明：必須保留原始版權聲明和許可協議',
           qzConditions2: '相同方式共享：如對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
           qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
+        },
+        webDict: {
+          title: '網絡公開詞典（協議不明）',
+          intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
+          tsTitle: '台山話英文字典 - {count} 詞條',
+          tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
+          tsLicense: '協議狀態',
+          tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
+          tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
         },
         rights: {
           title: '權利聲明與聯絡方式',
@@ -742,6 +760,15 @@ export default defineI18nConfig(() => ({
           qzConditions2: '相同方式共享：如果对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
           qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
         },
+        webDict: {
+          title: '网络公开词典（协议不明）',
+          intro: '以下词典直接公开喺网络，未标明具体授权协议。使用同再分发时请注明出处并尊重原作者。',
+          tsTitle: '台山話英文字典 - {count} 词条',
+          tsDesc: '台山话—英语网络词典，收录字头、词组同例句，提供台山话罗马字同汉语拼音、英文释义。',
+          tsLicense: '协议状态',
+          tsNotice: '数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。未标明具体协议。',
+          tsCopyright: '来源：https://www.chinfamilytree.com/hed/index.htm · 使用同再分发时请注明出处并尊重原作者。'
+        },
         rights: {
           title: '权利声明与联络方式',
           intro: '我哋尊重知识产权，致力于喺法律框架之下推动粤语文化嘅保育同传承。',
@@ -1010,6 +1037,15 @@ export default defineI18nConfig(() => ({
           qzConditions1: '保留版權聲明：必須保留原始版權聲明同許可協議',
           qzConditions2: '相同方式共享：如果對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
           qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
+        },
+        webDict: {
+          title: '網絡公開詞典（協議不明）',
+          intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
+          tsTitle: '台山話英文字典 - {count} 詞條',
+          tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
+          tsLicense: '協議狀態',
+          tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
+          tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
         },
         rights: {
           title: '權利聲明與聯絡方式',

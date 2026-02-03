@@ -505,8 +505,60 @@
         "yue-Hant": "《開平方言》，鄧鈞編，湖南電子音像出版社，2000年版"
       },
       "cover": "/kp-dialect.jpg"
+    },
+    {
+      "id": "ts-english-dict",
+      "name": {
+        "zh-Hans": "台山话英文字典",
+        "zh-Hant": "台山話英文字典",
+        "yue-Hans": "台山话英文字典",
+        "yue-Hant": "台山話英文字典"
+      },
+      "dialect": "台山",
+      "file": "ts-english-dict.json",
+      "entries_count": 42442,
+      "author": {
+        "zh-Hans": "Gene M. Chin",
+        "zh-Hant": "Gene M. Chin",
+        "yue-Hans": "Gene M. Chin",
+        "yue-Hant": "Gene M. Chin"
+      },
+      "publisher": {
+        "zh-Hans": "网络词典",
+        "zh-Hant": "網絡詞典",
+        "yue-Hans": "网络词典",
+        "yue-Hant": "網絡詞典"
+      },
+      "year": 2024,
+      "version": "2026-02-03",
+      "description": {
+        "zh-Hans": "台山话—英语网络词典，收录字头、词组及例句，提供台山话罗马字与汉语拼音，英文释义。",
+        "zh-Hant": "台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音，英文釋義。",
+        "yue-Hans": "台山话—英语网络词典，收录字头、词组同例句，提供台山话罗马字同汉语拼音，英文释义。",
+        "yue-Hant": "台山話—英語網絡詞典，收錄字頭、詞組同例句，提供台山話羅馬字同漢語拼音，英文釋義。"
+      },
+      "source": "https://www.chinfamilytree.com/hed/index.htm",
+      "license": {
+        "zh-Hans": "网络公开，协议不明",
+        "zh-Hant": "網絡公開，協議不明",
+        "yue-Hans": "网络公开，协议不明",
+        "yue-Hant": "網絡公開，協議不明"
+      },
+      "attribution": {
+        "zh-Hans": "台山話英文字典 (2024)，Gene M. Chin，https://www.chinfamilytree.com/hed/index.htm",
+        "zh-Hant": "台山話英文字典 (2024)，Gene M. Chin，https://www.chinfamilytree.com/hed/index.htm",
+        "yue-Hans": "台山話英文字典 (2024)，Gene M. Chin，https://www.chinfamilytree.com/hed/index.htm",
+        "yue-Hant": "台山話英文字典 (2024)，Gene M. Chin，https://www.chinfamilytree.com/hed/index.htm"
+      },
+      "usage_restriction": {
+        "zh-Hans": "数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。协议不明，使用与再分发时请尊重原作者并注明出处。",
+        "zh-Hant": "數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。協議不明，使用與再分發時請尊重原作者並註明出處。",
+        "yue-Hans": "数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。协议不明，使用同再分发时请尊重原作者并注明出处。",
+        "yue-Hant": "數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。協議不明，使用同再分發時請尊重原作者並註明出處。"
+      },
+      "cover": "ts-english-dict.png"
     }
   ],
-  "last_updated": "2026-02-01T16:46:49.747Z",
+  "last_updated": "2026-02-03T17:40:11.564Z",
   "schema_version": "1.1.0"
 }

@@ -26,6 +26,7 @@ const ADAPTERS = {
   'hk-cantowords': () => import('./adapters/hk-cantowords.js'),
   'qz-jyutping': () => import('./adapters/qz-jyutping.js'),
   'kp-dialect': () => import('./adapters/kp-dialect.js'),
+  'ts-english-dict': () => import('./adapters/ts-english-dict.js'),
   // 未来可以添加更多词典
 }
 
@@ -295,6 +296,7 @@ CSV 转 JSON 工具
   - hk-cantowords              粵典 (words.hk)
   - qz-jyutping                欽州粵拼
   - kp-dialect                 开平方言
+  - ts-english-dict            台山話英文字典
 
 示例:
   # 转换实用广州话分类词典
