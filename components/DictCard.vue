@@ -66,7 +66,7 @@
         <div class="flex flex-wrap gap-2 md:justify-end md:mt-0 md:ml-4 md:max-w-[40%]">
           <!-- 来源词典: ID -->
           <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap">
-            {{ entry.source_book }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+            {{ localizedSourceBook }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
           </span>
 
           <!-- 方言 -->
@@ -373,6 +373,7 @@ import type { DictionaryEntry } from '~/types/dictionary'
 import { hasDialectI18n } from '~/constants/dialect'
 
 const { t } = useI18n()
+const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
 
 interface Props {
   entry: DictionaryEntry
@@ -384,6 +385,11 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const detailsExpanded = ref(false)
+
+// 根据 source_book 获取本地化的词典名称
+const localizedSourceBook = computed(() =>
+  getLocalizedSourceBookLabel(props.entry.source_book)
+)
 
 // 为反馈构造包含当前词条完整信息的描述文本，方便用户直接在此基础上修改
 const entryFeedbackDescription = computed(() => {

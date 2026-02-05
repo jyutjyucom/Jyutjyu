@@ -62,10 +62,52 @@ export function useLocalizedDictionary() {
     if (!Array.isArray(dictionaries)) return []
     return dictionaries.map(localizeDictionary).filter(Boolean)
   }
-  
+
+  /**
+   * 通过 index.json 中的 name 字段，把 entry.source_book（可能是简体或繁体）
+   * 映射到当前界面语言下的显示名称。
+   *
+   * 注意：会按 key 'dictionaries-index' 复用全局的 Nuxt Content 缓存。
+   */
+  const { data: dictionariesData } = useAsyncData('dictionaries-index', () =>
+    queryContent('/dictionaries').findOne()
+  )
+
+  const getLocalizedSourceBookLabel = (
+    sourceBook: string | null | undefined
+  ): string => {
+    if (!sourceBook || !dictionariesData.value) {
+      return sourceBook || ''
+    }
+
+    const dictionaries = dictionariesData.value.dictionaries || []
+
+    const matchedDict = dictionaries.find((dict: any) => {
+      if (!dict.name) return false
+
+      // name 是多语言对象时，检查所有语言版本
+      if (typeof dict.name === 'object') {
+        return Object.values(dict.name).some(
+          (name: any) => name === sourceBook
+        )
+      }
+
+      // name 是字符串时，直接比较
+      return dict.name === sourceBook
+    })
+
+    if (matchedDict && matchedDict.name) {
+      return getLocalizedValue(matchedDict.name, sourceBook)
+    }
+
+    // 找不到就回退到原始值
+    return sourceBook
+  }
+
   return {
     getLocalizedValue,
     localizeDictionary,
-    localizeDictionaries
+    localizeDictionaries,
+    getLocalizedSourceBookLabel
   }
 }

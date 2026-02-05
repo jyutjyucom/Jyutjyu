@@ -57,7 +57,7 @@
         <div class="flex items-start gap-3">
           <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
             <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap">
-              {{ entry.source_book }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+              {{ getEntrySourceBookLabel(entry) }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
             </span>
 
             <span class="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm whitespace-nowrap">
@@ -336,6 +336,7 @@ import type { DictionaryEntry } from '~/types/dictionary'
 import { hasDialectI18n } from '~/constants/dialect'
 
 const { t } = useI18n()
+const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
 
 interface Props {
   entries: DictionaryEntry[]
@@ -381,6 +382,10 @@ const getDialectLabel = (entry: DictionaryEntry) => {
     return t(`dictCard.dialect.${code}`)
   }
   return entry.dialect?.name || ''
+}
+
+const getEntrySourceBookLabel = (entry: DictionaryEntry) => {
+  return getLocalizedSourceBookLabel(entry.source_book)
 }
 
 const isCantoDict = (entry: DictionaryEntry) => {
