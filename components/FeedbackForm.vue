@@ -185,7 +185,29 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+// 根据当前语言获取词典名称
+const getDictionaryName = (name: string | Record<string, string>): string => {
+  if (typeof name === 'string') {
+    return name
+  }
+  // 尝试匹配当前语言
+  const currentLocale = locale.value
+  if (name[currentLocale]) {
+    return name[currentLocale]
+  }
+  // fallback 顺序：zh-Hans -> zh-Hant -> yue-Hans -> yue-Hant -> 第一个可用
+  const fallbacks = ['zh-Hans', 'zh-Hant', 'yue-Hans', 'yue-Hant']
+  for (const fb of fallbacks) {
+    if (name[fb]) {
+      return name[fb]
+    }
+  }
+  // 最后尝试返回第一个可用的值
+  const firstKey = Object.keys(name)[0]
+  return firstKey ? name[firstKey] : ''
+}
 
 // Props
 interface Props {
@@ -210,7 +232,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 interface DictionaryIndexItem {
   id: string
-  name: string
+  name: string | Record<string, string>
 }
 
 interface DictionaryIndex {
@@ -249,7 +271,7 @@ const feedbackTypes = [
 const dictionarySources = computed(() =>
   dictIndex.value?.dictionaries?.map((dict) => ({
     value: dict.id,
-    label: dict.name
+    label: getDictionaryName(dict.name)
   })) ?? []
 )
 
@@ -272,9 +294,26 @@ const errorMessage = ref('')
 const normalizeEntrySource = (source?: string) => {
   if (!source) return ''
   const sources = dictionarySources.value
+  const dictionaries = dictIndex.value?.dictionaries || []
+
   // 若传入的是 value（dict id），直接返回
   if (sources.some((s) => s.value === source)) return source
-  // 若传入的是 label（展示名），映射为 value
+
+  // 若传入的是 name/label（任意语言版本），映射为 value
+  // 优先检查所有语言版本的 name 字段（因为词条数据中的 source_book 可能是任意语言版本）
+  for (const dict of dictionaries) {
+    const name = dict.name
+    if (typeof name === 'string') {
+      if (name === source) return dict.id
+    } else {
+      // 检查所有语言版本的名称
+      for (const langKey of Object.keys(name)) {
+        if (name[langKey] === source) return dict.id
+      }
+    }
+  }
+
+  // 最后检查当前语言的 label（兼容性处理）
   const matched = sources.find((s) => s.label === source)
   return matched?.value || ''
 }
