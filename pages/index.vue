@@ -196,7 +196,7 @@
 
         <!-- Dictionary Grid -->
         <div v-if="dictionariesData" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="dict in sortedDictionaries" :key="dict.id"
+          <div v-for="dict in displayedDictionaries" :key="dict.id"
             class="bg-slate-50 dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-blue-800 hover:border hover:border-blue-300 dark:hover:border-blue-600 transition-all p-0 overflow-hidden flex flex-col h-full group">
             <!-- Header with colored top border -->
             <!-- <div class="h-1.5 w-full bg-gradient-to-r from-blue-400 to-indigo-500"></div> -->
@@ -267,6 +267,25 @@
           </div>
         </div>
 
+        <div v-if="dictionariesData && sortedDictionaries.length > 3" class="mt-6 text-center">
+          <button
+            @click="isDictionariesExpanded = !isDictionariesExpanded"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors font-medium"
+          >
+            <span v-if="isDictionariesExpanded">{{ t('common.showLess') }}</span>
+            <span v-else>{{ t('common.showMoreDictionaries', { count: sortedDictionaries.length - 3 }) }}</span>
+            <svg
+              class="w-4 h-4 transition-transform duration-200"
+              :class="{ 'rotate-180': isDictionariesExpanded }"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+
         <div class="mt-6 text-center">
           <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">{{ t('common.moreDictionariesComing') }}</p>
           <NuxtLink to="/about"
@@ -318,7 +337,7 @@ import { Database, Github, Info } from 'lucide-vue-next'
 import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t, locale } = useI18n()
-const { localizeDictionary } = useLocalizedDictionary()
+const { localizeDictionary, dictionariesData } = useLocalizedDictionary()
 
 // 判断是否为简体中文（简体中文或简体粤文）
 const isSimplified = computed(() => {
@@ -329,10 +348,8 @@ const searchQuery = ref('')
 const enableReverseSearch = ref(false)
 const router = useRouter()
 
-// 通过 Nuxt Content 加载词典索引，避免直接 import JSON 触发 i18n 插件处理
-const { data: dictionariesData } = await useAsyncData('dictionaries-index', () =>
-  queryContent('/dictionaries').findOne()
-)
+// 控制词典卡片展开/收起
+const isDictionariesExpanded = ref(false)
 
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
@@ -364,6 +381,15 @@ const sortedDictionaries = computed(() => {
     if (cmp !== 0) return cmp
     return String(a.id).localeCompare(String(b.id), sortLocale)
   })
+})
+
+// 显示的词典列表（根据展开状态截取）
+const displayedDictionaries = computed(() => {
+  if (!dictionariesData.value) return []
+  if (isDictionariesExpanded.value) {
+    return sortedDictionaries.value
+  }
+  return sortedDictionaries.value.slice(0, 3)
 })
 
 const handleSearch = () => {

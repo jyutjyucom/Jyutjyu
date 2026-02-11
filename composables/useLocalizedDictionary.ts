@@ -67,7 +67,12 @@ export function useLocalizedDictionary() {
    * 通过 index.json 中的 name 字段，把 entry.source_book（可能是简体或繁体）
    * 映射到当前界面语言下的显示名称。
    *
-   * 注意：会按 key 'dictionaries-index' 复用全局的 Nuxt Content 缓存。
+   * 使用固定的 key 'dictionaries-index' 复用全局的 Nuxt Content 缓存，
+   * 同时集中在一个 composable 中调用，避免在多个组件中用同一个 key
+   * 重复调用 useAsyncData 导致 Nuxt 警告。
+   *
+   * 注意：这里不需要在 composable 内使用 await，直接返回 useAsyncData 结果即可，
+   * 由 Nuxt 在调用该 composable 的 setup 中处理异步。
    */
   const { data: dictionariesData } = useAsyncData('dictionaries-index', () =>
     queryContent('/dictionaries').findOne()
@@ -108,6 +113,7 @@ export function useLocalizedDictionary() {
     getLocalizedValue,
     localizeDictionary,
     localizeDictionaries,
-    getLocalizedSourceBookLabel
+    getLocalizedSourceBookLabel,
+    dictionariesData,
   }
 }

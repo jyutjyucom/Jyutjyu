@@ -425,12 +425,7 @@
 import { Github, Home } from 'lucide-vue-next'
 
 const { t } = useI18n()
-
-// 词典词条数量（用于 about 页面展示 {count}）
-// 复用与 index.vue 相同的 key，共享数据缓存
-const { data: dictionariesData } = await useAsyncData('dictionaries-index', () =>
-  queryContent('/dictionaries').findOne()
-)
+const { dictionariesData } = useLocalizedDictionary()
 
 const wordsCountDisplay = computed(() => {
   const data = dictionariesData.value as any

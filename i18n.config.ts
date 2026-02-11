@@ -99,7 +99,9 @@ export default defineI18nConfig(() => ({
         themeLight: '亮色模式',
         themeDark: '暗色模式',
         themeSystem: '跟随系统',
-        themeToggle: '切换主题'
+        themeToggle: '切换主题',
+        showMoreDictionaries: '显示更多词典 ({count} 个)',
+        showLess: '收起'
       },
       dictCard: {
         placeholderWord: '有音无字',
@@ -379,7 +381,9 @@ export default defineI18nConfig(() => ({
         themeLight: '亮色模式',
         themeDark: '暗色模式',
         themeSystem: '跟隨系統',
-        themeToggle: '切換主題'
+        themeToggle: '切換主題',
+        showMoreDictionaries: '顯示更多詞典 ({count} 個)',
+        showLess: '收起'
       },
       dictCard: {
         placeholderWord: '有音無字',
@@ -659,7 +663,9 @@ export default defineI18nConfig(() => ({
         themeLight: '亮色模式',
         themeDark: '暗色模式',
         themeSystem: '跟随系统',
-        themeToggle: '切换主题'
+        themeToggle: '切换主题',
+        showMoreDictionaries: '显示更多词典 ({count} 个)',
+        showLess: '收起'
       },
       dictCard: {
         placeholderWord: '有音无字',
@@ -938,7 +944,9 @@ export default defineI18nConfig(() => ({
         themeLight: '亮色模式',
         themeDark: '暗色模式',
         themeSystem: '跟隨系統',
-        themeToggle: '切換主題'
+        themeToggle: '切換主題',
+        showMoreDictionaries: '顯示更多詞典 ({count} 個)',
+        showLess: '收起'
       },
       dictCard: {
         placeholderWord: '有音無字',
