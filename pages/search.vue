@@ -12,7 +12,7 @@
             <div class="flex flex-nowrap items-center gap-2 flex-1 min-w-0">
               <div class="flex-1 min-w-0 max-w-2xl relative">
                 <input v-model="searchQuery" type="text" :placeholder="t('common.searchPlaceholder')"
-                  class="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                  class="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:border-blue-500"
                   @keyup.enter="handleSearch" @input="handleInput">
                 <button
                   class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"

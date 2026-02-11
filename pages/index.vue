@@ -25,7 +25,7 @@
       <div class="max-w-3xl mx-auto mb-12">
         <div class="relative">
           <input v-model="searchQuery" type="text" :placeholder="t('common.searchPlaceholder')"
-            class="w-full px-6 py-4 text-lg border-2 border-blue-200 dark:border-blue-800 dark:bg-gray-800 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
+            class="w-full px-6 py-4 text-lg border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
             @keyup.enter="handleSearch">
           <button
             class="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
@@ -48,8 +48,11 @@
             </template>
           </div>
           <label class="flex items-center gap-2 cursor-pointer select-none" :title="t('common.reverseSearchTitle')">
-            <input v-model="enableReverseSearch" type="checkbox"
-              class="w-4 h-4 text-blue-600 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400">
+            <input
+              v-model="enableReverseSearch"
+              type="checkbox"
+              class="w-4 h-4 text-blue-600 bg-white border border-gray-300 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+            >
             <span class="text-sm text-gray-600 dark:text-gray-300">{{ t('common.reverseSearch') }}</span>
           </label>
         </div>
