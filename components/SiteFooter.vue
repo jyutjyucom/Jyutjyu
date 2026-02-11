@@ -32,11 +32,13 @@
         </p>
         <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
           {{ t('common.footerOcrDisclaimerPrefix') }}
-          <FeedbackButton
-            hide-icon
-            :button-class="'p-0 !min-h-0 bg-transparent text-blue-600 dark:text-blue-400 hover:underline rounded-none border-0 shadow-none'"
-            :label-class="'text-inherit'"
-          />
+          <ClientOnly>
+            <FeedbackButton
+              hide-icon
+              :button-class="'p-0 !min-h-0 bg-transparent text-blue-600 dark:text-blue-400 hover:underline rounded-none border-0 shadow-none'"
+              :label-class="'text-inherit'"
+            />
+          </ClientOnly>
         </p>
       </div>
     </div>
