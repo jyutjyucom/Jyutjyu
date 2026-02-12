@@ -206,7 +206,7 @@ const getDictionaryName = (name: string | Record<string, string>): string => {
   }
   // 最后尝试返回第一个可用的值
   const firstKey = Object.keys(name)[0]
-  return firstKey ? name[firstKey] : ''
+  return firstKey ? (name[firstKey] || '') : ''
 }
 
 // Props
