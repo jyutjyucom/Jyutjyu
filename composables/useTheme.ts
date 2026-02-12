@@ -76,7 +76,10 @@ export function useTheme() {
     const cycle: Theme[] = ['light', 'dark', 'system']
     const currentIndex = cycle.indexOf(theme.value)
     const nextIndex = (currentIndex + 1) % cycle.length
-    setTheme(cycle[nextIndex])
+    const nextTheme = cycle[nextIndex]
+    if (nextTheme) {
+      setTheme(nextTheme)
+    }
   }
 
   return {

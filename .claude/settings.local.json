@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:nuxt.com)",
+      "WebFetch(domain:content.nuxt.com)",
+      "WebFetch(domain:i18n.nuxtjs.org)",
+      "Bash(npm install:*)",
+      "Bash(timeout:*)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(npm run generate)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:masteringnuxt.com)",
+      "Bash(node:*)"
+    ]
+  }
+}

@@ -125,27 +125,27 @@
         </div>
 
         <!-- Mobile: 1 card with navigation -->
-        <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="md:hidden">
+        <div v-if="!loadingRandomEntries && currentMobileEntry" class="md:hidden">
           <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 overflow-hidden relative">
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <!-- Card content - clickable to search -->
-            <div @click="searchEntry(randomEntries[mobileIndex].headword.display)"
+            <div @click="searchEntry(currentMobileEntry.headword.display)"
               class="cursor-pointer p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors">
               <div class="flex flex-col h-full items-center text-center">
                 <div class="w-full">
                   <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {{ randomEntries[mobileIndex].headword.display }}
+                    {{ currentMobileEntry.headword.display }}
                   </h4>
                   <p class="text-base font-mono text-blue-600 dark:text-blue-400 font-medium">
-                    {{ randomEntries[mobileIndex].phonetic.jyutping[0] }}
+                    {{ currentMobileEntry.phonetic.jyutping[0] }}
                   </p>
                 </div>
 
                 <div class="w-16 h-0.5 bg-blue-100 dark:bg-blue-800 my-4"></div>
 
                 <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed line-clamp-4 mb-1">
-                  {{ randomEntries[mobileIndex].senses[0]?.definition || t('common.noDefinition') }}
+                  {{ currentMobileEntry.senses[0]?.definition || t('common.noDefinition') }}
                 </p>
               </div>
             </div>
@@ -154,7 +154,7 @@
             <div class="border-t border-gray-50 dark:border-gray-700">
               <button @click="nextMobileEntry"
                 class="w-full px-7 py-4 flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 transition-colors">
-                <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ randomEntries[mobileIndex].source_book }}</span>
+                <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ currentMobileEntry.source_book }}</span>
                 <span class="text-blue-500 dark:text-blue-400 font-medium flex items-center gap-1 text-sm">
                   {{ t('common.next') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,6 +360,12 @@ const mobileIndex = useState<number>('home-mobile-index', () => 0)
 const loadingRandomEntries = ref(false)
 
 const { getRandomRecommendedEntries } = useSearch()
+
+// 当前移动端显示的词条（类型安全）
+const currentMobileEntry = computed(() => {
+  const entry = randomEntries.value[mobileIndex.value]
+  return entry || null
+})
 
 // 计算总词条数
 const totalEntriesCount = computed(() => {
