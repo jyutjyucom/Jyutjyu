@@ -13,21 +13,24 @@ let db: Db | null = null
  */
 export async function getDatabase(): Promise<Db> {
   const config = useRuntimeConfig()
-  
-  if (!config.mongodbUri) {
+
+  const mongodbUri = config.mongodbUri as string | undefined
+  const mongodbDbName = config.mongodbDbName as string | undefined
+
+  if (!mongodbUri) {
     throw new Error('MONGODB_URI 未配置')
   }
-  
+
   if (db) {
     return db
   }
-  
+
   if (!client) {
-    client = new MongoClient(config.mongodbUri)
+    client = new MongoClient(mongodbUri)
     await client.connect()
   }
-  
-  db = client.db(config.mongodbDbName || 'jyutjyu')
+
+  db = client.db(mongodbDbName || 'jyutjyu')
   return db
 }
 
