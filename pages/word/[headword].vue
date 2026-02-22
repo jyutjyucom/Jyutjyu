@@ -561,7 +561,25 @@ watch(() => [route.query.jp, route.query.source], () => {
 
 const firstDefinition = computed(() => {
   const definition = wordData.value?.entries?.[0]?.senses?.[0]?.definition || ''
-  return definition.replace(/\s+/g, ' ').trim().slice(0, 120)
+  return definition.replace(/\s+/g, ' ').trim().slice(0, 90)
+})
+
+const primaryPronunciationLabel = computed(() => pronunciationGroups.value[0]?.label || '')
+
+const primaryDictionaryName = computed(() => {
+  const firstSourceLabel = pronunciationGroups.value[0]?.sources[0]?.sourceLabel
+  if (firstSourceLabel) return firstSourceLabel
+
+  const fallbackSourceBook = wordData.value?.entries?.[0]?.source_book?.trim()
+  return fallbackSourceBook ? getLocalizedSourceBookLabel(fallbackSourceBook) : ''
+})
+
+const totalDictionaryCount = computed(() => {
+  const sourceBooks = new Set<string>()
+  pronunciationGroups.value.forEach((group) => {
+    group.sources.forEach((source) => sourceBooks.add(source.id))
+  })
+  return sourceBooks.size
 })
 
 const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
@@ -575,6 +593,9 @@ const pageTitle = computed(() => {
   if (!wordData.value) {
     return `${t('common.noResultsTitle')} | ${t('common.siteName')}`
   }
+  if (primaryDictionaryName.value) {
+    return `${canonicalHeadword.value} - ${primaryDictionaryName.value} | ${t('common.siteName')}`
+  }
   return `${canonicalHeadword.value} | ${t('common.siteName')}`
 })
 
@@ -583,7 +604,14 @@ const pageDescription = computed(() => {
     return t('common.noResultsDescription')
   }
   const summary = firstDefinition.value || t('common.noDefinition')
-  return `${canonicalHeadword.value}：${summary}`
+  const pronunciationPart = primaryPronunciationLabel.value && primaryPronunciationLabel.value !== '（未標注）'
+    ? `（${primaryPronunciationLabel.value}）`
+    : ''
+  const dictionaryPart = primaryDictionaryName.value ? `${primaryDictionaryName.value}詞義` : '粵語詞義'
+  const coveragePart = totalDictionaryCount.value > 1
+    ? `，收錄於 ${totalDictionaryCount.value} 本詞典`
+    : ''
+  return `${canonicalHeadword.value}${pronunciationPart}，${dictionaryPart}${coveragePart}：${summary}`
 })
 
 const structuredData = computed(() => {
@@ -592,7 +620,7 @@ const structuredData = computed(() => {
     '@context': 'https://schema.org',
     '@type': 'DefinedTerm',
     name: canonicalHeadword.value,
-    description: firstDefinition.value || t('common.noDefinition'),
+    description: pageDescription.value,
     termCode: wordData.value.entries[0]?.id || canonicalHeadword.value,
     url: canonicalUrl.value
   })

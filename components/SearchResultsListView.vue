@@ -41,9 +41,13 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" role="link"
                   tabindex="0" @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)">
                   <td class="px-3 whitespace-nowrap py-2">
-                    <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    <NuxtLink
+                      :to="getWordPath(group)"
+                      class="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      @click.stop
+                    >
                       {{ group.primary.headword.display }}
-                    </div>
+                    </NuxtLink>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="text-lg font-mono font-semibold text-blue-600 dark:text-blue-400">
@@ -120,9 +124,13 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" role="link"
                   tabindex="0" @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)">
                   <td class="px-3 whitespace-nowrap py-2">
-                    <div class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    <NuxtLink
+                      :to="getWordPath(group)"
+                      class="text-base font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      @click.stop
+                    >
                       {{ group.primary.headword.display }}
-                    </div>
+                    </NuxtLink>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="text-base font-mono font-semibold text-blue-600 dark:text-blue-400">
@@ -203,9 +211,15 @@ const otherResultsDictionaryCount = computed(() => {
   return sources.size
 })
 
-const openWordPage = (group: AggregatedEntryGroup) => {
+const getWordPath = (group: AggregatedEntryGroup): string => {
   const word = group.primary.headword.display?.trim()
-  if (!word) return
-  router.push(`/word/${encodeURIComponent(word)}`)
+  if (!word) return '/search'
+  return `/word/${encodeURIComponent(word)}`
+}
+
+const openWordPage = (group: AggregatedEntryGroup) => {
+  const path = getWordPath(group)
+  if (!path || path === '/search') return
+  router.push(path)
 }
 </script>

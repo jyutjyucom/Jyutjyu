@@ -1,4 +1,5 @@
 import { getCanonicalHeadwords } from '../../utils/word-resolver'
+import { getSitemapLastmod } from '../../utils/sitemap-meta'
 
 const PAGE_SIZE = 50000
 
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
   const headwords = await getCanonicalHeadwords()
   const siteUrl = getSiteUrl()
   const totalPages = Math.max(1, Math.ceil(headwords.length / PAGE_SIZE))
+  const lastmod = await getSitemapLastmod()
 
   if (!Number.isInteger(page) || page < 1 || page > totalPages) {
     setResponseStatus(event, 404)
@@ -29,7 +31,6 @@ export default defineEventHandler(async (event) => {
 
   const start = (page - 1) * PAGE_SIZE
   const pageHeadwords = headwords.slice(start, start + PAGE_SIZE)
-  const now = new Date().toISOString()
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const url = `${siteUrl}/word/${encodeURIComponent(headword)}`
     xml += '  <url>\n'
     xml += `    <loc>${url}</loc>\n`
-    xml += `    <lastmod>${now}</lastmod>\n`
+    xml += `    <lastmod>${lastmod}</lastmod>\n`
     xml += '  </url>\n'
   }
 
