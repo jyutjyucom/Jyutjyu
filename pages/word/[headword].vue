@@ -593,10 +593,10 @@ const pageTitle = computed(() => {
   if (!wordData.value) {
     return `${t('common.noResultsTitle')} | ${t('common.siteName')}`
   }
-  if (primaryDictionaryName.value) {
-    return `${canonicalHeadword.value} - ${primaryDictionaryName.value} | ${t('common.siteName')}`
-  }
-  return `${canonicalHeadword.value} | ${t('common.siteName')}`
+  const jp = primaryPronunciationLabel.value && primaryPronunciationLabel.value !== '（未標注）'
+    ? `（${primaryPronunciationLabel.value}）`
+    : ''
+  return `${canonicalHeadword.value}${jp} 粵語解釋 | ${t('common.siteName')}`
 })
 
 const pageDescription = computed(() => {
@@ -614,7 +614,7 @@ const pageDescription = computed(() => {
   return `${canonicalHeadword.value}${pronunciationPart}，${dictionaryPart}${coveragePart}：${summary}`
 })
 
-const structuredData = computed(() => {
+const definedTermData = computed(() => {
   if (!wordData.value || !canonicalUrl.value) return ''
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -622,7 +622,34 @@ const structuredData = computed(() => {
     name: canonicalHeadword.value,
     description: pageDescription.value,
     termCode: wordData.value.entries[0]?.id || canonicalHeadword.value,
-    url: canonicalUrl.value
+    url: canonicalUrl.value,
+    inDefinedTermSet: {
+      '@type': 'DefinedTermSet',
+      name: t('common.siteName'),
+      url: siteUrl.value
+    }
+  })
+})
+
+const breadcrumbData = computed(() => {
+  if (!wordData.value || !siteUrl.value) return ''
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('common.siteName'),
+        item: siteUrl.value
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: canonicalHeadword.value,
+        item: canonicalUrl.value
+      }
+    ]
   })
 })
 
@@ -643,15 +670,17 @@ useHead(() => {
     meta.push({ name: 'robots', content: 'index, follow' })
   }
 
+  const scripts: Array<{ type: string; children: string }> = []
+  if (definedTermData.value) scripts.push({ type: 'application/ld+json', children: definedTermData.value })
+  if (breadcrumbData.value) scripts.push({ type: 'application/ld+json', children: breadcrumbData.value })
+
   return {
     title: pageTitle.value,
     link: canonicalUrl.value
       ? [{ rel: 'canonical', href: canonicalUrl.value }]
       : [],
     meta,
-    script: structuredData.value
-      ? [{ type: 'application/ld+json', children: structuredData.value }]
-      : []
+    script: scripts
   }
 })
 </script>

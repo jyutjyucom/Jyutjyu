@@ -462,6 +462,9 @@ const tsCountDisplay = computed(() => {
 })
 
 // SEO
+const config = useRuntimeConfig()
+const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
+
 useHead({
   title: computed(() => `${t('about.pageTitle')} | ${t('common.siteName')}`),
   meta: [
@@ -469,6 +472,10 @@ useHead({
       name: 'description',
       content: computed(() => t('about.metaDescription'))
     }
-  ]
+  ],
+  link: computed(() => siteUrl.value
+    ? [{ rel: 'canonical', href: `${siteUrl.value}/about` }]
+    : []
+  )
 })
 </script>

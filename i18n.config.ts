@@ -4,6 +4,19 @@ export default defineI18nConfig(() => ({
   fallbackLocale: 'zh-Hans',
   messages: {
     'zh-Hans': {
+      browse: {
+        title: '浏览词条',
+        description: '浏览全部词条',
+        metaDescription: '浏览粤语辞丛全部词条',
+        entries: '{count} 条',
+        prevPage: '上一页',
+        nextPage: '下一页',
+        pageInfo: '第 {page} / {total} 页',
+        allEntries: '全部词条',
+        dictionaries: '词典来源',
+        allSources: '全部词典',
+        pageSize: '每页数量'
+      },
       common: {
         siteName: '粤语辞丛',
         siteSubtitle: 'Open Yue Dictionary Collection Platform',
@@ -20,7 +33,7 @@ export default defineI18nConfig(() => ({
         reverseSearchTitle: '从释义中反查词语',
         noDefinition: '暂无释义',
         clickToView: '点击查看',
-        reverseSearchShort: '反查',
+        reverseSearchShort: '释义反查',
         examplesPrefix: '如：',
         exampleSearchPrefix: '试试搜索:',
         loading: '加载中...',
@@ -194,7 +207,7 @@ export default defineI18nConfig(() => ({
           conditions1: '署名：必须给出适当的署名，提供指向许可协议的链接',
           conditions2: '标明修改：如进行了修改，需说明已作出的修改',
           conditions3: '非商业性：不得将该内容用于商业目的',
-          attributionExample: '📋 署名格式示例：',
+          attributionExample: '署名格式示例：',
           attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
           qzTitle: '欽州粵拼 - {count} 词条',
           qzDesc: '《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发布。',
@@ -286,6 +299,19 @@ export default defineI18nConfig(() => ({
     },
     // 暂时使用与简体中文相同的文案，后续可分别维护
     'zh-Hant': {
+      browse: {
+        title: '瀏覽詞條',
+        description: '瀏覽全部詞條',
+        metaDescription: '瀏覽粵語辭叢全部詞條',
+        entries: '{count} 條',
+        prevPage: '上一頁',
+        nextPage: '下一頁',
+        pageInfo: '第 {page} / {total} 頁',
+        allEntries: '全部詞條',
+        dictionaries: '詞典來源',
+        allSources: '全部詞典',
+        pageSize: '每頁數量'
+      },
       common: {
         siteName: '粵語辭叢',
         siteSubtitle: 'Open Yue Dictionary Collection Platform',
@@ -302,7 +328,7 @@ export default defineI18nConfig(() => ({
         reverseSearchTitle: '從釋義中反查詞語',
         noDefinition: '暫無釋義',
         clickToView: '點擊查看',
-        reverseSearchShort: '反查',
+        reverseSearchShort: '釋義反查',
         examplesPrefix: '如：',
         exampleSearchPrefix: '試下搜尋:',
         loading: '載入中...',
@@ -476,7 +502,7 @@ export default defineI18nConfig(() => ({
           conditions1: '署名：必須給出適當的署名，提供指向許可協議的鏈接',
           conditions2: '標明修改：如進行了修改，需說明已作出的修改',
           conditions3: '非商業性：不得將該內容用於商業目的',
-          attributionExample: '📋 署名格式示例：',
+          attributionExample: '署名格式示例：',
           attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
           qzTitle: '欽州粵拼 - {count} 詞條',
           qzDesc: '《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
@@ -568,6 +594,19 @@ export default defineI18nConfig(() => ({
     },
     // 粤语界面：先沿用對應的中文簡/繁體文本，後續可細調為更口語化表達
     'yue-Hans': {
+      browse: {
+        title: '全部词条',
+        description: '睇下全部词条',
+        metaDescription: '浏览粤语辞丛全部词条',
+        entries: '{count} 条',
+        prevPage: '上一页',
+        nextPage: '下一页',
+        pageInfo: '第 {page} / {total} 页',
+        allEntries: '全部词条',
+        dictionaries: '词典来源',
+        allSources: '全部词典',
+        pageSize: '每页数量'
+      },
       common: {
         siteName: '粤语辞丛',
         siteSubtitle: 'Open Yue Dictionary Collection Platform',
@@ -584,7 +623,7 @@ export default defineI18nConfig(() => ({
         reverseSearchTitle: '喺释义入面反查词语',
         noDefinition: '暂时未有释义',
         clickToView: '点击睇详情',
-        reverseSearchShort: '反查',
+        reverseSearchShort: '释义反查',
         examplesPrefix: '例如：',
         exampleSearchPrefix: '可以试下搜：',
         loading: '加载紧...',
@@ -758,7 +797,7 @@ export default defineI18nConfig(() => ({
           conditions1: '署名：必须提供适当署名，并提供指向许可协议嘅链接',
           conditions2: '标明修改：如果做咗修改，需要说明改动内容',
           conditions3: '非商业性：唔可以将相关内容用于商业目的',
-          attributionExample: '📋 署名格式示例：',
+          attributionExample: '署名格式示例：',
           attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
           qzTitle: '欽州粵拼 - {count} 詞條',
           qzDesc: '《钦州白话》嘅词头同注音部分，收录钦州话词汇同粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发佈。',
@@ -849,6 +888,19 @@ export default defineI18nConfig(() => ({
       }
     },
     'yue-Hant': {
+      browse: {
+        title: '全部詞條',
+        description: '睇下全部詞條',
+        metaDescription: '瀏覽粵語辭叢全部詞條',
+        entries: '{count} 條',
+        prevPage: '上一頁',
+        nextPage: '下一頁',
+        pageInfo: '第 {page} / {total} 頁',
+        allEntries: '全部詞條',
+        dictionaries: '詞典來源',
+        allSources: '全部詞典',
+        pageSize: '每頁數量'
+      },
       common: {
         siteName: '粵語辭叢',
         siteSubtitle: 'Open Yue Dictionary Collection Platform',
@@ -865,7 +917,7 @@ export default defineI18nConfig(() => ({
         reverseSearchTitle: '喺釋義入面反查詞語',
         noDefinition: '暫時未有釋義',
         clickToView: '點擊睇詳情',
-        reverseSearchShort: '反查',
+        reverseSearchShort: '釋義反查',
         examplesPrefix: '例如：',
         exampleSearchPrefix: '可以試下搜：',
         loading: '載入緊...',
@@ -1039,7 +1091,7 @@ export default defineI18nConfig(() => ({
           conditions1: '署名：必須提供適當署名，並提供指向許可協議嘅鏈接',
           conditions2: '標明修改：如果做咗修改，需要說明改動內容',
           conditions3: '非商業性：唔可以將相關內容用於商業目的',
-          attributionExample: '📋 署名格式示例：',
+          attributionExample: '署名格式示例：',
           attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
           qzTitle: '欽州粵拼 - {count} 詞條',
           qzDesc: '《欽州白話》嘅詞頭同注音部分，收錄欽州話詞彙同粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
