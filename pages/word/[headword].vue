@@ -87,7 +87,7 @@
                       {{ source.sourceLabel }}
                     </span>
                     <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                      {{ source.entries.length }} {{ t('common.remainingSuffix') }}
+                      {{ source.entries.length }} 義項
                     </span>
                   </div>
                 </button>

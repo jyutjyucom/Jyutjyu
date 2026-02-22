@@ -1,25 +1,15 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header with Search Bar -->
-    <AppHeader
-      v-model:search-query="searchQuery"
-      v-model:reverse-search="enableReverseSearch"
-      v-model:options-expanded="optionsExpanded"
-      @search="handleSearch"
-      @query-input="handleInput"
-      @height-change="searchHeaderHeight = $event"
-    >
+    <AppHeader v-model:search-query="searchQuery" v-model:reverse-search="enableReverseSearch"
+      v-model:options-expanded="optionsExpanded" @search="handleSearch" @query-input="handleInput"
+      @height-change="searchHeaderHeight = $event">
       <template #search-popover>
-        <div
-          v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20"
-        >
-          <button
-            v-for="(suggestion, idx) in suggestions"
-            :key="idx"
+        <div v-if="suggestions.length > 0 && showSuggestions"
+          class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
+          <button v-for="(suggestion, idx) in suggestions" :key="idx"
             class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
-            @click="selectSuggestion(suggestion)"
-          >
+            @click="selectSuggestion(suggestion)">
             {{ suggestion }}
           </button>
         </div>
@@ -27,88 +17,45 @@
 
       <template #mobile-extra>
         <template v-if="actualSearchQuery && allResults.length > 0">
-          <SearchFilterControls
-            :selected-dict="selectedDict"
-            :selected-dialect="selectedDialect"
-            :selected-type="selectedType"
-            :show-dict-dropdown="showDictDropdown"
-            :show-dialect-dropdown="showDialectDropdown"
-            :show-type-dropdown="showTypeDropdown"
-            :available-dicts="availableDicts"
-            :available-dialects="availableDialects"
-            :available-types="availableTypes"
-            :get-dict-count="getDictCount"
-            :get-dialect-count="getDialectCount"
-            :get-type-count="getTypeCount"
-            :get-dialect-label="getDialectLabel"
-            :get-type-name="getTypeName"
+          <SearchFilterControls :selected-dict="selectedDict" :selected-dialect="selectedDialect"
+            :selected-type="selectedType" :show-dict-dropdown="showDictDropdown"
+            :show-dialect-dropdown="showDialectDropdown" :show-type-dropdown="showTypeDropdown"
+            :available-dicts="availableDicts" :available-dialects="availableDialects" :available-types="availableTypes"
+            :get-dict-count="getDictCount" :get-dialect-count="getDialectCount" :get-type-count="getTypeCount"
+            :get-dialect-label="getDialectLabel" :get-type-name="getTypeName"
             @toggle-dict="showDictDropdown = !showDictDropdown"
             @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-            @toggle-type="showTypeDropdown = !showTypeDropdown"
-            @select-dict="selectDict"
-            @select-dialect="selectDialect"
-            @select-type="selectType"
-          />
+            @toggle-type="showTypeDropdown = !showTypeDropdown" @select-dict="selectDict"
+            @select-dialect="selectDialect" @select-type="selectType" />
           <div class="flex flex-wrap items-center gap-3">
-            <SearchSortSelect
-              :sort-by="sortBy"
-              :show-sort-dropdown="showSortDropdown"
-              :get-sort-label="getSortLabel"
-              @toggle-sort="showSortDropdown = !showSortDropdown"
-              @select-sort="selectSort"
-            />
-            <SearchViewModeToggle
-              v-if="displayedResults.length > 0"
-              v-model="viewMode"
-              :compact="true"
-              :show-icons="false"
-            />
+            <SearchSortSelect :sort-by="sortBy" :show-sort-dropdown="showSortDropdown" :get-sort-label="getSortLabel"
+              @toggle-sort="showSortDropdown = !showSortDropdown" @select-sort="selectSort" />
+            <SearchViewModeToggle v-if="displayedResults.length > 0" v-model="viewMode" :compact="true"
+              :show-icons="false" />
           </div>
         </template>
       </template>
 
       <template #after>
-        <div
-          v-if="actualSearchQuery && allResults.length > 0"
-          class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80"
-        >
+        <div v-if="actualSearchQuery && allResults.length > 0"
+          class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
           <div class="container mx-auto px-4 py-3">
             <div class="flex flex-nowrap items-center gap-3">
-              <SearchFilterControls
-                :selected-dict="selectedDict"
-                :selected-dialect="selectedDialect"
-                :selected-type="selectedType"
-                :show-dict-dropdown="showDictDropdown"
-                :show-dialect-dropdown="showDialectDropdown"
-                :show-type-dropdown="showTypeDropdown"
-                :available-dicts="availableDicts"
-                :available-dialects="availableDialects"
-                :available-types="availableTypes"
-                :get-dict-count="getDictCount"
-                :get-dialect-count="getDialectCount"
-                :get-type-count="getTypeCount"
-                :get-dialect-label="getDialectLabel"
-                :get-type-name="getTypeName"
+              <SearchFilterControls :selected-dict="selectedDict" :selected-dialect="selectedDialect"
+                :selected-type="selectedType" :show-dict-dropdown="showDictDropdown"
+                :show-dialect-dropdown="showDialectDropdown" :show-type-dropdown="showTypeDropdown"
+                :available-dicts="availableDicts" :available-dialects="availableDialects"
+                :available-types="availableTypes" :get-dict-count="getDictCount" :get-dialect-count="getDialectCount"
+                :get-type-count="getTypeCount" :get-dialect-label="getDialectLabel" :get-type-name="getTypeName"
                 @toggle-dict="showDictDropdown = !showDictDropdown"
                 @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-                @toggle-type="showTypeDropdown = !showTypeDropdown"
-                @select-dict="selectDict"
-                @select-dialect="selectDialect"
-                @select-type="selectType"
-              />
+                @toggle-type="showTypeDropdown = !showTypeDropdown" @select-dict="selectDict"
+                @select-dialect="selectDialect" @select-type="selectType" />
               <div class="flex items-center gap-3 ml-auto shrink-0">
-                <SearchSortSelect
-                  :sort-by="sortBy"
-                  :show-sort-dropdown="showSortDropdown"
-                  :get-sort-label="getSortLabel"
-                  dropdown-align="right"
-                  @toggle-sort="showSortDropdown = !showSortDropdown"
-                  @select-sort="selectSort"
-                />
-                <SearchViewModeToggle
-                  v-if="displayedResults.length > 0"
-                  v-model="viewMode"
-                />
+                <SearchSortSelect :sort-by="sortBy" :show-sort-dropdown="showSortDropdown"
+                  :get-sort-label="getSortLabel" dropdown-align="right"
+                  @toggle-sort="showSortDropdown = !showSortDropdown" @select-sort="selectSort" />
+                <SearchViewModeToggle v-if="displayedResults.length > 0" v-model="viewMode" />
               </div>
             </div>
           </div>
@@ -127,45 +74,16 @@
 
         <!-- Results Info -->
         <div v-else-if="actualSearchQuery" class="mb-6">
-          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            {{ enableReverseSearch ? t('common.reverseSearchResultsPrefix') : t('common.searchResultsPrefix') }}
-            "{{ actualSearchQuery }}"
+          <h2 class="text-2xl text-gray-900 dark:text-gray-100 flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center p-2 rounded-md font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 leading-none">
+              {{ actualSearchQuery }}
+            </span>
+            <span>
+              {{ resultsHeaderLabel }}
+              <span class="font-semibold">{{ totalCount }}</span>
+              {{ t('common.remainingSuffix') }}
+            </span>
           </h2>
-          <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p class="text-gray-600 dark:text-gray-300 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span>
-                {{ t('common.searchHeader') }}
-                <span class="font-semibold">{{ allAggregatedCount }}</span>
-                {{ t('common.remainingSuffix') }}
-              </span>
-              <!-- 筛选状态 -->
-              <template v-if="selectedDict || selectedDialect || selectedType">
-                <span class="text-gray-400 dark:text-gray-500">→</span>
-                <span class="text-blue-600 dark:text-blue-400">
-                  {{ t('common.filterLabel') }}
-                  <span class="font-semibold">{{ totalCount }}</span>
-                  {{ t('common.remainingSuffix') }}
-                </span>
-                <button
-                  class="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                  @click="clearFilters">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  {{ t('common.clear') }}
-                </button>
-              </template>
-              <span v-if="!isSearchComplete" class="text-sm text-blue-500 dark:text-blue-400">
-                <span class="inline-block animate-pulse">{{ t('common.searching') }}</span>
-              </span>
-              <span v-else-if="searchTime > 0" class="text-sm text-gray-400 dark:text-gray-500">
-                ({{ searchTime }}ms)
-              </span>
-              <span v-if="totalCount > PAGE_SIZE" class="text-sm text-gray-400 dark:text-gray-500">
-                · {{ t('common.showFirstPrefix') }} {{ displayedResults.length }} {{ t('common.showFirstSuffix') }}
-              </span>
-            </p>
-          </div>
         </div>
 
         <!-- No Results -->
@@ -197,49 +115,50 @@
             <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
               <div
                 class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600 rounded-r-lg flex items-center gap-2 shadow-sm">
-                <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span class="text-green-800 dark:text-green-200 text-sm font-semibold">
-                  {{ t('common.exactMatchLabel') }} <span
-                    class="ml-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-800 rounded text-green-900 dark:text-green-100">{{ groupedResults.exactMatches.length
-                    }}</span> {{ t('common.remainingSuffix') }}
+                  {{ t('common.exactMatchLabel') }} {{ groupedResults.exactMatches.length
+                  }} {{ t('common.remainingSuffix') }}
+                  ，{{ t('dictCard.collectedBy', { count: exactMatchDictionaryCount }) }}
                 </span>
               </div>
               <div class="space-y-4">
                 <DictCardGroup v-for="group in displayedGroupedResults.exactMatches" :key="group.key"
-                  :entries="group.entries"
-                  :sticky-header="true"
-                  :sticky-offset="searchHeaderHeight"
+                  :entries="group.entries" :sticky-header="true" :sticky-offset="searchHeaderHeight"
                   :card-clickable="true" />
               </div>
             </template>
 
             <!-- 其他相关结果 -->
             <template v-if="displayedGroupedResults.otherResults.length > 0">
-              <div class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
+              <div
+                class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
                 :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
-                <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span v-if="isTextSearch && sortBy === 'relevance'" class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
-                  {{ t('common.otherResultsLabel') }} <span
-                    class="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-100">{{ groupedResults.otherResults.length
-                    }}</span> {{ t('common.remainingSuffix') }}
+                <span v-if="isTextSearch && sortBy === 'relevance'"
+                  class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                  {{ t('common.otherResultsLabel') }} {{ groupedResults.otherResults.length
+                  }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
+                    count: otherResultsDictionaryCount
+                  }) }}
                 </span>
                 <span v-else class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
-                  {{ t('common.searchHeader') }} <span
-                    class="font-bold ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-100">{{
-                      groupedResults.otherResults.length }}</span> {{ t('common.remainingSuffix') }}
+                  {{ t('common.searchHeader') }} {{
+                    groupedResults.otherResults.length }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
+                    count: otherResultsDictionaryCount }) }}
                 </span>
               </div>
               <div class="space-y-4">
                 <DictCardGroup v-for="group in displayedGroupedResults.otherResults" :key="group.key"
-                  :entries="group.entries"
-                  :sticky-header="true"
-                  :sticky-offset="searchHeaderHeight"
+                  :entries="group.entries" :sticky-header="true" :sticky-offset="searchHeaderHeight"
                   :card-clickable="true" />
               </div>
             </template>
@@ -258,15 +177,10 @@
 
           <!-- 列表视图（简洁） -->
           <div v-else>
-            <SearchResultsListView
-              :is-text-search="isTextSearch"
-              :sort-by="sortBy"
-              :displayed-grouped-results="displayedGroupedResults"
-              :grouped-results="groupedResults"
-              :get-group-jyutping="getGroupJyutping"
-              :get-group-definitions="getGroupDefinitions"
-              :get-group-sources="getGroupSources"
-            />
+            <SearchResultsListView :is-text-search="isTextSearch" :sort-by="sortBy"
+              :displayed-grouped-results="displayedGroupedResults" :grouped-results="groupedResults"
+              :get-group-jyutping="getGroupJyutping" :get-group-definitions="getGroupDefinitions"
+              :get-group-sources="getGroupSources" />
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
@@ -275,7 +189,7 @@
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
                   t('common.remainingSuffix')
-                  }})</span>
+                }})</span>
               </button>
             </div>
           </div>
@@ -335,7 +249,6 @@ const allResults = ref<DictionaryEntry[]>([]) // 所有搜索结果
 const displayedResults = ref<AggregatedEntry[]>([]) // 当前显示的结果（聚合后）
 const loading = ref(false)
 const loadingMore = ref(false)
-const searchTime = ref(0)
 const suggestions = ref<string[]>([])
 const showSuggestions = ref(false)
 const viewMode = ref<'card' | 'list'>('card')
@@ -386,15 +299,6 @@ const selectType = (type: string | null) => {
 const selectSort = (sort: 'relevance' | 'jyutping' | 'headword' | 'dictionary') => {
   sortBy.value = sort
   showSortDropdown.value = false
-  currentPage.value = 1
-  updateDisplayedResults()
-}
-
-const clearFilters = () => {
-  selectedDict.value = null
-  selectedDialect.value = null
-  selectedType.value = null
-  sortBy.value = 'relevance'
   currentPage.value = 1
   updateDisplayedResults()
 }
@@ -621,8 +525,12 @@ const sortedEntries = computed(() => {
 // 聚合后的结果（用于展示）
 const aggregatedResults = computed(() => aggregateEntries(sortedEntries.value))
 
-// 未筛选的聚合总数（用于顶部总数显示）
-const allAggregatedCount = computed(() => aggregateEntries(allResults.value).length)
+const resultsHeaderLabel = computed(() => {
+  const label = enableReverseSearch.value
+    ? t('common.reverseSearchResultsPrefix')
+    : t('common.searchHeader')
+  return label.replace(/[：:]\s*$/, '')
+})
 
 // 判断查询是否是粤拼查询（只包含字母、数字和空格，不包含中文字符）
 const isJyutpingQuery = (query: string): boolean => {
@@ -696,6 +604,28 @@ const groupedResults = computed(() => {
     exactMatches,
     otherResults
   }
+})
+
+const exactMatchDictionaryCount = computed(() => {
+  const sources = new Set<string>()
+  groupedResults.value.exactMatches.forEach((group) => {
+    group.entries.forEach((entry) => {
+      const source = entry.source_book?.trim()
+      if (source) sources.add(source)
+    })
+  })
+  return sources.size
+})
+
+const otherResultsDictionaryCount = computed(() => {
+  const sources = new Set<string>()
+  groupedResults.value.otherResults.forEach((group) => {
+    group.entries.forEach((entry) => {
+      const source = entry.source_book?.trim()
+      if (source) sources.add(source)
+    })
+  })
+  return sources.size
 })
 
 // 用于显示的合并结果（完全匹配在前，其他结果在后）
@@ -786,7 +716,6 @@ const performSearch = async (query: string) => {
   isSearchComplete.value = false
   allResults.value = []
   displayedResults.value = []
-  searchTime.value = 0
   currentPage.value = 1
 
   // 更新实际搜索的查询词
@@ -799,8 +728,6 @@ const performSearch = async (query: string) => {
 
   // 确保转换器已初始化（用于完全匹配判断）
   await ensureInitialized()
-
-  const startTime = Date.now()
 
   try {
     // 流式搜索：搜到什么先展示什么
@@ -821,7 +748,6 @@ const performSearch = async (query: string) => {
 
         // 更新搜索耗时
         if (complete) {
-          searchTime.value = Date.now() - startTime
           isSearchComplete.value = true
           loading.value = false
         }
