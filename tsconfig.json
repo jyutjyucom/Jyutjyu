@@ -6,6 +6,14 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true
+  },
+  "watchOptions": {
+    "excludeDirectories": [
+      ".vercel",
+      ".output",
+      ".nuxt",
+      "dist",
+      "node_modules"
+    ]
   }
 }
-

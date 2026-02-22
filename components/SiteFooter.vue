@@ -14,6 +14,10 @@
               {{ t('common.aboutProject') }}
             </NuxtLink>
           </template>
+          ·
+          <NuxtLink to="/browse" class="text-blue-600 dark:text-blue-400 hover:underline">
+            {{ t('browse.title') }}
+          </NuxtLink>
         </p>
         <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
           {{ t('common.footerFriendLinks') }}

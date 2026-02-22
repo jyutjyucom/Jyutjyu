@@ -38,21 +38,22 @@
           <div class="text-sm text-gray-500 dark:text-gray-400">
             {{ t('common.examplesPrefix') }}
             <template v-if="enableReverseSearch">
-              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('為什麼')">為什麼</span>、
-              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('奇怪')">奇怪</span>
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                @click="searchExample('為什麼')">為什麼</span>、
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                @click="searchExample('奇怪')">奇怪</span>
             </template>
             <template v-else>
-              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('阿Sir')">阿Sir</span>、
-              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" @click="searchExample('aa3 soe4')">aa3
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                @click="searchExample('阿Sir')">阿Sir</span>、
+              <span class="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline"
+                @click="searchExample('aa3 soe4')">aa3
                 soe4</span>
             </template>
           </div>
           <label class="flex items-center gap-2 cursor-pointer select-none" :title="t('common.reverseSearchTitle')">
-            <input
-              v-model="enableReverseSearch"
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-white border border-gray-300 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
-            >
+            <input v-model="enableReverseSearch" type="checkbox"
+              class="w-4 h-4 text-blue-600 bg-white border border-gray-300 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400">
             <span class="text-sm text-gray-600 dark:text-gray-300">{{ t('common.reverseSearch') }}</span>
           </label>
         </div>
@@ -78,22 +79,24 @@
         </div>
 
         <!-- Loading state when refreshing -->
-        <div v-if="loadingRandomEntries && randomEntries.length > 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div v-if="loadingRandomEntries && randomEntries.length > 0"
+          class="text-center py-12 text-gray-500 dark:text-gray-400">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
         </div>
 
         <!-- Desktop: 3 cards in grid -->
         <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
-          <div v-for="entry in randomEntries" :key="entry.id" @click="searchEntry(entry.headword.display)"
-            class="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-8 group relative overflow-hidden">
+          <NuxtLink v-for="entry in randomEntries" :key="entry.id" :to="wordPath(entry.headword.display)"
+            class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-8 group relative overflow-hidden">
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 transition-opacity">
             </div>
 
             <div class="flex flex-col h-full items-center text-center">
               <div class="w-full">
-                <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h4
+                  class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {{ entry.headword.display }}
                 </h4>
 
@@ -109,7 +112,8 @@
                 {{ entry.senses[0]?.definition || t('common.noDefinition') }}
               </p>
 
-              <div class="mt-auto w-full pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-between items-center text-sm">
+              <div
+                class="mt-auto w-full pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-between items-center text-sm">
                 <span class="text-gray-400 dark:text-gray-500 font-medium">{{ entry.source_book }}</span>
                 <span
                   class="text-blue-500 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -121,7 +125,7 @@
                 </span>
               </div>
             </div>
-          </div>
+          </NuxtLink>
         </div>
 
         <!-- Mobile: 1 card with navigation -->
@@ -129,9 +133,9 @@
           <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 overflow-hidden relative">
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-            <!-- Card content - clickable to search -->
-            <div @click="searchEntry(currentMobileEntry.headword.display)"
-              class="cursor-pointer p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors">
+            <!-- Card content - link to word page -->
+            <NuxtLink :to="wordPath(currentMobileEntry.headword.display)"
+              class="block p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors">
               <div class="flex flex-col h-full items-center text-center">
                 <div class="w-full">
                   <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -148,13 +152,14 @@
                   {{ currentMobileEntry.senses[0]?.definition || t('common.noDefinition') }}
                 </p>
               </div>
-            </div>
+            </NuxtLink>
 
             <!-- Bottom bar - clickable to go next -->
             <div class="border-t border-gray-50 dark:border-gray-700">
               <button @click="nextMobileEntry"
                 class="w-full px-7 py-4 flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 transition-colors">
-                <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ currentMobileEntry.source_book }}</span>
+                <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ currentMobileEntry.source_book
+                  }}</span>
                 <span class="text-blue-500 dark:text-blue-400 font-medium flex items-center gap-1 text-sm">
                   {{ t('common.next') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,17 +187,30 @@
           </div>
           <p>{{ t('common.loading') }}</p>
         </div>
+
+        <!-- Browse link -->
+        <div class="max-w-5xl mx-auto my-8 text-center">
+          <NuxtLink to="/browse"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-blue-50 dark:text-blue-950 hover:bg-blue-500 dark:hover:bg-blue-700 rounded-lg transition-colors font-medium">
+            {{ t('browse.allEntries') }}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- Dictionary Status -->
       <div class="max-w-5xl mx-auto mb-16">
         <div class="flex flex-col items-center mb-6">
           <div class="flex justify-between items-center w-full mb-2">
-            <h3 class="text-2xl font-semibold text-blue-700 dark:text-blue-300">{{ t('common.includedDictionaries') }}</h3>
+            <h3 class="text-2xl font-semibold text-blue-700 dark:text-blue-300">{{ t('common.includedDictionaries') }}
+            </h3>
           </div>
           <p class="text-lg text-gray-600 dark:text-gray-300">
             {{ t('common.totalEntriesPrefix') }}
-            <span class="text-blue-600 dark:text-blue-400 font-semibold text-lg">{{ totalEntriesCount.toLocaleString() }}</span>
+            <span class="text-blue-600 dark:text-blue-400 font-semibold text-lg">{{ totalEntriesCount.toLocaleString()
+              }}</span>
             {{ t('common.totalEntriesSuffix') }}
           </p>
         </div>
@@ -208,7 +226,8 @@
               <div class="flex items-start mb-4">
                 <!-- Cover Image (Left) -->
                 <div class="flex-shrink-0 mr-4 relative group-hover:scale-105 transition-transform duration-300">
-                  <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse" v-if="!dict.cover">
+                  <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"
+                    v-if="!dict.cover">
                   </div>
                   <img v-if="dict.cover" :src="dict.cover" :alt="dict.name"
                     class="w-16 h-20 object-contain bg-white dark:bg-gray-700 rounded-md shadow-md border border-gray-100 dark:border-gray-700" />
@@ -247,15 +266,16 @@
                 </div>
               </div>
 
-              <p v-if="dict.lDescription" class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+              <p v-if="dict.lDescription"
+                class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
                 {{ dict.lDescription }}
               </p>
 
               <!-- Footer with License -->
               <div v-if="dict.license" class="pt-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
                 <div class="flex items-start gap-2">
-                  <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+                  <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -271,19 +291,12 @@
         </div>
 
         <div v-if="dictionariesData && sortedDictionaries.length > 3" class="mt-6 text-center">
-          <button
-            @click="isDictionariesExpanded = !isDictionariesExpanded"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors font-medium"
-          >
+          <button @click="isDictionariesExpanded = !isDictionariesExpanded"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors font-medium">
             <span v-if="isDictionariesExpanded">{{ t('common.showLess') }}</span>
             <span v-else>{{ t('common.showMoreDictionaries', { count: sortedDictionaries.length - 3 }) }}</span>
-            <svg
-              class="w-4 h-4 transition-transform duration-200"
-              :class="{ 'rotate-180': isDictionariesExpanded }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isDictionariesExpanded }"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -320,8 +333,7 @@
           </a>
           <FeedbackButton
             button-class="px-6 py-3 border-2 border-amber-600 dark:border-amber-800 text-amber-600 dark:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
-            label-class="text-base"
-          />
+            label-class="text-base" />
           <NuxtLink to="/about"
             class="inline-flex items-center gap-2 px-6 py-3 border-2 border-blue-600 dark:border-blue-800 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
             <Info class="w-4 h-4" aria-hidden="true" />
@@ -385,12 +397,12 @@ const sortedDictionaries = computed(() => {
   return [...dictionariesData.value.dictionaries]
     .map(localizeDictionary)
     .sort((a, b) => {
-    // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成"相等"(返回 0)，
-    // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
-    const cmp = a.lName.localeCompare(b.lName, sortLocale)
-    if (cmp !== 0) return cmp
-    return String(a.id).localeCompare(String(b.id), sortLocale)
-  })
+      // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成"相等"(返回 0)，
+      // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
+      const cmp = a.lName.localeCompare(b.lName, sortLocale)
+      if (cmp !== 0) return cmp
+      return String(a.id).localeCompare(String(b.id), sortLocale)
+    })
 })
 
 // 显示的词典列表（根据展开状态截取）
@@ -417,14 +429,9 @@ const searchExample = (query: string) => {
   handleSearch()
 }
 
-const searchEntry = (headword: string) => {
-  // 清理零宽字符（Zero Width Characters）
-  // U+200B: Zero Width Space
-  // U+200C: Zero Width Non-Joiner
-  // U+200D: Zero Width Joiner
-  // U+FEFF: Zero Width No-Break Space (BOM)
-  const cleanedHeadword = headword.replace(/[\u200B-\u200D\uFEFF]/g, '')
-  router.push(`/word/${encodeURIComponent(cleanedHeadword)}`)
+const wordPath = (headword: string) => {
+  const cleaned = headword.replace(/[\u200B-\u200D\uFEFF]/g, '')
+  return `/word/${encodeURIComponent(cleaned)}`
 }
 
 const refreshRandomEntries = async () => {
@@ -487,6 +494,9 @@ useHead(() => ({
       content: `${t('common.siteName')} ${t('common.siteDescription')}`
     }
   ],
+  link: siteUrl.value
+    ? [{ rel: 'canonical', href: siteUrl.value }]
+    : [],
   script: websiteStructuredData.value
     ? [{ type: 'application/ld+json', children: websiteStructuredData.value }]
     : []

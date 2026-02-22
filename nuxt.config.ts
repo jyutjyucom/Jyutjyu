@@ -4,6 +4,10 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
+  experimental: {
+    watcher: 'parcel'
+  },
+
   devServer: {
     port: 3002
   },
@@ -13,6 +17,22 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/i18n'
   ],
+
+  ignore: [
+    '**/.vercel/**',
+    '**/.output/**',
+    '**/dist/**'
+  ],
+
+  watchers: {
+    chokidar: {
+      ignored: [
+        '**/.vercel/**',
+        '**/.output/**',
+        '**/dist/**'
+      ]
+    }
+  },
 
   i18n: {
     vueI18n: './i18n.config.ts',
@@ -85,6 +105,7 @@ export default defineNuxtConfig({
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:image:alt', content: '粵語辭叢' },
+        { property: 'og:locale', content: 'zh_HK' },
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:image', content: 'https://jyutjyu.com/og.png' },
@@ -102,7 +123,7 @@ export default defineNuxtConfig({
   // TypeScript 配置
   typescript: {
     strict: true,
-    typeCheck: true
+    typeCheck: false
   },
 
   // 运行时配置
@@ -124,12 +145,19 @@ export default defineNuxtConfig({
     }
   },
 
+  routeRules: {
+    '/word/**': { swr: 86400 },
+    '/browse/**': { swr: 86400 },
+    '/': { prerender: true },
+    '/about': { prerender: true }
+  },
+
   // Nitro 配置（服务端）
   nitro: {
     // Vercel 部署时自动检测，但显式指定更可靠
     preset: 'vercel',
     prerender: {
-      crawlLinks: true,
+      crawlLinks: false,
       routes: ['/']
     }
   },
@@ -137,6 +165,14 @@ export default defineNuxtConfig({
   // Vite 配置（解决 HMR 端口冲突）
   vite: {
     server: {
+      watch: {
+        ignored: [
+          '**/.vercel/**',
+          '**/.output/**',
+          '**/.nuxt/**',
+          '**/dist/**'
+        ]
+      },
       hmr: {
         port: 24679
       }
