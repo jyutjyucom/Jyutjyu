@@ -233,6 +233,7 @@ interface AggregatedEntry {
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 const { searchBasic, getSuggestions, getMode } = useSearch()
 const { t, locale } = useI18n()
 const { getAllVariants, ensureInitialized } = useChineseConverter()
@@ -877,12 +878,24 @@ onUnmounted(() => {
   }
 })
 
+const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
+const searchCanonicalUrl = computed(() => {
+  if (!siteUrl.value) return ''
+  return `${siteUrl.value}/search`
+})
+
 // SEO
 useHead({
   title: computed(() => actualSearchQuery.value
     ? `${actualSearchQuery.value} - ${t('common.searchHeader')} | ${t('common.siteName')}`
     : `${t('common.searchHeader')} | ${t('common.siteName')}`
-  )
+  ),
+  link: searchCanonicalUrl.value
+    ? [{ rel: 'canonical', href: searchCanonicalUrl.value }]
+    : [],
+  meta: [
+    { name: 'robots', content: 'noindex, follow' }
+  ]
 })
 </script>
 

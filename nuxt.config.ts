@@ -63,7 +63,7 @@ export default defineNuxtConfig({
   // App 配置
   app: {
     head: {
-      title: '粵語辭叢 | The Yue Dictionary Collection',
+      title: '粵語辭叢 - The Yue Dictionary Collection',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -74,8 +74,9 @@ export default defineNuxtConfig({
         },
         { name: 'keywords', content: '粵語,廣州話,詞典,粵拼,Cantonese,Jyutping' },
         { name: 'author', content: 'Jyut Collection' },
+        { name: 'google-site-verification', content: 'n6gCW8_c_OVeNtCgQLEdDxep5cZY5att-ikH1K_kLdw' },
         // Open Graph
-        { property: 'og:title', content: '粵語辭叢 | The Yue Dictionary Collection' },
+        { property: 'og:title', content: '粵語辭叢 - The Yue Dictionary Collection' },
         { property: 'og:description', content: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://jyutjyu.com' },
@@ -111,10 +112,11 @@ export default defineNuxtConfig({
     mongodbDbName: process.env.MONGODB_DB_NAME || 'jyutjyu',
     githubToken: process.env.GITHUB_TOKEN,
     githubRepo: process.env.GITHUB_REPO,
+    enforceCanonicalHostRedirect: process.env.ENFORCE_CANONICAL_HOST_REDIRECT === 'true',
 
     // 客户端公开配置
     public: {
-      siteUrl: 'https://jyutjyu.com',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://jyutjyu.com',
       siteName: '粵語辭叢',
       siteDescription: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries',
       // 是否使用后端 API（false 时回退到静态 JSON）

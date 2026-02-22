@@ -340,6 +340,7 @@ import { Database, Github, Info } from 'lucide-vue-next'
 import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t, locale } = useI18n()
+const config = useRuntimeConfig()
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary()
 
 // 判断是否为简体中文（简体中文或简体粤文）
@@ -456,17 +457,38 @@ onMounted(() => {
   }
 })
 
+const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
+const homeUrl = computed(() => siteUrl.value || '')
+const searchTargetUrl = computed(() => siteUrl.value ? `${siteUrl.value}/search?q={search_term_string}` : '')
+
+const websiteStructuredData = computed(() => {
+  if (!homeUrl.value || !searchTargetUrl.value) return ''
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: t('common.siteName'),
+    alternateName: t('common.siteSubtitle'),
+    url: homeUrl.value,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: searchTargetUrl.value,
+      'query-input': 'required name=search_term_string'
+    }
+  })
+})
+
 // SEO
-useHead({
-  title: computed(() => `${t('common.siteName')} | ${t('common.siteSubtitle')} - ${t('common.siteDescription')}`),
+useHead(() => ({
+  title: `${t('common.siteName')} - ${t('common.siteSubtitle')} - ${t('common.siteDescription')}`,
   meta: [
     {
       name: 'description',
-      content: computed(
-        () =>
-          `${t('common.siteName')} ${t('common.siteDescription')}`
-      )
+      content: `${t('common.siteName')} ${t('common.siteDescription')}`
     }
-  ]
-})
+  ],
+  script: websiteStructuredData.value
+    ? [{ type: 'application/ld+json', children: websiteStructuredData.value }]
+    : []
+}))
 </script>

@@ -1,4 +1,5 @@
 import { getCanonicalHeadwords } from '../utils/word-resolver'
+import { getSitemapLastmod } from '../utils/sitemap-meta'
 
 const PAGE_SIZE = 50000
 
@@ -11,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const headwords = await getCanonicalHeadwords()
   const siteUrl = getSiteUrl()
   const totalPages = Math.max(1, Math.ceil(headwords.length / PAGE_SIZE))
-  const now = new Date().toISOString()
+  const lastmod = await getSitemapLastmod()
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
   xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
   for (let page = 1; page <= totalPages; page += 1) {
     xml += '  <sitemap>\n'
     xml += `    <loc>${siteUrl}/sitemaps/${page}.xml</loc>\n`
-    xml += `    <lastmod>${now}</lastmod>\n`
+    xml += `    <lastmod>${lastmod}</lastmod>\n`
     xml += '  </sitemap>\n'
   }
 
