@@ -1,105 +1,110 @@
 <template>
-  <div
-    v-if="entries.length > 0"
-    class="dict-card bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-visible"
-    :class="cardClickable ? 'cursor-pointer' : ''"
-    :role="cardClickable ? 'link' : undefined"
-    :tabindex="cardClickable ? 0 : undefined"
-    @click="handleCardClick"
-    @keydown.enter.prevent="handleCardKeydown"
-  >
-    <!-- 头部：词头 + 粤拼（共享信息） -->
-    <div
-      :class="headerClasses"
-      :style="stickyHeaderStyle"
+  <section :class="panelClasses">
+    <button
+      v-if="collapsible"
+      type="button"
+      class="w-full text-left px-4 py-3"
+      @click="$emit('toggle')"
     >
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
-        <div class="flex-1 min-w-0">
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
-            <NuxtLink
-              :to="`/word/${encodeURIComponent(primary.headword.display)}`"
-              class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {{ primary.headword.display }}
-            </NuxtLink>
-            <span
-              v-if="primary.headword.is_placeholder"
-              class="ml-2 text-sm text-orange-600 font-normal"
-              :title="t('dictCard.placeholderWord')"
-            >
-              {{ t('dictCard.placeholderWord') }}
-            </span>
-            <sup
-              v-if="primary.meta?.variant_number"
-              class="ml-1 text-base text-gray-500 dark:text-gray-400"
-            >
-              {{ primary.meta.variant_number }}
-            </sup>
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="text-lg font-semibold text-blue-700 dark:text-blue-300 break-words">
+            {{ sourceLabel }}
           </h3>
-
-          <div class="mt-2">
-            <div
-              v-for="(jp, idx) in primary.phonetic.jyutping"
-              :key="idx"
-              class="flex items-center gap-1.5 flex-wrap"
-            >
-              <div class="font-mono text-lg text-blue-600 dark:text-blue-400 font-semibold break-words">
-                {{ jp }}
-              </div>
-            </div>
-          </div>
-          <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {{ t('dictCard.collectedBy', { count: dictionaryCount }) }}
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {{ entries.length }} {{ t('common.remainingSuffix') }}
           </p>
-
-          <p
-            v-if="primary.headword.display !== primary.headword.normalized"
-            class="text-sm text-gray-500 dark:text-gray-400 break-words mt-1"
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span
+            v-for="dialect in dialectLabels"
+            :key="dialect"
+            class="px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs whitespace-nowrap"
           >
-            {{ t('dictCard.standardWriting') }}{{ primary.headword.normalized }}
+            {{ dialect }}
+          </span>
+          <svg
+            class="w-4 h-4 text-gray-500 transition-transform"
+            :class="expanded ? 'rotate-180' : ''"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+    </button>
+
+    <div v-else class="px-4 py-3">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="text-lg font-semibold text-blue-700 dark:text-blue-300 break-words">
+            {{ sourceLabel }}
+          </h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {{ entries.length }} {{ t('common.remainingSuffix') }}
           </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span
+            v-for="dialect in dialectLabels"
+            :key="dialect"
+            class="px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs whitespace-nowrap"
+          >
+            {{ dialect }}
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- 内容：按词典分段 -->
-    <div class="card-body px-6 py-4">
-      <div
+    <div
+      v-show="!collapsible || expanded"
+      class="border-t border-gray-100 dark:border-gray-700 px-4 py-4"
+    >
+      <article
         v-for="entry in entries"
         :key="entry.id"
         class="mt-4 pt-4 first:mt-0 first:pt-0 border-t first:border-t-0 border-gray-200 dark:border-gray-700"
       >
-        <!-- 词典标签区 -->
-        <div class="flex items-start gap-3">
-          <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
-            <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap">
-              {{ getEntrySourceBookLabel(entry) }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
-            </span>
+        <div class="pb-3">
+          <div class="flex items-start gap-3">
+            <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
+              <span
+                v-if="entry.source_id"
+                class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-xs whitespace-nowrap"
+              >
+                #{{ entry.source_id }}
+              </span>
 
-            <span class="px-3 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm whitespace-nowrap">
-              {{ getDialectLabel(entry) }}
-            </span>
+              <span
+                class="px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs whitespace-nowrap"
+              >
+                {{ getDialectLabel(entry) }}
+              </span>
 
-            <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-lg text-sm whitespace-nowrap">
-              {{ getEntryTypeLabel(entry) }}
-            </span>
+              <span
+                class="px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-md text-xs whitespace-nowrap"
+              >
+                {{ getEntryTypeLabel(entry) }}
+              </span>
 
-            <span
-              v-if="entry.meta?.register"
-              class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg text-sm whitespace-nowrap"
-            >
-              {{ entry.meta.register }}
-            </span>
+              <span
+                v-if="entry.meta?.register"
+                class="px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md text-xs whitespace-nowrap"
+              >
+                {{ entry.meta.register }}
+              </span>
 
-            <span
-              v-if="entry.meta?.category"
-              class="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-sm break-words max-w-full"
-            >
-              {{ entry.meta.category }}
-            </span>
-          </div>
+              <span
+                v-if="entry.meta?.category"
+                class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-md text-xs break-words"
+              >
+                {{ entry.meta.category }}
+              </span>
+            </div>
 
-          <div class="flex-shrink-0">
             <FeedbackButton
               :entry-data="{
                 word: entry.headword.display,
@@ -109,32 +114,36 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-lg text-sm whitespace-nowrap hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors"
               label-class="text-sm"
             />
           </div>
+
+          <p
+            v-if="shouldShowEntryJyutping(entry)"
+            class="mt-2 text-sm text-gray-600 dark:text-gray-300"
+          >
+            <span class="text-gray-500 dark:text-gray-400 mr-2">{{ t('common.jyutpingColumn') }}:</span>
+            <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold">{{ getEntryJyutping(entry) }}</span>
+          </p>
+
+          <p
+            v-if="shouldShowEntryOriginalPhonetic(entry)"
+            class="mt-2 text-sm text-gray-600 dark:text-gray-300 break-words"
+          >
+            <span class="text-gray-500 dark:text-gray-400 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
+            {{ getEntryOriginalPhonetic(entry) }}
+          </p>
+
+          <p
+            v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
+            class="text-sm text-gray-700 dark:text-gray-300 break-words mt-2"
+          >
+            {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
+          </p>
         </div>
 
-        <!-- 仅当该词典粤拼与主词条不同才显示 -->
-        <div v-if="shouldShowEntryJyutping(entry)" class="mt-3 text-sm">
-          <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">{{ t('common.jyutpingColumn') }}:</span>
-          <span class="font-mono text-blue-600 dark:text-blue-400 font-semibold">{{ getEntryJyutping(entry) }}</span>
-        </div>
-
-        <div v-if="shouldShowEntryOriginalPhonetic(entry)" class="mt-2 text-sm">
-          <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
-          <span class="text-gray-700 dark:text-gray-300 break-words">{{ getEntryOriginalPhonetic(entry) }}</span>
-        </div>
-
-        <p
-          v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
-          class="text-base text-gray-900 dark:text-gray-100 break-words mt-3"
-        >
-          {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
-        </p>
-
-        <!-- 释义 -->
-        <div class="mt-4">
+        <div class="pt-2">
           <div
             v-for="(sense, senseIdx) in entry.senses"
             :key="senseIdx"
@@ -185,6 +194,7 @@
                         {{ subSense.definition }}
                       </span>
                     </div>
+
                     <div
                       v-if="subSense.examples && subSense.examples.length > 0"
                       class="space-y-2"
@@ -263,11 +273,11 @@
           <div
             v-if="entry.meta?.notes"
             class="mt-4 p-3 border-l-4 text-sm"
-            :class="entry.meta?.note_type === 'proofreader' 
-              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 text-gray-700 dark:text-gray-300' 
+            :class="entry.meta?.note_type === 'proofreader'
+              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 text-gray-700 dark:text-gray-300'
               : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600 text-gray-700 dark:text-gray-300'"
           >
-            <span 
+            <span
               class="font-semibold"
               :class="entry.meta?.note_type === 'proofreader' ? 'text-blue-700 dark:text-blue-300' : 'text-yellow-700 dark:text-yellow-300'"
             >
@@ -336,65 +346,64 @@
           </div>
 
           <div
-            v-if="showDetails && entry.meta?.usage"
+            v-if="entry.meta?.usage"
             class="mt-4 text-sm text-gray-600 dark:text-gray-400"
           >
             <span class="font-semibold">{{ t('dictCard.usage') }}</span> {{ entry.meta.usage }}
           </div>
         </div>
-      </div>
+      </article>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
 import type { DictionaryEntry } from '~/types/dictionary'
 import { hasDialectI18n } from '~/constants/dialect'
 
-const { t } = useI18n()
-const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
-
 interface Props {
+  sourceKey: string
+  sourceLabel: string
   entries: DictionaryEntry[]
-  showDetails?: boolean
-  stickyHeader?: boolean
-  stickyOffset?: number
-  cardClickable?: boolean
+  tabJyutpingList?: string[]
+  expanded?: boolean
+  collapsible?: boolean
+  active?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showDetails: true,
-  stickyHeader: false,
-  stickyOffset: 0,
-  cardClickable: false
+  tabJyutpingList: () => [],
+  expanded: true,
+  collapsible: true,
+  active: false
 })
 
+defineEmits<{
+  toggle: []
+}>()
+
+const { t } = useI18n()
+
 const entries = computed(() => props.entries || [])
-const headerClasses = computed(() => [
-  'card-header px-6 py-4 border-b border-gray-100 dark:border-gray-700',
-  props.stickyHeader
-    ? 'sticky z-[5] bg-white/95 dark:bg-gray-800/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 supports-[backdrop-filter]:dark:bg-gray-800/90'
+const panelClasses = computed(() => [
+  'rounded-xl bg-white dark:bg-gray-800 overflow-hidden shadow-sm dark:shadow-black/20',
+  props.active
+    ? 'shadow-md dark:shadow-black/30'
     : ''
 ])
-const stickyHeaderStyle = computed(() => {
-  if (!props.stickyHeader) return undefined
-  return {
-    top: `${Math.max(0, props.stickyOffset)}px`
-  }
-})
-const primary = computed(() => entries.value[0] as DictionaryEntry)
-const dictionaryCount = computed(() => {
-  const sources = new Set<string>()
-  entries.value.forEach(entry => {
-    const value = entry.source_book?.trim()
-    if (value) sources.add(value)
-  })
-  return sources.size || entries.value.length
-})
-const primaryJyutpingSet = computed(() => {
+
+const dialectLabels = computed(() => {
   const set = new Set<string>()
-  const jps = primary.value?.phonetic?.jyutping || []
-  jps.forEach(jp => {
+  entries.value.forEach((entry) => {
+    const label = getDialectLabel(entry)
+    if (label) set.add(label)
+  })
+  return Array.from(set).slice(0, 3)
+})
+
+const tabJyutpingSet = computed(() => {
+  const set = new Set<string>()
+  props.tabJyutpingList.forEach((jp) => {
     const value = jp?.trim()
     if (value) set.add(value)
   })
@@ -416,10 +425,6 @@ const getDialectLabel = (entry: DictionaryEntry) => {
     return t(`dictCard.dialect.${code}`)
   }
   return entry.dialect?.name || ''
-}
-
-const getEntrySourceBookLabel = (entry: DictionaryEntry) => {
-  return getLocalizedSourceBookLabel(entry.source_book)
 }
 
 const isCantoDict = (entry: DictionaryEntry) => {
@@ -499,17 +504,17 @@ const getEntryOriginalPhoneticList = (entry: DictionaryEntry): string[] => {
 }
 
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
-  if (!entry || entry.id === primary.value?.id) return false
   const entryJps = getEntryJyutpingList(entry)
   if (entryJps.length === 0) return false
-  const primarySet = primaryJyutpingSet.value
+  const primarySet = tabJyutpingSet.value
+  if (primarySet.size === 0) return true
   return entryJps.some(jp => !primarySet.has(jp))
 }
 
 const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
   const originalList = getEntryOriginalPhoneticList(entry)
   if (originalList.length === 0) return false
-  const primarySet = primaryJyutpingSet.value
+  const primarySet = tabJyutpingSet.value
   if (primarySet.size === 0) return true
   if (originalList.length !== primarySet.size) return true
   return originalList.some(value => !primarySet.has(value))
@@ -592,47 +597,4 @@ const getEntryFeedbackDescription = (entry: DictionaryEntry): string => {
 
   return [...headerLines, ...senseLines].join('\n')
 }
-
-const shouldSkipCardNavigation = (target: EventTarget | null): boolean => {
-  const element = target as HTMLElement | null
-  if (!element) return false
-  return !!element.closest('a, button, input, textarea, select, label, [role="button"], [data-no-card-nav]')
-}
-
-const openPrimaryWordPage = () => {
-  const word = primary.value?.headword?.display?.trim()
-  if (!word) return
-  navigateTo(`/word/${encodeURIComponent(word)}`)
-}
-
-const handleCardClick = (event: MouseEvent) => {
-  if (!props.cardClickable) return
-  if (shouldSkipCardNavigation(event.target)) return
-  openPrimaryWordPage()
-}
-
-const handleCardKeydown = (event: KeyboardEvent) => {
-  if (!props.cardClickable) return
-  if (shouldSkipCardNavigation(event.target)) return
-  if (event.key !== 'Enter') return
-  openPrimaryWordPage()
-}
-
 </script>
-
-<style scoped>
-.dict-card {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

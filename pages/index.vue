@@ -423,7 +423,7 @@ const searchEntry = (headword: string) => {
   // U+200D: Zero Width Joiner
   // U+FEFF: Zero Width No-Break Space (BOM)
   const cleanedHeadword = headword.replace(/[\u200B-\u200D\uFEFF]/g, '')
-  router.push(`/search?q=${encodeURIComponent(cleanedHeadword)}`)
+  router.push(`/word/${encodeURIComponent(cleanedHeadword)}`)
 }
 
 const refreshRandomEntries = async () => {
