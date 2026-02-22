@@ -6,7 +6,12 @@
         <!-- 词头部分 -->
         <div class="flex-1 min-w-0">
           <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
-            {{ entry.headword.display }}
+            <NuxtLink
+              :to="`/word/${encodeURIComponent(entry.headword.display)}`"
+              class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              {{ entry.headword.display }}
+            </NuxtLink>
             <!-- 开天窗字标记 -->
             <span
               v-if="entry.headword.is_placeholder"
@@ -314,7 +319,7 @@
         >
           <NuxtLink
             v-if="ref.type === 'word'"
-            :to="`/search?q=${encodeURIComponent(ref.target)}`"
+            :to="`/word/${encodeURIComponent(ref.target)}`"
             class="text-blue-600 dark:text-blue-400 hover:underline"
           >
             {{ ref.target }}
@@ -521,9 +526,9 @@ const formatDefinitionWithLinks = (definition: string): string => {
   const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g
   
   return definition.replace(regex, (match, word) => {
-    // 生成搜索链接
-    const searchUrl = `/search?q=${encodeURIComponent(word)}`
-    return `<a href="${searchUrl}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
+    // 生成词条链接
+    const wordUrl = `/word/${encodeURIComponent(word)}`
+    return `<a href="${wordUrl}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }
 

@@ -1,149 +1,120 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header with Search Bar -->
-    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-            <NuxtLink to="/" class="text-xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-              {{ t('common.siteName') }}
-            </NuxtLink>
-            <!-- 搜索框与选项按钮同一行不换行 -->
-            <div class="flex flex-nowrap items-center gap-2 flex-1 min-w-0">
-              <div class="flex-1 min-w-0 max-w-2xl relative">
-                <input v-model="searchQuery" type="text" :placeholder="t('common.searchPlaceholder')"
-                  class="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:border-blue-500"
-                  @keyup.enter="handleSearch" @input="handleInput">
-                <button
-                  class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
-                  @click="handleSearch">
-                  {{ t('common.searchButton') }}
-                </button>
-                <!-- 搜索建议 -->
-                <div v-if="suggestions.length > 0 && showSuggestions"
-                  class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
-                  <button v-for="(suggestion, idx) in suggestions" :key="idx"
-                    class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
-                    @click="selectSuggestion(suggestion)">
-                    {{ suggestion }}
-                  </button>
-                </div>
-              </div>
-              <!-- 仅当筛选栏隐藏时显示（< lg）：展开/收起选项按钮 -->
-              <button type="button"
-                class="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors shrink-0"
-                :aria-label="optionsExpanded ? t('common.optionsCollapse') : t('common.optionsExpand')"
-                :aria-expanded="optionsExpanded"
-                @click="optionsExpanded = !optionsExpanded">
-                <svg class="w-4 h-4 transition-transform" :class="optionsExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-            <!-- 反查（仅 lg+ 显示；较窄屏在选项面板复用） -->
-            <div class="hidden lg:flex">
-              <SearchReverseCheckbox v-model="enableReverseSearch" />
-            </div>
-          </div>
-          <div class="hidden lg:flex items-center gap-3 flex-shrink-0">
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
+    <AppHeader
+      v-model:search-query="searchQuery"
+      v-model:reverse-search="enableReverseSearch"
+      v-model:options-expanded="optionsExpanded"
+      @search="handleSearch"
+      @query-input="handleInput"
+      @height-change="searchHeaderHeight = $event"
+    >
+      <template #search-popover>
+        <div
+          v-if="suggestions.length > 0 && showSuggestions"
+          class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20"
+        >
+          <button
+            v-for="(suggestion, idx) in suggestions"
+            :key="idx"
+            class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
+            @click="selectSuggestion(suggestion)"
+          >
+            {{ suggestion }}
+          </button>
         </div>
-        <!-- 较窄屏（< lg）：选项面板，筛选栏不单独占行时复用反查、LanguageSwitcher、筛选、排序、视图 -->
-        <div v-show="optionsExpanded" class="lg:hidden border-t border-gray-100 dark:border-gray-700 pt-3 mt-1 space-y-4">
-          <div class="flex flex-wrap items-center gap-3">
-            <SearchReverseCheckbox v-model="enableReverseSearch" />
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
-          <template v-if="actualSearchQuery && allResults.length > 0">
-            <SearchFilterControls
-              :selected-dict="selectedDict"
-              :selected-dialect="selectedDialect"
-              :selected-type="selectedType"
-              :show-dict-dropdown="showDictDropdown"
-              :show-dialect-dropdown="showDialectDropdown"
-              :show-type-dropdown="showTypeDropdown"
-              :available-dicts="availableDicts"
-              :available-dialects="availableDialects"
-              :available-types="availableTypes"
-              :get-dict-count="getDictCount"
-              :get-dialect-count="getDialectCount"
-              :get-type-count="getTypeCount"
-              :get-dialect-label="getDialectLabel"
-              :get-type-name="getTypeName"
-              @toggle-dict="showDictDropdown = !showDictDropdown"
-              @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-              @toggle-type="showTypeDropdown = !showTypeDropdown"
-              @select-dict="selectDict"
-              @select-dialect="selectDialect"
-              @select-type="selectType"
-            />
-            <div class="flex flex-wrap items-center gap-3">
-              <SearchSortSelect
-                :sort-by="sortBy"
-                :show-sort-dropdown="showSortDropdown"
-                :get-sort-label="getSortLabel"
-                @toggle-sort="showSortDropdown = !showSortDropdown"
-                @select-sort="selectSort"
-              />
-              <SearchViewModeToggle
-                v-if="displayedResults.length > 0"
-                v-model="viewMode"
-                :compact="true"
-                :show-icons="false"
-              />
-            </div>
-          </template>
-        </div>
-      </div>
+      </template>
 
-      <!-- 筛选栏（仅 lg+ 且保证单行；< lg 或会换行时隐藏，改在选项面板显示） -->
-      <div v-if="actualSearchQuery && allResults.length > 0" class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
-        <div class="container mx-auto px-4 py-3">
-          <div class="flex flex-nowrap items-center gap-3">
-            <SearchFilterControls
-              :selected-dict="selectedDict"
-              :selected-dialect="selectedDialect"
-              :selected-type="selectedType"
-              :show-dict-dropdown="showDictDropdown"
-              :show-dialect-dropdown="showDialectDropdown"
-              :show-type-dropdown="showTypeDropdown"
-              :available-dicts="availableDicts"
-              :available-dialects="availableDialects"
-              :available-types="availableTypes"
-              :get-dict-count="getDictCount"
-              :get-dialect-count="getDialectCount"
-              :get-type-count="getTypeCount"
-              :get-dialect-label="getDialectLabel"
-              :get-type-name="getTypeName"
-              @toggle-dict="showDictDropdown = !showDictDropdown"
-              @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-              @toggle-type="showTypeDropdown = !showTypeDropdown"
-              @select-dict="selectDict"
-              @select-dialect="selectDialect"
-              @select-type="selectType"
+      <template #mobile-extra>
+        <template v-if="actualSearchQuery && allResults.length > 0">
+          <SearchFilterControls
+            :selected-dict="selectedDict"
+            :selected-dialect="selectedDialect"
+            :selected-type="selectedType"
+            :show-dict-dropdown="showDictDropdown"
+            :show-dialect-dropdown="showDialectDropdown"
+            :show-type-dropdown="showTypeDropdown"
+            :available-dicts="availableDicts"
+            :available-dialects="availableDialects"
+            :available-types="availableTypes"
+            :get-dict-count="getDictCount"
+            :get-dialect-count="getDialectCount"
+            :get-type-count="getTypeCount"
+            :get-dialect-label="getDialectLabel"
+            :get-type-name="getTypeName"
+            @toggle-dict="showDictDropdown = !showDictDropdown"
+            @toggle-dialect="showDialectDropdown = !showDialectDropdown"
+            @toggle-type="showTypeDropdown = !showTypeDropdown"
+            @select-dict="selectDict"
+            @select-dialect="selectDialect"
+            @select-type="selectType"
+          />
+          <div class="flex flex-wrap items-center gap-3">
+            <SearchSortSelect
+              :sort-by="sortBy"
+              :show-sort-dropdown="showSortDropdown"
+              :get-sort-label="getSortLabel"
+              @toggle-sort="showSortDropdown = !showSortDropdown"
+              @select-sort="selectSort"
             />
-            <!-- 居右：排序、卡片、列表（复用组件） -->
-            <div class="flex items-center gap-3 ml-auto shrink-0">
-              <SearchSortSelect
-                :sort-by="sortBy"
-                :show-sort-dropdown="showSortDropdown"
-                :get-sort-label="getSortLabel"
-                dropdown-align="right"
-                @toggle-sort="showSortDropdown = !showSortDropdown"
-                @select-sort="selectSort"
+            <SearchViewModeToggle
+              v-if="displayedResults.length > 0"
+              v-model="viewMode"
+              :compact="true"
+              :show-icons="false"
+            />
+          </div>
+        </template>
+      </template>
+
+      <template #after>
+        <div
+          v-if="actualSearchQuery && allResults.length > 0"
+          class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80"
+        >
+          <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-nowrap items-center gap-3">
+              <SearchFilterControls
+                :selected-dict="selectedDict"
+                :selected-dialect="selectedDialect"
+                :selected-type="selectedType"
+                :show-dict-dropdown="showDictDropdown"
+                :show-dialect-dropdown="showDialectDropdown"
+                :show-type-dropdown="showTypeDropdown"
+                :available-dicts="availableDicts"
+                :available-dialects="availableDialects"
+                :available-types="availableTypes"
+                :get-dict-count="getDictCount"
+                :get-dialect-count="getDialectCount"
+                :get-type-count="getTypeCount"
+                :get-dialect-label="getDialectLabel"
+                :get-type-name="getTypeName"
+                @toggle-dict="showDictDropdown = !showDictDropdown"
+                @toggle-dialect="showDialectDropdown = !showDialectDropdown"
+                @toggle-type="showTypeDropdown = !showTypeDropdown"
+                @select-dict="selectDict"
+                @select-dialect="selectDialect"
+                @select-type="selectType"
               />
-              <SearchViewModeToggle
-                v-if="displayedResults.length > 0"
-                v-model="viewMode"
-              />
+              <div class="flex items-center gap-3 ml-auto shrink-0">
+                <SearchSortSelect
+                  :sort-by="sortBy"
+                  :show-sort-dropdown="showSortDropdown"
+                  :get-sort-label="getSortLabel"
+                  dropdown-align="right"
+                  @toggle-sort="showSortDropdown = !showSortDropdown"
+                  @select-sort="selectSort"
+                />
+                <SearchViewModeToggle
+                  v-if="displayedResults.length > 0"
+                  v-model="viewMode"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </template>
+    </AppHeader>
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
@@ -238,7 +209,10 @@
               </div>
               <div class="space-y-4">
                 <DictCardGroup v-for="group in displayedGroupedResults.exactMatches" :key="group.key"
-                  :entries="group.entries" />
+                  :entries="group.entries"
+                  :sticky-header="true"
+                  :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true" />
               </div>
             </template>
 
@@ -263,7 +237,10 @@
               </div>
               <div class="space-y-4">
                 <DictCardGroup v-for="group in displayedGroupedResults.otherResults" :key="group.key"
-                  :entries="group.entries" />
+                  :entries="group.entries"
+                  :sticky-header="true"
+                  :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true" />
               </div>
             </template>
 
@@ -286,11 +263,9 @@
               :sort-by="sortBy"
               :displayed-grouped-results="displayedGroupedResults"
               :grouped-results="groupedResults"
-              :expanded-row="expandedRow"
               :get-group-jyutping="getGroupJyutping"
               :get-group-definitions="getGroupDefinitions"
               :get-group-sources="getGroupSources"
-              @update:expanded-row="expandedRow = $event"
             />
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
@@ -364,7 +339,6 @@ const searchTime = ref(0)
 const suggestions = ref<string[]>([])
 const showSuggestions = ref(false)
 const viewMode = ref<'card' | 'list'>('card')
-const expandedRow = ref<string | null>(null)
 const enableReverseSearch = ref(route.query.reverse === '1') // 从 URL 读取反查状态
 const isSearchComplete = ref(true) // 搜索是否完成（流式搜索中用）
 
@@ -378,6 +352,7 @@ const showDialectDropdown = ref(false) // 方言下拉菜单显示状态
 const showTypeDropdown = ref(false) // 类型下拉菜单显示状态
 const showSortDropdown = ref(false) // 排序下拉菜单显示状态
 const optionsExpanded = ref(false) // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
+const searchHeaderHeight = ref(0)
 
 // 分页配置
 const PAGE_SIZE = 10 // 每页显示10条
@@ -891,6 +866,7 @@ const handleSearch = () => {
 
 // 输入时获取建议
 let suggestionTimeout: NodeJS.Timeout | null = null
+let clickOutsideHandler: ((e: MouseEvent) => void) | null = null
 const handleInput = () => {
   if (suggestionTimeout) {
     clearTimeout(suggestionTimeout)
@@ -951,7 +927,7 @@ onMounted(async () => {
   // 确保转换器已初始化（用于完全匹配判断）
   await ensureInitialized()
 
-  const handleClickOutside = (e: MouseEvent) => {
+  clickOutsideHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target.closest('.relative')) {
       showSuggestions.value = false
@@ -961,11 +937,18 @@ onMounted(async () => {
       showSortDropdown.value = false
     }
   }
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('click', clickOutsideHandler)
+})
 
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-  })
+onUnmounted(() => {
+  if (clickOutsideHandler) {
+    document.removeEventListener('click', clickOutsideHandler)
+    clickOutsideHandler = null
+  }
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout)
+    suggestionTimeout = null
+  }
 })
 
 // SEO

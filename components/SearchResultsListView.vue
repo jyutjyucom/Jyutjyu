@@ -40,7 +40,10 @@
               <template v-for="group in displayedGroupedResults.exactMatches" :key="group.key">
                 <tr
                   class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  @click="toggleRow(group.key)"
+                  role="link"
+                  tabindex="0"
+                  @click="openWordPage(group)"
+                  @keydown.enter.prevent="openWordPage(group)"
                 >
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="text-base font-semibold text-gray-900 dark:text-gray-100">
@@ -67,12 +70,6 @@
                         {{ source }}
                       </span>
                     </div>
-                  </td>
-                </tr>
-                <!-- 展开详情 -->
-                <tr v-if="expandedRow === group.key" :key="`${group.key}-detail`">
-                  <td colspan="4" class="px-3 py-3 py-2 bg-gray-50 dark:bg-gray-700/50">
-                    <DictCardGroup :entries="group.entries" :show-details="false" />
                   </td>
                 </tr>
               </template>
@@ -130,7 +127,10 @@
               <template v-for="group in displayedGroupedResults.otherResults" :key="group.key">
                 <tr
                   class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                  @click="toggleRow(group.key)"
+                  role="link"
+                  tabindex="0"
+                  @click="openWordPage(group)"
+                  @keydown.enter.prevent="openWordPage(group)"
                 >
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="text-base font-semibold text-gray-900 dark:text-gray-100">
@@ -159,12 +159,6 @@
                     </div>
                   </td>
                 </tr>
-                <!-- 展开详情 -->
-                <tr v-if="expandedRow === group.key" :key="`${group.key}-detail`">
-                  <td colspan="4" class="px-3 py-3 py-2 bg-gray-50 dark:bg-gray-700/50">
-                    <DictCardGroup :entries="group.entries" :show-details="false" />
-                  </td>
-                </tr>
               </template>
             </tbody>
           </table>
@@ -178,6 +172,7 @@
 import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t } = useI18n()
+const router = useRouter()
 
 interface AggregatedEntryGroup {
   key: string
@@ -195,18 +190,16 @@ interface Props {
   sortBy: string
   groupedResults: GroupedResults
   displayedGroupedResults: GroupedResults
-  expandedRow: string | null
   getGroupJyutping: (group: AggregatedEntryGroup) => string
   getGroupDefinitions: (group: AggregatedEntryGroup) => string
   getGroupSources: (group: AggregatedEntryGroup) => string[]
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  (event: 'update:expandedRow', value: string | null): void
-}>()
+defineProps<Props>()
 
-const toggleRow = (key: string) => {
-  emit('update:expandedRow', props.expandedRow === key ? null : key)
+const openWordPage = (group: AggregatedEntryGroup) => {
+  const word = group.primary.headword.display?.trim()
+  if (!word) return
+  router.push(`/word/${encodeURIComponent(word)}`)
 }
 </script>
