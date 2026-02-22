@@ -15,7 +15,7 @@
     >
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
+          <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 break-words">
             <NuxtLink
               :to="`/word/${encodeURIComponent(primary.headword.display)}`"
               class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"

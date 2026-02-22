@@ -14,10 +14,10 @@
           :key="tab.id"
           type="button"
           role="tab"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-full border text-sm transition-colors whitespace-nowrap"
+          class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-colors whitespace-nowrap"
           :class="tab.id === modelValue
-            ? 'bg-blue-600 border-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-blue-300 dark:hover:border-blue-600'"
+            ? 'bg-blue-600 text-white'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20'"
           :aria-selected="tab.id === modelValue"
           @click="$emit('update:modelValue', tab.id)"
           @keydown="onTabKeydown($event, index)"

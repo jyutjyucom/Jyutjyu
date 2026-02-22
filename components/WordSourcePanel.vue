@@ -12,7 +12,7 @@
             {{ sourceLabel }}
           </h3>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            {{ entries.length }} {{ t('common.remainingSuffix') }}
+            {{ entries.length }} 義項
           </p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -37,31 +37,10 @@
       </div>
     </button>
 
-    <div v-else class="px-4 py-3">
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <h3 class="text-lg font-semibold text-blue-700 dark:text-blue-300 break-words">
-            {{ sourceLabel }}
-          </h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ entries.length }} {{ t('common.remainingSuffix') }}
-          </p>
-        </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span
-            v-for="dialect in dialectLabels"
-            :key="dialect"
-            class="px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs whitespace-nowrap"
-          >
-            {{ dialect }}
-          </span>
-        </div>
-      </div>
-    </div>
-
     <div
       v-show="!collapsible || expanded"
-      class="border-t border-gray-100 dark:border-gray-700 px-4 py-4"
+      class="px-4 py-4"
+      :class="collapsible ? 'border-t border-gray-100 dark:border-gray-700' : ''"
     >
       <article
         v-for="entry in entries"
@@ -72,34 +51,33 @@
           <div class="flex items-start gap-3">
             <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
               <span
-                v-if="entry.source_id"
-                class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap"
               >
-                #{{ entry.source_id }}
+                {{ sourceLabel }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
               </span>
 
               <span
-                class="px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-md text-sm whitespace-nowrap"
               >
                 {{ getDialectLabel(entry) }}
               </span>
 
               <span
-                class="px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded-md text-sm whitespace-nowrap"
               >
                 {{ getEntryTypeLabel(entry) }}
               </span>
 
               <span
                 v-if="entry.meta?.register"
-                class="px-2.5 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-md text-sm whitespace-nowrap"
               >
                 {{ entry.meta.register }}
               </span>
 
               <span
                 v-if="entry.meta?.category"
-                class="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-md text-xs break-words"
+                class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-md text-sm break-words"
               >
                 {{ entry.meta.category }}
               </span>
