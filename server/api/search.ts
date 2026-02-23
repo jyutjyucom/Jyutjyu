@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
   
   const searchQuery = q.trim()
   const resultLimit = Math.min(Math.max(1, parseInt(limit) || 50), 200)
+  const hasSymbolCharacters = /[\p{P}\p{S}]/u.test(searchQuery)
   
   try {
     // 初始化 OpenCC（首次调用时）
@@ -65,7 +66,8 @@ export default defineEventHandler(async (event) => {
     
     let results
     
-    if (hasAtlasSearch) {
+    // 包含较多符号字符（例如 ……餐懵）时，优先走精确回退逻辑，避免全文分词漏匹配
+    if (hasAtlasSearch && !(mode === 'normal' && hasSymbolCharacters)) {
       // 使用 Atlas Search（全文搜索）
       results = await atlasSearch(collection, searchQuery, resultLimit, dict, mode)
     } else {

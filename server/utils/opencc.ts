@@ -12,6 +12,14 @@ let toTraditionalConverter: ConverterFunction | null = null
 let isInitialized = false
 let initPromise: Promise<void> | null = null
 
+const trimEdgePunctuation = (value: string): string => {
+  return value.replace(/^[\p{P}\p{S}\s]+|[\p{P}\p{S}\s]+$/gu, '').trim()
+}
+
+const stripAllPunctuation = (value: string): string => {
+  return value.replace(/[\p{P}\p{S}\s]+/gu, '')
+}
+
 /**
  * 初始化 OpenCC 转换器
  */
@@ -79,15 +87,29 @@ export async function getQueryVariants(query: string): Promise<string[]> {
   
   const lower = query.toLowerCase()
   const variants = new Set<string>()
-  
-  variants.add(lower)
+  const querySeeds = new Set<string>()
+
+  querySeeds.add(lower)
+
+  const edgeTrimmed = trimEdgePunctuation(lower)
+  if (edgeTrimmed) {
+    querySeeds.add(edgeTrimmed)
+  }
+
+  const stripped = stripAllPunctuation(lower)
+  if (stripped) {
+    querySeeds.add(stripped)
+  }
+
+  querySeeds.forEach((seed) => variants.add(seed))
   
   try {
-    const simplified = toSimplifiedConverter!(lower)
-    const traditional = toTraditionalConverter!(lower)
-    
-    variants.add(simplified.toLowerCase())
-    variants.add(traditional.toLowerCase())
+    querySeeds.forEach((seed) => {
+      const simplified = toSimplifiedConverter!(seed)
+      const traditional = toTraditionalConverter!(seed)
+      variants.add(simplified.toLowerCase())
+      variants.add(traditional.toLowerCase())
+    })
   } catch (error) {
     console.warn('获取查询变体失败:', error)
   }

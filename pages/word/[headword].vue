@@ -39,7 +39,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-            {{ `返去 ${searchResultCount} 條搜尋結果` }}
+            {{ `返去 ${searchResultCount ?? '...'} 條搜尋結果` }}
           </NuxtLink>
           <h1 class="mt-4 mx-2 text-4xl font-bold text-gray-900 dark:text-gray-100 break-words">
             {{ wordData.canonical_headword }}
@@ -176,6 +176,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const config = useRuntimeConfig()
 const { getLocalizedSourceBookLabel, dictionariesData } = useLocalizedDictionary()
+const { searchBasic } = useSearch()
 
 const normalizeComparable = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerCase()
 const cleanHeadword = (value: string) => value.replace(/\s+/g, ' ').trim()
@@ -278,8 +279,65 @@ const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
   return results
 }
 
-const groupedEntries = computed(() => aggregateEntries(wordData.value?.entries || []))
-const searchResultCount = computed(() => groupedEntries.value.length)
+const backSearchResultCount = ref<number | null>(null)
+const searchResultCount = computed(() => backSearchResultCount.value)
+const backSearchCountRequestId = ref(0)
+
+const refreshBackSearchResultCount = async () => {
+  if (!process.client) return
+
+  const requestId = ++backSearchCountRequestId.value
+  const query = searchHeadword.value.trim()
+  if (!query) {
+    backSearchResultCount.value = null
+    return
+  }
+
+  backSearchResultCount.value = null
+
+  const fetchCount = async () => {
+    let streamedCount = 0
+
+    const results = await searchBasic(query, {
+      limit: 1000,
+      searchDefinition: false,
+      onResults: (entries) => {
+        const count = aggregateEntries(entries).length
+        if (count > streamedCount) {
+          streamedCount = count
+        }
+        if (requestId !== backSearchCountRequestId.value) return
+        if (count > 0) {
+          backSearchResultCount.value = count
+        }
+      }
+    })
+
+    const finalCount = aggregateEntries(results).length
+    return Math.max(streamedCount, finalCount)
+  }
+
+  try {
+    let count = await fetchCount()
+
+    // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
+    if (count === 0) {
+      await new Promise(resolve => setTimeout(resolve, 150))
+      count = await fetchCount()
+    }
+
+    // 搜索链路暂时不可用时，至少回退到当前词条下可见义项数，避免误显示 0
+    if (count === 0 && wordData.value?.entries?.length) {
+      count = aggregateEntries(wordData.value.entries).length
+    }
+
+    if (requestId !== backSearchCountRequestId.value) return
+    backSearchResultCount.value = count > 0 ? count : null
+  } catch {
+    if (requestId !== backSearchCountRequestId.value) return
+    backSearchResultCount.value = null
+  }
+}
 
 const getSourcePriorityMap = computed(() => {
   const map = new Map<string, number>()
@@ -549,6 +607,14 @@ const handleSearch = () => {
 
 watch(requestedHeadword, (headword) => {
   searchQuery.value = headword
+})
+
+watch(searchHeadword, () => {
+  void refreshBackSearchResultCount()
+}, { immediate: true })
+
+onMounted(() => {
+  void refreshBackSearchResultCount()
 })
 
 watch(pronunciationGroups, () => {
