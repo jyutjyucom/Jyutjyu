@@ -13,12 +13,8 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          {{ t('common.siteName') }}
+          {{ t('browse.backHome') }}
         </NuxtLink>
-
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          {{ t('browse.title') }}
-        </h1>
 
         <div v-if="pending && !displayedBrowseData" class="text-center py-16">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -112,7 +108,7 @@ const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('
   lazy: true
 })
 
-const displayedBrowseData = ref<BrowseResponse | null>(null)
+const displayedBrowseData = useState<BrowseResponse | null>('browse-displayed-data', () => null)
 watch(browseData, (value) => {
   if (value) {
     displayedBrowseData.value = value
