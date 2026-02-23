@@ -220,10 +220,16 @@ const DEFAULT_SORT_BY: BrowseSort = 'headword'
 const pageSizeOptions = [100, 500, 1000]
 const sortOptions: BrowseSort[] = ['headword', 'jyutping']
 
+const route = useRoute()
 const { t, locale } = useI18n()
 const { dictionariesData, getLocalizedValue } = useLocalizedDictionary()
 
-const activeScopeId = computed(() => props.browseData.scope || 'all')
+const activeScopeId = computed(() => {
+  const routeDict = Array.isArray(route.params.dict) ? route.params.dict[0] : route.params.dict
+  const trimmedRouteDict = String(routeDict || '').trim()
+  if (trimmedRouteDict) return trimmedRouteDict
+  return props.browseData.scope || 'all'
+})
 const activeBasePath = computed(() => {
   if (activeScopeId.value === 'all') return '/browse'
   return `/browse/${encodeURIComponent(activeScopeId.value)}`

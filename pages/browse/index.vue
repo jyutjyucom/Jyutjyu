@@ -103,7 +103,7 @@ const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('
   lazy: true
 })
 
-const displayedBrowseData = ref<BrowseResponse | null>(null)
+const displayedBrowseData = useState<BrowseResponse | null>('browse-displayed-data', () => null)
 watch(browseData, (value) => {
   if (value) {
     displayedBrowseData.value = value
