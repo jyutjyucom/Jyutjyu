@@ -370,6 +370,7 @@ const isDictionariesExpanded = ref(false)
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
 const mobileIndex = useState<number>('home-mobile-index', () => 0)
+const hasWarmedBrowse = useState<boolean>('home-browse-warmed', () => false)
 const loadingRandomEntries = ref(false)
 
 const { getRandomRecommendedEntries } = useSearch()
@@ -461,6 +462,11 @@ const nextMobileEntry = () => {
 onMounted(() => {
   if (randomEntries.value.length === 0) {
     refreshRandomEntries()
+  }
+
+  if (!hasWarmedBrowse.value) {
+    hasWarmedBrowse.value = true
+    void $fetch('/api/browse').catch(() => {})
   }
 })
 
