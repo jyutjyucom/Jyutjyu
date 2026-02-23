@@ -464,7 +464,7 @@ const messagesYueHant = {
     noResultsDescription: '可以試下其他關鍵字或者粵拼',
     noResultsTipsTitle: '搜尋小貼士：',
     noResultsTip1: '可以試下用繁體字或者簡體字',
-    noResultsTip2: '可以試下用粵拼搜尋（好似: nei5 hou2）',
+    noResultsTip2: '可以試下用粵拼搜尋（nei5 hou2）',
     noResultsTip3: '檢查下拼寫啱唔啱',
     noResultsTip4: '可以試下用再簡短啲嘅關鍵詞',
     startSearchTitle: '輸入關鍵詞開始搜尋',

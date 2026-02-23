@@ -28,6 +28,7 @@ interface CachedSearchResult {
  * 搜索缓存管理
  */
 class SearchCache {
+  private version = 'v2'
   private cache = new Map<string, CachedSearchResult>()
   private maxSize = 50 // 最大缓存50个搜索结果
   private maxAge = 30 * 60 * 1000 // 缓存30分钟
@@ -37,7 +38,7 @@ class SearchCache {
    */
   private generateKey(query: string, options: SearchOptions): string {
     const { limit = 100, searchDefinition = false } = options
-    return `${query.trim().toLowerCase()}:${limit}:${searchDefinition ? 'reverse' : 'normal'}`
+    return `${this.version}:${query.trim().toLowerCase()}:${limit}:${searchDefinition ? 'reverse' : 'normal'}`
   }
 
   /**

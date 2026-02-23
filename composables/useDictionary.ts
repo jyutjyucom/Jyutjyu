@@ -56,6 +56,14 @@ export interface BasicSearchOptions {
   onResults?: (entries: DictionaryEntry[], isComplete: boolean) => void
 }
 
+const trimEdgePunctuation = (value: string): string => {
+  return value.replace(/^[\p{P}\p{S}\s]+|[\p{P}\p{S}\s]+$/gu, '').trim()
+}
+
+const stripAllPunctuation = (value: string): string => {
+  return value.replace(/[\p{P}\p{S}\s]+/gu, '')
+}
+
 /**
  * 词典数据管理
  */
@@ -128,14 +136,16 @@ export const useDictionary = () => {
     
     if (!normalizedQuery) return []
 
-    const firstChar = normalizedQuery[0]
+    const queryChars = Array.from(normalizedQuery)
+    const firstChineseChar = queryChars.find(char => /[\u3400-\u9fff]/.test(char))
+    const firstChar = firstChineseChar || queryChars[0]
 
     // 检查首字符是否为汉字
     if (!firstChar) {
       return []
     }
 
-    const isChineseFirstChar = /[\u4e00-\u9fa5]/.test(firstChar)
+    const isChineseFirstChar = /[\u3400-\u9fff]/.test(firstChar)
 
     if (isChineseFirstChar) {
       // 汉字查询：使用 headwordIndex 查找对应的分片
@@ -174,10 +184,11 @@ export const useDictionary = () => {
       return Array.from(chunks)
     }
     
-    // 中长度的非汉字查询（3+字符）→ 只加载首字母分片
-    // 原因：拼音/英文查询的首字母对应分片文件名
-    if (manifest.chunks[firstChar]) {
-      chunks.add(firstChar)
+    // 中长度的非汉字查询（3+字符）→ 优先加载首个字母/数字分片
+    // 原因：拼音/英文查询的首字母通常对应分片文件名
+    const firstAlphaNumericChar = queryChars.find(char => /[a-z0-9]/i.test(char)) || firstChar
+    if (firstAlphaNumericChar && manifest.chunks[firstAlphaNumericChar]) {
+      chunks.add(firstAlphaNumericChar)
     }
     
     return Array.from(chunks)
@@ -424,12 +435,28 @@ export const useDictionary = () => {
     const { toSimplified, toTraditional, ensureInitialized } = useChineseConverter()
     await ensureInitialized()
     
-    // 生成搜索词的所有变体（原文、简体、繁体）
-    const queryVariants = [
-      normalizedQuery,
-      toSimplified(normalizedQuery).toLowerCase(),
-      toTraditional(normalizedQuery).toLowerCase()
-    ].filter((v, i, arr) => arr.indexOf(v) === i) // 去重
+    // 生成搜索词的所有变体（原文、去前后标点、去全部标点 + 简繁体）
+    const querySeeds = new Set<string>()
+    querySeeds.add(normalizedQuery)
+
+    const edgeTrimmed = trimEdgePunctuation(normalizedQuery)
+    if (edgeTrimmed) {
+      querySeeds.add(edgeTrimmed)
+    }
+
+    const stripped = stripAllPunctuation(normalizedQuery)
+    if (stripped) {
+      querySeeds.add(stripped)
+    }
+
+    const queryVariants = Array.from(querySeeds)
+      .flatMap((seed) => [
+        seed,
+        toSimplified(seed).toLowerCase(),
+        toTraditional(seed).toLowerCase()
+      ])
+      .filter(Boolean)
+      .filter((v, i, arr) => arr.indexOf(v) === i)
 
     // 收集所有结果
     const allResultsWithPriority: Array<{entry: DictionaryEntry, priority: number, secondaryScore: number}> = []
@@ -851,4 +878,3 @@ export const useDictionary = () => {
     getRandomRecommendedEntries
   }
 }
-
