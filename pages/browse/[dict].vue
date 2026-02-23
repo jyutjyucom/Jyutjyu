@@ -20,12 +20,27 @@
           {{ t('browse.title') }}
         </h1>
 
-        <div v-if="pending" class="text-center py-16">
+        <div v-if="pending && !displayedBrowseData" class="text-center py-16">
           <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
 
-        <template v-else-if="browseData">
-          <BrowseDictionaryBrowser :browse-data="browseData" />
+        <div
+          v-else-if="error && !displayedBrowseData"
+          class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 px-4 py-6 text-center text-sm text-red-700 dark:text-red-300"
+        >
+          <p class="mb-3">
+            {{ error.statusMessage || 'Failed to load browse data' }}
+          </p>
+          <button
+            class="px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+            @click="retryBrowseLoad"
+          >
+            {{ t('common.searchButton') }}
+          </button>
+        </div>
+
+        <template v-else-if="displayedBrowseData">
+          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" />
         </template>
       </div>
     </main>
@@ -49,6 +64,18 @@ const DEFAULT_PAGE_SIZE = 100
 const ALLOWED_SORT_BY = new Set(['headword', 'jyutping'])
 const DEFAULT_SORT_BY = 'headword'
 
+interface BrowseResponse {
+  headwords: string[]
+  total: number
+  allTotal: number
+  page: number
+  totalPages: number
+  pageSize: number
+  sort: 'headword' | 'jyutping'
+  scope: string
+  dictionaries: Array<{ id: string; label: string; total: number }>
+}
+
 const activeDictId = computed(() => String(route.params.dict || '').trim())
 const currentPage = computed(() => Math.max(1, parseInt(String(route.query.page || '1')) || 1))
 const currentPageSize = computed(() => {
@@ -68,17 +95,7 @@ const handleSearch = () => {
   }
 }
 
-const { data: browseData, pending, error } = await useFetch<{
-  headwords: string[]
-  total: number
-  allTotal: number
-  page: number
-  totalPages: number
-  pageSize: number
-  sort: 'headword' | 'jyutping'
-  scope: string
-  dictionaries: Array<{ id: string; label: string; total: number }>
-}>('/api/browse', {
+const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('/api/browse', {
   key: () => `browse:${activeDictId.value}:${currentPage.value}:${currentPageSize.value}:${currentSortBy.value}`,
   query: computed(() => {
     const query: Record<string, string | number> = {
@@ -91,14 +108,19 @@ const { data: browseData, pending, error } = await useFetch<{
 
     return query
   }),
-  server: true
+  server: false,
+  lazy: true
 })
 
-if (error.value) {
-  throw createError({
-    statusCode: error.value.statusCode || 500,
-    statusMessage: error.value.statusMessage || 'Failed to load browse scope'
-  })
+const displayedBrowseData = ref<BrowseResponse | null>(null)
+watch(browseData, (value) => {
+  if (value) {
+    displayedBrowseData.value = value
+  }
+}, { immediate: true })
+
+const retryBrowseLoad = () => {
+  void refresh()
 }
 
 const activeDictionaryLabel = computed(() => {
@@ -108,7 +130,7 @@ const activeDictionaryLabel = computed(() => {
     return getLocalizedValue(matched.name, activeDictId.value)
   }
 
-  const fallback = browseData.value?.dictionaries?.find((dict) => dict.id === activeDictId.value)
+  const fallback = displayedBrowseData.value?.dictionaries?.find((dict) => dict.id === activeDictId.value)
   return fallback?.label || activeDictId.value
 })
 

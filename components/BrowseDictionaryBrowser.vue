@@ -110,9 +110,21 @@
                 {{ t('browse.prevPage') }}
               </span>
 
-              <span class="text-sm text-gray-500 dark:text-gray-400 px-1">
-                {{ t('browse.pageInfo', { page: browseData.page, total: browseData.totalPages }) }}
-              </span>
+              <label class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 px-1">
+                <span>{{ t('browse.pageInputPrefix') }}</span>
+                <input
+                  v-model="pageInput"
+                  type="number"
+                  min="1"
+                  :max="browseData.totalPages"
+                  :disabled="loading"
+                  class="w-16 px-2 py-1 rounded-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center text-gray-900 dark:text-gray-100 disabled:opacity-60"
+                  :aria-label="t('browse.pageInfo', { page: browseData.page, total: browseData.totalPages })"
+                  @keydown.enter.prevent="commitPageInput"
+                  @blur="commitPageInput"
+                >
+                <span>/ {{ browseData.totalPages }} {{ t('browse.pageInputSuffix') }}</span>
+              </label>
 
               <NuxtLink
                 v-if="browseData.page < browseData.totalPages"
@@ -132,7 +144,17 @@
         </div>
 
         <div
-          v-if="browseData.headwords.length > 0"
+          v-if="loading"
+          class="my-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm min-h-[18rem] flex items-center justify-center"
+        >
+          <div class="text-center text-gray-500 dark:text-gray-400">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            <p class="mt-3 text-sm">{{ t('common.loading') }}</p>
+          </div>
+        </div>
+
+        <div
+          v-else-if="browseData.headwords.length > 0"
           class="my-4 shadow-sm grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 rounded-xl overflow-hidden bg-white dark:bg-gray-800"
         >
           <NuxtLink
@@ -153,7 +175,7 @@
         </div>
 
         <BrowsePagination
-          v-if="browseData.totalPages > 1"
+          v-if="!loading && browseData.totalPages > 1"
           :page="browseData.page"
           :total-pages="browseData.totalPages"
           :base-path="activeBasePath"
@@ -186,9 +208,12 @@ interface BrowseResponse {
   dictionaries: BrowseDictionaryScope[]
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   browseData: BrowseResponse
-}>()
+  loading?: boolean
+}>(), {
+  loading: false
+})
 
 const DEFAULT_PAGE_SIZE = 100
 const DEFAULT_SORT_BY: BrowseSort = 'headword'
@@ -253,6 +278,11 @@ const safeSortBy = computed<BrowseSort>(() => {
   return sortOptions.includes(sort) ? sort : DEFAULT_SORT_BY
 })
 
+const pageInput = ref(String(props.browseData.page))
+watch(() => props.browseData.page, (page) => {
+  pageInput.value = String(page)
+})
+
 const buildScopePath = (
   scopeId: string,
   page = 1,
@@ -300,5 +330,27 @@ const handleSortChange = (event: Event) => {
     ? rawSort as BrowseSort
     : DEFAULT_SORT_BY
   void navigateTo(buildScopePath(activeScopeId.value, 1, props.browseData.pageSize, safeSort))
+}
+
+const commitPageInput = () => {
+  if (props.loading) return
+
+  const trimmed = pageInput.value.trim()
+  if (!trimmed) {
+    pageInput.value = String(props.browseData.page)
+    return
+  }
+
+  const parsed = Number.parseInt(trimmed, 10)
+  if (!Number.isFinite(parsed)) {
+    pageInput.value = String(props.browseData.page)
+    return
+  }
+
+  const targetPage = Math.max(1, Math.min(props.browseData.totalPages, parsed))
+  pageInput.value = String(targetPage)
+
+  if (targetPage === props.browseData.page) return
+  void navigateTo(buildScopePath(activeScopeId.value, targetPage, props.browseData.pageSize, safeSortBy.value))
 }
 </script>
