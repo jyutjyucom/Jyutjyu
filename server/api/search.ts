@@ -37,6 +37,16 @@ interface SearchQuery {
   mode?: 'normal' | 'reverse'
 }
 
+const extractKeywordStrings = (value: unknown): string[] => {
+  if (typeof value === 'string') {
+    return [value]
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(item => extractKeywordStrings(item))
+  }
+  return []
+}
+
 export default defineEventHandler(async (event) => {
   const query = getQuery<SearchQuery>(event)
   const { q, limit = '50', dict, mode = 'normal' } = query
@@ -355,9 +365,15 @@ async function fallbackSearch(
       
       // 5. 关键词匹配
       if (priority === 0 && entry.keywords) {
-        const keywordMatch = entry.keywords.some((kw: string) => {
-          const kwLower = kw.toLowerCase()
-          return queryVariants.some(qv => kwLower.includes(qv))
+        const rawKeywords = Array.isArray(entry.keywords)
+          ? (entry.keywords as unknown[])
+          : []
+        const keywordMatch = rawKeywords.some((keyword) => {
+          const keywordValues = extractKeywordStrings(keyword)
+          return keywordValues.some((kw) => {
+            const kwLower = kw.toLowerCase()
+            return queryVariants.some(qv => kwLower.includes(qv))
+          })
         })
         if (keywordMatch) {
           priority = 50

@@ -39,7 +39,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-            {{ `返去 ${searchResultCount ?? '...'} 條搜尋結果` }}
+            {{ `${searchResultCount ?? '...'} 條搜尋結果` }}
           </NuxtLink>
           <h1 class="mt-4 mx-2 text-4xl font-bold text-gray-900 dark:text-gray-100 break-words">
             {{ wordData.canonical_headword }}

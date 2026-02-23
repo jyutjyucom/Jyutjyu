@@ -23,6 +23,13 @@ const chunkManifests: ManifestCache = {}
 
 // 分片词典列表缓存
 let chunkedDictionaries: Array<{id: string, chunk_dir: string}> | null = null
+let cachedDictionaryIndex: any | null = null
+let dictionaryIndexPromise: Promise<any | null> | null = null
+
+const fallbackChunkedDictionaries: Array<{id: string, chunk_dir: string}> = [
+  { id: 'hk-cantowords', chunk_dir: 'cantowords' },
+  { id: 'wiktionary-cantonese', chunk_dir: 'wiktionary' }
+]
 
 // 搜索索引结构
 interface SearchIndex {
@@ -64,10 +71,54 @@ const stripAllPunctuation = (value: string): string => {
   return value.replace(/[\p{P}\p{S}\s]+/gu, '')
 }
 
+const extractKeywordStrings = (value: unknown): string[] => {
+  if (typeof value === 'string') {
+    return [value]
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(item => extractKeywordStrings(item))
+  }
+  return []
+}
+
 /**
  * 词典数据管理
  */
 export const useDictionary = () => {
+  const loadDictionaryIndex = async (): Promise<any | null> => {
+    if (!process.client) {
+      return null
+    }
+
+    if (cachedDictionaryIndex) {
+      return cachedDictionaryIndex
+    }
+
+    if (dictionaryIndexPromise) {
+      return dictionaryIndexPromise
+    }
+
+    dictionaryIndexPromise = (async () => {
+      try {
+        const response = await fetch('/dictionaries/index.json')
+        if (!response.ok) {
+          console.error('获取词典索引失败')
+          return null
+        }
+        const indexData = await response.json()
+        cachedDictionaryIndex = indexData
+        return indexData
+      } catch (error) {
+        console.error('加载词典索引失败:', error)
+        return null
+      } finally {
+        dictionaryIndexPromise = null
+      }
+    })()
+
+    return dictionaryIndexPromise
+  }
+
   /**
    * 加载分片 manifest
    */
@@ -104,9 +155,8 @@ export const useDictionary = () => {
     }
     
     try {
-      const response = await fetch('/dictionaries/index.json')
-      if (response.ok) {
-        const indexData = await response.json()
+      const indexData = await loadDictionaryIndex()
+      if (indexData) {
         const result = (indexData.dictionaries || [])
           .filter((d: any) => d.chunked && d.chunk_dir)
           .map((d: any) => ({ id: d.id, chunk_dir: d.chunk_dir }))
@@ -116,7 +166,10 @@ export const useDictionary = () => {
     } catch (error) {
       console.error('获取分片词典列表失败:', error)
     }
-    return []
+
+    // 兜底：避免索引请求偶发失败导致分片词典完全不可搜索
+    chunkedDictionaries = fallbackChunkedDictionaries
+    return chunkedDictionaries
   }
 
   /**
@@ -218,13 +271,10 @@ export const useDictionary = () => {
     cachePromise = (async () => {
       try {
         // 1. 先获取词典索引
-        const indexResponse = await fetch('/dictionaries/index.json')
-        if (!indexResponse.ok) {
-          console.error('获取词典索引失败')
+        const indexData = await loadDictionaryIndex()
+        if (!indexData) {
           return []
         }
-        
-        const indexData = await indexResponse.json()
         const dictionaries = indexData.dictionaries || []
         
         if (dictionaries.length === 0) {
@@ -430,6 +480,11 @@ export const useDictionary = () => {
     }
 
     const normalizedQuery = query.trim().toLowerCase()
+    const queryChars = Array.from(normalizedQuery)
+    const firstVisibleChar = queryChars.find(char => !/\s/.test(char)) || ''
+    const hasChineseChars = queryChars.some(char => /[\u3400-\u9fff]/.test(char))
+    const startsWithNonChinese = firstVisibleChar ? !/[\u3400-\u9fff]/.test(firstVisibleChar) : false
+    const needsMixedQueryChunkFallback = hasChineseChars && startsWithNonChinese
     
     // 获取简繁体转换器并确保已初始化
     const { toSimplified, toTraditional, ensureInitialized } = useChineseConverter()
@@ -558,9 +613,15 @@ export const useDictionary = () => {
         
         // 6. 关键词匹配（支持简繁体）
         if (priority === 0 && entry.keywords) {
-          const keywordMatch = entry.keywords.some(kw => {
-            const kwLower = kw.toLowerCase()
-            return queryVariants.some(qv => kwLower.includes(qv))
+          const rawKeywords = Array.isArray(entry.keywords)
+            ? (entry.keywords as unknown[])
+            : []
+          const keywordMatch = rawKeywords.some((keyword) => {
+            const keywordValues = extractKeywordStrings(keyword)
+            return keywordValues.some((kw) => {
+              const kwLower = kw.toLowerCase()
+              return queryVariants.some(qv => kwLower.includes(qv))
+            })
           })
           if (keywordMatch) {
             priority = 50
@@ -625,6 +686,52 @@ export const useDictionary = () => {
         const manifest = await loadChunkManifest(chunk_dir)
         
         if (manifest) {
+          const processedChunks = new Set<string>()
+          const processChunk = async (chunk: string) => {
+            if (!manifest.chunks?.[chunk] || processedChunks.has(chunk)) {
+              return
+            }
+
+            processedChunks.add(chunk)
+            const chunkKey = `${chunk_dir}_${chunk}`
+            let chunkEntries: DictionaryEntry[] = []
+
+            // 检查缓存
+            if (chunkCache[chunkKey]) {
+              chunkEntries = chunkCache[chunkKey]
+            } else {
+              try {
+                const response = await fetch(`/dictionaries/${chunk_dir}/${chunk}.json`)
+                if (response.ok) {
+                  const data = await response.json()
+                  if (Array.isArray(data)) {
+                    chunkCache[chunkKey] = data
+                    chunkEntries = data
+                    // 构建索引
+                    buildSearchIndex(data)
+                  }
+                }
+              } catch (error) {
+                console.error(`加载分片失败 ${chunk_dir}/${chunk}.json:`, error)
+              }
+            }
+
+            // 处理当前分片
+            let hasNewResults = false
+            for (const entry of chunkEntries) {
+              const result = processEntry(entry)
+              if (result) {
+                allResultsWithPriority.push({ entry, ...result })
+                hasNewResults = true
+              }
+            }
+
+            // 如果有新结果，推送更新
+            if (onResults && hasNewResults) {
+              sortAndPush([...allResultsWithPriority], false)
+            }
+          }
+
           // 确定需要加载的分片
           let requiredChunks: string[]
           
@@ -637,45 +744,18 @@ export const useDictionary = () => {
             requiredChunks = getRequiredChunks(normalizedQuery, manifest)
           }
           
-          if (requiredChunks.length > 0) {
-            // 逐个分片加载并搜索，流式返回结果
-            for (const chunk of requiredChunks) {
-              const chunkKey = `${chunk_dir}_${chunk}`
-              let chunkEntries: DictionaryEntry[] = []
-              
-              // 检查缓存
-              if (chunkCache[chunkKey]) {
-                chunkEntries = chunkCache[chunkKey]
-              } else {
-                try {
-                  const response = await fetch(`/dictionaries/${chunk_dir}/${chunk}.json`)
-                  if (response.ok) {
-                    const data = await response.json()
-                    if (Array.isArray(data)) {
-                      chunkCache[chunkKey] = data
-                      chunkEntries = data
-                      // 构建索引
-                      buildSearchIndex(data)
-                    }
-                  }
-                } catch (error) {
-                  console.error(`加载分片失败 ${chunk_dir}/${chunk}.json:`, error)
-                }
-              }
-              
-              // 处理当前分片
-              let hasNewResults = false
-              for (const entry of chunkEntries) {
-                const result = processEntry(entry)
-                if (result) {
-                  allResultsWithPriority.push({ entry, ...result })
-                  hasNewResults = true
-                }
-              }
-              
-              // 如果有新结果，推送更新
-              if (onResults && hasNewResults) {
-                sortAndPush([...allResultsWithPriority], false)
+          // 逐个分片加载并搜索
+          for (const chunk of requiredChunks) {
+            await processChunk(chunk)
+          }
+
+          // 混合查询（例如 "5號電池"）首字符无法稳定映射到分片时，补全扫描剩余分片避免漏结果
+          if (!searchDefinition && needsMixedQueryChunkFallback) {
+            const fallbackChunks = Object.keys(manifest.chunks || {}).filter(chunk => !processedChunks.has(chunk))
+            if (fallbackChunks.length > 0) {
+              console.log(`🔁 混合查询补全扫描 ${chunk_dir} 剩余分片 (${fallbackChunks.length} 个)`)
+              for (const chunk of fallbackChunks) {
+                await processChunk(chunk)
               }
             }
           }
