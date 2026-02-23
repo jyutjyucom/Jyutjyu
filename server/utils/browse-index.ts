@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import type { DictionaryEntry } from '~/types/dictionary'
 import { getEntriesCollection } from './mongodb'
+import bundledDictionaryIndex from '~/content/dictionaries/index.json'
 
 interface DictionaryIndexItem {
   id: string
@@ -75,6 +76,10 @@ const DEFAULT_SORT: BrowseSort = 'headword'
 const ALLOWED_SORTS = new Set<BrowseSort>(['headword', 'jyutping'])
 const DICTIONARY_ROOT = resolve(process.cwd(), 'public/dictionaries')
 const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, 'index.json')
+
+const bundledDictionaries = Array.isArray((bundledDictionaryIndex as DictionaryIndex)?.dictionaries)
+  ? (bundledDictionaryIndex as DictionaryIndex).dictionaries
+  : []
 
 let browseDatasetCache: BrowseDataset | null = null
 let browseDatasetPromise: Promise<BrowseDataset> | null = null
@@ -193,6 +198,10 @@ const readDictionaryEntriesFile = async (filePath: string): Promise<DictionaryEn
 }
 
 const loadDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
+  if (bundledDictionaries.length > 0) {
+    return bundledDictionaries
+  }
+
   const raw = await readFile(DICTIONARY_INDEX_PATH, 'utf8')
   const parsed = JSON.parse(raw) as DictionaryIndex
   return Array.isArray(parsed?.dictionaries) ? parsed.dictionaries : []
@@ -413,9 +422,14 @@ const buildBrowseDataset = async (): Promise<BrowseDataset> => {
   if (getIsApiEnabled()) {
     try {
       return await buildBrowseDatasetFromApi()
-    } catch (error) {
-      console.error('Browse index (API mode) failed, fallback to JSON mode:', error)
-      return buildBrowseDatasetFromJson()
+    } catch (apiError) {
+      console.error('Browse index (API mode) failed, fallback to JSON mode:', apiError)
+      try {
+        return await buildBrowseDatasetFromJson()
+      } catch (jsonError) {
+        console.error('Browse index JSON fallback failed:', jsonError)
+        throw apiError
+      }
     }
   }
 

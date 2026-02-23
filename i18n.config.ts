@@ -1,1185 +1,711 @@
+import * as OpenCCModule from 'opencc-js'
+
+type MessageValue = string | MessageValue[] | MessageRecord
+type MessageRecord = { [key: string]: MessageValue }
+type MessageConverter = (text: string) => string
+type MessageOverrides = Record<string, string>
+type OpenCCOptions = {
+  from: 'cn' | 'tw' | 'twp' | 'hk' | 't'
+  to: 'cn' | 'tw' | 'twp' | 'hk' | 't'
+}
+
+const identityConverter: MessageConverter = (text) => text
+
+const openCCModuleRecord = OpenCCModule as unknown as Record<string, unknown>
+const resolvedOpenCC = ((openCCModuleRecord['default'] as Record<string, unknown> | undefined) ??
+  OpenCCModule) as {
+    Converter?: (options: OpenCCOptions) => MessageConverter
+  }
+
+const openCCConverterFactory = typeof resolvedOpenCC.Converter === 'function'
+  ? resolvedOpenCC.Converter
+  : null
+
+const createSafeConverter = (options: OpenCCOptions): MessageConverter => {
+  if (!openCCConverterFactory) {
+    console.warn('[i18n] OpenCC Converter unavailable, using identity converter.')
+    return identityConverter
+  }
+
+  try {
+    return openCCConverterFactory(options)
+  } catch (error) {
+    console.error('[i18n] OpenCC converter initialization failed, using identity converter:', error)
+    return identityConverter
+  }
+}
+
+const convertMessageValue = (value: MessageValue, converter: MessageConverter): MessageValue => {
+  if (typeof value === 'string') {
+    return converter(value)
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => convertMessageValue(item, converter))
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, nestedValue]) => [
+      key,
+      convertMessageValue(nestedValue, converter)
+    ])
+  )
+}
+
+const convertMessages = <T extends MessageRecord>(
+  messages: T,
+  converter: MessageConverter
+): T => convertMessageValue(messages, converter) as T
+
+const applyStringOverrides = <T extends MessageRecord>(
+  messages: T,
+  overrides: MessageOverrides
+): T => {
+  const next = convertMessages(messages, (text) => text)
+
+  for (const [path, value] of Object.entries(overrides)) {
+    const segments = path.split('.')
+    let cursor: Record<string, unknown> | undefined = next as Record<string, unknown>
+
+    for (let i = 0; i < segments.length - 1; i += 1) {
+      const segment = segments[i]!
+      const nested = cursor?.[segment]
+
+      if (!nested || typeof nested !== 'object' || Array.isArray(nested)) {
+        cursor = undefined
+        break
+      }
+
+      cursor = nested as Record<string, unknown>
+    }
+
+    const lastSegment = segments[segments.length - 1]
+
+    if (cursor && lastSegment) {
+      cursor[lastSegment] = value
+    }
+  }
+
+  return next
+}
+
+// 中文界面：使用繁体中文文案作为唯一维护源，并自动生成简体文案。
+const messagesZhHant = {
+  browse: {
+    title: '瀏覽詞條',
+    description: '瀏覽全部詞條',
+    metaDescription: '瀏覽粵語辭叢全部詞條',
+    entries: '{count} 條',
+    prevPage: '上一頁',
+    nextPage: '下一頁',
+    pageInfo: '第 {page} / {total} 頁',
+    allEntries: '全部詞條',
+    dictionaries: '詞典來源',
+    allSources: '全部詞典',
+    pageSize: '每頁數量'
+  },
+  common: {
+    siteName: '粵語辭叢',
+    siteSubtitle: 'Open Yue Dictionary Collection Platform',
+    siteDescription: '開放的粵語詞典聚合平台',
+    contribute: '參與貢獻',
+    contributeDescription: '本平台開源於 GitHub，歡迎外部貢獻',
+    github: 'GitHub',
+    contributeData: '貢獻數據',
+    aboutProject: '關於項目',
+    footerCopyright: '粵語辭叢 © 2025-2026 · 開源於',
+    searchPlaceholder: '搜尋詞語或粵拼...',
+    searchButton: '搜尋',
+    reverseSearch: '從釋義中反查',
+    reverseSearchTitle: '從釋義中反查詞語',
+    noDefinition: '暫無釋義',
+    clickToView: '點擊查看',
+    reverseSearchShort: '釋義反查',
+    examplesPrefix: '如：',
+    exampleSearchPrefix: '試下搜尋:',
+    loading: '載入中...',
+    changeBatch: '換一批',
+    next: '下一個',
+    recommendedEntries: '隨機詞條',
+    includedDictionaries: '收錄詞典',
+    totalEntriesPrefix: '共收錄',
+    totalEntriesSuffix: '條詞條',
+    moreDictionariesComing: '更多詞典陸續加入...',
+    viewLicense: '查看完整授權說明',
+    licenseLabel: '許可:',
+    licenseCommunityDisclaimer: '詞條內容由社羣編者負責，本網站不對內容負責。',
+    licenseScannedDisclaimerPrefix: '詞條內容由書籍作者負責。因採用 OCR 批量處理，難免有錯誤，如發現錯誤可在',
+    licenseScannedDisclaimerSuffix: '提出。',
+    licenseDetails: '查看詳情',
+    footerFriendLinks: '友情連結：',
+    footerJyutping: '粵拼',
+    footerJyutDict: '泛粵典',
+    footerJyutNet: '粵音資料集叢',
+    footerLicenseIntro: '收錄內容遵循不同授權協議',
+    footerOcrDisclaimerPrefix: '本站詞條內容由 OCR 自動轉換，如有錯漏，請多多',
+    searchHeader: '搜索結果',
+    searchResultsPrefix: '搜索結果:',
+    reverseSearchResultsPrefix: '反查結果:',
+    searching: '搜尋中...',
+    filterLabel: '篩選:',
+    sortLabel: '排序:',
+    allDictionaries: '全部詞典',
+    allDialects: '全部方言',
+    allTypes: '全部词元',
+    entryTypeCharacter: '字',
+    entryTypeWord: '詞',
+    entryTypePhrase: '短語',
+    clear: '清除',
+    showFirstPrefix: '顯示前',
+    showFirstSuffix: '條',
+    noResultsTitle: '沒有找到相關結果',
+    noResultsDescription: '試下其他關鍵詞或粵拼',
+    noResultsTipsTitle: '搜尋提示：',
+    noResultsTip1: '嘗試使用繁體字或簡體字',
+    noResultsTip2: '嘗試使用粵拼搜尋（如: nei5 hou2）',
+    noResultsTip3: '檢查拼寫是否正確',
+    noResultsTip4: '嘗試使用更簡短的關鍵詞',
+    startSearchTitle: '輸入關鍵詞開始搜尋',
+    startSearchDescription: '支援繁簡體、粵拼搜尋',
+    cardView: '卡片',
+    listView: '列表',
+    wordColumn: '詞彙',
+    jyutpingColumn: '粵拼',
+    definitionColumn: '釋義',
+    sourceColumn: '來源',
+    loadMore: '載入多 10 條',
+    loadingMore: '載入中...',
+    remainingSuffix: '條',
+    entriesCountSuffix: '條',
+    inProgress: '整理中',
+    moreDictionaries: '更多詞典陸續加入...',
+    prevDictionariesAria: '上一組詞典',
+    nextDictionariesAria: '下一組詞典',
+    switchEntryAria: '切換到第 {index} 個詞條',
+    switchDictionaryAria: '切換到第 {index} 個詞典',
+    languageSwitcherLabel: '介面語言',
+    langZhHans: '簡體中文',
+    langZhHant: '繁體中文',
+    langYueHans: '簡體粵文',
+    langYueHant: '粵文',
+    exactMatchLabel: '完全匹配',
+    otherResultsLabel: '其他相關結果',
+    sortByRelevance: '相關度',
+    sortByJyutping: '粵拼',
+    sortByHeadword: '詞頭',
+    sortByDictionary: '詞典',
+    optionsExpand: '展開選項',
+    optionsCollapse: '收起選項',
+    themeLight: '亮色模式',
+    themeDark: '暗色模式',
+    themeSystem: '跟隨系統',
+    themeToggle: '切換主題',
+    showMoreDictionaries: '顯示更多詞典 ({count} 個)',
+    showLess: '收起'
+  },
+  dictCard: {
+    placeholderWord: '有音無字',
+    originalPhonetic: '原書拼音: ',
+    variantWords: '異形詞: ',
+    standardWriting: '參考詞頭: ',
+    collectedBy: '收錄於 {count} 本詞典',
+    dialect: {
+      GZ: '廣州',
+      HK: '香港',
+      QZ: '欽州',
+      KP: '開平',
+      TS: '台山',
+      YUE: '粵語'
+    },
+    entryTypeCharacter: '字',
+    entryTypeWord: '詞',
+    entryTypePhrase: '短語',
+    collapse: '收起',
+    expand: '展開',
+    details: '詳情',
+    note: '備註：',
+    proofreaderNote: '校對者備註：',
+    etymology: '詞源：',
+    references: '參考文獻：',
+    seeAlso: '參見：',
+    usage: '用法:'
+  },
+  about: {
+    pageTitle: '關於',
+    metaDescription: '了解粵語辭叢項目的使命、內容授權政策和技術架構。我們致力於打造開放、包容、可持續的粵語詞典聚合平台。',
+    title: '關於粵語辭叢',
+    subtitle: 'Open Yue Dictionary Collection Platform - 開放的粵語詞典聚合平台',
+    missionTitle: '項目使命',
+    missionP1: '粵語辭叢致力於打造一個開放、包容、可持續的粵語詞典聚合平台，通過數字化手段保育和傳承粵語文化。',
+    missionP2: '我們相信，語言是文化的載體，詞典是文化的記憶。通過聚合多個來源的粵語詞典，我們希望為粵語學習者、研究者和愛好者提供一個便捷、準確、全面的查詢工具。',
+    backHome: '返回首頁',
+    licenseSectionTitle: '內容授權說明',
+    licenseIntro: '本平台所收錄的詞典內容根據來源分為兩類，每類都有明確的授權和使用限制：',
+    published: {
+      title: '出版詞典',
+      examples: '如《實用廣州話分類詞典》（麥耘、譚步雲編，廣東人民出版社，1997 年）、《廣州話俗語詞典》（歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010 年）等。',
+      copyrightTitle: '版權狀態',
+      copyright: '這些詞典內容受中華人民共和國著作權法保護，數據來源於互聯網上的公開掃描資源。',
+      disclaimerTitle: '內容免責',
+      disclaimer: '詞條內容由原書籍作者負責。本平台數據來源於 OCR 批量處理，因技術限制，難免存在識別錯誤或格式問題。如發現錯誤，歡迎通過 GitHub Issue 提出：',
+      currentUseTitle: '當前用途',
+      currentUse1: '技術原型驗證和演示',
+      currentUse2: '學術研究和探討',
+      currentUse3: '粵語數字化技術開發',
+      limitTitle: '使用限制',
+      limit1: '不得用於商業用途',
+      limit2: '不得進行二次分發或再授權',
+      limit3: '不得用於正式出版或產品發佈',
+      supportOriginal: '我們鼓勵用戶支持正版：如需正式使用這些詞典內容，請購買正版出版物或聯繫出版方獲得授權。'
+    },
+    community: {
+      title: '社羣協作詞典',
+      intro: '由開放社羣協作編寫的詞典，採用開放授權協議。',
+      disclaimer: '內容免責：社羣協作詞典的詞條內容均由其各自社羣的編者負責編寫和維護。本網站僅作為內容聚合展示平台，不對詞條內容的準確性、完整性或適用性承擔責任。如對具體詞條內容有疑問，請訪問原詞典網站或聯繫其編者團隊。',
+      licenseTitle: '許可協議',
+      allowedTitle: '允許的使用',
+      conditionsTitle: '使用條件',
+      wordsTitle: '粵典 (words.hk) - {count} 詞條',
+      wordsDesc: '香港粵語社羣詞典，收錄大量日常用語、俚語及現代詞彙，提供粵語和英語雙語釋義。',
+      allowed1: '非商業使用、複製、修改、發佈',
+      allowed2: '必須保留署名和版權告示',
+      commercialTitle: '商業使用',
+      commercialDesc: '需獲得授權（收入低於地區中位數 3 倍的小型個人業務可豁免）',
+      wordsCopyright: '版權持有人：香港辭書有限公司',
+      wiktTitle: '維基辭典 - {count} 詞條',
+      wiktDesc: '來自維基辭典的粵語詞條，由全球志願者協作編寫，內容豐富全面。',
+      wiktAllowed1: '商業使用：允許用於商業目的',
+      wiktAllowed2: '複製與分發：可以自由複製、分發、傳播',
+      wiktAllowed3: '修改與演繹：可以修改、混合、轉換或基於該作品創作',
+      wiktCond1: '署名：必須給予適當的署名，提供指向許可協議的鏈接',
+      wiktCond2: '相同方式共享：如對本作品進行修改，必須以相同許可協議分發',
+      wiktCopyright: '版權持有人：維基媒體基金會 & 維基辭典貢獻者'
+    },
+    original: {
+      title: '社羣原創詞表',
+      intro: '由方言愛好者、語言學習者、研究者等個人原創整理並貢獻的詞表內容。',
+      licenseTitle: '默認許可協議',
+      licenseDesc: '採用以下許可發佈：',
+      allowedTitle: '允許的使用',
+      allowed1: '複製與分享：可以自由複製、分發該內容',
+      allowed2: '改編：可以基於該內容進行修改、演繹',
+      allowed3: '非商業用途：僅限個人學習、研究等非盈利目的',
+      conditionsTitle: '使用條件',
+      conditions1: '署名：必須給出適當的署名，提供指向許可協議的鏈接',
+      conditions2: '標明修改：如進行了修改，需說明已作出的修改',
+      conditions3: '非商業性：不得將該內容用於商業目的',
+      attributionExample: '署名格式示例：',
+      attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
+      qzTitle: '欽州粵拼 - {count} 詞條',
+      qzDesc: '《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
+      qzAllowed1: '商業使用：允許用於商業目的',
+      qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
+      qzAllowed3: '修改與演繹：可以修改、混合、轉換或基於該作品創作',
+      qzConditions1: '保留版權聲明：必須保留原始版權聲明和許可協議',
+      qzConditions2: '相同方式共享：如對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
+      qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
+    },
+    webDict: {
+      title: '網絡公開詞典（協議不明）',
+      intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
+      tsTitle: '台山話英文字典 - {count} 詞條',
+      tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
+      tsLicense: '協議狀態',
+      tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
+      tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
+    },
+    rights: {
+      title: '權利聲明與聯絡方式',
+      intro: '我們尊重知識產權，致力於在法律框架內推動粵語文化的保育與傳承。',
+      contactIntro: '如您是權利人並對本平台收錄的內容有任何疑問，或希望修改、下架相關內容，請通過以下方式聯絡我們：',
+      response: '我們承諾在收到合理請求後的 7 個工作日內予以回應。'
+    },
+    tech: {
+      title: '技術棧',
+      frontendTitle: '前端',
+      dataTitle: '數據處理',
+      csvParsing: 'CSV 解析與驗證',
+      openccConversion: 'OpenCC 繁簡轉換'
+    },
+    contribute: {
+      title: '參與貢獻',
+      intro: '這是一個開源項目，我們歡迎各種形式的貢獻！',
+      guide: '查看貢獻指南（含授權政策）',
+      csvGuide: '數據錄入規範'
+    }
+  },
+  feedback: {
+    title: '反饋',
+    subtitle: '幫助我們改進粵語辭叢',
+    buttonTitle: '提交反饋',
+    buttonShort: '反饋',
+    type: {
+      label: '反饋類型',
+      bug: '網站BUG',
+      feature: '功能建議',
+      entryError: '詞條糾錯',
+    },
+    titleField: {
+      label: '標題',
+      placeholder: '簡要描述您的問題或建議'
+    },
+    description: {
+      label: '詳細描述',
+      placeholder: '請詳細說明您遇到的問題、使用建議或詞條錯誤...',
+      clear: '清空內容'
+    },
+    entry: {
+      word: {
+        label: '相關詞語',
+        placeholder: '請輸入有問題的詞語'
+      },
+      source: {
+        label: '來源詞典',
+        placeholder: '請選擇詞典來源'
+      }
+    },
+    contact: {
+      label: '聯絡方式（可選）',
+      placeholder: '電郵、社交帳號或其他聯絡方式',
+      hint: '可選，方便後續跟進'
+    },
+    submit: '提交反饋',
+    submitting: '提交中...',
+    cancel: '關閉',
+    success: {
+      message: '感謝反饋！您的反饋已提交，我們會認真處理。',
+      linkText: '查看反饋',
+      buttonLabel: '提交成功'
+    },
+    error: {
+      title: '提交失敗',
+      submitFailed: '提交失敗，請稍後重試或直接在GitHub上提交Issue。',
+      buttonLabel: '提交失敗'
+    }
+  }
+}
+
+// 粤文界面：使用繁体粤文文案作为唯一维护源，并自动生成简体粤文文案。
+const messagesYueHant = {
+  browse: {
+    title: '全部詞條',
+    description: '睇下全部詞條',
+    metaDescription: '瀏覽粵語辭叢全部詞條',
+    entries: '{count} 條',
+    prevPage: '上一頁',
+    nextPage: '下一頁',
+    pageInfo: '第 {page} / {total} 頁',
+    allEntries: '全部詞條',
+    dictionaries: '詞典來源',
+    allSources: '全部詞典',
+    pageSize: '每頁數量'
+  },
+  common: {
+    siteName: '粵語辭叢',
+    siteSubtitle: 'Open Yue Dictionary Collection Platform',
+    siteDescription: '開放嘅粵語詞典聚合平台',
+    contribute: '一齊嚟貢獻',
+    contributeDescription: '本平台係開源項目，歡迎外部貢獻',
+    github: 'GitHub',
+    contributeData: '貢獻數據',
+    aboutProject: '關於項目',
+    footerCopyright: '粵語辭叢 © 2025-2026 · 開源於',
+    searchPlaceholder: '揾下詞語或者粵拼...',
+    searchButton: '搜尋',
+    reverseSearch: '通过釋義反查',
+    reverseSearchTitle: '喺釋義入面反查詞語',
+    noDefinition: '暫時未有釋義',
+    clickToView: '點擊睇詳情',
+    reverseSearchShort: '釋義反查',
+    examplesPrefix: '例如：',
+    exampleSearchPrefix: '可以試下搜：',
+    loading: '載入緊...',
+    changeBatch: '換一批',
+    next: '下一個',
+    recommendedEntries: '隨機詞條',
+    includedDictionaries: '收錄詞典',
+    totalEntriesPrefix: '一共收錄咗',
+    totalEntriesSuffix: '條詞條',
+    moreDictionariesComing: '仲有更多詞典陸續會加入...',
+    viewLicense: '睇完整授權說明',
+    licenseLabel: '許可：',
+    licenseCommunityDisclaimer: '詞條內容由社羣編者負責，本網站唔對內容負責。',
+    licenseScannedDisclaimerPrefix: '詞條內容由書籍作者負責。因為用 OCR 批量處理，難免有錯誤，如果發現問題可以喺',
+    licenseScannedDisclaimerSuffix: '提出。',
+    licenseDetails: '睇詳情',
+    footerFriendLinks: '友情連結：',
+    footerJyutping: '粵拼',
+    footerJyutDict: '泛粵典',
+    footerJyutNet: '粵音資料集叢',
+    footerLicenseIntro: '收錄內容遵循唔同授權協議',
+    footerOcrDisclaimerPrefix: '本站詞條內容係 OCR 自動轉換嘅，如有錯漏，請多多',
+    searchHeader: '搜尋結果',
+    searchResultsPrefix: '搜尋結果：',
+    reverseSearchResultsPrefix: '反查結果：',
+    searching: '搜尋緊...',
+    filterLabel: '篩選：',
+    sortLabel: '排序：',
+    allDictionaries: '全部詞典',
+    allDialects: '全部方言',
+    allTypes: '全部詞元',
+    entryTypeCharacter: '字',
+    entryTypeWord: '詞',
+    entryTypePhrase: '短語',
+    clear: '清除',
+    showFirstPrefix: '顯示前',
+    showFirstSuffix: '條',
+    noResultsTitle: '搵唔到相關結果',
+    noResultsDescription: '可以試下其他關鍵字或者粵拼',
+    noResultsTipsTitle: '搜尋小貼士：',
+    noResultsTip1: '可以試下用繁體字或者簡體字',
+    noResultsTip2: '可以試下用粵拼搜尋（好似: nei5 hou2）',
+    noResultsTip3: '檢查下拼寫啱唔啱',
+    noResultsTip4: '可以試下用再簡短啲嘅關鍵詞',
+    startSearchTitle: '輸入關鍵詞開始搜尋',
+    startSearchDescription: '支援繁簡體同粵拼搜尋',
+    cardView: '卡片',
+    listView: '列表',
+    wordColumn: '詞彙',
+    jyutpingColumn: '粵拼',
+    definitionColumn: '釋義',
+    sourceColumn: '來源',
+    loadMore: '載入多 10 條',
+    loadingMore: '載入緊...',
+    remainingSuffix: '條',
+    entriesCountSuffix: '條',
+    inProgress: '整理緊',
+    moreDictionaries: '仲有更多詞典陸續會加入...',
+    prevDictionariesAria: '上一組詞典',
+    nextDictionariesAria: '下一組詞典',
+    switchEntryAria: '切換到第 {index} 個詞條',
+    switchDictionaryAria: '切換到第 {index} 個詞典',
+    languageSwitcherLabel: '介面語言',
+    langZhHans: '簡體中文',
+    langZhHant: '繁體中文',
+    langYueHans: '簡體粵文',
+    langYueHant: '粵文',
+    exactMatchLabel: '完全匹配',
+    otherResultsLabel: '其他相關結果',
+    sortByRelevance: '相關度',
+    sortByJyutping: '粵拼',
+    sortByHeadword: '詞頭',
+    sortByDictionary: '詞典',
+    optionsExpand: '展開選項',
+    optionsCollapse: '收起選項',
+    themeLight: '亮色模式',
+    themeDark: '暗色模式',
+    themeSystem: '跟隨系統',
+    themeToggle: '切換主題',
+    showMoreDictionaries: '顯示更多詞典 ({count} 個)',
+    showLess: '收起'
+  },
+  dictCard: {
+    placeholderWord: '有音無字',
+    originalPhonetic: '原書拼音: ',
+    variantWords: '異形詞: ',
+    standardWriting: '參考詞頭: ',
+    collectedBy: '收錄於 {count} 本詞典',
+    dialect: {
+      GZ: '廣州',
+      HK: '香港',
+      QZ: '欽州',
+      KP: '開平',
+      TS: '台山',
+      YUE: '粵語'
+    },
+    entryTypeCharacter: '字',
+    entryTypeWord: '詞',
+    entryTypePhrase: '短語',
+    collapse: '收起',
+    expand: '展開',
+    details: '詳情',
+    note: '備註：',
+    proofreaderNote: '校對者備註：',
+    etymology: '詞源：',
+    references: '參考文獻：',
+    seeAlso: '參見：',
+    usage: '用法:'
+  },
+  about: {
+    pageTitle: '關於',
+    metaDescription: '了解粵語辭叢項目嘅使命、內容授權政策同技術架構。我哋致力於打造開放、包容、可持續嘅粵語詞典聚合平台。',
+    title: '關於粵語辭叢',
+    subtitle: 'Open Yue Dictionary Collection Platform - 開放嘅粵語詞典聚合平台',
+    missionTitle: '使命',
+    missionP1: '粵語辭叢致力於建立一個先進實用嘅粵語詞典平台，用現代技術傳承同推廣粵語文化。',
+    missionP2: '通過聚合多個來源嘅粵語詞典，我哋為粵語學習者、研究者、愛好者提供一個方便又全面嘅查詢工具。',
+    backHome: '返回首頁',
+    licenseSectionTitle: '內容授權說明',
+    licenseIntro: '本平台收錄嘅詞典內容按來源大致分成兩類，每類都有相應嘅授權同使用限制：',
+    published: {
+      title: '出版詞典',
+      examples: '例如《實用廣州話分類詞典》（麥耘、譚步雲編，廣東人民出版社，1997 年）、《廣州話俗語詞典》（歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010 年）等。',
+      copyrightTitle: '版權狀態',
+      copyright: '呢啲詞典內容受中華人民共和國著作權法保護，數據來源係互聯網上公開嘅掃描資源。',
+      disclaimerTitle: '內容免責',
+      disclaimer: '詞條內容由原書籍作者負責。本平台數據來源於 OCR 批量處理，因技術限制，難免會有識別錯誤或者格式問題。如果你發現錯誤，歡迎通過 GitHub Issue 提出：',
+      currentUseTitle: '當前用途',
+      currentUse1: '技術原型驗證同演示',
+      currentUse2: '學術研究同探討',
+      currentUse3: '粵語數字化技術開發',
+      limitTitle: '使用限制',
+      limit1: '唔可以用於商業用途',
+      limit2: '唔可以進行二次分發或者再授權',
+      limit3: '唔可以用於正式出版或者產品發佈',
+      supportOriginal: '我哋鼓勵用戶支持正版：如果需要正式使用呢啲詞典內容，請購買正版出版物或者聯絡出版方攞授權。'
+    },
+    community: {
+      title: '社羣協作詞典',
+      intro: '由開放社羣協作編寫嘅詞典，採用開放授權協議。',
+      disclaimer: '內容免責：社羣協作詞典入面嘅詞條內容，全部都係由各自社羣嘅編者負責編寫同維護。本網站只係做內容聚合展示平台，唔對詞條內容嘅準確性、完整性或者適用性承擔責任。如果對具體詞條內容有疑問，請訪問原詞典網站或者聯絡相關編者團隊。',
+      licenseTitle: '許可協議',
+      allowedTitle: '允許嘅使用方式',
+      conditionsTitle: '使用條件',
+      wordsTitle: '粵典 (words.hk) - {count} 詞條',
+      wordsDesc: '香港粵語社羣詞典，收錄大量日常用語、俚語同現代詞彙，提供粵語同英語雙語釋義。',
+      allowed1: '非商業使用、複製、修改、發佈',
+      allowed2: '必須保留署名同版權告示',
+      commercialTitle: '商業使用',
+      commercialDesc: '需要另外攞授權（收入低過地區中位數 3 倍嘅小型個人業務可以豁免）',
+      wordsCopyright: '版權持有人：香港辭書有限公司',
+      wiktTitle: '維基辭典 - {count} 詞條',
+      wiktDesc: '來自維基辭典嘅粵語詞條，由全球志願者協作編寫，內容豐富全面。',
+      wiktAllowed1: '商業使用：允許用於商業目的',
+      wiktAllowed2: '複製與分發：可以自由複製、分發、傳播',
+      wiktAllowed3: '修改與演繹：可以修改、混合、轉換或者基於呢啲內容再創作',
+      wiktCond1: '署名：必須畀出適當署名，並且提供指向許可協議嘅鏈接',
+      wiktCond2: '相同方式共享：如果對作品作出修改，必須以相同許可協議再分發',
+      wiktCopyright: '版權持有人：維基媒體基金會 & 維基辭典貢獻者'
+    },
+    original: {
+      title: '社羣原創詞表',
+      intro: '由方言愛好者、語言學習者、研究者等個人原創整理並貢獻嘅詞表內容。',
+      licenseTitle: '默認許可協議',
+      licenseDesc: '採用以下許可發佈：',
+      allowedTitle: '允許嘅使用方式',
+      allowed1: '複製與分享：可以自由複製、分發相關內容',
+      allowed2: '改編：可以基於相關內容進行修改、演繹',
+      allowed3: '非商業用途：只限個人學習、研究等非盈利目的',
+      conditionsTitle: '使用條件',
+      conditions1: '署名：必須提供適當署名，並提供指向許可協議嘅鏈接',
+      conditions2: '標明修改：如果做咗修改，需要說明改動內容',
+      conditions3: '非商業性：唔可以將相關內容用於商業目的',
+      attributionExample: '署名格式示例：',
+      attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
+      qzTitle: '欽州粵拼 - {count} 詞條',
+      qzDesc: '《欽州白話》嘅詞頭同注音部分，收錄欽州話詞彙同粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
+      qzAllowed1: '商業使用：允許用於商業目的',
+      qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
+      qzAllowed3: '修改與演繹：可以修改、混合、轉換或者基於呢個作品創作',
+      qzConditions1: '保留版權聲明：必須保留原始版權聲明同許可協議',
+      qzConditions2: '相同方式共享：如果對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
+      qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
+    },
+    webDict: {
+      title: '網絡公開詞典（協議不明）',
+      intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
+      tsTitle: '台山話英文字典 - {count} 詞條',
+      tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
+      tsLicense: '協議狀態',
+      tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
+      tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
+    },
+    rights: {
+      title: '權利聲明與聯絡方式',
+      intro: '我哋尊重知識產權，致力於喺法律框架之下推動粵語文化嘅保育同傳承。',
+      contactIntro: '如果你係權利人，並且對本平台收錄內容有任何疑問，或者希望修改、下架相關內容，可以通過以下方式聯絡我哋：',
+      response: '我哋承諾喺收到合理請求之後嘅 7 個工作日內作出回應。'
+    },
+    tech: {
+      title: '技術棧',
+      frontendTitle: '前端',
+      dataTitle: '數據處理',
+      csvParsing: 'CSV 解析同驗證',
+      openccConversion: 'OpenCC 繁簡轉換'
+    },
+    contribute: {
+      title: '參與貢獻',
+      intro: '呢個係一個開源項目，我哋歡迎各種形式嘅貢獻！',
+      guide: '查看貢獻指南（含授權政策）',
+      csvGuide: '數據錄入規範'
+    }
+  },
+  feedback: {
+    title: '反饋',
+    subtitle: '幫助我哋改進粵語辭叢',
+    buttonTitle: '提交反饋',
+    buttonShort: '反饋',
+    type: {
+      label: '反饋類型',
+      bug: '網站BUG',
+      feature: '功能建議',
+      entryError: '詞條糾錯',
+    },
+    titleField: {
+      label: '標題',
+      placeholder: '簡要描述你嘅問題或建議'
+    },
+    description: {
+      label: '詳細描述',
+      placeholder: '請詳細講下你遇到嘅問題、建議或者詞條錯誤...',
+      clear: '清空內容'
+    },
+    entry: {
+      word: {
+        label: '相關詞語',
+        placeholder: '請輸入有問題嘅詞語'
+      },
+      source: {
+        label: '來源詞典',
+        placeholder: '請選擇詞典來源'
+      }
+    },
+    contact: {
+      label: '聯絡方式（可選）',
+      placeholder: '電郵、社交帳號或其他聯絡方式',
+      hint: '可選，方便後續跟進'
+    },
+    submit: '提交反饋',
+    submitting: '提交中...',
+    cancel: '關閉',
+    success: {
+      message: '多謝反饋！你嘅反饋已提交，我哋會認真處理。',
+      linkText: '查看反饋',
+      buttonLabel: '提交成功'
+    },
+    error: {
+      title: '提交失敗',
+      submitFailed: '提交失敗，請稍後再試，或者直接喺 GitHub 提 Issue。',
+      buttonLabel: '提交失敗'
+    }
+  }
+}
+
+// 如 OpenCC 个别词汇转换不符合预期，可在这里按路径覆盖。
+const zhHansOverrides: MessageOverrides = {}
+const yueHansOverrides: MessageOverrides = {}
+
+const toSimplifiedZh = createSafeConverter({ from: 't', to: 'cn' })
+const toSimplifiedYue = createSafeConverter({ from: 'hk', to: 'cn' })
+
+const messagesZhHans = applyStringOverrides(
+  convertMessages(messagesZhHant, toSimplifiedZh),
+  zhHansOverrides
+)
+
+const messagesYueHans = applyStringOverrides(
+  convertMessages(messagesYueHant, toSimplifiedYue),
+  yueHansOverrides
+)
+
 export default defineI18nConfig(() => ({
   legacy: false,
   locale: 'zh-Hans',
   fallbackLocale: 'zh-Hans',
   messages: {
-    'zh-Hans': {
-      browse: {
-        title: '浏览词条',
-        description: '浏览全部词条',
-        metaDescription: '浏览粤语辞丛全部词条',
-        entries: '{count} 条',
-        prevPage: '上一页',
-        nextPage: '下一页',
-        pageInfo: '第 {page} / {total} 页',
-        allEntries: '全部词条',
-        dictionaries: '词典来源',
-        allSources: '全部词典',
-        pageSize: '每页数量'
-      },
-      common: {
-        siteName: '粤语辞丛',
-        siteSubtitle: 'Open Yue Dictionary Collection Platform',
-        siteDescription: '开放的粤语词典聚合平台',
-        contribute: '参与贡献',
-        contributeDescription: '这是一个开源项目，欢迎贡献数据、代码或建议',
-        github: 'GitHub',
-        contributeData: '贡献数据',
-        aboutProject: '关于项目',
-        footerCopyright: '粤语辞丛 © 2025-2026 · 开源于',
-        searchPlaceholder: '搜索词语或粤拼...',
-        searchButton: '搜索',
-        reverseSearch: '通过释义反查',
-        reverseSearchTitle: '从释义中反查词语',
-        noDefinition: '暂无释义',
-        clickToView: '点击查看',
-        reverseSearchShort: '释义反查',
-        examplesPrefix: '如：',
-        exampleSearchPrefix: '试试搜索:',
-        loading: '加载中...',
-        changeBatch: '换一批',
-        next: '下一个',
-        recommendedEntries: '随机词条',
-        includedDictionaries: '收录词典',
-        totalEntriesPrefix: '共收录',
-        totalEntriesSuffix: '条词条',
-        moreDictionariesComing: '更多词典陆续加入...',
-        viewLicense: '查看完整授权说明',
-        licenseLabel: '许可:',
-        licenseCommunityDisclaimer: '词条内容由社区编者负责，本网站不对内容负责。',
-        licenseScannedDisclaimerPrefix: '词条内容由书籍作者负责。因采用OCR批量处理，难免有错误，如发现错误可在',
-        licenseScannedDisclaimerSuffix: '提出。',
-        licenseDetails: '查看详情',
-        footerFriendLinks: '友情链接：',
-        footerJyutping: '粤拼',
-        footerJyutDict: '泛粤典',
-        footerJyutNet: '粤音资料集丛',
-        footerLicenseIntro: '收录内容遵循不同授权协议',
-        footerOcrDisclaimerPrefix: '本站词条内容由 OCR 自动转换，如有错漏，请多多',
-        searchHeader: '搜索结果',
-        searchResultsPrefix: '搜索结果:',
-        reverseSearchResultsPrefix: '反查结果:',
-        searching: '搜索中...',
-        filterLabel: '筛选:',
-        sortLabel: '排序:',
-        allDictionaries: '全部词典',
-        allDialects: '全部方言',
-        allTypes: '全部词元',
-        entryTypeCharacter: '字',
-        entryTypeWord: '词',
-        entryTypePhrase: '短语',
-        clear: '清除',
-        showFirstPrefix: '显示前',
-        showFirstSuffix: '条',
-        noResultsTitle: '没有找到相关结果',
-        noResultsDescription: '试试其他关键词或粤拼',
-        noResultsTipsTitle: '搜索提示：',
-        noResultsTip1: '尝试使用繁体字或简体字',
-        noResultsTip2: '尝试使用粤拼搜索（如: nei5 hou2）',
-        noResultsTip3: '检查拼写是否正确',
-        noResultsTip4: '尝试使用更简短的关键词',
-        startSearchTitle: '输入关键词开始搜索',
-        startSearchDescription: '支持繁简体、粤拼搜索',
-        cardView: '卡片',
-        listView: '列表',
-        wordColumn: '词汇',
-        jyutpingColumn: '粤拼',
-        definitionColumn: '释义',
-        sourceColumn: '来源',
-        loadMore: '加载更多',
-        loadingMore: '加载中...',
-        remainingSuffix: '条',
-        entriesCountSuffix: '条',
-        inProgress: '整理中',
-        moreDictionaries: '更多词典陆续加入...',
-        prevDictionariesAria: '上一组词典',
-        nextDictionariesAria: '下一组词典',
-        switchEntryAria: '切换到第 {index} 个词条',
-        switchDictionaryAria: '切换到第 {index} 个词典',
-        languageSwitcherLabel: '界面语言',
-        langZhHans: '简体中文',
-        langZhHant: '繁體中文',
-        langYueHans: '简体粤文',
-        langYueHant: '粤文',
-        exactMatchLabel: '完全匹配',
-        otherResultsLabel: '其他相关结果',
-        sortByRelevance: '相关度',
-        sortByJyutping: '粤拼',
-        sortByHeadword: '词头',
-        sortByDictionary: '词典',
-        optionsExpand: '展开选项',
-        optionsCollapse: '收起选项',
-        themeLight: '亮色模式',
-        themeDark: '暗色模式',
-        themeSystem: '跟随系统',
-        themeToggle: '切换主题',
-        showMoreDictionaries: '显示更多词典 ({count} 个)',
-        showLess: '收起'
-      },
-      dictCard: {
-        placeholderWord: '有音无字',
-        originalPhonetic: '原书拼音: ',
-        variantWords: '异形词: ',
-        standardWriting: '参考词头: ',
-        collectedBy: '收录于 {count} 本词典',
-        dialect: {
-          GZ: '广州',
-          HK: '香港',
-          QZ: '钦州',
-          KP: '开平',
-          TS: '台山',
-          YUE: '粤语'
-        },
-        entryTypeCharacter: '字',
-        entryTypeWord: '词',
-        entryTypePhrase: '短语',
-        collapse: '收起',
-        expand: '展开',
-        details: '详情',
-        note: '备注：',
-        proofreaderNote: '校对者备注：',
-        etymology: '词源：',
-        references: '参考文献：',
-        seeAlso: '参见：',
-        usage: '用法:'
-      },
-      about: {
-        pageTitle: '关于',
-        metaDescription: '了解粤语辞丛项目的使命、内容授权政策和技术架构。我们致力于打造开放、包容、可持续的粤语词典聚合平台。',
-        title: '关于粤语辞丛',
-        subtitle: 'Open Yue Dictionary Collection Platform - 开放的粤语词典聚合平台',
-        missionTitle: '项目使命',
-        missionP1: '粤语辞丛致力于打造一个开放、包容、可持续的粤语词典聚合平台，通过数字化手段保育和传承粤语文化。',
-        missionP2: '我们相信，语言是文化的载体，词典是文化的记忆。通过聚合多个来源的粤语词典，我们希望为粤语学习者、研究者和爱好者提供一个便捷、准确、全面的查询工具。',
-        backHome: '返回首页',
-        licenseSectionTitle: '内容授权说明',
-        licenseIntro: '本平台所收录的词典内容根据来源分为两类，每类都有明确的授权和使用限制：',
-        published: {
-          title: '出版词典',
-          examples: '如《实用广州话分类词典》（麦耘、谭步云编，广东人民出版社，1997年）、《广州话俗语词典》（欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年）等。',
-          copyrightTitle: '版权状态',
-          copyright: '这些词典内容受中华人民共和国著作权法保护，数据来源于互联网上的公开扫描资源。',
-          disclaimerTitle: '内容免责',
-          disclaimer: '词条内容由原书籍作者负责。本平台数据来源于 OCR 批量处理，因技术限制，难免存在识别错误或格式问题。如发现错误，欢迎通过 GitHub Issue 提出：',
-          currentUseTitle: '当前用途',
-          currentUse1: '技术原型验证和演示',
-          currentUse2: '学术研究和探讨',
-          currentUse3: '粤语数字化技术开发',
-          limitTitle: '使用限制',
-          limit1: '不得用于商业用途',
-          limit2: '不得进行二次分发或再授权',
-          limit3: '不得用于正式出版或产品发布',
-          supportOriginal: '我们鼓励用户支持正版：如需正式使用这些词典内容，请购买正版出版物或联系出版方获得授权。'
-        },
-        community: {
-          title: '社区协作词典',
-          intro: '由开放社区协作编写的词典，采用开放授权协议。',
-          disclaimer: '内容免责：社区协作词典的词条内容均由其各自社区的编者负责编写和维护。本网站仅作为内容聚合展示平台，不对词条内容的准确性、完整性或适用性承担责任。如对具体词条内容有疑问，请访问原词典网站或联系其编者团队。',
-          licenseTitle: '许可协议',
-          allowedTitle: '允许的使用',
-          conditionsTitle: '使用条件',
-          wordsTitle: '粵典 (words.hk) - {count} 词条',
-          wordsDesc: '香港粤语社区词典，收录大量日常用语、俚语及现代词汇，提供粤语和英语双语释义。',
-          allowed1: '非商业使用、复制、修改、发布',
-          allowed2: '必须保留署名和版权告示',
-          commercialTitle: '商业使用',
-          commercialDesc: '需获得授权（收入低于地区中位数 3 倍的小型个人业务可豁免）',
-          wordsCopyright: '版权持有人：香港辞书有限公司',
-          wiktTitle: '维基词典 - {count} 词条',
-          wiktDesc: '来自维基词典的粤语词条，由全球志愿者协作编写，内容丰富全面。',
-          wiktAllowed1: '商业使用：允许用于商业目的',
-          wiktAllowed2: '复制与分发：可以自由复制、分发、传播',
-          wiktAllowed3: '修改与演绎：可以修改、混合、转换或基于该作品创作',
-          wiktCond1: '署名：必须给予适当的署名，提供指向许可协议的链接',
-          wiktCond2: '相同方式共享：如对本作品进行修改，必须以相同许可协议分发',
-          wiktCopyright: '版权持有人：维基媒体基金会 & 维基词典贡献者'
-        },
-        original: {
-          title: '社区原创词表',
-          intro: '由方言爱好者、语言学习者、研究者等个人原创整理并贡献的词表内容。',
-          licenseTitle: '默认许可协议',
-          licenseDesc: '采用以下许可发布：',
-          allowedTitle: '允许的使用',
-          allowed1: '复制与分享：可以自由复制、分发该内容',
-          allowed2: '改编：可以基于该内容进行修改、演绎',
-          allowed3: '非商业用途：仅限个人学习、研究等非盈利目的',
-          conditionsTitle: '使用条件',
-          conditions1: '署名：必须给出适当的署名，提供指向许可协议的链接',
-          conditions2: '标明修改：如进行了修改，需说明已作出的修改',
-          conditions3: '非商业性：不得将该内容用于商业目的',
-          attributionExample: '署名格式示例：',
-          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
-          qzTitle: '欽州粵拼 - {count} 词条',
-          qzDesc: '《钦州白话》的词头及注音部分，收录钦州话词汇及粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发布。',
-          qzAllowed1: '商业使用：允许用于商业目的',
-          qzAllowed2: '复制与分发：可以自由复制、分发、传播',
-          qzAllowed3: '修改与演绎：可以修改、混合、转换或基于该作品创作',
-          qzConditions1: '保留版权声明：必须保留原始版权声明和许可协议',
-          qzConditions2: '相同方式共享：如对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
-          qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
-        },
-        webDict: {
-          title: '网络公开词典（协议不明）',
-          intro: '以下词典直接公开于网络，未标明具体授权协议。使用与再分发时请注明出处并尊重原作者。',
-          tsTitle: '台山話英文字典 - {count} 词条',
-          tsDesc: '台山话—英语网络词典，收录字头、词组及例句，提供台山话罗马字与汉语拼音，英文释义。',
-          tsLicense: '协议状态',
-          tsNotice: '数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。未标明具体协议。',
-          tsCopyright: '来源：https://www.chinfamilytree.com/hed/index.htm · 使用与再分发时请注明出处并尊重原作者。'
-        },
-        rights: {
-          title: '权利声明与联系方式',
-          intro: '我们尊重知识产权，致力于在法律框架内推动粤语文化的保育与传承。',
-          contactIntro: '如您是权利人并对本平台收录的内容有任何疑问，或希望修改、下架相关内容，请通过以下方式联系我们：',
-          response: '我们承诺在收到合理请求后的 7 个工作日内予以回应。'
-        },
-        tech: {
-          title: '技术栈',
-          frontendTitle: '前端',
-          dataTitle: '数据处理',
-          csvParsing: 'CSV 解析与验证',
-          openccConversion: 'OpenCC 繁简转换'
-        },
-        contribute: {
-          title: '参与贡献',
-          intro: '这是一个开源项目，我们欢迎各种形式的贡献！',
-          guide: '查看贡献指南（含授权政策）',
-          csvGuide: '数据录入规范'
-        }
-      },
-      feedback: {
-        title: '反馈',
-        subtitle: '帮助我们改进粤语辞丛',
-        buttonTitle: '提交反馈',
-        buttonShort: '反馈',
-        type: {
-          label: '反馈类型',
-          bug: '网站BUG',
-          feature: '功能建议',
-          entryError: '词条纠错'
-        },
-        titleField: {
-          label: '标题',
-          placeholder: '简要描述您的问题或建议'
-        },
-        description: {
-          label: '详细描述',
-          placeholder: '请详细说明您遇到的问题、使用建议或词条错误...',
-          clear: '清空內容'
-        },
-        entry: {
-          word: {
-            label: '相关词语',
-            placeholder: '请输入有问题的词语'
-          },
-          source: {
-            label: '来源词典',
-            placeholder: '请选择词典来源'
-          }
-        },
-        contact: {
-          label: '联系方式（可选）',
-          placeholder: '邮箱、社交账号或其他联系方式',
-          hint: '可选，便于后续跟进'
-        },
-        submit: '提交反馈',
-        submitting: '提交中...',
-        cancel: '关闭',
-        success: {
-          message: '感谢反馈！您的反馈已提交，我们会认真处理。',
-          linkText: '查看反馈',
-          buttonLabel: '提交成功'
-        },
-        error: {
-          title: '提交失败',
-          submitFailed: '提交失败，请稍后重试或直接在GitHub上提交Issue。',
-          buttonLabel: '提交失败'
-        }
-      }
-    },
-    // 暂时使用与简体中文相同的文案，后续可分别维护
-    'zh-Hant': {
-      browse: {
-        title: '瀏覽詞條',
-        description: '瀏覽全部詞條',
-        metaDescription: '瀏覽粵語辭叢全部詞條',
-        entries: '{count} 條',
-        prevPage: '上一頁',
-        nextPage: '下一頁',
-        pageInfo: '第 {page} / {total} 頁',
-        allEntries: '全部詞條',
-        dictionaries: '詞典來源',
-        allSources: '全部詞典',
-        pageSize: '每頁數量'
-      },
-      common: {
-        siteName: '粵語辭叢',
-        siteSubtitle: 'Open Yue Dictionary Collection Platform',
-        siteDescription: '開放的粵語詞典聚合平台',
-        contribute: '參與貢獻',
-        contributeDescription: '本平台開源於 GitHub，歡迎外部貢獻',
-        github: 'GitHub',
-        contributeData: '貢獻數據',
-        aboutProject: '關於項目',
-        footerCopyright: '粵語辭叢 © 2025-2026 · 開源於',
-        searchPlaceholder: '搜尋詞語或粵拼...',
-        searchButton: '搜尋',
-        reverseSearch: '從釋義中反查',
-        reverseSearchTitle: '從釋義中反查詞語',
-        noDefinition: '暫無釋義',
-        clickToView: '點擊查看',
-        reverseSearchShort: '釋義反查',
-        examplesPrefix: '如：',
-        exampleSearchPrefix: '試下搜尋:',
-        loading: '載入中...',
-        changeBatch: '換一批',
-        next: '下一個',
-        recommendedEntries: '隨機詞條',
-        includedDictionaries: '收錄詞典',
-        totalEntriesPrefix: '共收錄',
-        totalEntriesSuffix: '條詞條',
-        moreDictionariesComing: '更多詞典陸續加入...',
-        viewLicense: '查看完整授權說明',
-        licenseLabel: '許可:',
-        licenseCommunityDisclaimer: '詞條內容由社羣編者負責，本網站不對內容負責。',
-        licenseScannedDisclaimerPrefix: '詞條內容由書籍作者負責。因採用 OCR 批量處理，難免有錯誤，如發現錯誤可在',
-        licenseScannedDisclaimerSuffix: '提出。',
-        licenseDetails: '查看詳情',
-        footerFriendLinks: '友情連結：',
-        footerJyutping: '粵拼',
-        footerJyutDict: '泛粵典',
-        footerJyutNet: '粵音資料集叢',
-        footerLicenseIntro: '收錄內容遵循不同授權協議',
-        footerOcrDisclaimerPrefix: '本站詞條內容由 OCR 自動轉換，如有錯漏，請多多',
-        searchHeader: '搜索結果',
-        searchResultsPrefix: '搜索結果:',
-        reverseSearchResultsPrefix: '反查結果:',
-        searching: '搜尋中...',
-        filterLabel: '篩選:',
-        sortLabel: '排序:',
-        allDictionaries: '全部詞典',
-        allDialects: '全部方言',
-        allTypes: '全部词元',
-        entryTypeCharacter: '字',
-        entryTypeWord: '詞',
-        entryTypePhrase: '短語',
-        clear: '清除',
-        showFirstPrefix: '顯示前',
-        showFirstSuffix: '條',
-        noResultsTitle: '沒有找到相關結果',
-        noResultsDescription: '試下其他關鍵詞或粵拼',
-        noResultsTipsTitle: '搜尋提示：',
-        noResultsTip1: '嘗試使用繁體字或簡體字',
-        noResultsTip2: '嘗試使用粵拼搜尋（如: nei5 hou2）',
-        noResultsTip3: '檢查拼寫是否正確',
-        noResultsTip4: '嘗試使用更簡短的關鍵詞',
-        startSearchTitle: '輸入關鍵詞開始搜尋',
-        startSearchDescription: '支援繁簡體、粵拼搜尋',
-        cardView: '卡片',
-        listView: '列表',
-        wordColumn: '詞彙',
-        jyutpingColumn: '粵拼',
-        definitionColumn: '釋義',
-        sourceColumn: '來源',
-        loadMore: '載入多 10 條',
-        loadingMore: '載入中...',
-        remainingSuffix: '條',
-        entriesCountSuffix: '條',
-        inProgress: '整理中',
-        moreDictionaries: '更多詞典陸續加入...',
-        prevDictionariesAria: '上一組詞典',
-        nextDictionariesAria: '下一組詞典',
-        switchEntryAria: '切換到第 {index} 個詞條',
-        switchDictionaryAria: '切換到第 {index} 個詞典',
-        languageSwitcherLabel: '介面語言',
-        langZhHans: '簡體中文',
-        langZhHant: '繁體中文',
-        langYueHans: '簡體粵文',
-        langYueHant: '粵文',
-        exactMatchLabel: '完全匹配',
-        otherResultsLabel: '其他相關結果',
-        sortByRelevance: '相關度',
-        sortByJyutping: '粵拼',
-        sortByHeadword: '詞頭',
-        sortByDictionary: '詞典',
-        optionsExpand: '展開選項',
-        optionsCollapse: '收起選項',
-        themeLight: '亮色模式',
-        themeDark: '暗色模式',
-        themeSystem: '跟隨系統',
-        themeToggle: '切換主題',
-        showMoreDictionaries: '顯示更多詞典 ({count} 個)',
-        showLess: '收起'
-      },
-      dictCard: {
-        placeholderWord: '有音無字',
-        originalPhonetic: '原書拼音: ',
-        variantWords: '異形詞: ',
-        standardWriting: '參考詞頭: ',
-        collectedBy: '收錄於 {count} 本詞典',
-        dialect: {
-          GZ: '廣州',
-          HK: '香港',
-          QZ: '欽州',
-          KP: '開平',
-          TS: '台山',
-          YUE: '粵語'
-        },
-        entryTypeCharacter: '字',
-        entryTypeWord: '詞',
-        entryTypePhrase: '短語',
-        collapse: '收起',
-        expand: '展開',
-        details: '詳情',
-        note: '備註：',
-        proofreaderNote: '校對者備註：',
-        etymology: '詞源：',
-        references: '參考文獻：',
-        seeAlso: '參見：',
-        usage: '用法:'
-      },
-      about: {
-        pageTitle: '關於',
-        metaDescription: '了解粵語辭叢項目的使命、內容授權政策和技術架構。我們致力於打造開放、包容、可持續的粵語詞典聚合平台。',
-        title: '關於粵語辭叢',
-        subtitle: 'Open Yue Dictionary Collection Platform - 開放的粵語詞典聚合平台',
-        missionTitle: '項目使命',
-        missionP1: '粵語辭叢致力於打造一個開放、包容、可持續的粵語詞典聚合平台，通過數字化手段保育和傳承粵語文化。',
-        missionP2: '我們相信，語言是文化的載體，詞典是文化的記憶。通過聚合多個來源的粵語詞典，我們希望為粵語學習者、研究者和愛好者提供一個便捷、準確、全面的查詢工具。',
-        backHome: '返回首頁',
-        licenseSectionTitle: '內容授權說明',
-        licenseIntro: '本平台所收錄的詞典內容根據來源分為兩類，每類都有明確的授權和使用限制：',
-        published: {
-          title: '出版詞典',
-          examples: '如《實用廣州話分類詞典》（麥耘、譚步雲編，廣東人民出版社，1997 年）、《廣州話俗語詞典》（歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010 年）等。',
-          copyrightTitle: '版權狀態',
-          copyright: '這些詞典內容受中華人民共和國著作權法保護，數據來源於互聯網上的公開掃描資源。',
-          disclaimerTitle: '內容免責',
-          disclaimer: '詞條內容由原書籍作者負責。本平台數據來源於 OCR 批量處理，因技術限制，難免存在識別錯誤或格式問題。如發現錯誤，歡迎通過 GitHub Issue 提出：',
-          currentUseTitle: '當前用途',
-          currentUse1: '技術原型驗證和演示',
-          currentUse2: '學術研究和探討',
-          currentUse3: '粵語數字化技術開發',
-          limitTitle: '使用限制',
-          limit1: '不得用於商業用途',
-          limit2: '不得進行二次分發或再授權',
-          limit3: '不得用於正式出版或產品發佈',
-          supportOriginal: '我們鼓勵用戶支持正版：如需正式使用這些詞典內容，請購買正版出版物或聯繫出版方獲得授權。'
-        },
-        community: {
-          title: '社羣協作詞典',
-          intro: '由開放社羣協作編寫的詞典，採用開放授權協議。',
-          disclaimer: '內容免責：社羣協作詞典的詞條內容均由其各自社羣的編者負責編寫和維護。本網站僅作為內容聚合展示平台，不對詞條內容的準確性、完整性或適用性承擔責任。如對具體詞條內容有疑問，請訪問原詞典網站或聯繫其編者團隊。',
-          licenseTitle: '許可協議',
-          allowedTitle: '允許的使用',
-          conditionsTitle: '使用條件',
-          wordsTitle: '粵典 (words.hk) - {count} 詞條',
-          wordsDesc: '香港粵語社羣詞典，收錄大量日常用語、俚語及現代詞彙，提供粵語和英語雙語釋義。',
-          allowed1: '非商業使用、複製、修改、發佈',
-          allowed2: '必須保留署名和版權告示',
-          commercialTitle: '商業使用',
-          commercialDesc: '需獲得授權（收入低於地區中位數 3 倍的小型個人業務可豁免）',
-          wordsCopyright: '版權持有人：香港辭書有限公司',
-          wiktTitle: '維基辭典 - {count} 詞條',
-          wiktDesc: '來自維基辭典的粵語詞條，由全球志願者協作編寫，內容豐富全面。',
-          wiktAllowed1: '商業使用：允許用於商業目的',
-          wiktAllowed2: '複製與分發：可以自由複製、分發、傳播',
-          wiktAllowed3: '修改與演繹：可以修改、混合、轉換或基於該作品創作',
-          wiktCond1: '署名：必須給予適當的署名，提供指向許可協議的鏈接',
-          wiktCond2: '相同方式共享：如對本作品進行修改，必須以相同許可協議分發',
-          wiktCopyright: '版權持有人：維基媒體基金會 & 維基辭典貢獻者'
-        },
-        original: {
-          title: '社羣原創詞表',
-          intro: '由方言愛好者、語言學習者、研究者等個人原創整理並貢獻的詞表內容。',
-          licenseTitle: '默認許可協議',
-          licenseDesc: '採用以下許可發佈：',
-          allowedTitle: '允許的使用',
-          allowed1: '複製與分享：可以自由複製、分發該內容',
-          allowed2: '改編：可以基於該內容進行修改、演繹',
-          allowed3: '非商業用途：僅限個人學習、研究等非盈利目的',
-          conditionsTitle: '使用條件',
-          conditions1: '署名：必須給出適當的署名，提供指向許可協議的鏈接',
-          conditions2: '標明修改：如進行了修改，需說明已作出的修改',
-          conditions3: '非商業性：不得將該內容用於商業目的',
-          attributionExample: '署名格式示例：',
-          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
-          qzTitle: '欽州粵拼 - {count} 詞條',
-          qzDesc: '《欽州白話》的詞頭及注音部分，收錄欽州話詞彙及粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
-          qzAllowed1: '商業使用：允許用於商業目的',
-          qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
-          qzAllowed3: '修改與演繹：可以修改、混合、轉換或基於該作品創作',
-          qzConditions1: '保留版權聲明：必須保留原始版權聲明和許可協議',
-          qzConditions2: '相同方式共享：如對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
-          qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
-        },
-        webDict: {
-          title: '網絡公開詞典（協議不明）',
-          intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
-          tsTitle: '台山話英文字典 - {count} 詞條',
-          tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
-          tsLicense: '協議狀態',
-          tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
-          tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
-        },
-        rights: {
-          title: '權利聲明與聯絡方式',
-          intro: '我們尊重知識產權，致力於在法律框架內推動粵語文化的保育與傳承。',
-          contactIntro: '如您是權利人並對本平台收錄的內容有任何疑問，或希望修改、下架相關內容，請通過以下方式聯絡我們：',
-          response: '我們承諾在收到合理請求後的 7 個工作日內予以回應。'
-        },
-        tech: {
-          title: '技術棧',
-          frontendTitle: '前端',
-          dataTitle: '數據處理',
-          csvParsing: 'CSV 解析與驗證',
-          openccConversion: 'OpenCC 繁簡轉換'
-        },
-        contribute: {
-          title: '參與貢獻',
-          intro: '這是一個開源項目，我們歡迎各種形式的貢獻！',
-          guide: '查看貢獻指南（含授權政策）',
-          csvGuide: '數據錄入規範'
-        }
-      },
-      feedback: {
-        title: '反饋',
-        subtitle: '幫助我們改進粵語辭叢',
-        buttonTitle: '提交反饋',
-        buttonShort: '反饋',
-        type: {
-          label: '反饋類型',
-          bug: '網站BUG',
-          feature: '功能建議',
-          entryError: '詞條糾錯',
-        },
-        titleField: {
-          label: '標題',
-          placeholder: '簡要描述您的問題或建議'
-        },
-        description: {
-          label: '詳細描述',
-          placeholder: '請詳細說明您遇到的問題、使用建議或詞條錯誤...',
-          clear: '清空內容'
-        },
-        entry: {
-          word: {
-            label: '相關詞語',
-            placeholder: '請輸入有問題的詞語'
-          },
-          source: {
-            label: '來源詞典',
-            placeholder: '請選擇詞典來源'
-          }
-        },
-        contact: {
-          label: '聯絡方式（可選）',
-          placeholder: '電郵、社交帳號或其他聯絡方式',
-          hint: '可選，方便後續跟進'
-        },
-        submit: '提交反饋',
-        submitting: '提交中...',
-        cancel: '關閉',
-        success: {
-          message: '感謝反饋！您的反饋已提交，我們會認真處理。',
-          linkText: '查看反饋',
-          buttonLabel: '提交成功'
-        },
-        error: {
-          title: '提交失敗',
-          submitFailed: '提交失敗，請稍後重試或直接在GitHub上提交Issue。',
-          buttonLabel: '提交失敗'
-        }
-      }
-    },
-    // 粤语界面：先沿用對應的中文簡/繁體文本，後續可細調為更口語化表達
-    'yue-Hans': {
-      browse: {
-        title: '全部词条',
-        description: '睇下全部词条',
-        metaDescription: '浏览粤语辞丛全部词条',
-        entries: '{count} 条',
-        prevPage: '上一页',
-        nextPage: '下一页',
-        pageInfo: '第 {page} / {total} 页',
-        allEntries: '全部词条',
-        dictionaries: '词典来源',
-        allSources: '全部词典',
-        pageSize: '每页数量'
-      },
-      common: {
-        siteName: '粤语辞丛',
-        siteSubtitle: 'Open Yue Dictionary Collection Platform',
-        siteDescription: '开放嘅粤语词典聚合平台',
-        contribute: '一齐嚟贡献',
-        contributeDescription: '本平台係个开源项目，欢迎外部贡献',
-        github: 'GitHub',
-        contributeData: '贡献数据',
-        aboutProject: '关于项目',
-        footerCopyright: '粤语辞丛 © 2025-2026 · 开源于',
-        searchPlaceholder: '揾下词语或者粤拼...',
-        searchButton: '搜索',
-        reverseSearch: '通过释义反查',
-        reverseSearchTitle: '喺释义入面反查词语',
-        noDefinition: '暂时未有释义',
-        clickToView: '点击睇详情',
-        reverseSearchShort: '释义反查',
-        examplesPrefix: '例如：',
-        exampleSearchPrefix: '可以试下搜：',
-        loading: '加载紧...',
-        changeBatch: '换一批',
-        next: '下一个',
-        recommendedEntries: '随机词条',
-        includedDictionaries: '收录词典',
-        totalEntriesPrefix: '一共收录咗',
-        totalEntriesSuffix: '条词条',
-        moreDictionariesComing: '仲有更多词典陆续会加入...',
-        viewLicense: '睇完整授权说明',
-        licenseLabel: '许可：',
-        licenseCommunityDisclaimer: '词条内容由社区编者负责，本网站唔对内容负责。',
-        licenseScannedDisclaimerPrefix: '词条内容由书籍作者负责。因为用 OCR 批量处理，难免有错误，如果发现问题可以喺',
-        licenseScannedDisclaimerSuffix: '提出。',
-        licenseDetails: '睇详情',
-        footerFriendLinks: '友情链接：',
-        footerJyutping: '粤拼',
-        footerJyutDict: '泛粤典',
-        footerJyutNet: '粤音资料集丛',
-        footerLicenseIntro: '收录内容遵循唔同授权协议',
-        footerOcrDisclaimerPrefix: '本站词条内容系 OCR 自动转换嘅，如有错漏，请多多',
-        searchHeader: '搜寻结果',
-        searchResultsPrefix: '搜寻结果：',
-        reverseSearchResultsPrefix: '反查结果：',
-        searching: '搜寻紧...',
-        filterLabel: '筛选：',
-        sortLabel: '排序：',
-        allDictionaries: '全部词典',
-        allDialects: '全部方言',
-        allTypes: '全部词元',
-        entryTypeCharacter: '字',
-        entryTypeWord: '词',
-        entryTypePhrase: '短语',
-        clear: '清除',
-        showFirstPrefix: '显示前',
-        showFirstSuffix: '条',
-        noResultsTitle: '揾唔到相关结果',
-        noResultsDescription: '可以试下其他关键字或者粤拼',
-        noResultsTipsTitle: '搜索小贴士：',
-        noResultsTip1: '可以试下用繁体字或者简体字',
-        noResultsTip2: '可以试下用粤拼搜索（好似: nei5 hou2）',
-        noResultsTip3: '检查下拼写啱唔啱',
-        noResultsTip4: '可以试下用再简短啲嘅关键词',
-        startSearchTitle: '输入关键词开始搜索',
-        startSearchDescription: '支持繁简体同粤拼搜索',
-        cardView: '卡片',
-        listView: '列表',
-        wordColumn: '词汇',
-        jyutpingColumn: '粤拼',
-        definitionColumn: '释义',
-        sourceColumn: '来源',
-        loadMore: '加载更多',
-        loadingMore: '加载紧...',
-        remainingSuffix: '条',
-        entriesCountSuffix: '条',
-        inProgress: '整理紧',
-        moreDictionaries: '仲有更多词典陆续会加入...',
-        prevDictionariesAria: '上一组词典',
-        nextDictionariesAria: '下一组词典',
-        switchEntryAria: '切换到第 {index} 个词条',
-        switchDictionaryAria: '切换到第 {index} 个词典',
-        languageSwitcherLabel: '界面语言',
-        langZhHans: '简体中文',
-        langZhHant: '繁体中文',
-        langYueHans: '简体粤文',
-        langYueHant: '粤文',
-        exactMatchLabel: '完全匹配',
-        otherResultsLabel: '其他相关结果',
-        sortByRelevance: '相关度',
-        sortByJyutping: '粤拼',
-        sortByHeadword: '词头',
-        sortByDictionary: '词典',
-        optionsExpand: '展开选项',
-        optionsCollapse: '收起选项',
-        themeLight: '亮色模式',
-        themeDark: '暗色模式',
-        themeSystem: '跟随系统',
-        themeToggle: '切换主题',
-        showMoreDictionaries: '显示更多词典 ({count} 个)',
-        showLess: '收起'
-      },
-      dictCard: {
-        placeholderWord: '有音无字',
-        originalPhonetic: '原书拼音: ',
-        variantWords: '异形词: ',
-        standardWriting: '参考词头: ',
-        collectedBy: '收录于 {count} 本词典',
-        dialect: {
-          GZ: '广州',
-          HK: '香港',
-          QZ: '钦州',
-          KP: '开平',
-          TS: '台山',
-          YUE: '粤语'
-        },
-        entryTypeCharacter: '字',
-        entryTypeWord: '词',
-        entryTypePhrase: '短语',
-        collapse: '收起',
-        expand: '展开',
-        details: '详情',
-        note: '备注：',
-        proofreaderNote: '校对者备注：',
-        etymology: '词源：',
-        references: '参考文献：',
-        seeAlso: '参见：',
-        usage: '用法:'
-      },
-      about: {
-        pageTitle: '关于',
-        metaDescription: '了解粤语辞丛项目嘅使命、内容授权政策同技术架构。我们致力于打造开放、包容、可持续嘅粤语词典聚合平台。',
-        title: '关于粤语辞丛',
-        subtitle: 'Open Yue Dictionary Collection Platform - 开放嘅粤语词典聚合平台',
-        missionTitle: '项目使命',
-        missionP1: '粤语辞丛致力于打造一个开放、包容、可持续嘅粤语词典聚合平台，通过数字化手段保育同传承粤语文化。',
-        missionP2: '我哋相信，语言係文化嘅载体，词典係文化嘅记忆。通过聚合多个来源嘅粤语词典，我哋希望为粤语学习者、研究者同爱好者提供一个便捷、准确、全面嘅查询工具。',
-        backHome: '返回首页',
-        licenseSectionTitle: '内容授权说明',
-        licenseIntro: '本平台收录嘅词典内容按来源大致分成两类，每类都有相应嘅授权同使用限制：',
-        published: {
-          title: '出版词典',
-          examples: '例如《实用广州话分类词典》（麦耘、谭步云编，广东人民出版社，1997 年）、《广州话俗语词典》（欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010 年）等。',
-          copyrightTitle: '版权状态',
-          copyright: '呢啲词典内容受中华人民共和国著作权法保护，数据来源係互联网上公开嘅扫描资源。',
-          disclaimerTitle: '内容免责',
-          disclaimer: '词条内容由原书籍作者负责。本平台数据来源于 OCR 批量处理，因技术限制，难免会有识别错误或者格式问题。如果你发现错误，欢迎通过 GitHub Issue 提出：',
-          currentUseTitle: '当前用途',
-          currentUse1: '技术原型验证同演示',
-          currentUse2: '学术研究同探讨',
-          currentUse3: '粤语数字化技术开发',
-          limitTitle: '使用限制',
-          limit1: '唔可以用于商业用途',
-          limit2: '唔可以进行二次分发或者再授权',
-          limit3: '唔可以用于正式出版或者产品发布',
-          supportOriginal: '我哋鼓励用户支持正版：如果需要正式使用呢啲词典内容，请购买正版出版物或者联络出版方攞授权。'
-        },
-        community: {
-          title: '社区协作词典',
-          intro: '由开放社区协作编写嘅词典，采用开放授权协议。',
-          disclaimer: '内容免责：社区协作词典入面嘅词条内容，全部都係由各自社区嘅编者负责编写同维护。本网站只係做内容聚合展示平台，唔对词条内容嘅准确性、完整性或者适用性承担责任。如果对具体词条内容有疑问，请访问原词典网站或者联络相关编者团队。',
-          licenseTitle: '许可协议',
-          allowedTitle: '允许嘅使用方式',
-          conditionsTitle: '使用条件',
-          wordsTitle: '粵典 (words.hk) - {count} 词条',
-          wordsDesc: '香港粤语社区词典，收录大量日常用语、俚语同现代词汇，提供粤语同英语双语释义。',
-          allowed1: '非商业使用、复制、修改、发布',
-          allowed2: '必须保留署名同版权告示',
-          commercialTitle: '商业使用',
-          commercialDesc: '需要另外攞授权（收入低过地区中位数 3 倍嘅小型个人业务可以豁免）',
-          wordsCopyright: '版权持有人：香港辞书有限公司',
-          wiktTitle: '维基词典 - {count} 詞條',
-          wiktDesc: '来自维基词典嘅粤语词条，由全球志愿者协作编写，内容丰富全面。',
-          wiktAllowed1: '商业使用：允许用于商业目的',
-          wiktAllowed2: '复制与分发：可以自由复制、分发、传播',
-          wiktAllowed3: '修改与演绎：可以修改、混合、转换或者基于呢啲内容再创作',
-          wiktCond1: '署名：必须畀出适当嘅署名，并且提供指向许可协议嘅链接',
-          wiktCond2: '相同方式共享：如果对作品作出修改，必须以相同许可协议再分发',
-          wiktCopyright: '版权持有人：维基媒体基金会 & 维基词典贡献者'
-        },
-        original: {
-          title: '社区原创词表',
-          intro: '由方言爱好者、语言学习者、研究者等个人原创整理并贡献嘅词表内容。',
-          licenseTitle: '默认许可协议',
-          licenseDesc: '采用以下许可发佈：',
-          allowedTitle: '允许嘅使用方式',
-          allowed1: '复制与分享：可以自由复制、分发相关内容',
-          allowed2: '改编：可以基于相关内容进行修改、演绎',
-          allowed3: '非商业用途：只限个人学习、研究等非盈利目的',
-          conditionsTitle: '使用条件',
-          conditions1: '署名：必须提供适当署名，并提供指向许可协议嘅链接',
-          conditions2: '标明修改：如果做咗修改，需要说明改动内容',
-          conditions3: '非商业性：唔可以将相关内容用于商业目的',
-          attributionExample: '署名格式示例：',
-          attributionCode: '陈明. (2025). 四邑话日常用语词表. 粤语辞丛 (jyutjyu.com)',
-          qzTitle: '欽州粵拼 - {count} 詞條',
-          qzDesc: '《钦州白话》嘅词头同注音部分，收录钦州话词汇同粤拼。由 Lai Joengzit 等爱好者原创整理，2020年发佈。',
-          qzAllowed1: '商业使用：允许用于商业目的',
-          qzAllowed2: '复制与分发：可以自由复制、分发、传播',
-          qzAllowed3: '修改与演绎：可以修改、混合、转换或者基于呢个作品创作',
-          qzConditions1: '保留版权声明：必须保留原始版权声明同许可协议',
-          qzConditions2: '相同方式共享：如果对本作品进行修改，必须以相同许可协议（GPL-3.0）分发',
-          qzCopyright: '版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping'
-        },
-        webDict: {
-          title: '网络公开词典（协议不明）',
-          intro: '以下词典直接公开喺网络，未标明具体授权协议。使用同再分发时请注明出处并尊重原作者。',
-          tsTitle: '台山話英文字典 - {count} 词条',
-          tsDesc: '台山话—英语网络词典，收录字头、词组同例句，提供台山话罗马字同汉语拼音、英文释义。',
-          tsLicense: '协议状态',
-          tsNotice: '数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。未标明具体协议。',
-          tsCopyright: '来源：https://www.chinfamilytree.com/hed/index.htm · 使用同再分发时请注明出处并尊重原作者。'
-        },
-        rights: {
-          title: '权利声明与联络方式',
-          intro: '我哋尊重知识产权，致力于喺法律框架之下推动粤语文化嘅保育同传承。',
-          contactIntro: '如果你係权利人，并且对本平台收录内容有任何疑问，或者希望修改、下架相关内容，可以通过以下方式联络我哋：',
-          response: '我哋承诺喺收到合理请求之后嘅 7 个工作日内作出回应。'
-        },
-        tech: {
-          title: '技术栈',
-          frontendTitle: '前端',
-          dataTitle: '数据处理',
-          csvParsing: 'CSV 解析同验证',
-          openccConversion: 'OpenCC 繁简转换'
-        },
-        contribute: {
-          title: '参与贡献',
-          intro: '呢个係一个开源项目，我哋欢迎各种形式嘅贡献！',
-          guide: '查看贡献指南（含授权政策）',
-          csvGuide: '数据录入规范'
-        }
-      },
-      feedback: {
-        title: '反馈',
-        subtitle: '帮助我哋改进粤语辞丛',
-        buttonTitle: '提交反馈',
-        buttonShort: '反馈',
-        type: {
-          label: '反馈类型',
-          bug: '网站BUG',
-          feature: '功能建议',
-          entryError: '词条纠错'
-        },
-        titleField: {
-          label: '标题',
-          placeholder: '简要描述你嘅问题或建议'
-        },
-        description: {
-          label: '详细描述',
-          placeholder: '请详细讲下你遇到嘅问题、建议或者词条错误...',
-          clear: '清空內容'
-        },
-        entry: {
-          word: {
-            label: '相关词语',
-            placeholder: '请输入有问题嘅词语'
-          },
-          source: {
-            label: '来源词典',
-            placeholder: '请选择词典来源'
-          }
-        },
-        contact: {
-          label: '联系方式（可选）',
-          placeholder: '邮箱、社交账号或其他联系方式',
-          hint: '可选，方便后续跟进'
-        },
-        submit: '提交反馈',
-        submitting: '提交中...',
-        cancel: '关闭',
-        success: {
-          message: '多谢反馈！你嘅反馈已提交，我们会认真处理。',
-          linkText: '查看反馈',
-          buttonLabel: '提交成功'
-        },
-        error: {
-          title: '提交失敗',
-          submitFailed: '提交失败，请稍候再试，或者直接喺 GitHub 提 Issue。',
-          buttonLabel: '提交失败'
-        }
-      }
-    },
-    'yue-Hant': {
-      browse: {
-        title: '全部詞條',
-        description: '睇下全部詞條',
-        metaDescription: '瀏覽粵語辭叢全部詞條',
-        entries: '{count} 條',
-        prevPage: '上一頁',
-        nextPage: '下一頁',
-        pageInfo: '第 {page} / {total} 頁',
-        allEntries: '全部詞條',
-        dictionaries: '詞典來源',
-        allSources: '全部詞典',
-        pageSize: '每頁數量'
-      },
-      common: {
-        siteName: '粵語辭叢',
-        siteSubtitle: 'Open Yue Dictionary Collection Platform',
-        siteDescription: '開放嘅粵語詞典聚合平台',
-        contribute: '一齊嚟貢獻',
-        contributeDescription: '本平台係開源項目，歡迎外部貢獻',
-        github: 'GitHub',
-        contributeData: '貢獻數據',
-        aboutProject: '關於項目',
-        footerCopyright: '粵語辭叢 © 2025-2026 · 開源於',
-        searchPlaceholder: '揾下詞語或者粵拼...',
-        searchButton: '搜尋',
-        reverseSearch: '通过釋義反查',
-        reverseSearchTitle: '喺釋義入面反查詞語',
-        noDefinition: '暫時未有釋義',
-        clickToView: '點擊睇詳情',
-        reverseSearchShort: '釋義反查',
-        examplesPrefix: '例如：',
-        exampleSearchPrefix: '可以試下搜：',
-        loading: '載入緊...',
-        changeBatch: '換一批',
-        next: '下一個',
-        recommendedEntries: '隨機詞條',
-        includedDictionaries: '收錄詞典',
-        totalEntriesPrefix: '一共收錄咗',
-        totalEntriesSuffix: '條詞條',
-        moreDictionariesComing: '仲有更多詞典陸續會加入...',
-        viewLicense: '睇完整授權說明',
-        licenseLabel: '許可：',
-        licenseCommunityDisclaimer: '詞條內容由社羣編者負責，本網站唔對內容負責。',
-        licenseScannedDisclaimerPrefix: '詞條內容由書籍作者負責。因為用 OCR 批量處理，難免有錯誤，如果發現問題可以喺',
-        licenseScannedDisclaimerSuffix: '提出。',
-        licenseDetails: '睇詳情',
-        footerFriendLinks: '友情連結：',
-        footerJyutping: '粵拼',
-        footerJyutDict: '泛粵典',
-        footerJyutNet: '粵音資料集叢',
-        footerLicenseIntro: '收錄內容遵循唔同授權協議',
-        footerOcrDisclaimerPrefix: '本站詞條內容係 OCR 自動轉換嘅，如有錯漏，請多多',
-        searchHeader: '搜尋結果',
-        searchResultsPrefix: '搜尋結果：',
-        reverseSearchResultsPrefix: '反查結果：',
-        searching: '搜尋緊...',
-        filterLabel: '篩選：',
-        sortLabel: '排序：',
-        allDictionaries: '全部詞典',
-        allDialects: '全部方言',
-        allTypes: '全部詞元',
-        entryTypeCharacter: '字',
-        entryTypeWord: '詞',
-        entryTypePhrase: '短語',
-        clear: '清除',
-        showFirstPrefix: '顯示前',
-        showFirstSuffix: '條',
-        noResultsTitle: '搵唔到相關結果',
-        noResultsDescription: '可以試下其他關鍵字或者粵拼',
-        noResultsTipsTitle: '搜尋小貼士：',
-        noResultsTip1: '可以試下用繁體字或者簡體字',
-        noResultsTip2: '可以試下用粵拼搜尋（好似: nei5 hou2）',
-        noResultsTip3: '檢查下拼寫啱唔啱',
-        noResultsTip4: '可以試下用再簡短啲嘅關鍵詞',
-        startSearchTitle: '輸入關鍵詞開始搜尋',
-        startSearchDescription: '支援繁簡體同粵拼搜尋',
-        cardView: '卡片',
-        listView: '列表',
-        wordColumn: '詞彙',
-        jyutpingColumn: '粵拼',
-        definitionColumn: '釋義',
-        sourceColumn: '來源',
-        loadMore: '載入多 10 條',
-        loadingMore: '載入緊...',
-        remainingSuffix: '條',
-        entriesCountSuffix: '條',
-        inProgress: '整理緊',
-        moreDictionaries: '仲有更多詞典陸續會加入...',
-        prevDictionariesAria: '上一組詞典',
-        nextDictionariesAria: '下一組詞典',
-        switchEntryAria: '切換到第 {index} 個詞條',
-        switchDictionaryAria: '切換到第 {index} 個詞典',
-        languageSwitcherLabel: '介面語言',
-        langZhHans: '簡體中文',
-        langZhHant: '繁體中文',
-        langYueHans: '簡體粵文',
-        langYueHant: '粵文',
-        exactMatchLabel: '完全匹配',
-        otherResultsLabel: '其他相關結果',
-        sortByRelevance: '相關度',
-        sortByJyutping: '粵拼',
-        sortByHeadword: '詞頭',
-        sortByDictionary: '詞典',
-        optionsExpand: '展開選項',
-        optionsCollapse: '收起選項',
-        themeLight: '亮色模式',
-        themeDark: '暗色模式',
-        themeSystem: '跟隨系統',
-        themeToggle: '切換主題',
-        showMoreDictionaries: '顯示更多詞典 ({count} 個)',
-        showLess: '收起'
-      },
-      dictCard: {
-        placeholderWord: '有音無字',
-        originalPhonetic: '原書拼音: ',
-        variantWords: '異形詞: ',
-        standardWriting: '參考詞頭: ',
-        collectedBy: '收錄於 {count} 本詞典',
-        dialect: {
-          GZ: '廣州',
-          HK: '香港',
-          QZ: '欽州',
-          KP: '開平',
-          TS: '台山',
-          YUE: '粵語'
-        },
-        entryTypeCharacter: '字',
-        entryTypeWord: '詞',
-        entryTypePhrase: '短語',
-        collapse: '收起',
-        expand: '展開',
-        details: '詳情',
-        note: '備註：',
-        proofreaderNote: '校對者備註：',
-        etymology: '詞源：',
-        references: '參考文獻：',
-        seeAlso: '參見：',
-        usage: '用法:'
-      },
-      about: {
-        pageTitle: '關於',
-        metaDescription: '了解粵語辭叢項目嘅使命、內容授權政策同技術架構。我哋致力於打造開放、包容、可持續嘅粵語詞典聚合平台。',
-        title: '關於粵語辭叢',
-        subtitle: 'Open Yue Dictionary Collection Platform - 開放嘅粵語詞典聚合平台',
-        missionTitle: '使命',
-        missionP1: '粵語辭叢致力於建立一個先進實用嘅粵語詞典平台，用現代技術傳承同推廣粵語文化。',
-        missionP2: '通過聚合多個來源嘅粵語詞典，我哋為粵語學習者、研究者、愛好者提供一個方便又全面嘅查詢工具。',
-        backHome: '返回首頁',
-        licenseSectionTitle: '內容授權說明',
-        licenseIntro: '本平台收錄嘅詞典內容按來源大致分成兩類，每類都有相應嘅授權同使用限制：',
-        published: {
-          title: '出版詞典',
-          examples: '例如《實用廣州話分類詞典》（麥耘、譚步雲編，廣東人民出版社，1997 年）、《廣州話俗語詞典》（歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010 年）等。',
-          copyrightTitle: '版權狀態',
-          copyright: '呢啲詞典內容受中華人民共和國著作權法保護，數據來源係互聯網上公開嘅掃描資源。',
-          disclaimerTitle: '內容免責',
-          disclaimer: '詞條內容由原書籍作者負責。本平台數據來源於 OCR 批量處理，因技術限制，難免會有識別錯誤或者格式問題。如果你發現錯誤，歡迎通過 GitHub Issue 提出：',
-          currentUseTitle: '當前用途',
-          currentUse1: '技術原型驗證同演示',
-          currentUse2: '學術研究同探討',
-          currentUse3: '粵語數字化技術開發',
-          limitTitle: '使用限制',
-          limit1: '唔可以用於商業用途',
-          limit2: '唔可以進行二次分發或者再授權',
-          limit3: '唔可以用於正式出版或者產品發佈',
-          supportOriginal: '我哋鼓勵用戶支持正版：如果需要正式使用呢啲詞典內容，請購買正版出版物或者聯絡出版方攞授權。'
-        },
-        community: {
-          title: '社羣協作詞典',
-          intro: '由開放社羣協作編寫嘅詞典，採用開放授權協議。',
-          disclaimer: '內容免責：社羣協作詞典入面嘅詞條內容，全部都係由各自社羣嘅編者負責編寫同維護。本網站只係做內容聚合展示平台，唔對詞條內容嘅準確性、完整性或者適用性承擔責任。如果對具體詞條內容有疑問，請訪問原詞典網站或者聯絡相關編者團隊。',
-          licenseTitle: '許可協議',
-          allowedTitle: '允許嘅使用方式',
-          conditionsTitle: '使用條件',
-          wordsTitle: '粵典 (words.hk) - {count} 詞條',
-          wordsDesc: '香港粵語社羣詞典，收錄大量日常用語、俚語同現代詞彙，提供粵語同英語雙語釋義。',
-          allowed1: '非商業使用、複製、修改、發佈',
-          allowed2: '必須保留署名同版權告示',
-          commercialTitle: '商業使用',
-          commercialDesc: '需要另外攞授權（收入低過地區中位數 3 倍嘅小型個人業務可以豁免）',
-          wordsCopyright: '版權持有人：香港辭書有限公司',
-          wiktTitle: '維基辭典 - {count} 詞條',
-          wiktDesc: '來自維基辭典嘅粵語詞條，由全球志願者協作編寫，內容豐富全面。',
-          wiktAllowed1: '商業使用：允許用於商業目的',
-          wiktAllowed2: '複製與分發：可以自由複製、分發、傳播',
-          wiktAllowed3: '修改與演繹：可以修改、混合、轉換或者基於呢啲內容再創作',
-          wiktCond1: '署名：必須畀出適當署名，並且提供指向許可協議嘅鏈接',
-          wiktCond2: '相同方式共享：如果對作品作出修改，必須以相同許可協議再分發',
-          wiktCopyright: '版權持有人：維基媒體基金會 & 維基辭典貢獻者'
-        },
-        original: {
-          title: '社羣原創詞表',
-          intro: '由方言愛好者、語言學習者、研究者等個人原創整理並貢獻嘅詞表內容。',
-          licenseTitle: '默認許可協議',
-          licenseDesc: '採用以下許可發佈：',
-          allowedTitle: '允許嘅使用方式',
-          allowed1: '複製與分享：可以自由複製、分發相關內容',
-          allowed2: '改編：可以基於相關內容進行修改、演繹',
-          allowed3: '非商業用途：只限個人學習、研究等非盈利目的',
-          conditionsTitle: '使用條件',
-          conditions1: '署名：必須提供適當署名，並提供指向許可協議嘅鏈接',
-          conditions2: '標明修改：如果做咗修改，需要說明改動內容',
-          conditions3: '非商業性：唔可以將相關內容用於商業目的',
-          attributionExample: '署名格式示例：',
-          attributionCode: '陳明. (2025). 四邑話日常用語詞表. 粵語辭叢 (jyutjyu.com)',
-          qzTitle: '欽州粵拼 - {count} 詞條',
-          qzDesc: '《欽州白話》嘅詞頭同注音部分，收錄欽州話詞彙同粵拼。由 Lai Joengzit 等愛好者原創整理，2020年發佈。',
-          qzAllowed1: '商業使用：允許用於商業目的',
-          qzAllowed2: '複製與分發：可以自由複製、分發、傳播',
-          qzAllowed3: '修改與演繹：可以修改、混合、轉換或者基於呢個作品創作',
-          qzConditions1: '保留版權聲明：必須保留原始版權聲明同許可協議',
-          qzConditions2: '相同方式共享：如果對本作品進行修改，必須以相同許可協議（GPL-3.0）分發',
-          qzCopyright: '版權持有人：Lai Joengzit 等。數據來源：https://github.com/LaiJoengzit/hamzau_jyutping'
-        },
-        webDict: {
-          title: '網絡公開詞典（協議不明）',
-          intro: '以下詞典直接公開於網絡，未標明具體授權協議。使用與再分發時請註明出處並尊重原作者。',
-          tsTitle: '台山話英文字典 - {count} 詞條',
-          tsDesc: '台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音、英文釋義。',
-          tsLicense: '協議狀態',
-          tsNotice: '數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。未標明具體協議。',
-          tsCopyright: '來源：https://www.chinfamilytree.com/hed/index.htm · 使用與再分發時請註明出處並尊重原作者。'
-        },
-        rights: {
-          title: '權利聲明與聯絡方式',
-          intro: '我哋尊重知識產權，致力於喺法律框架之下推動粵語文化嘅保育同傳承。',
-          contactIntro: '如果你係權利人，並且對本平台收錄內容有任何疑問，或者希望修改、下架相關內容，可以通過以下方式聯絡我哋：',
-          response: '我哋承諾喺收到合理請求之後嘅 7 個工作日內作出回應。'
-        },
-        tech: {
-          title: '技術棧',
-          frontendTitle: '前端',
-          dataTitle: '數據處理',
-          csvParsing: 'CSV 解析同驗證',
-          openccConversion: 'OpenCC 繁簡轉換'
-        },
-        contribute: {
-          title: '參與貢獻',
-          intro: '呢個係一個開源項目，我哋歡迎各種形式嘅貢獻！',
-          guide: '查看貢獻指南（含授權政策）',
-          csvGuide: '數據錄入規範'
-        }
-      },
-      feedback: {
-        title: '反饋',
-        subtitle: '幫助我哋改進粵語辭叢',
-        buttonTitle: '提交反饋',
-        buttonShort: '反饋',
-        type: {
-          label: '反饋類型',
-          bug: '網站BUG',
-          feature: '功能建議',
-          entryError: '詞條糾錯',
-        },
-        titleField: {
-          label: '標題',
-          placeholder: '簡要描述你嘅問題或建議'
-        },
-        description: {
-          label: '詳細描述',
-          placeholder: '請詳細講下你遇到嘅問題、建議或者詞條錯誤...',
-          clear: '清空內容'
-        },
-        entry: {
-          word: {
-            label: '相關詞語',
-            placeholder: '請輸入有問題嘅詞語'
-          },
-          source: {
-            label: '來源詞典',
-            placeholder: '請選擇詞典來源'
-          }
-        },
-        contact: {
-          label: '聯絡方式（可選）',
-          placeholder: '電郵、社交帳號或其他聯絡方式',
-          hint: '可選，方便後續跟進'
-        },
-        submit: '提交反饋',
-        submitting: '提交中...',
-        cancel: '關閉',
-        success: {
-          message: '多謝反饋！你嘅反饋已提交，我哋會認真處理。',
-          linkText: '查看反饋',
-          buttonLabel: '提交成功'
-        },
-        error: {
-          title: '提交失敗',
-          submitFailed: '提交失敗，請稍後再試，或者直接喺 GitHub 提 Issue。',
-          buttonLabel: '提交失敗'
-        }
-      }
-    }
+    'zh-Hans': messagesZhHans,
+    'zh-Hant': messagesZhHant,
+    'yue-Hans': messagesYueHans,
+    'yue-Hant': messagesYueHant
   }
 }))
