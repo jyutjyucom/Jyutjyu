@@ -20,14 +20,14 @@ export function useLocalizedDictionary() {
     // 尝试精确匹配当前语言
     if (value[currentLocale]) return value[currentLocale]
     
-    // 回退逻辑：yue-Hans -> zh-Hans, yue-Hant -> zh-Hant
+    // 回退逻辑：yue-Hans <-> yue-Hant
     if (currentLocale.startsWith('yue')) {
-      const fallbackLocale = currentLocale.endsWith('Hans') ? 'zh-Hans' : 'zh-Hant'
+      const fallbackLocale = currentLocale.endsWith('Hans') ? 'yue-Hant' : 'yue-Hans'
       if (value[fallbackLocale]) return value[fallbackLocale]
     }
-    
-    // 最终回退到简体中文
-    if (value['zh-Hans']) return value['zh-Hans']
+
+    if (value['yue-Hant']) return value['yue-Hant']
+    if (value['yue-Hans']) return value['yue-Hans']
     
     // 如果都没有，返回第一个可用值
     const firstValue = Object.values(value)[0]

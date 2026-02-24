@@ -11,7 +11,7 @@ const { initTheme } = useTheme()
 // 全局配置
 useHead({
   htmlAttrs: {
-    lang: computed(() => locale.value || 'zh-Hans')
+    lang: computed(() => locale.value || 'yue-Hant')
   },
   meta: [
     { name: 'theme-color', content: '#ffffff' }

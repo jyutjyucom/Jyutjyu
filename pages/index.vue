@@ -355,9 +355,9 @@ const { t, locale } = useI18n()
 const config = useRuntimeConfig()
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary()
 
-// 判断是否为简体中文（简体中文或简体粤文）
+// 判断是否为简体粤文
 const isSimplified = computed(() => {
-  return locale.value === 'zh-Hans' || locale.value === 'yue-Hans'
+  return locale.value === 'yue-Hans'
 })
 
 const searchQuery = ref('')
