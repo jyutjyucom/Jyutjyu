@@ -106,9 +106,7 @@ const pickDictionaryLabel = (dict: DictionaryIndexItem): string => {
   if (typeof dict.name === 'string') return dict.name
 
   return dict.name['yue-Hant']
-    || dict.name['zh-Hant']
     || dict.name['yue-Hans']
-    || dict.name['zh-Hans']
     || Object.values(dict.name).find((value) => typeof value === 'string' && value.trim())
     || dict.id
 }

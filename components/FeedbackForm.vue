@@ -197,8 +197,8 @@ const getDictionaryName = (name: string | Record<string, string>): string => {
   if (name[currentLocale]) {
     return name[currentLocale]
   }
-  // fallback 顺序：zh-Hans -> zh-Hant -> yue-Hans -> yue-Hant -> 第一个可用
-  const fallbacks = ['zh-Hans', 'zh-Hant', 'yue-Hans', 'yue-Hant']
+  // fallback 顺序：yue-Hant -> yue-Hans -> 第一个可用
+  const fallbacks = ['yue-Hant', 'yue-Hans']
   for (const fb of fallbacks) {
     if (name[fb]) {
       return name[fb]

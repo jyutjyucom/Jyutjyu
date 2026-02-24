@@ -65,10 +65,6 @@ const selectLocale = async (code: string) => {
 
 const localeLabel = (code: string) => {
   switch (code) {
-    case 'zh-Hans':
-      return t('common.langZhHans')
-    case 'zh-Hant':
-      return t('common.langZhHant')
     case 'yue-Hans':
       return t('common.langYueHans')
     case 'yue-Hant':
@@ -78,4 +74,3 @@ const localeLabel = (code: string) => {
   }
 }
 </script>
-

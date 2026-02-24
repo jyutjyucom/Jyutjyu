@@ -38,11 +38,7 @@ export default defineNuxtConfig({
     vueI18n: './i18n.config.ts',
     defaultLocale: 'yue-Hant',
     strategy: 'no_prefix',
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'jyutjyu_i18n_lang',
-      redirectOn: 'root'
-    },
+    detectBrowserLanguage: false,
     locales: [
       {
         code: 'yue-Hant',
@@ -51,14 +47,6 @@ export default defineNuxtConfig({
       {
         code: 'yue-Hans',
         name: '简体粤文'
-      },
-      {
-        code: 'zh-Hans',
-        name: '简体中文'
-      },
-      {
-        code: 'zh-Hant',
-        name: '繁體中文'
       },
 
 
