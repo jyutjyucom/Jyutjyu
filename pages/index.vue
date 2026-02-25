@@ -9,7 +9,7 @@
       </div>
 
       <!-- Logo & Title -->
-      <div class="text-center mb-12" :class="isSimplified ? '' : 'font-r'">
+      <div class="text-center mb-12">
         <h1 class="text-4xl md:text-6xl text-blue-600 dark:text-blue-400 mb-4">
           {{ t('common.siteName') }}
         </h1>
@@ -87,7 +87,7 @@
 
         <!-- Desktop: 3 cards in grid -->
         <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
-          <NuxtLink v-for="entry in randomEntries" :key="entry.id" :to="wordPath(entry.headword.display)"
+          <NuxtLink v-for="entry in randomEntries" :key="entry.id" :to="wordPath(entry.headword.display)" :prefetch="false"
             class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-8 group relative overflow-hidden">
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 transition-opacity">
@@ -134,7 +134,7 @@
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <!-- Card content - link to word page -->
-            <NuxtLink :to="wordPath(currentMobileEntry.headword.display)"
+            <NuxtLink :to="wordPath(currentMobileEntry.headword.display)" :prefetch="false"
               class="block p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors">
               <div class="flex flex-col h-full items-center text-center">
                 <div class="w-full">
@@ -229,8 +229,20 @@
                   <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"
                     v-if="!dict.cover">
                   </div>
-                  <img v-if="dict.cover" :src="dict.cover" :alt="dict.name"
-                    class="w-16 h-20 object-contain bg-white dark:bg-gray-700 rounded-md shadow-md border border-gray-100 dark:border-gray-700" />
+                  <NuxtImg
+                    v-if="dict.cover"
+                    :src="dict.cover"
+                    :alt="dict.name"
+                    width="64"
+                    height="80"
+                    sizes="64px"
+                    densities="1x 2x"
+                    format="webp"
+                    quality="70"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-16 h-20 object-contain bg-white dark:bg-gray-700 rounded-md shadow-md border border-gray-100 dark:border-gray-700"
+                  />
                   <div v-else
                     class="w-16 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-md flex items-center justify-center text-blue-300 dark:text-blue-600 shadow-sm border border-blue-100 dark:border-blue-800">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -351,14 +363,9 @@
 import { Database, Github, Info } from 'lucide-vue-next'
 import type { DictionaryEntry } from '~/types/dictionary'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const config = useRuntimeConfig()
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary()
-
-// 判断是否为简体粤文
-const isSimplified = computed(() => {
-  return locale.value === 'yue-Hans'
-})
 
 const searchQuery = ref('')
 const enableReverseSearch = ref(false)

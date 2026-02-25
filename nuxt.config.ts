@@ -42,6 +42,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/content',
+    '@nuxt/image',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/i18n'
   ],
@@ -128,12 +129,13 @@ export default defineNuxtConfig({
         { name: 'twitter:image:alt', content: '粵語辭叢' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:ital,wght@0,200..900;1,200..900&family=Chiron+Sung+HK:ital,wght@0,200..900;1,200..900&display=swap' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
       ]
     }
+  },
+
+  image: {
+    provider: 'ipx'
   },
 
   // TypeScript 配置
