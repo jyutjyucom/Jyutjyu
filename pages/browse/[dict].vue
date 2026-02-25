@@ -140,7 +140,7 @@ useHead(() => ({
   title: `${activeDictionaryLabel.value} · ${t('browse.title')} | ${t('common.siteName')}`,
   meta: [
     { name: 'description', content: t('browse.metaDescription') },
-    { name: 'robots', content: 'noindex, follow' }
+    { name: 'robots', content: 'index, follow' }
   ],
   link: canonicalHref.value
     ? [{ rel: 'canonical', href: canonicalHref.value }]
