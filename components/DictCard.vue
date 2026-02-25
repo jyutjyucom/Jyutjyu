@@ -320,7 +320,7 @@
           <NuxtLink
             v-if="ref.type === 'word'"
             :to="`/word/${encodeURIComponent(ref.target)}`"
-            class="text-blue-600 dark:text-blue-400 hover:underline"
+            class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2"
           >
             {{ ref.target }}
           </NuxtLink>
@@ -528,7 +528,7 @@ const formatDefinitionWithLinks = (definition: string): string => {
   return definition.replace(regex, (match, word) => {
     // 生成词条链接
     const wordUrl = `/word/${encodeURIComponent(word)}`
-    return `<a href="${wordUrl}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
+    return `<a href="${wordUrl}" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }
 

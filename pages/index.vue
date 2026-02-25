@@ -28,7 +28,7 @@
             class="w-full px-6 py-4 text-lg border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:border-blue-500"
             @keyup.enter="handleSearch">
           <button
-            class="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            class="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             @click="handleSearch">
             {{ t('common.searchButton') }}
           </button>
@@ -114,9 +114,9 @@
 
               <div
                 class="mt-auto w-full pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-between items-center text-sm">
-                <span class="text-gray-400 dark:text-gray-500 font-medium">{{ entry.source_book }}</span>
+                <span class="text-gray-500 dark:text-gray-400 font-medium">{{ entry.source_book }}</span>
                 <span
-                  class="text-blue-500 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  class="text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                   {{ t('common.clickToView') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
@@ -158,9 +158,9 @@
             <div class="border-t border-gray-50 dark:border-gray-700">
               <button @click="nextMobileEntry"
                 class="w-full px-7 py-4 flex justify-between items-center active:bg-blue-50 dark:active:bg-blue-900/20 transition-colors">
-                <span class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ currentMobileEntry.source_book
+                <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ currentMobileEntry.source_book
                   }}</span>
-                <span class="text-blue-500 dark:text-blue-400 font-medium flex items-center gap-1 text-sm">
+                <span class="text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1 text-sm">
                   {{ t('common.next') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -174,9 +174,11 @@
           <div class="mt-4 text-center">
             <div class="flex justify-center gap-2">
               <button v-for="(_, idx) in randomEntries" :key="idx" @click="mobileIndex = idx"
-                class="w-2 h-2 rounded-full transition-all"
-                :class="idx === mobileIndex ? 'bg-blue-600 w-6' : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'"
-                :aria-label="t('common.switchEntryAria', { index: Number(idx) + 1 })" />
+                class="flex items-center justify-center w-11 h-11 rounded-full transition-all"
+                :aria-label="t('common.switchEntryAria', { index: Number(idx) + 1 })">
+                <span class="block rounded-full transition-all"
+                  :class="idx === mobileIndex ? 'bg-blue-600 w-6 h-2' : 'bg-gray-300 dark:bg-gray-600 w-2 h-2'" />
+              </button>
             </div>
           </div>
         </div>
@@ -232,7 +234,7 @@
                   <NuxtImg
                     v-if="dict.cover"
                     :src="dict.cover"
-                    :alt="dict.name"
+                    :alt="dict.lName"
                     width="64"
                     height="80"
                     sizes="64px"

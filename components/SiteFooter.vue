@@ -4,33 +4,33 @@
       <div class="text-center text-gray-600 dark:text-gray-400 text-base">
         <p class="mb-2">
           {{ t('common.footerCopyright') }}
-          <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank"
+          <a href="https://github.com/jyutjyucom/jyutjyu" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2" target="_blank"
             rel="noopener noreferrer">
             {{ t('common.github') }}
           </a>
           <template v-if="showAboutLink">
             ·
-            <NuxtLink to="/about" class="text-blue-600 dark:text-blue-400 hover:underline">
+            <NuxtLink to="/about" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2">
               {{ t('common.aboutProject') }}
             </NuxtLink>
           </template>
           ·
-          <NuxtLink to="/browse" class="text-blue-600 dark:text-blue-400 hover:underline">
+          <NuxtLink to="/browse" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2">
             {{ t('browse.title') }}
           </NuxtLink>
         </p>
         <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
           {{ t('common.footerFriendLinks') }}
-          <a href="https://jyutping.org/jyutping/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank"
+          <a href="https://jyutping.org/jyutping/" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2" target="_blank"
             rel="noopener noreferrer">
             {{ t('common.footerJyutping') }}
           </a>
           ·
-          <a href="https://www.jyutdict.org/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.jyutdict.org/" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2" target="_blank" rel="noopener noreferrer">
             {{ t('common.footerJyutDict') }}
           </a>
           ·
-          <a href="https://jyut.net/" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+          <a href="https://jyut.net/" class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2" target="_blank" rel="noopener noreferrer">
             {{ t('common.footerJyutNet') }}
           </a>
         </p>
@@ -39,7 +39,7 @@
           <ClientOnly>
             <FeedbackButton
               hide-icon
-              :button-class="'p-0 !min-h-0 bg-transparent text-blue-600 dark:text-blue-400 hover:underline rounded-none border-0 shadow-none'"
+              :button-class="'p-0 !min-h-0 bg-transparent text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2 rounded-none border-0 shadow-none'"
               :label-class="'text-inherit'"
             />
           </ClientOnly>

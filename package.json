@@ -66,6 +66,7 @@
     "vue": "^3.5.28"
   },
   "devDependencies": {
+    "@nuxtjs/critters": "^0.9.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/node": "^25.2.3",
     "eslint": "^9.39.2",

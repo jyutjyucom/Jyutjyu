@@ -316,7 +316,7 @@
               <NuxtLink
                 v-if="ref.type === 'word'"
                 :to="`/word/${encodeURIComponent(ref.target)}`"
-                class="text-blue-600 dark:text-blue-400 hover:underline"
+                class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2"
               >
                 {{ ref.target }}
               </NuxtLink>
@@ -431,7 +431,7 @@ const formatDefinitionWithLinks = (definition: string): string => {
   const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g
   return definition.replace(regex, (match, word) => {
     const wordUrl = `/word/${encodeURIComponent(word)}`
-    return `<a href="${wordUrl}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
+    return `<a href="${wordUrl}" class="text-blue-600 hover:text-blue-800 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }
 

@@ -44,7 +44,8 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '@nuxtjs/critters'
   ],
 
   ignore: [
@@ -172,8 +173,7 @@ export default defineNuxtConfig({
 
   // Nitro 配置（服务端）
   nitro: {
-    // Vercel 部署时自动检测，但显式指定更可靠
-    preset: 'vercel',
+    // Vercel 自动检测 preset，无需显式指定（显式指定会导致本地 preview 失效）
     prerender: {
       crawlLinks: false,
       routes: [
