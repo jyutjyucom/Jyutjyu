@@ -98,9 +98,7 @@ const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('
     if (currentPageSize.value !== DEFAULT_PAGE_SIZE) query.size = currentPageSize.value
     if (currentSortBy.value !== DEFAULT_SORT_BY) query.sort = currentSortBy.value
     return query
-  }),
-  server: false,
-  lazy: true
+  })
 })
 
 const displayedBrowseData = useState<BrowseResponse | null>('browse-displayed-data', () => null)

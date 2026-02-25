@@ -7,10 +7,13 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
+    "prebuild": "npm run build:browse-index",
     "build": "nuxt build",
+    "pregenerate": "npm run build:browse-index",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "build:browse-index": "node scripts/build-browse-index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build:data": "node scripts/csv-to-json.js",
