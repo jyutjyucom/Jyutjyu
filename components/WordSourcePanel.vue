@@ -8,9 +8,9 @@
     >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h3 class="text-lg font-semibold text-blue-700 dark:text-blue-300 break-words">
+          <h2 class="text-lg font-semibold text-blue-700 dark:text-blue-300 break-words">
             {{ sourceLabel }}
-          </h3>
+          </h2>
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {{ entries.length }} 義項
           </p>
@@ -304,7 +304,7 @@
               <NuxtLink
                 v-if="ref.type === 'word'"
                 :to="`/word/${encodeURIComponent(ref.target)}`"
-                class="text-blue-600 dark:text-blue-400 hover:underline"
+                class="text-blue-600 dark:text-blue-400 underline decoration-1 underline-offset-2"
               >
                 {{ ref.target }}
               </NuxtLink>
@@ -414,7 +414,7 @@ const formatDefinitionWithLinks = (definition: string): string => {
   const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g
   return definition.replace(regex, (match, word) => {
     const wordUrl = `/word/${encodeURIComponent(word)}`
-    return `<a href="${wordUrl}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium" onclick="event.stopPropagation()">${match}</a>`
+    return `<a href="${wordUrl}" class="text-blue-600 hover:text-blue-800 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }
 

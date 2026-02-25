@@ -18,7 +18,7 @@
                 @keyup.enter="handleSearch"
               >
               <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+                class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
                 @click="handleSearch"
               >
                 {{ t('common.searchButton') }}

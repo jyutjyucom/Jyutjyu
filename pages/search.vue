@@ -64,7 +64,7 @@
     </AppHeader>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 py-8 min-h-[60vh]">
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
@@ -166,7 +166,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -184,7 +184,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -214,6 +214,12 @@
             </button>
           </div>
         </div>
+        <template #fallback>
+          <div class="text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
+          </div>
+        </template>
       </ClientOnly>
     </main>
 
