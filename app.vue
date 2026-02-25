@@ -25,12 +25,6 @@ onMounted(() => {
 </script>
 
 <style>
-@font-face {
-  font-family: 'R';
-  src: url('/R.woff2') format('woff2');
-  font-display: swap;
-}
-
 /* 全局样式 */
 * {
   margin: 0;
@@ -47,13 +41,9 @@ html.dark {
 }
 
 body {
-  font-family: 'Chiron Hei HK', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'PingFang TC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-.font-r {
-  font-family: 'R', 'Chiron Hei HK', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }
 
 /* 平滑过渡 */

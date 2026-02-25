@@ -26,6 +26,10 @@ let chunkedDictionaries: Array<{id: string, chunk_dir: string}> | null = null
 let cachedDictionaryIndex: any | null = null
 let dictionaryIndexPromise: Promise<any | null> | null = null
 
+// 推荐词条缓存（模块级，跨实例复用）
+let recommendedEntriesCache: DictionaryEntry[] | null = null
+let recommendedEntriesPromise: Promise<DictionaryEntry[]> | null = null
+
 const fallbackChunkedDictionaries: Array<{id: string, chunk_dir: string}> = [
   { id: 'hk-cantowords', chunk_dir: 'cantowords' },
   { id: 'wiktionary-cantonese', chunk_dir: 'wiktionary' }
@@ -880,71 +884,53 @@ export const useDictionary = () => {
     }
   }
 
-  // 推荐词条缓存
-  let recommendedEntriesCache: DictionaryEntry[] | null = null
-
   /**
    * 快速获取随机推荐词条
-   * 只加载小词典，过滤无效词条，提升首页加载速度
+   * 使用预生成的推荐词条清单，避免首页加载大词典 JSON
    */
   const getRandomRecommendedEntries = async (count: number = 3): Promise<DictionaryEntry[]> => {
     if (!process.client) {
       return []
     }
 
-    // 如果已有缓存，直接从缓存随机选取
-    if (recommendedEntriesCache && recommendedEntriesCache.length > 0) {
-      const shuffled = [...recommendedEntriesCache].sort(() => Math.random() - 0.5)
-      return shuffled.slice(0, count)
-    }
+    const loadRecommendations = async (): Promise<DictionaryEntry[]> => {
+      if (recommendedEntriesCache && recommendedEntriesCache.length > 0) {
+        return recommendedEntriesCache
+      }
 
-    try {
-      // 只加载小词典以提升速度（约 10,000 条 vs 69,000 条）
-      const smallDictionaries = [
-        'gz-colloquialisms.json',      // 2,516 条
-        'gz-practical-classified.json'  // 7,530 条
-      ]
+      if (recommendedEntriesPromise) {
+        return recommendedEntriesPromise
+      }
 
-      const allEntries: DictionaryEntry[] = []
-
-      await Promise.all(
-        smallDictionaries.map(async (file) => {
-          try {
-            const response = await fetch(`/dictionaries/${file}`)
-            if (response.ok) {
-              const data = await response.json()
-              if (Array.isArray(data)) {
-                allEntries.push(...data)
-              }
-            }
-          } catch (error) {
-            console.error(`加载词典 ${file} 失败:`, error)
+      recommendedEntriesPromise = (async () => {
+        try {
+          const response = await fetch('/recommendations.json')
+          if (!response.ok) {
+            console.error('加载推荐词条失败:', response.status)
+            return []
           }
-        })
-      )
+          const data = await response.json()
+          const entries = Array.isArray(data?.entries) ? data.entries : (Array.isArray(data) ? data : [])
+          if (entries.length > 0) {
+            recommendedEntriesCache = entries
+          }
+          return entries
+        } catch (error) {
+          console.error('加载推荐词条失败:', error)
+          return []
+        } finally {
+          recommendedEntriesPromise = null
+        }
+      })()
 
-      // 过滤掉无效词条：
-      // 1. 释义含有"NO DATA"
-      // 2. 没有释义
-      // 3. 释义太短（少于3个字符）
-      const validEntries = allEntries.filter(entry => {
-        if (!entry.senses || entry.senses.length === 0) return false
-        const firstDef = entry.senses[0]?.definition || ''
-        if (firstDef.includes('NO DATA')) return false
-        if (firstDef.length < 3) return false
-        return true
-      })
-
-      // 缓存有效词条
-      recommendedEntriesCache = validEntries
-
-      // 随机选取
-      const shuffled = [...validEntries].sort(() => Math.random() - 0.5)
-      return shuffled.slice(0, count)
-    } catch (error) {
-      console.error('获取推荐词条失败:', error)
-      return []
+      return recommendedEntriesPromise
     }
+
+    const entries = await loadRecommendations()
+    if (!entries.length) return []
+
+    const shuffled = [...entries].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, count)
   }
 
   return {
