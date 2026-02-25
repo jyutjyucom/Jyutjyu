@@ -1,3 +1,31 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+const loadDictionaryIds = (): string[] => {
+  const candidates = [
+    resolve(process.cwd(), 'content/dictionaries/index.json'),
+    resolve(process.cwd(), 'public/dictionaries/index.json')
+  ]
+
+  for (const filePath of candidates) {
+    try {
+      const raw = readFileSync(filePath, 'utf8')
+      const parsed = JSON.parse(raw) as { dictionaries?: Array<{ id?: string }> }
+      if (Array.isArray(parsed?.dictionaries)) {
+        return parsed.dictionaries
+          .map((dict) => String(dict?.id || '').trim())
+          .filter((id) => id)
+      }
+    } catch {
+      // Ignore missing or invalid files
+    }
+  }
+
+  return []
+}
+
+const dictionaryIds = loadDictionaryIds()
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
@@ -146,7 +174,11 @@ export default defineNuxtConfig({
     preset: 'vercel',
     prerender: {
       crawlLinks: false,
-      routes: ['/']
+      routes: [
+        '/',
+        '/browse',
+        ...dictionaryIds.map((id) => `/browse/${encodeURIComponent(id)}`)
+      ]
     }
   },
 

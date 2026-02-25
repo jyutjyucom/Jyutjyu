@@ -103,9 +103,7 @@ const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('
     if (currentSortBy.value !== DEFAULT_SORT_BY) query.sort = currentSortBy.value
 
     return query
-  }),
-  server: false,
-  lazy: true
+  })
 })
 
 const displayedBrowseData = useState<BrowseResponse | null>('browse-displayed-data', () => null)

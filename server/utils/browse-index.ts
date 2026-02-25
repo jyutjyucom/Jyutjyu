@@ -34,6 +34,19 @@ interface BrowseDataset {
   dictionaries: BrowseDictionaryScope[]
 }
 
+interface BrowseIndexManifestScope {
+  total: number
+  total_pages_by_size?: Record<string, number>
+}
+
+interface BrowseIndexManifest {
+  schema_version?: string
+  generated_at?: string
+  page_sizes?: number[]
+  dictionaries?: BrowseDictionaryScope[]
+  scopes?: Record<string, BrowseIndexManifestScope>
+}
+
 interface BrowsePageOptions {
   page: number
   scope?: string
@@ -76,6 +89,8 @@ const DEFAULT_SORT: BrowseSort = 'headword'
 const ALLOWED_SORTS = new Set<BrowseSort>(['headword', 'jyutping'])
 const DICTIONARY_ROOT = resolve(process.cwd(), 'public/dictionaries')
 const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, 'index.json')
+const BROWSE_INDEX_ROOT = resolve(process.cwd(), 'public/browse-index')
+const BROWSE_MANIFEST_PATH = resolve(BROWSE_INDEX_ROOT, 'manifest.json')
 
 const bundledDictionaries = Array.isArray((bundledDictionaryIndex as DictionaryIndex)?.dictionaries)
   ? (bundledDictionaryIndex as DictionaryIndex).dictionaries
@@ -83,6 +98,8 @@ const bundledDictionaries = Array.isArray((bundledDictionaryIndex as DictionaryI
 
 let browseDatasetCache: BrowseDataset | null = null
 let browseDatasetPromise: Promise<BrowseDataset> | null = null
+let browseManifestCache: BrowseIndexManifest | null = null
+let browseManifestPromise: Promise<BrowseIndexManifest | null> | null = null
 
 const normalizeSpace = (value: string): string => value.replace(/\s+/g, ' ').trim()
 
@@ -203,6 +220,37 @@ const loadDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
   const raw = await readFile(DICTIONARY_INDEX_PATH, 'utf8')
   const parsed = JSON.parse(raw) as DictionaryIndex
   return Array.isArray(parsed?.dictionaries) ? parsed.dictionaries : []
+}
+
+const loadBrowseManifest = async (): Promise<BrowseIndexManifest | null> => {
+  try {
+    const raw = await readFile(BROWSE_MANIFEST_PATH, 'utf8')
+    const parsed = JSON.parse(raw) as BrowseIndexManifest
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+const getBrowseManifest = async (): Promise<BrowseIndexManifest | null> => {
+  if (browseManifestCache) {
+    return browseManifestCache
+  }
+  if (browseManifestPromise) {
+    return browseManifestPromise
+  }
+
+  browseManifestPromise = loadBrowseManifest()
+    .then((manifest) => {
+      browseManifestCache = manifest
+      return manifest
+    })
+    .finally(() => {
+      browseManifestPromise = null
+    })
+
+  return browseManifestPromise
 }
 
 const getDictionaryEntries = async (dict: DictionaryIndexItem): Promise<DictionaryEntry[]> => {
@@ -452,19 +500,84 @@ const getBrowseDataset = async (): Promise<BrowseDataset> => {
   return browseDatasetPromise
 }
 
+const getBrowsePageFromPrecomputed = async (options: BrowsePageOptions): Promise<BrowsePageData | null> => {
+  const manifest = await getBrowseManifest()
+  if (!manifest?.scopes) return null
+
+  const safeScope = normalizeSpace(options.scope || 'all') || 'all'
+  const scopeInfo = manifest.scopes[safeScope]
+  if (!scopeInfo) return null
+
+  const safeSort = normalizeSort(options.sort)
+  const safePageSize = normalizePageSize(options.pageSize)
+  const total = Number.isFinite(scopeInfo.total) ? scopeInfo.total : 0
+  const totalPages = typeof scopeInfo.total_pages_by_size?.[String(safePageSize)] === 'number'
+    ? Number(scopeInfo.total_pages_by_size?.[String(safePageSize)])
+    : Math.max(1, Math.ceil(total / safePageSize))
+  const safePage = Math.max(1, Math.min(options.page, totalPages))
+  const pagePath = resolve(BROWSE_INDEX_ROOT, safeScope, safeSort, `size-${safePageSize}`, `page-${safePage}.json`)
+
+  let headwords: string[] = []
+  try {
+    const raw = await readFile(pagePath, 'utf8')
+    const parsed = JSON.parse(raw) as { headwords?: string[] }
+    if (Array.isArray(parsed?.headwords)) {
+      headwords = parsed.headwords
+    }
+  } catch {
+    return null
+  }
+
+  const allTotal = manifest.scopes['all']?.total ?? total
+  const dictionaries = Array.isArray(manifest.dictionaries) ? manifest.dictionaries : []
+
+  return {
+    headwords,
+    total,
+    allTotal,
+    page: safePage,
+    totalPages,
+    pageSize: safePageSize,
+    sort: safeSort,
+    scope: safeScope,
+    dictionaries
+  }
+}
+
 export const isBrowseScopeSupported = async (scope: string): Promise<boolean> => {
+  const manifest = await getBrowseManifest()
+  if (manifest?.scopes) {
+    return scope === 'all' || Boolean(manifest.scopes[scope])
+  }
+
   const dataset = await getBrowseDataset()
   return scope === 'all' || dataset.scopes.has(scope)
 }
 
 export const getBrowseTotalPages = async (pageSize = DEFAULT_PAGE_SIZE): Promise<number> => {
+  const safePageSize = normalizePageSize(pageSize)
+  const manifest = await getBrowseManifest()
+  if (manifest?.scopes?.all) {
+    const totalPages = manifest.scopes.all.total_pages_by_size?.[String(safePageSize)]
+    if (typeof totalPages === 'number') {
+      return Math.max(1, totalPages)
+    }
+
+    const total = Number.isFinite(manifest.scopes.all.total) ? manifest.scopes.all.total : 0
+    return Math.max(1, Math.ceil(total / safePageSize))
+  }
+
   const dataset = await getBrowseDataset()
   const allHeadwords = dataset.scopes.get('all')?.byHeadword || []
-  const safePageSize = normalizePageSize(pageSize)
   return Math.max(1, Math.ceil(allHeadwords.length / safePageSize))
 }
 
 export const getBrowsePage = async (options: BrowsePageOptions): Promise<BrowsePageData> => {
+  const precomputed = await getBrowsePageFromPrecomputed(options)
+  if (precomputed) {
+    return precomputed
+  }
+
   const dataset = await getBrowseDataset()
   const safeScope = normalizeSpace(options.scope || 'all') || 'all'
   const safeSort = normalizeSort(options.sort)
