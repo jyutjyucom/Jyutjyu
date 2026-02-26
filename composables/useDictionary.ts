@@ -26,10 +26,6 @@ let chunkedDictionaries: Array<{id: string, chunk_dir: string}> | null = null
 let cachedDictionaryIndex: any | null = null
 let dictionaryIndexPromise: Promise<any | null> | null = null
 
-// 推荐词条缓存（模块级，跨实例复用）
-let recommendedEntriesCache: DictionaryEntry[] | null = null
-let recommendedEntriesPromise: Promise<DictionaryEntry[]> | null = null
-
 const fallbackChunkedDictionaries: Array<{id: string, chunk_dir: string}> = [
   { id: 'hk-cantowords', chunk_dir: 'cantowords' },
   { id: 'wiktionary-cantonese', chunk_dir: 'wiktionary' }
@@ -886,51 +882,29 @@ export const useDictionary = () => {
 
   /**
    * 快速获取随机推荐词条
-   * 使用预生成的推荐词条清单，避免首页加载大词典 JSON
+   * 通过轻量 API 按需获取，避免首页下载完整 recommendations.json
    */
   const getRandomRecommendedEntries = async (count: number = 3): Promise<DictionaryEntry[]> => {
     if (!process.client) {
       return []
     }
 
-    const loadRecommendations = async (): Promise<DictionaryEntry[]> => {
-      if (recommendedEntriesCache && recommendedEntriesCache.length > 0) {
-        return recommendedEntriesCache
+    const safeCount = Math.min(Math.max(1, Number(count) || 3), 20)
+    try {
+      const response = await $fetch<{
+        success?: boolean
+        results?: DictionaryEntry[]
+      }>(`/api/random?count=${safeCount}`)
+
+      if (!response?.success || !Array.isArray(response.results)) {
+        return []
       }
 
-      if (recommendedEntriesPromise) {
-        return recommendedEntriesPromise
-      }
-
-      recommendedEntriesPromise = (async () => {
-        try {
-          const response = await fetch('/recommendations.json')
-          if (!response.ok) {
-            console.error('加载推荐词条失败:', response.status)
-            return []
-          }
-          const data = await response.json()
-          const entries = Array.isArray(data?.entries) ? data.entries : (Array.isArray(data) ? data : [])
-          if (entries.length > 0) {
-            recommendedEntriesCache = entries
-          }
-          return entries
-        } catch (error) {
-          console.error('加载推荐词条失败:', error)
-          return []
-        } finally {
-          recommendedEntriesPromise = null
-        }
-      })()
-
-      return recommendedEntriesPromise
+      return response.results
+    } catch (error) {
+      console.error('获取随机推荐词条失败:', error)
+      return []
     }
-
-    const entries = await loadRecommendations()
-    if (!entries.length) return []
-
-    const shuffled = [...entries].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, count)
   }
 
   return {

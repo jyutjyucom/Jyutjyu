@@ -57,6 +57,18 @@ export const useDictionaryAPI = () => {
   }
 
   /**
+   * 探测 API 是否可用
+   */
+  const ping = async (): Promise<boolean> => {
+    try {
+      const response = await $fetch<{ success?: boolean }>('/api/dictionaries')
+      return response?.success === true
+    } catch {
+      return false
+    }
+  }
+
+  /**
    * 搜索词条
    */
   const search = async (
@@ -199,6 +211,7 @@ export const useDictionaryAPI = () => {
 
   return {
     isAPIEnabled,
+    ping,
     search,
     searchBasic,
     getEntryById,
