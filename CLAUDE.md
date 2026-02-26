@@ -29,6 +29,12 @@ npm run preview      # Preview production build
 npm run lint         # Run ESLint
 npm run lint:fix     # Auto-fix ESLint issues
 npm run typecheck    # Run TypeScript type checking
+npm run test         # Run tests (Node.js built-in test runner)
+```
+
+Tests live in `tests/` as `.test.mjs` files. Run a single test with:
+```bash
+node --test tests/search-query-variants.test.mjs
 ```
 
 ### Data Processing
@@ -87,6 +93,8 @@ The application supports two storage modes, controlled by `NUXT_PUBLIC_USE_API` 
    - Server-side OpenCC conversion
    - Supports Atlas Search for full-text search
    - Suitable for production, large-scale deployments
+
+3. **Auto Mode** (neither set): If `MONGODB_URI` is configured, defaults to API mode; otherwise uses static JSON.
 
 **Implementation**: `composables/useSearch.ts` automatically selects the appropriate implementation based on runtime config.
 
@@ -159,13 +167,20 @@ When adding a new dictionary, create a new adapter following the pattern in exis
 
 ### Internationalization
 
-Configured in `i18n.config.ts` with 4 locales:
-- `yue-Hant`: 粵文 (Cantonese in traditional characters)
-- `yue-Hans`: 简体粤文 (Cantonese in simplified characters)
-- `zh-Hant`: 繁體中文 (Traditional Chinese)
-- `zh-Hans`: 简体中文 (Simplified Chinese)
+Configured in `i18n.config.ts` with 2 locales:
+- `yue-Hant`: 粵文 (Cantonese in traditional characters) - source locale
+- `yue-Hans`: 简体粤文 (Cantonese in simplified characters) - auto-generated
 
-Strategy: `no_prefix` (no URL prefix for locales), browser language detection enabled.
+Strategy: `no_prefix` (no URL prefix for locales), browser language detection disabled.
+
+The `yue-Hans` locale is auto-generated from `yue-Hant` by `scripts/generate-yue-hans.js` (run automatically during `prebuild`/`pregenerate`). Source messages live in `locales/yue-Hant.source.mjs`.
+
+### Build Hooks
+
+`prebuild` and `pregenerate` automatically run three scripts:
+- `build:i18n-hans`: Generate simplified Chinese locale from traditional source
+- `build:browse-index`: Build browse page index data
+- `build:recommendations`: Build random entry recommendation data
 
 ### Chunked Dictionary Loading
 
@@ -283,3 +298,9 @@ Different dictionaries have different licenses - handle with care:
 - Original contributions: CC BY-NC 4.0
 
 Always display license information and attribution in the UI. See `CONTRIBUTING.md` for details.
+
+## Commit Conventions
+
+Use Conventional Commits: `feat(search): add fuzzy Jyutping matching`
+
+Common scopes: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
