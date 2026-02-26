@@ -107,6 +107,8 @@ class SearchCache {
 
 // 全局缓存实例(在客户端持久化)
 let searchCacheInstance: SearchCache | null = null
+let apiAvailability: boolean | null = null
+let apiAvailabilityPromise: Promise<boolean> | null = null
 
 /**
  * 获取缓存实例
@@ -127,14 +129,50 @@ const getSearchCache = (): SearchCache => {
 export const useSearch = () => {
   const config = useRuntimeConfig()
   // 环境变量可能是字符串 'true' 或布尔值 true，使用 String() 统一处理
-  const useApi = config.public.useApi === true || String(config.public.useApi) === 'true'
-  
-  // 根据配置选择实现
-  const apiSearch = useApi ? useDictionaryAPI() : null
-  const jsonSearch = !useApi ? useDictionary() : null
+  const preferApiByConfig = config.public.useApi === true || String(config.public.useApi) === 'true'
+
+  // 两种实现都保持可用：默认按配置走，客户端可在 auto 模式探测 API 并升级
+  const apiSearch = useDictionaryAPI()
+  const jsonSearch = useDictionary()
   
   // 获取缓存实例
   const cache = getSearchCache()
+
+  const resolveUseApi = async (probeIfNeeded: boolean = true): Promise<boolean> => {
+    // 配置明确启用 API 时，不再探测
+    if (preferApiByConfig) {
+      apiAvailability = true
+      return true
+    }
+
+    // 服务端保持配置语义，避免 SSR 时额外探测
+    if (!process.client || !probeIfNeeded) {
+      return false
+    }
+
+    if (apiAvailability !== null) {
+      return apiAvailability
+    }
+
+    if (apiAvailabilityPromise) {
+      return apiAvailabilityPromise
+    }
+
+    apiAvailabilityPromise = (async () => {
+      try {
+        const available = await apiSearch.ping()
+        apiAvailability = available
+        if (available) {
+          console.log('✅ 检测到 API 可用，自动切换到 API 搜索模式')
+        }
+        return available
+      } finally {
+        apiAvailabilityPromise = null
+      }
+    })()
+
+    return apiAvailabilityPromise
+  }
   
   /**
    * 搜索词条(带缓存)
@@ -146,16 +184,14 @@ export const useSearch = () => {
     // 只在客户端使用缓存
     if (!process.client) {
       // 服务器端直接执行搜索
-      if (useApi && apiSearch) {
+      if (preferApiByConfig) {
         return apiSearch.searchBasic(query, {
           limit: options.limit,
           mode: options.searchDefinition ? 'reverse' : 'normal',
           onResults: options.onResults
         })
-      } else if (jsonSearch) {
-        return jsonSearch.searchBasic(query, options)
       }
-      return []
+      return jsonSearch.searchBasic(query, options)
     }
 
     // 检查缓存
@@ -173,8 +209,9 @@ export const useSearch = () => {
 
     // 执行实际搜索
     let results: DictionaryEntry[] = []
+    const useApiNow = await resolveUseApi()
     
-    if (useApi && apiSearch) {
+    if (useApiNow) {
       // 使用 MongoDB API
       // 包装 onResults 回调,只缓存最终结果
       const wrappedOnResults = options.onResults 
@@ -191,7 +228,7 @@ export const useSearch = () => {
         mode: options.searchDefinition ? 'reverse' : 'normal',
         onResults: wrappedOnResults
       })
-    } else if (jsonSearch) {
+    } else {
       // 使用静态 JSON
       // 包装 onResults 回调,只缓存最终结果
       const wrappedOnResults = options.onResults
@@ -221,46 +258,48 @@ export const useSearch = () => {
    * 根据 ID 获取词条
    */
   const getEntryById = async (id: string): Promise<DictionaryEntry | null> => {
-    if (useApi && apiSearch) {
+    const useApiNow = await resolveUseApi()
+    if (useApiNow) {
       return apiSearch.getEntryById(id)
-    } else if (jsonSearch) {
-      return jsonSearch.getEntryById(id)
     }
-    return null
+    return jsonSearch.getEntryById(id)
   }
 
   /**
    * 获取搜索建议
    */
   const getSuggestions = async (query: string): Promise<string[]> => {
-    if (useApi && apiSearch) {
+    const useApiNow = await resolveUseApi()
+    if (useApiNow) {
       // API 模式：使用搜索结果的词头作为建议
       const results = await apiSearch.search(query, { limit: 10 })
       return results
         .map(e => e.headword.normalized)
         .filter((v, i, a) => a.indexOf(v) === i)
-    } else if (jsonSearch) {
-      return jsonSearch.getSuggestions(query)
     }
-    return []
+    return jsonSearch.getSuggestions(query)
   }
 
   /**
    * 获取推荐词条
    */
   const getRandomRecommendedEntries = async (count: number = 3): Promise<DictionaryEntry[]> => {
-    if (useApi && apiSearch) {
+    // 首页推荐优先不触发探测，避免在静态 JSON 模式下额外请求一次 API 健康检查
+    const useApiNow = await resolveUseApi(false)
+    if (useApiNow) {
       return apiSearch.getRandomRecommendedEntries(count)
-    } else if (jsonSearch) {
-      return jsonSearch.getRandomRecommendedEntries(count)
     }
-    return []
+    return jsonSearch.getRandomRecommendedEntries(count)
   }
 
   /**
    * 获取当前使用的模式
    */
-  const getMode = () => useApi ? 'mongodb' : 'json'
+  const getMode = () => {
+    if (preferApiByConfig || apiAvailability === true) return 'mongodb'
+    if (apiAvailability === false) return 'json'
+    return 'auto'
+  }
 
   /**
    * 清空搜索缓存

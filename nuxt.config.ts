@@ -25,6 +25,15 @@ const loadDictionaryIds = (): string[] => {
 }
 
 const dictionaryIds = loadDictionaryIds()
+const resolveUseApi = (): boolean => {
+  const explicit = process.env.NUXT_PUBLIC_USE_API
+  if (explicit === 'true') return true
+  if (explicit === 'false') return false
+  // Auto mode: if MongoDB is configured, default to API search
+  return Boolean(process.env.MONGODB_URI)
+}
+
+const resolvedUseApi = resolveUseApi()
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -159,8 +168,11 @@ export default defineNuxtConfig({
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://jyutjyu.com',
       siteName: '粵語辭叢',
       siteDescription: '開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries',
-      // 是否使用后端 API（false 时回退到静态 JSON）
-      useApi: process.env.NUXT_PUBLIC_USE_API === 'true'
+      // 是否使用后端 API
+      // - NUXT_PUBLIC_USE_API=true: 强制使用 API
+      // - NUXT_PUBLIC_USE_API=false: 默认静态 JSON（客户端可在探测到 API 可用后自动切换）
+      // - 未设置: 自动模式（检测到 MongoDB 配置时默认使用 API）
+      useApi: resolvedUseApi
     }
   },
 
