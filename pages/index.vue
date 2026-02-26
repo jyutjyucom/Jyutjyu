@@ -241,7 +241,6 @@
                     densities="1x 2x"
                     format="webp"
                     quality="70"
-                    loading="lazy"
                     decoding="async"
                     class="w-16 h-20 object-contain bg-white dark:bg-gray-700 rounded-md shadow-md border border-gray-100 dark:border-gray-700"
                   />
@@ -304,17 +303,6 @@
           </div>
         </div>
 
-        <div v-if="dictionariesData && sortedDictionaries.length > 3" class="mt-6 text-center">
-          <button @click="isDictionariesExpanded = !isDictionariesExpanded"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors font-medium">
-            <span v-if="isDictionariesExpanded">{{ t('common.showLess') }}</span>
-            <span v-else>{{ t('common.showMoreDictionaries', { count: sortedDictionaries.length - 3 }) }}</span>
-            <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isDictionariesExpanded }"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
 
         <div class="mt-6 text-center">
           <p class="text-gray-500 dark:text-gray-400 text-sm mb-3">{{ t('common.moreDictionariesComing') }}</p>
@@ -373,9 +361,6 @@ const searchQuery = ref('')
 const enableReverseSearch = ref(false)
 const router = useRouter()
 
-// 控制词典卡片展开/收起
-const isDictionariesExpanded = ref(false)
-
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
 const mobileIndex = useState<number>('home-mobile-index', () => 0)
@@ -414,13 +399,10 @@ const sortedDictionaries = computed(() => {
     })
 })
 
-// 显示的词典列表（根据展开状态截取）
+// 显示的词典列表
 const displayedDictionaries = computed(() => {
   if (!dictionariesData.value) return []
-  if (isDictionariesExpanded.value) {
-    return sortedDictionaries.value
-  }
-  return sortedDictionaries.value.slice(0, 3)
+  return sortedDictionaries.value
 })
 
 const handleSearch = () => {
