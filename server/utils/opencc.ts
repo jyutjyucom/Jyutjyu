@@ -11,6 +11,12 @@ let toSimplifiedConverter: ConverterFunction | null = null
 let toTraditionalConverter: ConverterFunction | null = null
 let isInitialized = false
 let initPromise: Promise<void> | null = null
+let simplifiedToTraditionalMap: Map<string, string[]> | null = null
+
+const CJK_UNIFIED_START = 0x3400
+const CJK_UNIFIED_END = 0x9FFF
+const MAX_AMBIGUOUS_VARIANTS = 128
+const MAX_OPTIONS_PER_CHAR = 6
 
 const trimEdgePunctuation = (value: string): string => {
   return value.replace(/^[\p{P}\p{S}\s]+|[\p{P}\p{S}\s]+$/gu, '').trim()
@@ -18,6 +24,56 @@ const trimEdgePunctuation = (value: string): string => {
 
 const stripAllPunctuation = (value: string): string => {
   return value.replace(/[\p{P}\p{S}\s]+/gu, '')
+}
+
+const buildSimplifiedToTraditionalMap = (): Map<string, string[]> => {
+  if (simplifiedToTraditionalMap) {
+    return simplifiedToTraditionalMap
+  }
+
+  const tempMap = new Map<string, Set<string>>()
+
+  for (let codePoint = CJK_UNIFIED_START; codePoint <= CJK_UNIFIED_END; codePoint++) {
+    const char = String.fromCodePoint(codePoint)
+    const simplified = toSimplifiedSync(char).toLowerCase()
+
+    if (Array.from(simplified).length !== 1) continue
+
+    const options = tempMap.get(simplified) ?? new Set<string>([simplified])
+    options.add(char.toLowerCase())
+    tempMap.set(simplified, options)
+  }
+
+  simplifiedToTraditionalMap = new Map<string, string[]>(
+    Array.from(tempMap.entries()).map(([key, values]) => [key, Array.from(values)])
+  )
+
+  return simplifiedToTraditionalMap
+}
+
+const expandTraditionalAmbiguity = (text: string): string[] => {
+  if (!text) return []
+
+  const ambiguityMap = buildSimplifiedToTraditionalMap()
+  const chars = Array.from(text)
+  let combinations: string[] = ['']
+
+  for (const char of chars) {
+    const options = (ambiguityMap.get(char) ?? [char]).slice(0, MAX_OPTIONS_PER_CHAR)
+    const next: string[] = []
+
+    for (const prefix of combinations) {
+      for (const option of options) {
+        next.push(`${prefix}${option}`)
+        if (next.length >= MAX_AMBIGUOUS_VARIANTS) break
+      }
+      if (next.length >= MAX_AMBIGUOUS_VARIANTS) break
+    }
+
+    combinations = next.length > 0 ? next : combinations.map(prefix => `${prefix}${char}`)
+  }
+
+  return combinations
 }
 
 /**
@@ -109,6 +165,19 @@ export async function getQueryVariants(query: string): Promise<string[]> {
       const traditional = toTraditionalConverter!(seed)
       variants.add(simplified.toLowerCase())
       variants.add(traditional.toLowerCase())
+    })
+
+    const snapshot = Array.from(variants)
+    snapshot.forEach((variant) => {
+      const simplified = toSimplifiedConverter!(variant).toLowerCase()
+      const expandedTraditionalVariants = expandTraditionalAmbiguity(simplified)
+
+      expandedTraditionalVariants.forEach((expandedVariant) => {
+        const normalized = expandedVariant.toLowerCase()
+        variants.add(normalized)
+        variants.add(toSimplifiedConverter!(normalized).toLowerCase())
+        variants.add(toTraditionalConverter!(normalized).toLowerCase())
+      })
     })
   } catch (error) {
     console.warn('获取查询变体失败:', error)
