@@ -1,55 +1,8 @@
-import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
 import { getCanonicalHeadwords } from '../../utils/word-resolver'
-import { getBrowseTotalPages } from '../../utils/browse-index'
 import { getSitemapLastmod } from '../../utils/sitemap-meta'
+import { getBrowseSitemapStaticPaths } from '../../utils/sitemap-browse'
 
 const PAGE_SIZE = 50000
-const DICTIONARY_INDEX_CANDIDATES = [
-  resolve(process.cwd(), 'public/browse-index/manifest.json'),
-  resolve(process.cwd(), 'content/dictionaries/index.json'),
-  resolve(process.cwd(), 'public/dictionaries/index.json')
-]
-
-let dictionaryIdsCache: string[] | null = null
-let dictionaryIdsPromise: Promise<string[]> | null = null
-
-const readDictionaryIdsFromFile = async (filePath: string): Promise<string[]> => {
-  try {
-    const raw = await readFile(filePath, 'utf8')
-    const parsed = JSON.parse(raw) as { dictionaries?: Array<{ id?: string }> }
-    if (!Array.isArray(parsed?.dictionaries)) return []
-    return parsed.dictionaries
-      .map((dict) => String(dict?.id || '').trim())
-      .filter((id) => id)
-  } catch {
-    return []
-  }
-}
-
-const resolveDictionaryIds = async (): Promise<string[]> => {
-  for (const filePath of DICTIONARY_INDEX_CANDIDATES) {
-    const ids = await readDictionaryIdsFromFile(filePath)
-    if (ids.length > 0) return ids
-  }
-  return []
-}
-
-const getDictionaryIds = async (): Promise<string[]> => {
-  if (dictionaryIdsCache) return dictionaryIdsCache
-  if (dictionaryIdsPromise) return dictionaryIdsPromise
-
-  dictionaryIdsPromise = resolveDictionaryIds()
-    .then((ids) => {
-      dictionaryIdsCache = ids
-      return ids
-    })
-    .finally(() => {
-      dictionaryIdsPromise = null
-    })
-
-  return dictionaryIdsPromise
-}
 
 const getSiteUrl = () => {
   const config = useRuntimeConfig()
@@ -71,8 +24,12 @@ export default defineEventHandler(async (event) => {
   const pathMatch = getRequestURL(event).pathname.match(/\/sitemaps\/([^/]+?)(?:\.xml)?$/i)
   const page = toPageNumber(pathMatch?.[1] || getRouterParam(event, 'page'))
   const headwords = await getCanonicalHeadwords()
+  const browseStaticPaths = await getBrowseSitemapStaticPaths()
+  const firstPageWordCapacity = Math.max(0, PAGE_SIZE - browseStaticPaths.length)
+  const totalPages = headwords.length <= firstPageWordCapacity
+    ? 1
+    : 1 + Math.ceil((headwords.length - firstPageWordCapacity) / PAGE_SIZE)
   const siteUrl = getSiteUrl()
-  const totalPages = Math.max(1, Math.ceil(headwords.length / PAGE_SIZE))
   const lastmod = await getSitemapLastmod()
 
   if (!Number.isInteger(page) || page < 1 || page > totalPages) {
@@ -85,23 +42,19 @@ export default defineEventHandler(async (event) => {
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 
   if (page === 1) {
-    xml += buildUrlEntry(siteUrl, lastmod)
-    xml += buildUrlEntry(`${siteUrl}/about`, lastmod)
-    xml += buildUrlEntry(`${siteUrl}/browse`, lastmod)
-
-    const dictionaryIds = await getDictionaryIds()
-    for (const dictId of dictionaryIds) {
-      xml += buildUrlEntry(`${siteUrl}/browse/${encodeURIComponent(dictId)}`, lastmod)
-    }
-
-    const browsePages = await getBrowseTotalPages()
-    for (let p = 2; p <= browsePages; p++) {
-      xml += buildUrlEntry(`${siteUrl}/browse?page=${p}`, lastmod)
+    for (const path of browseStaticPaths) {
+      const location = path ? `${siteUrl}${path}` : siteUrl
+      xml += buildUrlEntry(location, lastmod)
     }
   }
 
-  const start = (page - 1) * PAGE_SIZE
-  const pageHeadwords = headwords.slice(start, start + PAGE_SIZE)
+  const start = page === 1
+    ? 0
+    : firstPageWordCapacity + (page - 2) * PAGE_SIZE
+  const limit = page === 1 ? firstPageWordCapacity : PAGE_SIZE
+  const pageHeadwords = limit > 0
+    ? headwords.slice(start, start + limit)
+    : []
 
   for (const headword of pageHeadwords) {
     xml += buildUrlEntry(`${siteUrl}/word/${encodeURIComponent(headword)}`, lastmod)

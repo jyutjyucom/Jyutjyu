@@ -219,8 +219,12 @@
 
         <!-- Dictionary Grid -->
         <div v-if="dictionariesData" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="dict in displayedDictionaries" :key="dict.id"
-            class="bg-slate-50 dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-blue-800 hover:border hover:border-blue-300 dark:hover:border-blue-600 transition-all p-0 overflow-hidden flex flex-col h-full group">
+          <NuxtLink
+            v-for="dict in displayedDictionaries"
+            :key="dict.id"
+            :to="dictionaryBrowsePath(dict.id)"
+            class="bg-slate-50 dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-blue-800 hover:border hover:border-blue-300 dark:hover:border-blue-600 transition-all p-0 overflow-hidden flex flex-col h-full group"
+          >
             <!-- Header with colored top border -->
             <!-- <div class="h-1.5 w-full bg-gradient-to-r from-blue-400 to-indigo-500"></div> -->
 
@@ -300,7 +304,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </NuxtLink>
         </div>
 
 
@@ -424,6 +428,8 @@ const wordPath = (headword: string) => {
   const cleaned = headword.replace(/[\u200B-\u200D\uFEFF]/g, '')
   return `/word/${encodeURIComponent(cleaned)}`
 }
+
+const dictionaryBrowsePath = (dictId: string) => `/browse/${encodeURIComponent(dictId)}`
 
 const refreshRandomEntries = async () => {
   if (loadingRandomEntries.value) return

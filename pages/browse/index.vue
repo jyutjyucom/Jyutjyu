@@ -47,6 +47,8 @@
 </template>
 
 <script setup lang="ts">
+import type { BrowseResponse } from '~/composables/useBrowsePageData'
+
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
@@ -59,18 +61,6 @@ const ALLOWED_PAGE_SIZES = new Set([100, 500, 1000])
 const DEFAULT_PAGE_SIZE = 100
 const ALLOWED_SORT_BY = new Set(['headword', 'jyutping'])
 const DEFAULT_SORT_BY = 'headword'
-
-interface BrowseResponse {
-  headwords: string[]
-  total: number
-  allTotal: number
-  page: number
-  totalPages: number
-  pageSize: number
-  sort: 'headword' | 'jyutping'
-  scope: string
-  dictionaries: Array<{ id: string; label: string; total: number }>
-}
 
 const currentPage = computed(() => Math.max(1, parseInt(String(route.query.page || '1')) || 1))
 const currentPageSize = computed(() => {
@@ -90,15 +80,12 @@ const handleSearch = () => {
   }
 }
 
-const { data: browseData, pending, error, refresh } = useFetch<BrowseResponse>('/api/browse', {
-  key: () => `browse:all:${currentPage.value}:${currentPageSize.value}:${currentSortBy.value}`,
-  query: computed(() => {
-    const query: Record<string, number | string> = {}
-    if (currentPage.value > 1) query.page = currentPage.value
-    if (currentPageSize.value !== DEFAULT_PAGE_SIZE) query.size = currentPageSize.value
-    if (currentSortBy.value !== DEFAULT_SORT_BY) query.sort = currentSortBy.value
-    return query
-  })
+const browseScope = computed(() => 'all')
+const { data: browseData, pending, error, refresh } = useBrowsePageData({
+  scope: browseScope,
+  page: currentPage,
+  pageSize: currentPageSize,
+  sortBy: currentSortBy
 })
 
 const displayedBrowseData = useState<BrowseResponse | null>('browse-displayed-data', () => null)

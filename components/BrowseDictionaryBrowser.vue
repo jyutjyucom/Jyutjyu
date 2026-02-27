@@ -161,6 +161,7 @@
             v-for="headword in browseData.headwords"
             :key="headword"
             :to="`/word/${encodeURIComponent(headword)}`"
+            :prefetch="false"
             class="px-3 py-2 text-center text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors truncate"
           >
             {{ headword }}
