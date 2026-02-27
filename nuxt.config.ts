@@ -87,8 +87,14 @@ export default defineNuxtConfig({
         code: 'yue-Hans',
         name: '简体粤文'
       },
-
-
+      {
+        code: 'zh-Hant',
+        name: '繁體中文'
+      },
+      {
+        code: 'zh-Hans',
+        name: '简体中文'
+      }
     ]
   },
 

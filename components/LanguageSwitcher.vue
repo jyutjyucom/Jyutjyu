@@ -69,6 +69,10 @@ const localeLabel = (code: string) => {
       return t('common.langYueHans')
     case 'yue-Hant':
       return t('common.langYueHant')
+    case 'zh-Hant':
+      return t('common.langZhHant')
+    case 'zh-Hans':
+      return t('common.langZhHans')
     default:
       return code
   }
