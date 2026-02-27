@@ -127,9 +127,13 @@
                 </span>
               </div>
               <div class="space-y-4">
-                <DictCardGroup v-for="group in displayedGroupedResults.exactMatches" :key="group.key"
-                  :entries="group.entries" :sticky-header="true" :sticky-offset="searchHeaderHeight"
-                  :card-clickable="true" />
+                <DictCardGroup
+                  v-for="group in displayedGroupedResults.exactMatches"
+                  :key="group.key"
+                  :entries="group.entries"
+                  :sticky-header="true"
+                  :sticky-offset="searchHeaderHeight"
+                />
               </div>
             </template>
 
@@ -157,9 +161,13 @@
                 </span>
               </div>
               <div class="space-y-4">
-                <DictCardGroup v-for="group in displayedGroupedResults.otherResults" :key="group.key"
-                  :entries="group.entries" :sticky-header="true" :sticky-offset="searchHeaderHeight"
-                  :card-clickable="true" />
+                <DictCardGroup
+                  v-for="group in displayedGroupedResults.otherResults"
+                  :key="group.key"
+                  :entries="group.entries"
+                  :sticky-header="true"
+                  :sticky-offset="searchHeaderHeight"
+                />
               </div>
             </template>
 
