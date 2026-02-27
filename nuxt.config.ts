@@ -81,19 +81,19 @@ export default defineNuxtConfig({
     locales: [
       {
         code: 'yue-Hant',
-        name: '粵文'
+        name: '粵語'
       },
       {
         code: 'yue-Hans',
-        name: '简体粤文'
+        name: '简体粤语'
       },
       {
         code: 'zh-Hant',
-        name: '繁體中文'
+        name: '繁體普通話'
       },
       {
         code: 'zh-Hans',
-        name: '简体中文'
+        name: '简体普通话'
       }
     ]
   },
