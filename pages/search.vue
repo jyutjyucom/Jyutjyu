@@ -266,7 +266,8 @@ const loading = ref(false)
 const loadingMore = ref(false)
 const suggestions = ref<string[]>([])
 const showSuggestions = ref(false)
-const viewMode = ref<'card' | 'list'>('card')
+// 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
+const viewMode = useState<'card' | 'list'>('search-view-mode', () => 'card')
 const enableReverseSearch = ref(route.query.reverse === '1') // 从 URL 读取反查状态
 const isSearchComplete = ref(true) // 搜索是否完成（流式搜索中用）
 
