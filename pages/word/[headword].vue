@@ -187,10 +187,14 @@ const enableReverseSearch = ref(false)
 const optionsExpanded = ref(false)
 const appHeaderHeight = ref(0)
 
-const { data, pending } = await useFetch<WordResponse>(() => `/api/word/${encodeURIComponent(requestedHeadword.value)}`, {
+const fetchWordData = () => useFetch<WordResponse>(() => `/api/word/${encodeURIComponent(requestedHeadword.value)}`, {
   key: () => `word:${requestedHeadword.value}`,
-  server: true
+  server: true,
+  lazy: process.client
 })
+
+const wordAsyncData = process.server ? await fetchWordData() : fetchWordData()
+const { data, pending } = wordAsyncData
 
 const wordData = computed(() => {
   if (!data.value?.success || !data.value.canonical_headword) {
@@ -207,11 +211,30 @@ const shouldRedirect = computed(() => {
   return normalizeComparable(canonicalHeadword.value) !== normalizeComparable(requestedHeadword.value)
 })
 
-if (wordData.value && shouldRedirect.value) {
-  await navigateTo(`/word/${encodeURIComponent(canonicalHeadword.value)}`, {
-    redirectCode: 301,
-    replace: true
-  })
+const redirectingToCanonical = ref(false)
+const redirectToCanonicalIfNeeded = async () => {
+  if (redirectingToCanonical.value) return
+  if (!wordData.value || !shouldRedirect.value) return
+
+  redirectingToCanonical.value = true
+  try {
+    await navigateTo(`/word/${encodeURIComponent(canonicalHeadword.value)}`, {
+      redirectCode: 301,
+      replace: true
+    })
+  } finally {
+    redirectingToCanonical.value = false
+  }
+}
+
+if (process.server) {
+  await redirectToCanonicalIfNeeded()
+}
+
+if (process.client) {
+  watch([wordData, shouldRedirect], () => {
+    void redirectToCanonicalIfNeeded()
+  }, { immediate: true })
 }
 
 if (process.server && !wordData.value) {

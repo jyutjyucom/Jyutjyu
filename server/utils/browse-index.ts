@@ -555,21 +555,27 @@ export const isBrowseScopeSupported = async (scope: string): Promise<boolean> =>
 }
 
 export const getBrowseTotalPages = async (pageSize = DEFAULT_PAGE_SIZE): Promise<number> => {
+  return getBrowseScopeTotalPages('all', pageSize)
+}
+
+export const getBrowseScopeTotalPages = async (scope: string, pageSize = DEFAULT_PAGE_SIZE): Promise<number> => {
+  const safeScope = normalizeSpace(scope || 'all') || 'all'
   const safePageSize = normalizePageSize(pageSize)
   const manifest = await getBrowseManifest()
-  if (manifest?.scopes?.all) {
-    const totalPages = manifest.scopes.all.total_pages_by_size?.[String(safePageSize)]
+  if (manifest?.scopes?.[safeScope]) {
+    const scopeInfo = manifest.scopes[safeScope]
+    const totalPages = scopeInfo.total_pages_by_size?.[String(safePageSize)]
     if (typeof totalPages === 'number') {
       return Math.max(1, totalPages)
     }
 
-    const total = Number.isFinite(manifest.scopes.all.total) ? manifest.scopes.all.total : 0
+    const total = Number.isFinite(scopeInfo.total) ? scopeInfo.total : 0
     return Math.max(1, Math.ceil(total / safePageSize))
   }
 
   const dataset = await getBrowseDataset()
-  const allHeadwords = dataset.scopes.get('all')?.byHeadword || []
-  return Math.max(1, Math.ceil(allHeadwords.length / safePageSize))
+  const headwords = dataset.scopes.get(safeScope)?.byHeadword || []
+  return Math.max(1, Math.ceil(headwords.length / safePageSize))
 }
 
 export const getBrowsePage = async (options: BrowsePageOptions): Promise<BrowsePageData> => {
