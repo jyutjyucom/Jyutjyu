@@ -88,9 +88,16 @@
         <!-- Desktop: 3 cards in grid -->
         <div v-if="!loadingRandomEntries && randomEntries.length > 0" class="hidden md:grid md:grid-cols-3 gap-6">
           <NuxtLink v-for="entry in randomEntries" :key="entry.id" :to="wordPath(entry.headword.display)" :prefetch="false"
+            @click="navigatingToId = entry.id"
             class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm dark:shadow-gray-900/20 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-8 group relative overflow-hidden">
             <!-- Decorative accent -->
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 transition-opacity">
+            </div>
+
+            <!-- Loading overlay -->
+            <div v-if="navigatingToId === entry.id"
+              class="absolute inset-0 bg-white/75 dark:bg-gray-800/75 flex items-center justify-center z-10 rounded-xl">
+              <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
             </div>
 
             <div class="flex flex-col h-full items-center text-center">
@@ -135,7 +142,13 @@
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <!-- Card content - link to word page -->
             <NuxtLink :to="wordPath(currentMobileEntry.headword.display)" :prefetch="false"
-              class="block p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors">
+              @click="navigatingToId = currentMobileEntry.id"
+              class="block p-7 active:bg-gray-50 dark:active:bg-gray-700 transition-colors relative">
+              <!-- Loading overlay -->
+              <div v-if="navigatingToId === currentMobileEntry.id"
+                class="absolute inset-0 bg-white/75 dark:bg-gray-800/75 flex items-center justify-center z-10">
+                <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+              </div>
               <div class="flex flex-col h-full items-center text-center">
                 <div class="w-full">
                   <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -369,6 +382,7 @@ const router = useRouter()
 const randomEntries = useState<DictionaryEntry[]>('home-random-entries', () => [])
 const mobileIndex = useState<number>('home-mobile-index', () => 0)
 const loadingRandomEntries = ref(false)
+const navigatingToId = ref<string | null>(null)
 
 const { getRandomRecommendedEntries } = useSearch()
 
@@ -456,6 +470,7 @@ const nextMobileEntry = () => {
 
 // 只在首次加载且没有缓存数据时加载推荐词条
 onMounted(() => {
+  navigatingToId.value = null
   if (randomEntries.value.length === 0) {
     refreshRandomEntries()
   }
