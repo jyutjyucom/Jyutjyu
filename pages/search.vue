@@ -68,7 +68,7 @@
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
           <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.searching') }}</p>
         </div>
 
@@ -224,7 +224,7 @@
         </div>
         <template #fallback>
           <div class="text-center py-16">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
             <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
           </div>
         </template>

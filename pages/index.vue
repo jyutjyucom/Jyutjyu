@@ -81,7 +81,7 @@
         <!-- Loading state when refreshing -->
         <div v-if="loadingRandomEntries && randomEntries.length > 0"
           class="text-center py-12 text-gray-500 dark:text-gray-400">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
           <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
         </div>
 
