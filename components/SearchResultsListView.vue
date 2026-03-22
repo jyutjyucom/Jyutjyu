@@ -3,12 +3,12 @@
     <!-- 完全匹配的结果（仅文字搜索时显示） -->
     <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
       <div
-        class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600 rounded-r-lg flex items-center gap-2">
-        <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="mb-6 p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green flex items-center gap-2">
+        <svg class="w-4 h-4 text-archive-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="text-green-800 dark:text-green-200 text-sm font-semibold">
+        <span class="text-archive-green text-sm font-semibold">
           {{ t('common.exactMatchLabel') }}
           {{
             groupedResults.exactMatches.length
@@ -17,52 +17,52 @@
           ，{{ t('dictCard.collectedBy', { count: exactMatchDictionaryCount }) }}
         </span>
       </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <div class="bg-surface-low dark:bg-stone-900 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-blue-100 dark:bg-blue-800">
+            <thead class="bg-surface-high dark:bg-stone-800">
               <tr>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.wordColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.jyutpingColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.definitionColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.sourceColumn') }}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="bg-surface-low dark:bg-stone-900 divide-y divide-outline-soft/20 dark:divide-stone-800">
               <template v-for="group in displayedGroupedResults.exactMatches" :key="group.key">
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" role="link"
+                <tr class="hover:bg-surface-low dark:hover:bg-stone-800 cursor-pointer transition-colors" role="link"
                   tabindex="0" @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)">
                   <td class="px-3 whitespace-nowrap py-2">
                     <NuxtLink
                       :to="getWordPath(group)"
-                      class="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      class="text-lg font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors"
                       @click.stop
                     >
                       {{ group.primary.headword.display }}
                     </NuxtLink>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
-                    <div class="text-lg font-mono font-semibold text-blue-600 dark:text-blue-400">
+                    <div class="text-lg font-semibold text-kapok">
                       {{ getGroupJyutping(group) || '-' }}
                     </div>
                   </td>
                   <td class="px-3 py-2">
-                    <div class="text-base text-gray-700 dark:text-gray-300 line-clamp-2">
+                    <div class="text-base text-ink/80 dark:text-stone-300 line-clamp-2">
                       {{ getGroupDefinitions(group) || '-' }}
                     </div>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="flex flex-wrap gap-1">
                       <span v-for="source in getGroupSources(group)" :key="source"
-                        class="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                        class="px-2 py-1 text-sm bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md">
                         {{ source }}
                       </span>
                     </div>
@@ -78,74 +78,74 @@
     <!-- 其他相关结果 -->
     <template v-if="displayedGroupedResults.otherResults.length > 0">
       <div
-        class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
+        class="mb-6 p-3 border-l-4 bg-muted-gold/10 dark:bg-muted-gold/20 border-muted-gold flex items-center gap-2"
         :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
-        <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-muted-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span v-if="isTextSearch && sortBy === 'relevance'"
-          class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+          class="text-muted-gold text-sm font-semibold">
           {{ t('common.otherResultsLabel') }}
           {{ groupedResults.otherResults.length }}
           {{ t('common.remainingSuffix') }}
           ，{{ t('dictCard.collectedBy', { count: otherResultsDictionaryCount }) }}
         </span>
-        <span v-else class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+        <span v-else class="text-muted-gold text-sm font-semibold">
           {{ t('common.searchHeader') }}
-          <span class="ml-1 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-800 rounded text-blue-900 dark:text-blue-200">{{
+          <span class="ml-1 px-1.5 py-0.5 bg-muted-gold/10 text-muted-gold">{{
             groupedResults.otherResults.length
           }}</span>
           {{ t('common.remainingSuffix') }}
           ，{{ t('dictCard.collectedBy', { count: otherResultsDictionaryCount }) }}
         </span>
       </div>
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+      <div class="bg-surface-low dark:bg-stone-900 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-400 dark:border-gray-600">
+            <thead class="bg-surface-low dark:bg-stone-800 border-b border-outline-soft/20 dark:border-stone-700">
               <tr>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.wordColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.jyutpingColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.definitionColumn') }}
                 </th>
-                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2">
+                <th class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment">
                   {{ t('common.sourceColumn') }}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="bg-surface-low dark:bg-stone-900 divide-y divide-outline-soft/20 dark:divide-stone-800">
               <template v-for="group in displayedGroupedResults.otherResults" :key="group.key">
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors" role="link"
+                <tr class="hover:bg-surface-low dark:hover:bg-stone-800 cursor-pointer transition-colors" role="link"
                   tabindex="0" @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)">
                   <td class="px-3 whitespace-nowrap py-2">
                     <NuxtLink
                       :to="getWordPath(group)"
-                      class="text-base font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      class="text-base font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors"
                       @click.stop
                     >
                       {{ group.primary.headword.display }}
                     </NuxtLink>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
-                    <div class="text-base font-mono font-semibold text-blue-600 dark:text-blue-400">
+                    <div class="text-base font-semibold text-kapok">
                       {{ getGroupJyutping(group) || '-' }}
                     </div>
                   </td>
                   <td class="px-3 py-2">
-                    <div class="text-base text-gray-700 dark:text-gray-300 line-clamp-2">
+                    <div class="text-base text-ink/80 dark:text-stone-300 line-clamp-2">
                       {{ getGroupDefinitions(group) || '-' }}
                     </div>
                   </td>
                   <td class="px-3 whitespace-nowrap py-2">
                     <div class="flex flex-wrap gap-1">
                       <span v-for="source in getGroupSources(group)" :key="source"
-                        class="px-2 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                        class="px-2 py-1 text-sm bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md">
                         {{ source }}
                       </span>
                     </div>

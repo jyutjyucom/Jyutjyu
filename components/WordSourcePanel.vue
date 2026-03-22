@@ -19,7 +19,7 @@
           <span
             v-for="dialect in dialectLabels"
             :key="dialect"
-            class="px-2 py-0.5 bg-archive-green/10 dark:bg-emerald-900/20 text-archive-green dark:text-emerald-400 rounded-md text-xs whitespace-nowrap"
+            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap"
           >
             {{ dialect }}
           </span>
@@ -51,9 +51,9 @@
       >
         <!-- Red divider between entries (desktop) -->
         <div v-if="!collapsible && entryIdx > 0" class="flex items-center gap-3 mb-8 -mt-2">
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-emerald-800/30"></div>
-          <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-emerald-700/50"></div>
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-emerald-800/30"></div>
+          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"></div>
+          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
         </div>
         <div class="space-y-6">
           <!-- Metadata badges + feedback button (top) -->
@@ -66,7 +66,7 @@
               </span>
 
               <span
-                class="px-2 py-1 bg-archive-green/10 dark:bg-emerald-900/20 text-archive-green dark:text-emerald-400 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap"
               >
                 {{ getDialectLabel(entry) }}
               </span>
@@ -101,7 +101,7 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green dark:text-emerald-400 rounded-md text-xs whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
               label-class="text-xs"
             />
           </div>
@@ -285,7 +285,7 @@
             v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
             class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 rounded-lg text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-archive-green dark:text-emerald-400">{{ t('dictCard.etymology') }}</span>
+            <span class="font-semibold text-archive-green dark:text-archive-green">{{ t('dictCard.etymology') }}</span>
             {{ entry.meta.etymology }}
           </div>
 
@@ -387,7 +387,7 @@ const panelClasses = computed(() => {
       props.active ? 'shadow-md dark:shadow-black/30' : ''
     ]
   }
-  return ['']
+  return []
 })
 
 const dialectLabels = computed(() => {

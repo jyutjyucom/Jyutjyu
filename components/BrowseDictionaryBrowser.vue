@@ -2,26 +2,28 @@
   <div class="space-y-6">
     <div class="lg:grid lg:grid-cols-12 lg:gap-6">
       <aside class="hidden lg:block lg:col-span-4 xl:col-span-3">
-        <div class="sticky top-24 rounded-xl bg-white dark:bg-gray-800 shadow-sm dark:shadow-black/20 overflow-hidden">
-          <p class="px-4 py-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+        <div class="sticky top-24 overflow-hidden">
+          <p class="px-4 py-3 text-xs font-bold uppercase tracking-[0.15em] text-graphite/50 dark:text-stone-500 border-b border-outline-soft/20 dark:border-stone-800">
             {{ t('browse.dictionaries') }}
           </p>
-          <nav aria-label="Dictionary browse scopes" class="divide-y divide-gray-100 dark:divide-gray-700">
+          <nav aria-label="Dictionary browse scopes" class="divide-y divide-outline-soft/10 dark:divide-stone-800">
             <NuxtLink
               v-for="scope in scopeTabs"
               :key="scope.id"
               :to="buildScopeLink(scope.id)"
-              class="flex items-center justify-between gap-3 px-4 py-3 text-sm transition-colors"
+              active-class=""
+              exact-active-class=""
+              class="flex items-center justify-between gap-3 px-4 py-3 text-sm transition-all border-l-4"
               :class="activeScopeId === scope.id
-                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                : 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50'"
+                ? 'bg-surface-high dark:bg-stone-800 !border-l-kapok text-ink dark:text-parchment font-semibold'
+                : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-transparent font-medium'"
             >
-              <span class="font-medium break-words">{{ scope.label }}</span>
+              <span class="break-words">{{ scope.label }}</span>
               <span
-                class="text-xs px-2 py-1 rounded-full whitespace-nowrap"
+                class="text-xs px-2 py-0.5 whitespace-nowrap"
                 :class="activeScopeId === scope.id
-                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'"
+                  ? 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
+                  : 'bg-surface-highest dark:bg-stone-700 text-graphite/60 dark:text-stone-500'"
               >
                 {{ formatCount(scope.total) }}
               </span>
@@ -31,24 +33,24 @@
       </aside>
 
       <section class="lg:col-span-8 xl:col-span-9">
-        <div class="lg:hidden sticky top-0 z-[8] bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/90 supports-[backdrop-filter]:dark:bg-gray-900/90 border-y border-gray-200 dark:border-gray-700 -mx-4 px-4">
+        <div class="lg:hidden sticky top-0 z-[8] bg-parchment/95 dark:bg-stone-950/95 backdrop-blur supports-[backdrop-filter]:bg-parchment/90 supports-[backdrop-filter]:dark:bg-stone-950/90 -mx-6 md:-mx-8 px-6 md:px-8">
           <div class="overflow-x-auto py-2" role="tablist" :aria-label="t('browse.dictionaries')">
-            <div class="flex flex-nowrap items-center gap-2 min-w-max">
+            <div class="flex flex-nowrap items-center gap-1.5 min-w-max bg-surface-low dark:bg-stone-900 p-1.5 rounded-lg w-fit">
               <NuxtLink
                 v-for="scope in scopeTabs"
                 :key="`mobile:${scope.id}`"
                 :to="buildScopeLink(scope.id)"
-                class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm whitespace-nowrap transition-colors"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm whitespace-nowrap transition-all"
                 :class="activeScopeId === scope.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20'"
+                  ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
+                  : 'text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 font-medium'"
               >
-                <span class="font-medium">{{ scope.label }}</span>
+                <span>{{ scope.label }}</span>
                 <span
                   class="text-xs px-1.5 py-0.5 rounded-full"
                   :class="activeScopeId === scope.id
                     ? 'bg-white/20 text-white'
-                    : 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'"
+                    : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'"
                 >
                   {{ formatCount(scope.total) }}
                 </span>
@@ -57,19 +59,19 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-4 py-3">
-          <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base">
-            <span class="font-medium text-gray-900 dark:text-gray-100">{{ activeScopeLabel }}</span>
-            <span class="mx-2 text-gray-400 dark:text-gray-500">·</span>
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-low dark:bg-stone-900 px-4 py-3">
+          <p class="text-graphite dark:text-stone-400 text-sm md:text-base">
+            <span class="font-medium text-ink dark:text-parchment">{{ activeScopeLabel }}</span>
+            <span class="mx-2 text-graphite/30 dark:text-stone-600">·</span>
             {{ t('browse.entries', { count: formatCount(browseData.total) }) }}
           </p>
 
           <div class="flex flex-wrap items-center justify-end gap-3">
-            <label class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <label class="inline-flex items-center gap-2 text-sm text-graphite dark:text-stone-400">
               <span>{{ t('common.sortLabel') }}</span>
               <select
                 :value="safeSortBy"
-                class="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                class="px-3 py-1.5 bg-white dark:bg-stone-800 border border-outline-soft/20 dark:border-stone-700 text-ink dark:text-stone-100"
                 @change="handleSortChange"
               >
                 <option v-for="sort in sortOptions" :key="sort" :value="sort">
@@ -78,11 +80,11 @@
               </select>
             </label>
 
-            <label class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <label class="inline-flex items-center gap-2 text-sm text-graphite dark:text-stone-400">
               <span>{{ t('browse.pageSize') }}</span>
               <select
                 :value="browseData.pageSize"
-                class="px-3 py-1.5 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                class="px-3 py-1.5 bg-white dark:bg-stone-800 border border-outline-soft/20 dark:border-stone-700 text-ink dark:text-stone-100"
                 @change="handlePageSizeChange"
               >
                 <option v-for="size in pageSizeOptions" :key="size" :value="size">
@@ -99,18 +101,18 @@
               <NuxtLink
                 v-if="browseData.page > 1"
                 :to="buildScopePath(activeScopeId, browseData.page - 1, browseData.pageSize)"
-                class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-900 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                class="px-3 py-1.5 text-sm font-medium text-archive-green bg-surface-low dark:bg-stone-800 hover:bg-surface-high dark:hover:bg-stone-700 transition-colors"
               >
                 {{ t('browse.prevPage') }}
               </NuxtLink>
               <span
                 v-else
-                class="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 rounded-lg cursor-not-allowed"
+                class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
               >
                 {{ t('browse.prevPage') }}
               </span>
 
-              <label class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 px-1">
+              <label class="inline-flex items-center gap-1 text-sm text-graphite/60 dark:text-stone-500 px-1">
                 <span>{{ t('browse.pageInputPrefix') }}</span>
                 <input
                   v-model="pageInput"
@@ -118,7 +120,7 @@
                   min="1"
                   :max="browseData.totalPages"
                   :disabled="loading"
-                  class="w-16 px-2 py-1 rounded-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-center text-gray-900 dark:text-gray-100 disabled:opacity-60"
+                  class="w-16 px-2 py-1 bg-white dark:bg-stone-800 border border-outline-soft/20 dark:border-stone-700 text-center text-ink dark:text-stone-100 disabled:opacity-60"
                   :aria-label="t('browse.pageInfo', { page: browseData.page, total: browseData.totalPages })"
                   @keydown.enter.prevent="commitPageInput"
                   @blur="commitPageInput"
@@ -129,13 +131,13 @@
               <NuxtLink
                 v-if="browseData.page < browseData.totalPages"
                 :to="buildScopePath(activeScopeId, browseData.page + 1, browseData.pageSize)"
-                class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800"
+                class="px-3 py-1.5 text-sm font-medium text-white bg-kapok hover:bg-kapok/90 transition-colors"
               >
                 {{ t('browse.nextPage') }}
               </NuxtLink>
               <span
                 v-else
-                class="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 bg-blue-50 dark:bg-blue-950 rounded-lg cursor-not-allowed"
+                class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
               >
                 {{ t('browse.nextPage') }}
               </span>
@@ -145,24 +147,24 @@
 
         <div
           v-if="loading"
-          class="my-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm min-h-[18rem] flex items-center justify-center"
+          class="my-4 bg-surface-low dark:bg-stone-900 min-h-[18rem] flex items-center justify-center"
         >
-          <div class="text-center text-gray-500 dark:text-gray-400">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
+          <div class="text-center text-graphite/60 dark:text-stone-500">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-kapok border-t-transparent"></div>
             <p class="mt-3 text-sm">{{ t('common.loading') }}</p>
           </div>
         </div>
 
         <div
           v-else-if="browseData.headwords.length > 0"
-          class="my-4 shadow-sm grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 rounded-xl overflow-hidden bg-white dark:bg-gray-800"
+          class="my-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 overflow-hidden bg-surface-low dark:bg-stone-900"
         >
           <NuxtLink
             v-for="headword in browseData.headwords"
             :key="headword"
             :to="`/word/${encodeURIComponent(headword)}`"
             :prefetch="false"
-            class="px-3 py-2 text-center text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors truncate"
+            class="px-3 py-2 text-center text-sm font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-low dark:hover:bg-stone-800 transition-colors truncate"
           >
             {{ headword }}
           </NuxtLink>
@@ -170,7 +172,7 @@
 
         <div
           v-else
-          class="text-center py-10 text-sm text-gray-500 dark:text-gray-400 rounded-xl"
+          class="text-center py-10 text-sm text-graphite/60 dark:text-stone-500"
         >
           {{ t('common.noResultsDescription') }}
         </div>

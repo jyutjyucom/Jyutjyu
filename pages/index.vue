@@ -420,7 +420,7 @@
                 <div class="mt-12 text-center">
                     <NuxtLink
                         to="/browse"
-                        class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 rounded-md font-medium text-sm hover:bg-kapok/90 transition-all shadow-md shadow-kapok/20"
+                        class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-medium text-sm hover:bg-kapok/90 transition-colors"
                     >
                         {{ t("browse.allEntries") }}
                         <svg
@@ -534,7 +534,7 @@
                         </p>
                         <NuxtLink
                             to="/about"
-                            class="text-archive-green dark:text-emerald-400 text-sm font-semibold hover:underline underline-offset-4 transition-all"
+                            class="text-archive-green dark:text-archive-green text-sm font-semibold hover:underline underline-offset-4 transition-all"
                         >
                             {{ t("common.viewLicense") }}
                         </NuxtLink>
@@ -545,7 +545,7 @@
             <!-- Contribute Section -->
             <section class="max-w-7xl mx-auto px-6 py-24">
                 <div
-                    class="rounded-lg p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden bg-surface-low dark:bg-stone-900"
+                    class="p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden bg-surface-low dark:bg-stone-900"
                 >
                     <!-- Decorative background icon -->
                     <div
@@ -581,7 +581,7 @@
                             <a
                                 href="https://github.com/jyutjyucom/jyutjyu"
                                 target="_blank"
-                                class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 rounded-md font-bold text-sm tracking-wide hover:bg-kapok/90 transition-all shadow-lg shadow-kapok/10"
+                                class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/90 transition-all shadow-lg shadow-kapok/10"
                             >
                                 <Github class="w-4 h-4" aria-hidden="true" />
                                 {{ t("common.github") }}
@@ -589,13 +589,13 @@
                             <a
                                 href="https://github.com/jyutjyucom/jyutjyu/blob/main/docs/CSV_GUIDE.md"
                                 target="_blank"
-                                class="inline-flex items-center gap-2 text-kapok border border-kapok/20 px-6 py-3 rounded-md font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
+                                class="inline-flex items-center gap-2 text-kapok border border-kapok/20 px-6 py-3 font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
                             >
                                 <Database class="w-4 h-4" aria-hidden="true" />
                                 {{ t("common.contributeData") }}
                             </a>
                             <FeedbackButton
-                                button-class="px-6 py-3 text-kapok border border-kapok/20 rounded-md font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
+                                button-class="px-6 py-3 text-kapok border border-kapok/20 font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
                                 label-class="text-sm"
                             />
                         </div>

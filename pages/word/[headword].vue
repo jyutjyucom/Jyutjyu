@@ -32,12 +32,12 @@
       <div v-else>
         <NuxtLink
           :to="searchLink"
-          class="inline-flex items-center gap-1.5 text-base font-medium text-archive-green dark:text-emerald-400 hover:text-archive-green/70 dark:hover:text-emerald-300 transition-colors mb-8"
+          class="inline-flex items-center gap-1.5 text-base font-medium text-archive-green dark:text-archive-green hover:text-archive-green/70 dark:hover:text-archive-green/70 transition-colors mb-8"
         >
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
-          {{ `${searchResultCount ?? '...'} 條搜尋結果` }}
+          {{ `${backSearchResultCount ?? '...'} 條搜尋結果` }}
         </NuxtLink>
 
         <div class="mb-8">
@@ -353,7 +353,6 @@ const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
 
 const backSearchResultCount = ref<number | null>(null)
 const backSearchAggregated = ref<AggregatedEntry[]>([])
-const searchResultCount = computed(() => backSearchResultCount.value)
 const backSearchCountRequestId = ref(0)
 
 const refreshBackSearchResultCount = async () => {

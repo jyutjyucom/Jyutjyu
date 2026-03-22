@@ -38,8 +38,8 @@
 
       <template #after>
         <div v-if="actualSearchQuery && allResults.length > 0"
-          class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
-          <div class="container mx-auto px-4 py-3">
+          class="hidden lg:block border-t border-outline-soft/20 dark:border-stone-800 bg-surface-low/80 dark:bg-stone-900/80">
+          <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
             <div class="flex flex-nowrap items-center gap-3">
               <SearchFilterControls :selected-dict="selectedDict" :selected-dialect="selectedDialect"
                 :selected-type="selectedType" :show-dict-dropdown="showDictDropdown"
@@ -64,18 +64,18 @@
     </AppHeader>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8 min-h-[60vh]">
+    <main class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh]">
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.searching') }}</p>
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
+          <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.searching') }}</p>
         </div>
 
         <!-- Results Info -->
         <div v-else-if="actualSearchQuery" class="mb-6">
-          <h2 class="text-2xl text-gray-900 dark:text-gray-100 flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center p-2 rounded-md font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 leading-none">
+          <h2 class="text-2xl text-ink dark:text-parchment flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center p-2 font-semibold bg-kapok/10 dark:bg-kapok/20 text-kapok leading-none">
               {{ actualSearchQuery }}
             </span>
             <span>
@@ -89,14 +89,13 @@
         <!-- No Results -->
         <div v-if="!loading && isSearchComplete && actualSearchQuery && allResults.length === 0"
           class="text-center py-16">
-          <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
             {{ t('common.noResultsTitle') }}
           </h3>
-          <p class="text-gray-600 dark:text-gray-300 mb-6">
+          <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t('common.noResultsDescription') }}
           </p>
-          <div class="text-sm text-gray-500 dark:text-gray-400">
+          <div class="text-sm text-graphite/60 dark:text-stone-500">
             <p class="font-semibold mb-2">{{ t('common.noResultsTipsTitle') }}</p>
             <ul class="space-y-1">
               <li>• {{ t('common.noResultsTip1') }}</li>
@@ -114,13 +113,13 @@
             <!-- 完全匹配的结果（仅文字搜索时显示） -->
             <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
               <div
-                class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600 rounded-r-lg flex items-center gap-2 shadow-sm">
-                <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor"
+                class="mb-6 p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green flex items-center gap-2">
+                <svg class="w-4 h-4 text-archive-green" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="text-green-800 dark:text-green-200 text-sm font-semibold">
+                <span class="text-archive-green dark:text-archive-green text-sm font-semibold">
                   {{ t('common.exactMatchLabel') }} {{ groupedResults.exactMatches.length
                   }} {{ t('common.remainingSuffix') }}
                   ，{{ t('dictCard.collectedBy', { count: exactMatchDictionaryCount }) }}
@@ -133,6 +132,7 @@
                   :entries="group.entries"
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true"
                 />
               </div>
             </template>
@@ -140,21 +140,21 @@
             <!-- 其他相关结果 -->
             <template v-if="displayedGroupedResults.otherResults.length > 0">
               <div
-                class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
+                class="mb-6 p-3 border-l-4 bg-muted-gold/10 dark:bg-muted-gold/20 border-muted-gold flex items-center gap-2"
                 :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
-                <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor"
+                <svg class="w-4 h-4 text-muted-gold" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span v-if="isTextSearch && sortBy === 'relevance'"
-                  class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                  class="text-muted-gold text-sm font-semibold">
                   {{ t('common.otherResultsLabel') }} {{ groupedResults.otherResults.length
                   }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
                     count: otherResultsDictionaryCount
                   }) }}
                 </span>
-                <span v-else class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                <span v-else class="text-muted-gold text-sm font-semibold">
                   {{ t('common.searchHeader') }} {{
                     groupedResults.otherResults.length }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
                     count: otherResultsDictionaryCount }) }}
@@ -167,6 +167,7 @@
                   :entries="group.entries"
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true"
                 />
               </div>
             </template>
@@ -174,7 +175,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -192,7 +193,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -205,18 +206,17 @@
 
         <!-- Empty State -->
         <div v-else-if="!loading" class="text-center py-16">
-          <div class="text-6xl mb-4">📚</div>
-          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
             {{ t('common.startSearchTitle') }}
           </h3>
-          <p class="text-gray-600 dark:text-gray-300 mb-6">
+          <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t('common.startSearchDescription') }}
           </p>
           <!-- 示例搜索 -->
           <div class="flex flex-wrap gap-2 justify-center">
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('common.exampleSearchPrefix') }}</span>
+            <span class="text-sm text-graphite/60 dark:text-stone-500">{{ t('common.exampleSearchPrefix') }}</span>
             <button v-for="example in exampleSearches" :key="example"
-              class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full transition-colors"
+              class="px-3 py-1 text-sm bg-surface-low dark:bg-stone-800 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green text-graphite dark:text-stone-400 rounded-full transition-colors"
               @click="searchExample(example)">
               {{ example }}
             </button>
@@ -224,8 +224,8 @@
         </div>
         <template #fallback>
           <div class="text-center py-16">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-            <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
+            <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.loading') }}</p>
           </div>
         </template>
       </ClientOnly>

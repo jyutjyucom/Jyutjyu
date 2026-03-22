@@ -1,9 +1,9 @@
 <template>
   <div class="flex items-center gap-2">
-    <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ t('common.sortLabel') }}</span>
+    <span class="text-sm text-graphite/60 dark:text-stone-500 font-medium">{{ t('common.sortLabel') }}</span>
     <div class="relative">
       <button
-      class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
+      class="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700"
       @click.stop="$emit('toggle-sort')">
       <span>{{ getSortLabel(sortBy) }}</span>
       <svg class="w-4 h-4 transition-transform" :class="showSortDropdown ? 'rotate-180' : ''" fill="none"
@@ -12,11 +12,11 @@
       </svg>
       </button>
       <div v-if="showSortDropdown"
-        class="absolute top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-1 z-30 min-w-[140px]"
+        class="absolute top-full mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 shadow-lg py-1 z-30 min-w-[140px]"
         :class="dropdownAlign === 'right' ? 'right-0' : 'left-0'">
         <button v-for="sort in ['relevance', 'jyutping', 'headword', 'dictionary']" :key="sort"
-          class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          :class="sortBy === sort ? 'text-blue-600 dark:text-blue-300 font-semibold bg-blue-50 dark:bg-blue-900/30' : 'text-gray-700 dark:text-gray-300'"
+          class="w-full px-4 py-2 text-left text-sm hover:bg-surface-low dark:hover:bg-stone-800 transition-colors"
+          :class="sortBy === sort ? 'text-kapok font-semibold bg-kapok/10 dark:bg-kapok/20' : 'text-graphite dark:text-stone-400'"
           @click="$emit('select-sort', sort as any)">
           {{ getSortLabel(sort) }}
         </button>
