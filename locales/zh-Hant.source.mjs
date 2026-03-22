@@ -145,6 +145,8 @@ const messagesZhHant = {
     references: "參考文獻：",
     seeAlso: "參見：",
     usage: "用法:",
+    usageExamples: "用例",
+    relatedPhrases: "相關詞彙",
   },
   about: {
     pageTitle: "關於",

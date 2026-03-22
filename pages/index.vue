@@ -46,7 +46,7 @@
                     <!-- Search Bar -->
                     <div class="w-full max-w-4xl mx-auto group">
                         <div
-                            class="relative flex items-center bg-white dark:bg-stone-900 shadow-sm rounded-lg overflow-hidden border border-outline-soft/10 dark:border-stone-700 focus-within:ring-1 focus-within:ring-kapok/30 transition-all duration-300"
+                            class="relative flex items-center bg-white dark:bg-stone-900 overflow-hidden transition-colors duration-300"
                         >
                             <!-- Search icon -->
                             <svg
@@ -73,7 +73,7 @@
                                 class="absolute right-3 flex items-center gap-2"
                             >
                                 <button
-                                    class="bg-kapok text-white px-5 py-2.5 rounded-md font-medium text-sm hover:bg-kapok/90 transition-all shadow-md shadow-kapok/20"
+                                    class="bg-kapok text-white px-5 py-2.5 font-medium text-sm hover:bg-kapok/90 transition-colors"
                                     @click="handleSearch"
                                 >
                                     {{ t("common.searchButton") }}
@@ -86,13 +86,13 @@
                         >
                             <template v-if="enableReverseSearch">
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-kapok-container hover:text-kapok dark:hover:bg-kapok/10 dark:hover:text-kapok transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('為什麼')"
                                 >
                                     為什麼
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-kapok-container hover:text-kapok dark:hover:bg-kapok/10 dark:hover:text-kapok transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('奇怪')"
                                 >
                                     奇怪
@@ -100,13 +100,13 @@
                             </template>
                             <template v-else>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-kapok-container hover:text-kapok dark:hover:bg-kapok/10 dark:hover:text-kapok transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('阿Sir')"
                                 >
                                     阿Sir
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-kapok-container hover:text-kapok dark:hover:bg-kapok/10 dark:hover:text-kapok transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('aa3 soe4')"
                                 >
                                     aa3 soe4
@@ -222,9 +222,12 @@
                                 {{ featuredEntry.headword.display }}
                             </h3>
                             <div class="flex items-center gap-4 mb-6">
-                                <span class="text-2xl text-kapok font-semibold">{{
-                                    featuredEntry.phonetic.jyutping[0]
-                                }}</span>
+                                <span
+                                    class="text-2xl text-kapok font-semibold"
+                                    >{{
+                                        featuredEntry.phonetic.jyutping[0]
+                                    }}</span
+                                >
                             </div>
                             <p
                                 class="text-lg text-ink/80 dark:text-stone-300 leading-relaxed max-w-md line-clamp-4"

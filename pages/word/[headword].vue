@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-parchment dark:bg-stone-950">
     <AppHeader
       v-model:search-query="searchQuery"
       v-model:reverse-search="enableReverseSearch"
@@ -8,89 +8,97 @@
       @height-change="appHeaderHeight = $event"
     />
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="max-w-7xl mx-auto px-6 md:px-8 py-8">
       <div v-if="pending" class="text-center py-16">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
+        <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.loading') }}</p>
       </div>
 
       <div v-else-if="!wordData" class="text-center py-16">
-        <div class="text-6xl mb-4">🔍</div>
-        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
           {{ t('common.noResultsTitle') }}
         </h1>
-        <p class="text-gray-600 dark:text-gray-300 mb-6">
+        <p class="text-graphite dark:text-stone-400 mb-6">
           {{ t('common.noResultsDescription') }}
         </p>
         <NuxtLink
           :to="searchLink"
-          class="inline-flex px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          class="inline-flex px-5 py-2.5 bg-kapok text-white rounded-md hover:bg-kapok/90 transition-colors font-medium text-sm"
         >
           {{ t('common.searchButton') }}
         </NuxtLink>
       </div>
 
-      <div v-else class="space-y-6">
-        <div>
-          <NuxtLink
-            :to="searchLink"
-            class="inline-flex items-center gap-1.5 mb-3 text-base font-medium text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            {{ `${searchResultCount ?? '...'} 條搜尋結果` }}
-          </NuxtLink>
-          <h1 class="mt-4 mx-2 text-4xl font-bold text-gray-900 dark:text-gray-100 break-words">
+      <div v-else>
+        <NuxtLink
+          :to="searchLink"
+          class="inline-flex items-center gap-1.5 text-base font-medium text-archive-green dark:text-emerald-400 hover:text-archive-green/70 dark:hover:text-emerald-300 transition-colors mb-8"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          {{ `${searchResultCount ?? '...'} 條搜尋結果` }}
+        </NuxtLink>
+
+        <div class="mb-8">
+          <h1 class="font-headline text-7xl md:text-8xl font-black text-ink dark:text-parchment leading-none tracking-tighter break-words">
             {{ wordData.canonical_headword }}
           </h1>
+
+          <div class="mt-6 mb-2">
+            <WordPronunciationTabs
+              v-if="pronunciationTabs.length > 0"
+              :model-value="activeJyutpingId"
+              :tabs="pronunciationTabs"
+              :sticky-offset="appHeaderHeight"
+              aria-label="Jyutping tabs"
+              @update:model-value="handleTabChange"
+            />
+          </div>
         </div>
 
-        <WordPronunciationTabs
-          v-if="pronunciationTabs.length > 0"
-          :model-value="activeJyutpingId"
-          :tabs="pronunciationTabs"
-          :sticky-offset="appHeaderHeight"
-          aria-label="Jyutping tabs"
-          @update:model-value="handleTabChange"
-        />
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-kapok/60 dark:bg-kapok/40"></div>
+          <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+        </div>
 
-        <div v-if="activePronunciationGroup" class="space-y-4">
-          <p class="text-sm text-gray-600 dark:text-gray-300">
-            <span class="font-mono text-base md:text-xl text-blue-700 dark:text-blue-300 font-semibold leading-none">
+        <div v-if="activePronunciationGroup">
+          <p class="text-base text-graphite dark:text-stone-400 mb-8">
+            <span class="font-semibold text-xl md:text-2xl text-kapok">
               {{ activePronunciationGroup.label }}
             </span>
-            <span class="mx-2 text-gray-400 dark:text-gray-500">·</span>
+            <span class="mx-2 text-graphite/30 dark:text-stone-600">·</span>
             {{ t('dictCard.collectedBy', { count: activePronunciationGroup.dictionaryCount }) }}
           </p>
 
-          <div class="hidden lg:grid lg:grid-cols-12 gap-4">
+          <div class="hidden lg:grid lg:grid-cols-12 gap-8">
             <aside class="lg:col-span-4 xl:col-span-3">
-              <div class="rounded-xl bg-white dark:bg-gray-800 overflow-hidden shadow-sm dark:shadow-black/20">
-                <button
-                  v-for="source in activePronunciationGroup.sources"
-                  :key="`${activePronunciationGroup.id}:${source.id}`"
-                  type="button"
-                  class="w-full px-4 py-3 text-left border-b last:border-b-0 border-gray-100 dark:border-gray-700 transition-colors"
-                  :class="activeSourceId === source.id
-                    ? 'bg-blue-50 dark:bg-blue-900/20'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'"
-                  @click="selectDesktopSource(source.id)"
-                >
-                  <div class="flex items-center justify-between gap-2">
+              <div class="sticky" :style="{ top: `${appHeaderHeight + 24}px` }">
+                <nav class="space-y-1">
+                  <button
+                    v-for="source in activePronunciationGroup.sources"
+                    :key="`${activePronunciationGroup.id}:${source.id}`"
+                    type="button"
+                    class="w-full px-4 py-3 text-left transition-all flex items-center justify-between group rounded-md"
+                    :class="activeSourceId === source.id
+                      ? 'bg-surface-high dark:bg-stone-800 border-l-4 border-l-kapok'
+                      : 'hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-4 border-l-transparent'"
+                    @click="selectDesktopSource(source.id)"
+                  >
                     <span
-                      class="font-medium text-sm break-words"
+                      class="text-sm break-words"
                       :class="activeSourceId === source.id
-                        ? 'text-blue-700 dark:text-blue-300'
-                        : 'text-gray-800 dark:text-gray-100'"
+                        ? 'text-ink dark:text-parchment font-semibold'
+                        : 'text-graphite dark:text-stone-400 font-medium'"
                     >
                       {{ source.sourceLabel }}
                     </span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    <span class="text-xs text-graphite/60 dark:text-stone-500 whitespace-nowrap ml-2">
                       {{ source.entries.length }} 義項
                     </span>
-                  </div>
-                </button>
+                  </button>
+                </nav>
               </div>
             </aside>
 
@@ -126,10 +134,51 @@
 
         <div
           v-else
-          class="text-center py-12 text-gray-500 dark:text-gray-400"
+          class="text-center py-12 text-graphite dark:text-stone-500"
         >
           {{ t('common.noResultsDescription') }}
         </div>
+
+        <!-- Related Phrases -->
+        <template v-if="relatedWords.length > 0">
+          <div class="flex items-center gap-3 mt-16 mb-8">
+            <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-kapok/60 dark:bg-kapok/40"></div>
+            <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+          </div>
+
+          <div>
+            <h3 class="text-2xl md:text-3xl font-headline font-bold text-ink dark:text-parchment mb-8">
+              {{ t('dictCard.relatedPhrases') }}
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NuxtLink
+                v-for="group in relatedWords.slice(0, 8)"
+                :key="group.key"
+                :to="`/word/${encodeURIComponent(group.primary.headword.display || group.primary.headword.normalized)}`"
+                class="p-5 bg-surface-low dark:bg-stone-900 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 group"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="font-serif text-2xl text-ink dark:text-parchment group-hover:text-kapok transition-colors">
+                      {{ group.primary.headword.display || group.primary.headword.normalized }}
+                    </p>
+                    <p class="text-sm text-graphite dark:text-stone-500 mt-2">
+                      <span v-if="getEntryJyutpingKey(group.primary)" class="text-kapok font-semibold">{{ getEntryJyutpingKey(group.primary) }}</span>
+                      <template v-if="getEntryJyutpingKey(group.primary) && group.primary.senses?.[0]?.definition">
+                        <span class="mx-1.5 text-graphite/30 dark:text-stone-600">·</span>
+                      </template>
+                      <span v-if="group.primary.senses?.[0]?.definition" class="text-graphite/60 dark:text-stone-500">{{ group.primary.senses[0].definition.slice(0, 40) }}{{ group.primary.senses[0].definition.length > 40 ? '…' : '' }}</span>
+                    </p>
+                  </div>
+                  <svg class="w-5 h-5 text-graphite/20 dark:text-stone-700 group-hover:text-kapok transition-colors flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10" />
+                  </svg>
+                </div>
+              </NuxtLink>
+            </div>
+          </div>
+        </template>
       </div>
     </main>
 
@@ -303,6 +352,7 @@ const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
 }
 
 const backSearchResultCount = ref<number | null>(null)
+const backSearchAggregated = ref<AggregatedEntry[]>([])
 const searchResultCount = computed(() => backSearchResultCount.value)
 const backSearchCountRequestId = ref(0)
 
@@ -313,54 +363,78 @@ const refreshBackSearchResultCount = async () => {
   const query = searchHeadword.value.trim()
   if (!query) {
     backSearchResultCount.value = null
+    backSearchAggregated.value = []
     return
   }
 
   backSearchResultCount.value = null
+  backSearchAggregated.value = []
 
   const fetchCount = async () => {
     let streamedCount = 0
+    let lastAggregated: AggregatedEntry[] = []
 
     const results = await searchBasic(query, {
       limit: 1000,
       searchDefinition: false,
       onResults: (entries) => {
-        const count = aggregateEntries(entries).length
+        const aggregated = aggregateEntries(entries)
+        const count = aggregated.length
         if (count > streamedCount) {
           streamedCount = count
+          lastAggregated = aggregated
         }
         if (requestId !== backSearchCountRequestId.value) return
         if (count > 0) {
           backSearchResultCount.value = count
+          backSearchAggregated.value = aggregated
         }
       }
     })
 
-    const finalCount = aggregateEntries(results).length
-    return Math.max(streamedCount, finalCount)
+    const finalAggregated = aggregateEntries(results)
+    const finalCount = finalAggregated.length
+    if (finalCount >= streamedCount) {
+      lastAggregated = finalAggregated
+    }
+    return { count: Math.max(streamedCount, finalCount), aggregated: lastAggregated }
   }
 
   try {
-    let count = await fetchCount()
+    let { count, aggregated } = await fetchCount()
 
     // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
     if (count === 0) {
       await new Promise(resolve => setTimeout(resolve, 150))
-      count = await fetchCount()
+      ;({ count, aggregated } = await fetchCount())
     }
 
     // 搜索链路暂时不可用时，至少回退到当前词条下可见义项数，避免误显示 0
     if (count === 0 && wordData.value?.entries?.length) {
-      count = aggregateEntries(wordData.value.entries).length
+      aggregated = aggregateEntries(wordData.value.entries)
+      count = aggregated.length
     }
 
     if (requestId !== backSearchCountRequestId.value) return
     backSearchResultCount.value = count > 0 ? count : null
+    backSearchAggregated.value = aggregated
   } catch {
     if (requestId !== backSearchCountRequestId.value) return
     backSearchResultCount.value = null
+    backSearchAggregated.value = []
   }
 }
+
+const relatedWords = computed(() => {
+  const currentHeadword = normalizeComparable(canonicalHeadword.value || requestedHeadword.value)
+  if (!currentHeadword) return []
+
+  return backSearchAggregated.value.filter((group) => {
+    const display = normalizeComparable(group.primary.headword.display || '')
+    const normalized = normalizeComparable(group.primary.headword.normalized || '')
+    return display !== currentHeadword && normalized !== currentHeadword
+  })
+})
 
 const getSourcePriorityMap = computed(() => {
   const map = new Map<string, number>()

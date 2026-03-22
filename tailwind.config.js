@@ -20,7 +20,7 @@ export default {
         ink: '#031632',
         parchment: '#fbf9f4',
         graphite: '#44474d',
-        'archive-green': '#062118',
+        'archive-green': '#4A6B5D',
         'muted-gold': '#725b35',
         'surface-low': '#f5f2ed',
         'surface-mid': '#f0eee9',

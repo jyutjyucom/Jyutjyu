@@ -50,7 +50,7 @@ const messagesYueHans = {
     "licenseScannedDisclaimerPrefix": "词条内容由书籍作者负责。因为用 OCR 批量处理，难免有错误，如果发现问题可以喺",
     "licenseScannedDisclaimerSuffix": "提出。",
     "licenseDetails": "睇详情",
-    "footerFriendLinks": "友情连结：",
+    "footerFriendLinks": "友情连结",
     "footerJyutping": "粤拼",
     "footerJyutDict": "泛粤典",
     "footerJyutNet": "粤音资料集丛",
@@ -141,7 +141,9 @@ const messagesYueHans = {
     "etymology": "词源：",
     "references": "参考文献：",
     "seeAlso": "参见：",
-    "usage": "用法:"
+    "usage": "用法:",
+    "usageExamples": "用例",
+    "relatedPhrases": "相关词汇"
   },
   "about": {
     "pageTitle": "关于",

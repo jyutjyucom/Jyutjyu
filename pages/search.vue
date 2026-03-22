@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-parchment dark:bg-stone-950">
     <!-- Header with Search Bar -->
     <AppHeader v-model:search-query="searchQuery" v-model:reverse-search="enableReverseSearch"
       v-model:options-expanded="optionsExpanded" @search="handleSearch" @query-input="handleInput"
       @height-change="searchHeaderHeight = $event">
       <template #search-popover>
         <div v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
+          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 rounded-md shadow-lg max-h-60 overflow-y-auto z-20">
           <button v-for="(suggestion, idx) in suggestions" :key="idx"
-            class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
+            class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
             @click="selectSuggestion(suggestion)">
             {{ suggestion }}
           </button>

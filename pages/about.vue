@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+  <div class="min-h-screen bg-parchment dark:bg-stone-950">
     <div class="container mx-auto px-4 py-16">
       <!-- 页面标题 -->
       <div class="max-w-4xl mx-auto mb-12">

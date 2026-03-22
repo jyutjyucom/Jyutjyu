@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky z-[8] bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/90 supports-[backdrop-filter]:dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700 -mx-4 px-4"
+    class="sticky z-[8] bg-parchment/95 dark:bg-stone-950/95 backdrop-blur supports-[backdrop-filter]:bg-parchment/90 supports-[backdrop-filter]:dark:bg-stone-950/90 -mx-6 md:-mx-8 px-6 md:px-8"
     :style="stickyStyle"
   >
     <div
@@ -8,26 +8,26 @@
       role="tablist"
       :aria-label="ariaLabel"
     >
-      <div class="flex flex-nowrap items-center gap-2 min-w-max">
+      <div class="flex flex-nowrap items-center gap-1.5 min-w-max bg-surface-low dark:bg-stone-900 p-1.5 rounded-lg w-fit">
         <button
           v-for="(tab, index) in tabs"
           :key="tab.id"
           type="button"
           role="tab"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-colors whitespace-nowrap"
+          class="inline-flex items-center gap-2 px-5 py-2 rounded-md text-base transition-all whitespace-nowrap"
           :class="tab.id === modelValue
-            ? 'bg-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20'"
+            ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
+            : 'text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 font-medium'"
           :aria-selected="tab.id === modelValue"
           @click="$emit('update:modelValue', tab.id)"
           @keydown="onTabKeydown($event, index)"
         >
-          <span class="font-mono font-semibold">{{ tab.label }}</span>
+          <span class="font-semibold">{{ tab.label }}</span>
           <span
             class="text-xs px-1.5 py-0.5 rounded-full"
             :class="tab.id === modelValue
               ? 'bg-white/20 text-white'
-              : 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'"
+              : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'"
           >
             {{ tab.dictionaryCount }}
           </span>
