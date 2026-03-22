@@ -12,38 +12,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 主题色 - 粤语文化相关
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49'
+        // Scholar's Ink (Kapok Edition) design system
+        kapok: {
+          DEFAULT: '#b53a25',
+          container: '#f8e7e4'
         },
-        // 次要色 - 温暖的橙红色
-        accent: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
-          950: '#431407'
-        }
+        ink: '#031632',
+        parchment: '#fbf9f4',
+        graphite: '#44474d',
+        'archive-green': '#062118',
+        'muted-gold': '#725b35',
+        'surface-low': '#f5f2ed',
+        'surface-mid': '#f0eee9',
+        'surface-high': '#eae8e3',
+        'surface-highest': '#e4e2dd',
+        'outline-soft': '#c5c6ce'
       },
       fontFamily: {
         // 中文字体优化
         sans: [
+          'Inter',
           '"Chiron Hei HK"',
           'PingFang SC',
           'Microsoft YaHei',
@@ -51,6 +39,15 @@ export default {
           'sans-serif'
         ],
         serif: [
+          '"Chiron Sung HK"',
+          '"Noto Serif HK"',
+          '"Noto Serif TC"',
+          'serif'
+        ],
+        // 标题字体 - 宋体/明体
+        headline: [
+          '"Noto Serif HK"',
+          '"Noto Serif TC"',
           '"Chiron Sung HK"',
           'serif'
         ],

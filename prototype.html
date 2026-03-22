@@ -1,0 +1,674 @@
+<!doctype html>
+
+<html class="light" lang="zh-HK">
+	<head>
+		<meta charset="utf-8" />
+		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+		<title>JyutJyu (粵語辭叢) | The Digital Archivist</title>
+		<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Noto+Serif+HK:wght@400;700&amp;family=Noto+Serif+TC:wght@400;700&amp;family=Noto+Sans+HK:wght@300;400;500&amp;display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+			rel="stylesheet"
+		/>
+		<script id="tailwind-config">
+			tailwind.config = {
+				darkMode: "class",
+				theme: {
+					extend: {
+						colors: {
+							"primary-container": "#1a2b48",
+							"surface-bright": "#fbf9f4",
+							background: "#fbf9f4",
+							"inverse-surface": "#30312e",
+							"outline-variant": "#c5c6ce",
+							"inverse-primary": "#b6c7eb",
+							"surface-container-highest": "#e4e2dd",
+							surface: "#fbf9f4",
+							"on-background": "#1b1c19",
+							"inverse-on-surface": "#f2f1ec",
+							"surface-tint": "#4e5f7e",
+							"surface-variant": "#e4e2dd",
+							"on-error-container": "#93000a",
+							"on-secondary": "#ffffff",
+							"on-primary-fixed": "#081b38",
+							secondary: "#725b35",
+							"on-primary-fixed-variant": "#374765",
+							"surface-dim": "#dbdad5",
+							error: "#ba1a1a",
+							"on-surface": "#1b1c19",
+							outline: "#75777e",
+							"tertiary-container": "#103125",
+							"on-secondary-container": "#78613a",
+							"primary-fixed": "#d7e2ff",
+							"secondary-fixed-dim": "#e1c294",
+							"on-secondary-fixed-variant": "#584320",
+							"surface-container-high": "#eae8e3",
+							"surface-container-lowest": "#ffffff",
+							"on-primary-container": "#8293b5",
+							"secondary-fixed": "#fedeae",
+							primary: "#031632",
+							"primary-fixed-dim": "#b6c7eb",
+							"on-tertiary": "#ffffff",
+							"on-tertiary-container": "#789a8a",
+							"secondary-container": "#fedeae",
+							"on-surface-variant": "#44474d",
+							"on-error": "#ffffff",
+							"on-secondary-fixed": "#281900",
+							"tertiary-fixed-dim": "#abcebe",
+							"on-tertiary-fixed-variant": "#2d4d40",
+							"surface-container-low": "#f5f3ee",
+							"surface-container": "#f0eee9",
+							"tertiary-fixed": "#c6ebd9",
+							"on-tertiary-fixed": "#002116",
+							tertiary: "#001b12",
+							"on-primary": "#ffffff",
+							"error-container": "#ffdad6",
+							"kapok-red": "#b53a25", // New Kapok Flower Red (vibrant, earthy)
+							"kapok-red-container": "#f8e7e4",
+						},
+						fontFamily: {
+							headline: ["Noto Serif HK", "Noto Serif TC", "serif"],
+							body: ["Inter", "Noto Sans HK", "sans-serif"],
+							label: ["Inter", "sans-serif"],
+						},
+						borderRadius: {
+							DEFAULT: "0.125rem",
+							lg: "0.25rem",
+							xl: "0.5rem",
+							full: "0.75rem",
+						},
+					},
+				},
+			};
+		</script>
+		<style>
+			.material-symbols-outlined {
+				font-variation-settings:
+					"FILL" 0,
+					"wght" 300,
+					"GRAD" 0,
+					"opsz" 24;
+			}
+			body {
+				background-color: #fbf9f4;
+				color: #1b1c19;
+			}
+		</style>
+	</head>
+	<body
+		class="font-body selection:bg-kapok-red-container selection:text-kapok-red"
+	>
+		<!-- Top Navigation Shell -->
+		<nav
+			class="bg-[#fbf9f4]/85 backdrop-blur-md text-[#031632] docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto"
+		>
+			<div
+				class="text-2xl font-serif text-kapok-red font-headline tracking-tight"
+			>
+				粵
+			</div>
+			<div class="hidden md:flex items-center gap-8">
+				<a
+					class="text-[#031632] font-bold border-b-2 border-kapok-red pb-1 text-sm font-medium tracking-wide"
+					href="#"
+					>Dictionary</a
+				>
+				<a
+					class="text-[#44474d] hover:text-kapok-red transition-colors duration-200 text-sm font-medium tracking-wide"
+					href="#"
+					>About</a
+				>
+				<a
+					class="text-[#44474d] hover:text-kapok-red transition-colors duration-200 text-sm font-medium tracking-wide"
+					href="#"
+					>GitHub</a
+				>
+			</div>
+			<div class="flex items-center gap-5">
+				<button
+					class="material-symbols-outlined text-[#031632] hover:text-kapok-red transition-colors"
+					data-icon="language"
+				>
+					language
+				</button>
+				<button
+					class="material-symbols-outlined text-[#031632] hover:text-kapok-red transition-colors"
+					data-icon="settings"
+				>
+					settings
+				</button>
+				<button
+					class="material-symbols-outlined text-[#031632] hover:text-kapok-red transition-colors"
+					data-icon="account_circle"
+				>
+					account_circle
+				</button>
+			</div>
+		</nav>
+		<main>
+			<!-- Hero Section: The Living Archive -->
+			<section
+				class="relative min-h-[716px] flex flex-col items-center justify-center px-6 pt-20 pb-32 overflow-hidden"
+			>
+				<div
+					class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none select-none flex items-center justify-center"
+				>
+					<span class="text-[40rem] font-headline text-kapok-red">辭</span>
+				</div>
+				<div class="relative z-10 text-center max-w-3xl mx-auto">
+					<h1
+						class="text-6xl md:text-8xl font-headline text-primary mb-6 tracking-tighter"
+					>
+						JyutJyu <span class="text-kapok-red">(粵語辭叢)</span>
+					</h1>
+					<p
+						class="text-lg md:text-xl text-on-surface-variant font-light mb-12 max-w-xl mx-auto leading-relaxed"
+					>
+						A beautifully curated collection of Cantonese dictionaries for
+						modern learners. Preserving the melody of the Pearl River.
+					</p>
+					<!-- Elegant Search Bar -->
+					<div class="w-full max-w-2xl mx-auto group">
+						<div
+							class="relative flex items-center bg-surface-container-lowest shadow-sm rounded-lg overflow-hidden border border-outline-variant/10 focus-within:ring-1 focus-within:ring-kapok-red/30 transition-all duration-300"
+						>
+							<span
+								class="material-symbols-outlined absolute left-6 text-on-surface-variant/50 group-focus-within:text-kapok-red transition-colors"
+								data-icon="search"
+								>search</span
+							>
+							<input
+								class="w-full py-6 pl-16 pr-6 bg-transparent border-none focus:ring-0 text-primary placeholder:text-on-surface-variant/40 text-lg"
+								placeholder="Search characters, Jyutping, or meanings..."
+								type="text"
+							/>
+							<div class="absolute right-4 flex items-center gap-2">
+								<kbd
+									class="hidden md:block px-2 py-1 text-[10px] font-medium text-on-surface-variant/40 border border-outline-variant/20 rounded"
+									>⌘K</kbd
+								>
+								<button
+									class="bg-kapok-red text-white px-6 py-3 rounded-md font-medium text-sm hover:bg-kapok-red/90 transition-all shadow-md shadow-kapok-red/20"
+								>
+									Discover
+								</button>
+							</div>
+						</div>
+						<div class="mt-4 flex flex-wrap justify-center gap-3">
+							<span
+								class="text-xs uppercase tracking-[0.1em] text-on-surface-variant/60 mr-2 self-center"
+								>Trending</span
+							>
+							<a
+								class="px-3 py-1 bg-surface-container-low rounded-full text-xs text-on-surface-variant hover:bg-kapok-red-container hover:text-kapok-red transition-colors"
+								href="#"
+								>珈琲 (gaa3 fe1)</a
+							>
+							<a
+								class="px-3 py-1 bg-surface-container-low rounded-full text-xs text-on-surface-variant hover:bg-kapok-red-container hover:text-kapok-red transition-colors"
+								href="#"
+								>論盡 (leon6 zeon6)</a
+							>
+							<a
+								class="px-3 py-1 bg-surface-container-low rounded-full text-xs text-on-surface-variant hover:bg-kapok-red-container hover:text-kapok-red transition-colors"
+								href="#"
+								>係咪 (hai6 mai6)</a
+							>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Section 1: Featured Words (Asymmetric Grid) -->
+			<section class="max-w-7xl mx-auto px-6 py-24">
+				<div
+					class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4"
+				>
+					<div>
+						<span
+							class="text-kapok-red text-xs font-bold uppercase tracking-[0.2em] mb-3 block"
+							>Daily Selection</span
+						>
+						<h2 class="text-4xl font-headline text-primary">
+							Featured Fragments
+						</h2>
+					</div>
+					<button
+						class="text-kapok-red label-md font-semibold flex items-center gap-2 hover:underline underline-offset-8 transition-all"
+					>
+						Explore all entries
+						<span
+							class="material-symbols-outlined text-sm"
+							data-icon="arrow_forward"
+							>arrow_forward</span
+						>
+					</button>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+					<!-- Large Featured Card -->
+					<div
+						class="md:col-span-7 bg-surface-container-low p-10 md:p-16 flex flex-col justify-between group cursor-pointer hover:bg-surface-container-high transition-colors duration-500"
+					>
+						<div>
+							<div class="flex justify-between items-start mb-12">
+								<span
+									class="bg-kapok-red text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+									>Word of the Day</span
+								>
+								<span
+									class="text-on-surface-variant/40 text-[10px] uppercase tracking-widest"
+									>Entry #4829</span
+								>
+							</div>
+							<h3
+								class="text-8xl md:text-9xl font-headline text-primary mb-8 group-hover:text-kapok-red transition-colors duration-700"
+							>
+								浪漫
+							</h3>
+							<div class="flex items-center gap-4 mb-6">
+								<span class="text-xl font-body text-kapok-red italic"
+									>long6 maan6</span
+								>
+								<button
+									class="material-symbols-outlined text-on-surface-variant/60 hover:text-kapok-red transition-colors"
+									data-icon="volume_up"
+								>
+									volume_up
+								</button>
+							</div>
+							<p class="text-xl text-on-surface leading-relaxed max-w-md">
+								Romantic; an transliteration of the English word "romantic",
+								capturing both the sound and the spirit of drifting waves.
+							</p>
+						</div>
+						<div
+							class="mt-16 pt-8 border-t border-outline-variant/10 flex items-center justify-between"
+						>
+							<span class="text-xs text-on-surface-variant/60 font-medium"
+								>Source: Modern Cantonese Lexicon</span
+							>
+							<span
+								class="material-symbols-outlined text-kapok-red group-hover:translate-x-2 transition-transform"
+								data-icon="north_east"
+								>north_east</span
+							>
+						</div>
+					</div>
+					<!-- Secondary Cards Stack -->
+					<div class="md:col-span-5 grid grid-cols-1 gap-8">
+						<div
+							class="bg-surface-container-lowest border border-outline-variant/10 p-8 flex gap-8 items-center hover:border-kapok-red/30 hover:bg-kapok-red-container/30 transition-all duration-300"
+						>
+							<div
+								class="text-5xl font-headline text-primary shrink-0 group-hover:text-kapok-red"
+							>
+								靚
+							</div>
+							<div>
+								<span
+									class="text-xs text-kapok-red font-bold tracking-widest block mb-1"
+									>leng3</span
+								>
+								<h4 class="text-lg font-bold text-primary mb-2">
+									Beautiful / Good
+								</h4>
+								<p class="text-sm text-on-surface-variant line-clamp-2">
+									The quintessential Cantonese descriptor for aesthetic
+									excellence and quality.
+								</p>
+							</div>
+						</div>
+						<div
+							class="bg-surface-container-lowest border border-outline-variant/10 p-8 flex gap-8 items-center hover:border-kapok-red/30 hover:bg-kapok-red-container/30 transition-all duration-300"
+						>
+							<div class="text-5xl font-headline text-primary shrink-0">攰</div>
+							<div>
+								<span
+									class="text-xs text-kapok-red font-bold tracking-widest block mb-1"
+									>gui6</span
+								>
+								<h4 class="text-lg font-bold text-primary mb-2">
+									Tired / Exhausted
+								</h4>
+								<p class="text-sm text-on-surface-variant line-clamp-2">
+									Specifically used to describe physical fatigue after a long
+									day's work.
+								</p>
+							</div>
+						</div>
+						<div
+							class="bg-surface-container-lowest border border-outline-variant/10 p-8 flex gap-8 items-center hover:border-kapok-red/30 hover:bg-kapok-red-container/30 transition-all duration-300"
+						>
+							<div class="text-5xl font-headline text-primary shrink-0">飲</div>
+							<div>
+								<span
+									class="text-xs text-kapok-red font-bold tracking-widest block mb-1"
+									>jam2</span
+								>
+								<h4 class="text-lg font-bold text-primary mb-2">To Drink</h4>
+								<p class="text-sm text-on-surface-variant line-clamp-2">
+									Often used in "jam2 caa4" (dim sum) to signify a social
+									gathering.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Section 2: Dictionary Collection -->
+			<section class="bg-surface-container-lowest py-24">
+				<div class="max-w-7xl mx-auto px-6">
+					<div class="text-center mb-20">
+						<span
+							class="text-kapok-red text-xs font-bold uppercase tracking-[0.2em] mb-4 block"
+							>The Repository</span
+						>
+						<h2 class="text-4xl md:text-5xl font-headline text-primary mb-6">
+							Archival Collections
+						</h2>
+						<p class="text-on-surface-variant max-w-xl mx-auto font-light">
+							Carefully digitized and indexed volumes spanning classical
+							heritage to modern colloquialisms.
+						</p>
+					</div>
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+						<!-- Dictionary Card 1 -->
+						<div class="flex flex-col group cursor-pointer">
+							<div
+								class="aspect-[3/4] bg-primary text-on-primary p-8 flex flex-col justify-between mb-6 shadow-sm group-hover:-translate-y-2 group-hover:bg-kapok-red transition-all duration-500 relative overflow-hidden"
+							>
+								<div
+									class="absolute top-0 right-0 w-32 h-32 bg-white/5 rotate-45 translate-x-16 -translate-y-16"
+								></div>
+								<span
+									class="text-[10px] tracking-[0.3em] font-medium opacity-60 uppercase"
+									>Volume I</span
+								>
+								<div class="mb-12">
+									<div class="text-3xl font-headline leading-tight mb-2">
+										粵語查辭
+									</div>
+									<div class="text-xs opacity-50 tracking-wider">
+										Standard Dictionary
+									</div>
+								</div>
+								<div class="text-[10px] uppercase tracking-widest opacity-40">
+									240,000 Entries
+								</div>
+							</div>
+							<h4
+								class="text-sm font-bold text-primary mb-1 group-hover:text-kapok-red transition-colors"
+							>
+								Standard Cantonese Lexicon
+							</h4>
+							<p class="text-xs text-on-surface-variant">
+								The definitive reference for modern usage.
+							</p>
+						</div>
+						<!-- Dictionary Card 2 -->
+						<div class="flex flex-col group cursor-pointer">
+							<div
+								class="aspect-[3/4] bg-surface-container-highest border border-outline-variant/20 p-8 flex flex-col justify-between mb-6 shadow-sm group-hover:-translate-y-2 group-hover:border-kapok-red/50 transition-all duration-500"
+							>
+								<span
+									class="text-[10px] tracking-[0.3em] font-medium text-on-surface-variant/60 uppercase"
+									>Volume II</span
+								>
+								<div class="mb-12">
+									<div
+										class="text-3xl font-headline text-primary leading-tight mb-2 group-hover:text-kapok-red transition-colors"
+									>
+										俗語俚解
+									</div>
+									<div class="text-xs text-kapok-red tracking-wider font-bold">
+										Colloquial Gems
+									</div>
+								</div>
+								<div
+									class="text-[10px] uppercase tracking-widest text-on-surface-variant/40"
+								>
+									12,500 Entries
+								</div>
+							</div>
+							<h4
+								class="text-sm font-bold text-primary mb-1 group-hover:text-kapok-red transition-colors"
+							>
+								Slang &amp; Colloquialisms
+							</h4>
+							<p class="text-xs text-on-surface-variant">
+								Vibrant street talk and cultural idioms.
+							</p>
+						</div>
+						<!-- Dictionary Card 3 -->
+						<div class="flex flex-col group cursor-pointer">
+							<div
+								class="aspect-[3/4] bg-tertiary text-on-tertiary p-8 flex flex-col justify-between mb-6 shadow-sm group-hover:-translate-y-2 transition-all duration-500 relative"
+							>
+								<div
+									class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent"
+								></div>
+								<span
+									class="text-[10px] tracking-[0.3em] font-medium opacity-60 uppercase relative z-10"
+									>Volume III</span
+								>
+								<div class="mb-12 relative z-10">
+									<div class="text-3xl font-headline leading-tight mb-2">
+										古粵考源
+									</div>
+									<div class="text-xs opacity-50 tracking-wider">
+										Etymological Archive
+									</div>
+								</div>
+								<div
+									class="text-[10px] uppercase tracking-widest opacity-40 relative z-10"
+								>
+									86,200 Entries
+								</div>
+							</div>
+							<h4
+								class="text-sm font-bold text-primary mb-1 group-hover:text-kapok-red transition-colors"
+							>
+								Etymological Roots
+							</h4>
+							<p class="text-xs text-on-surface-variant">
+								Tracing characters back to Middle Chinese.
+							</p>
+						</div>
+						<!-- Dictionary Card 4 -->
+						<div class="flex flex-col group cursor-pointer">
+							<div
+								class="aspect-[3/4] bg-white border border-outline-variant/20 p-8 flex flex-col justify-between mb-6 shadow-sm group-hover:-translate-y-2 group-hover:border-kapok-red/50 transition-all duration-500"
+							>
+								<span
+									class="text-[10px] tracking-[0.3em] font-medium text-on-surface-variant/60 uppercase"
+									>Volume IV</span
+								>
+								<div class="mb-12">
+									<div
+										class="text-3xl font-headline text-primary leading-tight mb-2 group-hover:text-kapok-red transition-colors"
+									>
+										廣府韻彙
+									</div>
+									<div class="text-xs text-kapok-red tracking-wider font-bold">
+										Rhyme &amp; Tone
+									</div>
+								</div>
+								<div
+									class="text-[10px] uppercase tracking-widest text-on-surface-variant/40"
+								>
+									35,000 Entries
+								</div>
+							</div>
+							<h4
+								class="text-sm font-bold text-primary mb-1 group-hover:text-kapok-red transition-colors"
+							>
+								Phonetic Masterlist
+							</h4>
+							<p class="text-xs text-on-surface-variant">
+								Strict guides on pronunciation and tones.
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- Newsletter / Community Section -->
+			<section class="max-w-7xl mx-auto px-6 py-24">
+				<div
+					class="rounded-lg p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden"
+					style="background-color: #f5f2ed"
+				>
+					<div
+						class="absolute top-0 right-0 p-12 opacity-[0.05] text-kapok-red"
+					>
+						<span
+							class="material-symbols-outlined text-[10rem]"
+							data-icon="book_5"
+							>book_5</span
+						>
+					</div>
+					<div class="relative z-10 max-w-lg">
+						<h2 class="text-3xl md:text-4xl font-headline text-kapok-red mb-6">
+							Contribute to the Archive
+						</h2>
+						<p class="text-on-surface-variant mb-8 leading-relaxed">
+							Join our community of linguists and enthusiasts in digitizing rare
+							Cantonese texts. Every character preserved is a piece of history
+							saved.
+						</p>
+						<div class="flex flex-col sm:flex-row gap-4">
+							<button
+								class="bg-kapok-red text-white px-8 py-4 rounded-md font-bold text-sm tracking-wide hover:bg-kapok-red/90 transition-all shadow-lg shadow-kapok-red/10"
+							>
+								Submit an Entry
+							</button>
+							<button
+								class="text-kapok-red border border-kapok-red/20 px-8 py-4 rounded-md font-bold text-sm tracking-wide hover:bg-white/80 transition-colors bg-transparent"
+							>
+								Learn More
+							</button>
+						</div>
+					</div>
+					<div class="relative z-10 text-center md:text-right">
+						<div class="text-5xl font-headline text-kapok-red mb-2">1.2M+</div>
+						<div
+							class="text-xs uppercase tracking-[0.2em] text-on-surface-variant font-bold"
+						>
+							Total Definitions
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<!-- Footer Shell -->
+		<footer
+			class="bg-[#fbf9f4] border-t border-[#44474d]/15 py-12 px-6 mt-auto"
+		>
+			<div
+				class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto w-full"
+			>
+				<div class="md:col-span-1">
+					<div class="text-lg font-serif text-kapok-red font-headline mb-4">
+						粵
+					</div>
+					<p class="text-[#44474d] text-xs leading-relaxed mb-6">
+						© 2024 The Digital Archivist. Preserving Cantonese Heritage through
+						modern scholarship and digital innovation.
+					</p>
+				</div>
+				<div>
+					<h5
+						class="text-[0.6875rem] font-bold tracking-[0.05em] uppercase mb-6 text-[#031632]"
+					>
+						Dictionary Collection
+					</h5>
+					<ul class="flex flex-col gap-4">
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Modern Lexicon</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Classical Corpus</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Dialect Maps</a
+							>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h5
+						class="text-[0.6875rem] font-bold tracking-[0.05em] uppercase mb-6 text-[#031632]"
+					>
+						About
+					</h5>
+					<ul class="flex flex-col gap-4">
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>The Project</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Methodology</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Support Us</a
+							>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h5
+						class="text-[0.6875rem] font-bold tracking-[0.05em] uppercase mb-6 text-[#031632]"
+					>
+						Social
+					</h5>
+					<ul class="flex flex-col gap-4">
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Instagram</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>Twitter (X)</a
+							>
+						</li>
+						<li>
+							<a
+								class="text-[0.6875rem] tracking-[0.05em] text-[#44474d] hover:text-kapok-red underline-offset-4 hover:underline transition-all"
+								href="#"
+								>GitHub Repo</a
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>
