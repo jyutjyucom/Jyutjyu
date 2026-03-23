@@ -52,7 +52,7 @@ export function useTheme() {
     
     // 读取保存的主题或默认使用 system
     const savedTheme = localStorage.getItem(THEME_KEY) as Theme | null
-    const initialTheme = savedTheme || 'system'
+    const initialTheme = savedTheme || 'light'
     
     theme.value = initialTheme
     

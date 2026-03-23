@@ -60,7 +60,8 @@
       "Bash(sed -i '' 's/text-base font-semibold text-ink dark:text-parchment\"\">{{ group.primary.headword.display }}/text-base font-headline font-semibold text-ink dark:text-parchment\"\">{{ group.primary.headword.display }}/g' /Users/laufei/Documents/GitHub/Jyutjyu/components/SearchResultsListView.vue)",
       "Bash(sed -i '' 's/text-lg font-semibold text-ink dark:text-parchment hover:text-kapok/text-lg font-headline font-semibold text-ink dark:text-parchment hover:text-kapok/g' /Users/laufei/Documents/GitHub/Jyutjyu/components/SearchResultsListView.vue)",
       "Bash(npm ls:*)",
-      "Bash(npx --yes puppeteer --version)"
+      "Bash(npx --yes puppeteer --version)",
+      "Bash(python3 -c \":*)"
     ]
   }
 }
