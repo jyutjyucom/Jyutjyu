@@ -169,6 +169,7 @@
                         </svg>
                         {{ t("common.changeBatch") }}
                         <svg
+                            v-if="!loadingRandomEntries"
                             class="w-4 h-4"
                             fill="none"
                             stroke="currentColor"
@@ -178,7 +179,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                             />
                         </svg>
                     </button>
@@ -425,7 +426,7 @@
                 <div class="mt-12 text-center">
                     <NuxtLink
                         to="/browse"
-                        class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-medium text-sm hover:bg-kapok/90 transition-colors"
+                        class="inline-flex items-center gap-2 bg-kapok text-white px-8 py-4 font-medium text-base hover:bg-kapok/90 transition-colors"
                     >
                         {{ t("browse.allEntries") }}
                         <svg
@@ -533,13 +534,13 @@
 
                     <div class="mt-10 text-center">
                         <p
-                            class="text-graphite/60 dark:text-stone-600 text-sm mb-3"
+                            class="text-graphite/60 dark:text-stone-600 text-base mb-3"
                         >
                             {{ t("common.moreDictionariesComing") }}
                         </p>
                         <NuxtLink
                             to="/about"
-                            class="text-archive-green dark:text-archive-green text-sm font-semibold hover:underline underline-offset-4 transition-all"
+                            class="text-archive-green dark:text-archive-green text-base font-semibold hover:underline underline-offset-4 transition-all"
                         >
                             {{ t("common.viewLicense") }}
                         </NuxtLink>
@@ -613,7 +614,7 @@
                             {{ totalEntriesCount.toLocaleString() }}+
                         </div>
                         <div
-                            class="text-xs uppercase tracking-[0.2em] text-graphite dark:text-stone-500 font-bold"
+                            class="text-base uppercase tracking-[0.2em] text-ink dark:text-parchment font-bold"
                         >
                             {{ t("common.totalEntriesSuffix") }}
                         </div>
@@ -693,8 +694,8 @@ const bookCardClass = (index: number) => {
         "bg-surface-highest dark:bg-stone-800 text-ink dark:text-stone-100 border border-outline-soft/20 dark:border-stone-700",
         // Archive green
         "bg-archive-green text-white",
-        // White with border
-        "bg-white dark:bg-stone-900 text-ink dark:text-stone-100 border border-outline-soft/20 dark:border-stone-700",
+        // Parchment (default page background)
+        "bg-parchment dark:bg-stone-950 text-ink dark:text-stone-100",
     ];
     return styles[index % styles.length];
 };

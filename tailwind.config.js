@@ -29,25 +29,16 @@ export default {
         'outline-soft': '#c5c6ce'
       },
       fontFamily: {
-        // 中文字体优化
         sans: [
           'Inter',
           '"Chiron Hei HK"',
-          'PingFang SC',
-          'Microsoft YaHei',
-          'Noto Sans SC',
           'sans-serif'
         ],
         serif: [
           '"Chiron Sung HK"',
-          '"Noto Serif HK"',
-          '"Noto Serif TC"',
           'serif'
         ],
-        // 标题字体 - 宋体/明体
         headline: [
-          '"Noto Serif HK"',
-          '"Noto Serif TC"',
           '"Chiron Sung HK"',
           'serif'
         ],

@@ -35,7 +35,7 @@
         </div>
 
         <template v-else-if="displayedBrowseData">
-          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" />
+          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" :all-covers="allDictionaryCovers" />
         </template>
     </main>
 
@@ -50,6 +50,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
+const { dictionariesData, getLocalizedValue } = useLocalizedDictionary()
 
 const searchQuery = ref('')
 const enableReverseSearch = ref(false)
@@ -95,6 +96,17 @@ watch(browseData, (value) => {
 const retryBrowseLoad = () => {
   void refresh()
 }
+
+const allDictionaryCovers = computed(() => {
+  const dictionaries = dictionariesData.value?.dictionaries || []
+  return dictionaries
+    .filter((dict: any) => dict?.cover)
+    .map((dict: any) => ({
+      id: dict.id,
+      name: getLocalizedValue(dict.name, dict.id),
+      cover: dict.cover
+    }))
+})
 
 const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
 const canonicalHref = computed(() => {

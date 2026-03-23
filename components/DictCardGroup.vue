@@ -57,13 +57,26 @@
       </div>
     </div>
 
+    <!-- Red dot divider -->
+    <div class="flex items-center gap-3 mx-6">
+      <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+      <div class="w-1.5 h-1.5 rounded-full bg-kapok/60 dark:bg-kapok/40"></div>
+      <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+    </div>
+
     <!-- 内容：按词典分段 -->
     <div class="card-body px-6 py-4">
       <div
-        v-for="entry in entries"
+        v-for="(entry, entryIdx) in entries"
         :key="entry.id"
-        class="mt-4 pt-4 first:mt-0 first:pt-0 border-t first:border-t-0 border-outline-soft/20 dark:border-stone-800"
+        class="mt-6 first:mt-0"
       >
+        <!-- Entry divider -->
+        <div v-if="entryIdx > 0" class="flex items-center gap-3 mb-6">
+          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+          <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"></div>
+          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+        </div>
         <!-- 词典标签区 -->
         <div class="flex items-start gap-3">
           <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
@@ -366,7 +379,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const entries = computed(() => props.entries || [])
 const headerClasses = computed(() => [
-  'card-header px-6 py-4 border-b border-outline-soft/20 dark:border-stone-800 transition-colors duration-300',
+  'card-header px-6 py-4 transition-colors duration-300',
   props.stickyHeader
     ? 'sticky z-[5] bg-surface-low/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-surface-low/90 supports-[backdrop-filter]:dark:bg-stone-900/90'
     : '',

@@ -3,7 +3,7 @@
     <div class="lg:grid lg:grid-cols-12 lg:gap-6">
       <aside class="hidden lg:block lg:col-span-4 xl:col-span-3">
         <div class="sticky top-24 overflow-hidden">
-          <p class="px-4 py-3 text-xs font-bold uppercase tracking-[0.15em] text-graphite/50 dark:text-stone-500 border-b border-outline-soft/20 dark:border-stone-800">
+          <p class="px-4 py-3 text-base font-bold uppercase tracking-[0.15em] text-ink dark:text-parchment border-b border-outline-soft/20 dark:border-stone-800">
             {{ t('browse.dictionaries') }}
           </p>
           <nav aria-label="Dictionary browse scopes" class="divide-y divide-outline-soft/10 dark:divide-stone-800">
@@ -13,7 +13,7 @@
               :to="buildScopeLink(scope.id)"
               active-class=""
               exact-active-class=""
-              class="flex items-center justify-between gap-3 px-4 py-3 text-sm transition-all border-l-4"
+              class="flex items-center justify-between gap-3 px-4 py-3 text-base transition-all border-l-4"
               :class="activeScopeId === scope.id
                 ? 'bg-surface-high dark:bg-stone-800 !border-l-kapok text-ink dark:text-parchment font-semibold'
                 : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-transparent font-medium'"
@@ -33,6 +33,52 @@
       </aside>
 
       <section class="lg:col-span-8 xl:col-span-9">
+        <!-- Dictionary info card -->
+        <div v-if="dictionaryInfo && activeScopeId !== 'all'" class="bg-surface-low dark:bg-stone-900 p-6 md:p-8 mb-6 flex flex-col md:flex-row gap-6">
+          <div v-if="dictionaryInfo.cover" class="flex-shrink-0">
+            <img
+              :src="dictionaryInfo.cover"
+              :alt="dictionaryInfo.name"
+              class="w-24 md:w-32 h-auto object-contain"
+            >
+          </div>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-2xl md:text-3xl font-headline font-bold text-ink dark:text-parchment mb-2">
+              {{ dictionaryInfo.name }}
+            </h2>
+            <p v-if="dictionaryInfo.description" class="text-lg text-ink/80 dark:text-stone-300 mb-3 leading-relaxed">
+              {{ dictionaryInfo.description }}
+            </p>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-base text-graphite dark:text-stone-400">
+              <span v-if="dictionaryInfo.author">{{ dictionaryInfo.author }}</span>
+              <span v-if="dictionaryInfo.publisher">{{ dictionaryInfo.publisher }}</span>
+              <span v-if="dictionaryInfo.year">{{ dictionaryInfo.year }}</span>
+              <span v-if="dictionaryInfo.entriesCount" class="text-kapok font-semibold">
+                {{ dictionaryInfo.entriesCount.toLocaleString() }} {{ t('common.entriesCountSuffix') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- All dictionary covers grid (for "all" view) -->
+        <div v-if="allCovers.length > 0 && activeScopeId === 'all'" class="bg-surface-low dark:bg-stone-900 p-6 md:p-8 mb-6">
+          <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+            <NuxtLink
+              v-for="dict in allCovers"
+              :key="dict.id"
+              :to="`/browse/${encodeURIComponent(dict.id)}`"
+              class="group"
+              :title="dict.name"
+            >
+              <img
+                :src="dict.cover"
+                :alt="dict.name"
+                class="w-full h-auto object-contain group-hover:opacity-80 transition-opacity"
+              >
+            </NuxtLink>
+          </div>
+        </div>
+
         <div class="lg:hidden sticky top-0 z-[8] bg-parchment/95 dark:bg-stone-950/95 backdrop-blur supports-[backdrop-filter]:bg-parchment/90 supports-[backdrop-filter]:dark:bg-stone-950/90 -mx-6 md:-mx-8 px-6 md:px-8">
           <div class="overflow-x-auto py-2" role="tablist" :aria-label="t('browse.dictionaries')">
             <div class="flex flex-nowrap items-center gap-1.5 min-w-max bg-surface-low dark:bg-stone-900 p-1.5 rounded-lg w-fit">
@@ -164,7 +210,7 @@
             :key="headword"
             :to="`/word/${encodeURIComponent(headword)}`"
             :prefetch="false"
-            class="px-3 py-2 text-center text-sm font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-low dark:hover:bg-stone-800 transition-colors truncate"
+            class="px-3 py-2.5 text-center text-base font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-low dark:hover:bg-stone-800 transition-colors truncate"
           >
             {{ headword }}
           </NuxtLink>
@@ -211,11 +257,31 @@ interface BrowseResponse {
   dictionaries: BrowseDictionaryScope[]
 }
 
+interface DictionaryInfo {
+  name: string
+  description: string
+  author: string
+  publisher: string
+  year: number | null
+  cover: string
+  entriesCount: number
+}
+
+interface DictionaryCover {
+  id: string
+  name: string
+  cover: string
+}
+
 const props = withDefaults(defineProps<{
   browseData: BrowseResponse
   loading?: boolean
+  dictionaryInfo?: DictionaryInfo | null
+  allCovers?: DictionaryCover[]
 }>(), {
-  loading: false
+  loading: false,
+  dictionaryInfo: null,
+  allCovers: () => []
 })
 
 const DEFAULT_PAGE_SIZE = 100

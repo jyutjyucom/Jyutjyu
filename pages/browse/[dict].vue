@@ -35,7 +35,7 @@
         </div>
 
         <template v-else-if="displayedBrowseData">
-          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" />
+          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" :dictionary-info="activeDictionaryInfo" />
         </template>
     </main>
 
@@ -97,15 +97,32 @@ const retryBrowseLoad = () => {
   void refresh()
 }
 
-const activeDictionaryLabel = computed(() => {
+const activeDictionary = computed(() => {
   const dictionaries = dictionariesData.value?.dictionaries || []
-  const matched = dictionaries.find((dict: any) => dict?.id === activeDictId.value)
-  if (matched) {
-    return getLocalizedValue(matched.name, activeDictId.value)
+  return dictionaries.find((dict: any) => dict?.id === activeDictId.value) || null
+})
+
+const activeDictionaryLabel = computed(() => {
+  if (activeDictionary.value) {
+    return getLocalizedValue(activeDictionary.value.name, activeDictId.value)
   }
 
   const fallback = displayedBrowseData.value?.dictionaries?.find((dict) => dict.id === activeDictId.value)
   return fallback?.label || activeDictId.value
+})
+
+const activeDictionaryInfo = computed(() => {
+  const dict = activeDictionary.value as any
+  if (!dict) return null
+  return {
+    name: getLocalizedValue(dict.name, activeDictId.value),
+    description: dict.description ? getLocalizedValue(dict.description, '') : '',
+    author: dict.author ? getLocalizedValue(dict.author, '') : '',
+    publisher: dict.publisher ? getLocalizedValue(dict.publisher, '') : '',
+    year: dict.year || null,
+    cover: dict.cover || '',
+    entriesCount: dict.entries_count || 0
+  }
 })
 
 const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
