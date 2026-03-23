@@ -113,13 +113,13 @@
             <!-- 完全匹配的结果（仅文字搜索时显示） -->
             <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
               <div
-                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-archive-green/10 dark:bg-emerald-900/30 border-archive-green dark:border-emerald-500/50 flex items-center gap-2">
-                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-archive-green dark:text-emerald-300 shrink-0" fill="none" stroke="currentColor"
+                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green dark:border-archive-green/50 flex items-center gap-2">
+                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-archive-green dark:text-archive-green-light shrink-0" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="text-archive-green dark:text-emerald-300 text-xs sm:text-sm font-semibold">
+                <span class="text-archive-green dark:text-archive-green-light text-xs sm:text-sm font-semibold">
                   {{ t('common.exactMatchLabel') }} {{ groupedResults.exactMatches.length
                   }} {{ t('common.remainingSuffix') }}
                   ，{{ t('dictCard.collectedBy', { count: exactMatchDictionaryCount }) }}

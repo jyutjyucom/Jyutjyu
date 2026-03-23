@@ -542,7 +542,7 @@
                         </p>
                         <NuxtLink
                             to="/about"
-                            class="text-archive-green dark:text-archive-green text-base font-semibold hover:underline underline-offset-4 transition-all"
+                            class="text-archive-green dark:text-archive-green-light text-base font-semibold hover:underline underline-offset-4 transition-all"
                         >
                             {{ t("common.viewLicense") }}
                         </NuxtLink>

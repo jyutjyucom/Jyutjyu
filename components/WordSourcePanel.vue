@@ -19,7 +19,7 @@
           <span
             v-for="dialect in dialectLabels"
             :key="dialect"
-            class="px-2 py-0.5 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
+            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap"
           >
             {{ dialect }}
           </span>
@@ -66,7 +66,7 @@
               </span>
 
               <span
-                class="px-2 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
+                class="px-2 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap"
               >
                 {{ getDialectLabel(entry) }}
               </span>
@@ -101,7 +101,7 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
               label-class="text-xs"
             />
           </div>
@@ -185,9 +185,9 @@
                     <!-- Sub-sense examples in gray card -->
                     <div
                       v-if="subSense.examples && subSense.examples.length > 0"
-                      class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-emerald-500/40 mt-3"
+                      class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-archive-green/40 mt-3"
                     >
-                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-emerald-300 mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4">{{ t('dictCard.usageExamples') }}</h4>
                       <div class="space-y-4">
                         <div
                           v-for="(example, exIdx) in subSense.examples"
@@ -226,9 +226,9 @@
                 <!-- Direct examples in gray card -->
                 <div
                   v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
-                  class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-emerald-500/40"
+                  class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-archive-green/40"
                 >
-                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-emerald-300 mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4">{{ t('dictCard.usageExamples') }}</h4>
                   <div class="space-y-4">
                     <div
                       v-for="(example, exIdx) in sense.examples"
@@ -283,9 +283,9 @@
 
           <div
             v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
-            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 dark:border-emerald-500/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
+            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 dark:border-archive-green/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-archive-green dark:text-emerald-300">{{ t('dictCard.etymology') }}</span>
+            <span class="font-semibold text-archive-green dark:text-archive-green-light">{{ t('dictCard.etymology') }}</span>
             {{ entry.meta.etymology }}
           </div>
 

@@ -84,7 +84,7 @@
               {{ getEntrySourceBookLabel(entry) }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
             </span>
 
-            <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap">
+            <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap">
               {{ getDialectLabel(entry) }}
             </span>
 
@@ -117,7 +117,7 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
               label-class="text-sm"
             />
           </div>

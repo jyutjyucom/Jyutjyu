@@ -22,7 +22,7 @@
                             :class="
                                 activeScopeId === scope.id
                                     ? 'bg-surface-high dark:bg-stone-800 !border-l-kapok text-ink dark:text-parchment font-semibold'
-                                    : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-archive-green/30 dark:border-l-emerald-800/40 font-medium'
+                                    : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-archive-green/30 dark:border-l-archive-green/30 font-medium'
                             "
                         >
                             <span class="break-words">{{ scope.label }}</span>
@@ -31,7 +31,7 @@
                                 :class="
                                     activeScopeId === scope.id
                                         ? 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
-                                        : 'bg-archive-green/10 dark:bg-emerald-900/30 text-archive-green dark:text-emerald-300'
+                                        : 'bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light'
                                 "
                             >
                                 {{ formatCount(scope.total) }}
