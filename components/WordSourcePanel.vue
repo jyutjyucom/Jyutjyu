@@ -8,10 +8,24 @@
     >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="text-base sm:text-lg font-semibold text-ink dark:text-parchment break-words">
+          <h2
+            class="text-sm break-words"
+            :class="
+              active
+                ? 'text-ink dark:text-parchment font-semibold'
+                : 'text-graphite dark:text-stone-400 font-medium'
+            "
+          >
             {{ sourceLabel }}
           </h2>
-          <p class="mt-1 text-xs text-graphite/60 dark:text-stone-200">
+          <p
+            class="mt-1 text-xs"
+            :class="
+              active
+                ? 'text-ink dark:text-parchment'
+                : 'text-graphite dark:text-stone-400'
+            "
+          >
             {{ entries.length }} 義項
           </p>
         </div>
