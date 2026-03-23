@@ -62,7 +62,7 @@
           </label>
           <button
             type="button"
-            class="text-sm font-medium text-graphite/60 dark:text-stone-500 hover:text-kapok underline underline-offset-2 disabled:no-underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="text-sm font-medium text-graphite/60 dark:text-stone-200 hover:text-kapok underline underline-offset-2 disabled:no-underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             :disabled="!description"
             @click="description = ''"
           >
@@ -74,7 +74,7 @@
           v-model="description"
           :placeholder="t('feedback.description.placeholder')"
           rows="10"
-          class="w-full px-3 py-2 border border-outline-soft/30 dark:border-stone-700 bg-white dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:border-kapok resize-vertical transition-colors"
+          class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 resize-vertical transition-colors"
           required
         ></textarea>
       </div>
@@ -122,7 +122,7 @@
           :placeholder="t('feedback.contact.placeholder')"
           class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 transition-colors"
         >
-        <p class="text-xs text-graphite/60 dark:text-stone-500 mt-1">{{ t('feedback.contact.hint') }}</p>
+        <p class="text-xs text-graphite/60 dark:text-stone-200 mt-1">{{ t('feedback.contact.hint') }}</p>
       </div>
 
       <!-- 提交行：左侧提示，右侧按钮 -->

@@ -160,7 +160,7 @@
                 {{ t('about.community.commercialDesc') }}
               </p>
 
-              <p class="text-xs text-graphite/60 dark:text-stone-500">
+              <p class="text-xs text-graphite/60 dark:text-stone-200">
                 {{ t('about.community.wordsCopyright') }}
               </p>
             </div>
@@ -200,7 +200,7 @@
                 <li>{{ t('about.community.wiktCond2') }}</li>
               </ul>
 
-              <p class="text-xs text-graphite/60 dark:text-stone-500">
+              <p class="text-xs text-graphite/60 dark:text-stone-200">
                 {{ t('about.community.wiktCopyright') }}
               </p>
             </div>
@@ -289,7 +289,7 @@
                 <li>{{ t('about.original.qzConditions2') }}</li>
               </ul>
 
-              <p class="text-xs text-graphite/60 dark:text-stone-500">
+              <p class="text-xs text-graphite/60 dark:text-stone-200">
                 {{ t('about.original.qzCopyright') }}
               </p>
             </div>
@@ -319,7 +319,7 @@
                 {{ t('about.webDict.tsNotice') }}
               </p>
 
-              <p class="text-xs text-graphite/60 dark:text-stone-500">
+              <p class="text-xs text-graphite/60 dark:text-stone-200">
                 {{ t('about.webDict.tsCopyright') }}
               </p>
             </div>

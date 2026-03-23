@@ -336,7 +336,7 @@
               </span>
               <span
                 v-if="refIdx < entry.refs.length - 1"
-                class="text-graphite/40 dark:text-stone-600"
+                class="text-graphite/40 dark:text-stone-300"
               >
                 、
               </span>

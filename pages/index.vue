@@ -91,13 +91,13 @@
                         >
                             <template v-if="enableReverseSearch">
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('為什麼')"
                                 >
                                     為什麼
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('奇怪')"
                                 >
                                     奇怪
@@ -105,13 +105,13 @@
                             </template>
                             <template v-else>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('阿Sir')"
                                 >
                                     阿Sir
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('aa3 soe4')"
                                 >
                                     aa3 soe4

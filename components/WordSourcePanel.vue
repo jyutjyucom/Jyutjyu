@@ -24,7 +24,7 @@
             {{ dialect }}
           </span>
           <svg
-            class="w-4 h-4 text-graphite dark:text-stone-500 transition-transform"
+            class="w-4 h-4 text-graphite dark:text-stone-200 transition-transform"
             :class="expanded ? 'rotate-180' : ''"
             fill="none"
             stroke="currentColor"
@@ -333,7 +333,7 @@
               </span>
               <span
                 v-if="refIdx < entry.refs.length - 1"
-                class="text-graphite/40 dark:text-stone-600"
+                class="text-graphite/40 dark:text-stone-300"
               >
                 、
               </span>

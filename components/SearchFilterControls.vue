@@ -23,7 +23,7 @@
           :class="selectedDict === dict ? 'text-kapok bg-kapok/10 dark:bg-kapok/20' : 'text-graphite dark:text-stone-100'"
           @click="$emit('select-dict', dict)">
           {{ dict }}
-          <span class="text-graphite/40 dark:text-stone-600 text-xs ml-1">({{ getDictCount(dict) }})</span>
+          <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1">({{ getDictCount(dict) }})</span>
         </button>
       </div>
     </div>
@@ -49,7 +49,7 @@
           :class="selectedDialect === dialect ? 'text-archive-green bg-archive-green/10 dark:bg-archive-green/20' : 'text-graphite dark:text-stone-100'"
           @click="$emit('select-dialect', dialect)">
           {{ getDialectLabel(dialect) }}
-          <span class="text-graphite/40 dark:text-stone-600 text-xs ml-1">({{ getDialectCount(dialect) }})</span>
+          <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1">({{ getDialectCount(dialect) }})</span>
         </button>
       </div>
     </div>
@@ -75,7 +75,7 @@
           :class="selectedType === type ? 'text-muted-gold bg-muted-gold/10 dark:bg-muted-gold/20' : 'text-graphite dark:text-stone-100'"
           @click="$emit('select-type', type)">
           {{ getTypeName(type) }}
-          <span class="text-graphite/40 dark:text-stone-600 text-xs ml-1">({{ getTypeCount(type) }})</span>
+          <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1">({{ getTypeCount(type) }})</span>
         </button>
       </div>
     </div>

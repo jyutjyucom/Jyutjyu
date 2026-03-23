@@ -23,7 +23,7 @@
             <!-- 同形异义标记 -->
             <sup
               v-if="entry.meta?.variant_number"
-              class="ml-1 text-sm text-graphite/60 dark:text-stone-500"
+              class="ml-1 text-sm text-graphite/60 dark:text-stone-200"
             >
               {{ entry.meta.variant_number }}
             </sup>
@@ -44,9 +44,9 @@
               <!-- 原书注音（始终在粤拼右边，空间不足时换行） -->
               <div
                 v-if="getOriginalPhonetic(entry, idx)"
-                class="text-xs text-graphite/60 dark:text-stone-500 break-words"
+                class="text-xs text-graphite/60 dark:text-stone-200 break-words"
               >
-                <span class="text-graphite/40 dark:text-stone-600">{{ t('dictCard.originalPhonetic') }}</span>{{ getOriginalPhonetic(entry, idx) }}
+                <span class="text-graphite/40 dark:text-stone-300">{{ t('dictCard.originalPhonetic') }}</span>{{ getOriginalPhonetic(entry, idx) }}
               </div>
             </div>
           </div>
@@ -61,7 +61,7 @@
           <!-- 如果显示词和标准词不同，显示标准词 -->
           <p
             v-if="entry.headword.display !== entry.headword.normalized"
-            class="text-sm text-graphite/60 dark:text-stone-500 break-words mt-1"
+            class="text-sm text-graphite/60 dark:text-stone-200 break-words mt-1"
           >
             {{ t('dictCard.standardWriting') }}{{ entry.headword.normalized }}
           </p>
@@ -138,7 +138,7 @@
             <!-- 词性标签 -->
             <span
               v-if="sense.label"
-              class="inline-block text-xs text-graphite/60 dark:text-stone-500 mb-1"
+              class="inline-block text-xs text-graphite/60 dark:text-stone-200 mb-1"
             >
               {{ sense.label }}
             </span>
@@ -207,7 +207,7 @@
                     <!-- 例句翻译 -->
                     <p
                       v-if="example.translation"
-                      class="text-base text-graphite/60 dark:text-stone-500 mt-1"
+                      class="text-base text-graphite/60 dark:text-stone-200 mt-1"
                     >
                       → {{ example.translation }}
                     </p>
@@ -247,7 +247,7 @@
                 <!-- 例句翻译 -->
                 <p
                   v-if="example.translation"
-                  class="text-base text-graphite/60 dark:text-stone-500 mt-1"
+                  class="text-base text-graphite/60 dark:text-stone-200 mt-1"
                 >
                   → {{ example.translation }}
                 </p>
@@ -301,7 +301,7 @@
             <!-- 引文（用 ～ 代替词头） -->
             <span v-if="ref.quote">{{ ref.quote }}</span>
             <!-- 出处 -->
-            <span v-if="ref.source" class="text-graphite/60 dark:text-stone-500">（{{ ref.source }}）</span>
+            <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200">（{{ ref.source }}）</span>
           </li>
         </ul>
       </div>
@@ -311,7 +311,7 @@
         v-if="entry.refs && entry.refs.length > 0"
         class="mt-4 text-sm"
       >
-        <span class="text-graphite/60 dark:text-stone-500">{{ t('dictCard.seeAlso') }}</span>
+        <span class="text-graphite/60 dark:text-stone-200">{{ t('dictCard.seeAlso') }}</span>
         <span
           v-for="(ref, refIdx) in entry.refs"
           :key="refIdx"
@@ -332,7 +332,7 @@
           </span>
           <span
             v-if="refIdx < entry.refs.length - 1"
-            class="text-graphite/40 dark:text-stone-600"
+            class="text-graphite/40 dark:text-stone-300"
           >
             、
           </span>

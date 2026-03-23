@@ -9,7 +9,7 @@
     </NuxtLink>
     <span
       v-else
-      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
+      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t('browse.prevPage') }}
     </span>
@@ -25,7 +25,7 @@
     </NuxtLink>
     <span
       v-else
-      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
+      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t('browse.nextPage') }}
     </span>

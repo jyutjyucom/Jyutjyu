@@ -135,7 +135,7 @@
 
         <div
           v-else
-          class="text-center py-12 text-graphite dark:text-stone-500"
+          class="text-center py-12 text-graphite dark:text-stone-200"
         >
           {{ t('common.noResultsDescription') }}
         </div>

@@ -19,7 +19,7 @@ const messagesYueHant = {
   common: {
     siteName: "粵語辭叢",
     siteSubtitle: "Open Yue Dictionary Collection Platform",
-    siteDescription: "開放嘅粵語詞典聚合平台",
+    siteDescription: "開源粵語詞典聚合平台",
     contribute: "一齊嚟貢獻",
     contributeDescription: "本平台係開源項目，歡迎外部貢獻",
     github: "GitHub",
@@ -51,7 +51,7 @@ const messagesYueHant = {
     licenseScannedDisclaimerSuffix: "提出。",
     licenseDetails: "睇詳情",
     footerFriendLinks: "友情連結",
-    footerJyutping: "粵拼",
+    footerJyutping: "粵拼方案",
     footerJyutDict: "泛粵典",
     footerJyutNet: "粵音資料集叢",
     footerLicenseIntro: "收錄內容遵循唔同授權協議",
@@ -151,8 +151,7 @@ const messagesYueHant = {
     metaDescription:
       "了解粵語辭叢項目嘅使命、內容授權政策同技術架構。我哋致力於打造開放、包容、可持續嘅粵語詞典聚合平台。",
     title: "關於粵語辭叢",
-    subtitle:
-      "Open Yue Dictionary Collection Platform - 開放嘅粵語詞典聚合平台",
+    subtitle: "Open Yue Dictionary Collection Platform - 開源粵語詞典聚合平台",
     missionTitle: "使命",
     missionP1:
       "粵語辭叢致力於建立一個先進實用嘅粵語詞典平台，用現代技術傳承同推廣粵語文化。",

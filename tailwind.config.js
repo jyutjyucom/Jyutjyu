@@ -30,16 +30,16 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Inter',
-          '"Chiron Hei HK"',
+          '"Inter Variable"',
+          '"Chiron Hei HK Variable"',
           'sans-serif'
         ],
         serif: [
-          '"Chiron Sung HK"',
+          '"Chiron Sung HK Variable"',
           'serif'
         ],
         headline: [
-          '"Chiron Sung HK"',
+          '"Chiron Sung HK Variable"',
           'serif'
         ],
         // 粤拼字体

@@ -48,10 +48,10 @@
       >
         <span>
           <span class="font-semibold text-kapok">{{ activeLabel }}</span>
-          <span class="ml-2 text-sm text-graphite/60 dark:text-stone-500">{{ t('dictCard.collectedBy', { count: activeDictionaryCount }) }}</span>
+          <span class="ml-2 text-sm text-graphite/60 dark:text-stone-200">{{ t('dictCard.collectedBy', { count: activeDictionaryCount }) }}</span>
         </span>
         <svg
-          class="w-5 h-5 text-graphite dark:text-stone-500 transition-transform"
+          class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
           :class="accordionOpen ? 'rotate-180' : ''"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
@@ -70,7 +70,7 @@
           @click="selectTab(tab.id)"
         >
           <span>{{ tab.label }}</span>
-          <span class="text-xs text-graphite/60 dark:text-stone-500">{{ tab.dictionaryCount }}</span>
+          <span class="text-xs text-graphite/60 dark:text-stone-200">{{ tab.dictionaryCount }}</span>
         </button>
       </div>
     </div>

@@ -8,6 +8,10 @@
 </template>
 
 <script setup lang="ts">
+import '@fontsource-variable/inter'
+import '@fontsource-variable/chiron-hei-hk'
+import '@fontsource-variable/chiron-sung-hk'
+
 const { locale } = useI18n()
 const { initTheme } = useTheme()
 
@@ -44,7 +48,7 @@ html.dark {
 }
 
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'PingFang TC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
+  font-family: 'Inter Variable', 'Chiron Hei HK Variable', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

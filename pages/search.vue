@@ -95,7 +95,7 @@
           <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t('common.noResultsDescription') }}
           </p>
-          <div class="text-sm text-graphite/60 dark:text-stone-500">
+          <div class="text-sm text-graphite/60 dark:text-stone-200">
             <p class="font-semibold mb-2">{{ t('common.noResultsTipsTitle') }}</p>
             <ul class="space-y-1">
               <li>• {{ t('common.noResultsTip1') }}</li>
@@ -214,7 +214,7 @@
           </p>
           <!-- 示例搜索 -->
           <div class="flex flex-wrap gap-2 justify-center">
-            <span class="text-sm text-graphite/60 dark:text-stone-500">{{ t('common.exampleSearchPrefix') }}</span>
+            <span class="text-sm text-graphite/60 dark:text-stone-200">{{ t('common.exampleSearchPrefix') }}</span>
             <button v-for="example in exampleSearches" :key="example"
               class="px-3 py-1 text-sm bg-surface-low dark:bg-stone-800 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green text-graphite dark:text-stone-400 rounded-full transition-colors"
               @click="searchExample(example)">

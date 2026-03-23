@@ -140,7 +140,7 @@
                     >
                         <span>{{ activeScopeLabel }}</span>
                         <svg
-                            class="w-5 h-5 text-graphite dark:text-stone-500 transition-transform"
+                            class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
                             :class="mobileAccordionOpen ? 'rotate-180' : ''"
                             fill="none"
                             stroke="currentColor"
@@ -172,7 +172,7 @@
                         >
                             <span>{{ scope.label }}</span>
                             <span
-                                class="text-xs text-graphite/60 dark:text-stone-500"
+                                class="text-xs text-graphite/60 dark:text-stone-200"
                                 >{{ formatCount(scope.total) }}</span
                             >
                         </NuxtLink>
@@ -190,7 +190,7 @@
                                 >{{ activeScopeLabel }}</span
                             >
                             <span
-                                class="mx-2 text-graphite/30 dark:text-stone-600"
+                                class="mx-2 text-graphite/30 dark:text-stone-300"
                                 >·</span
                             >
                             {{
@@ -255,11 +255,11 @@
                                 >
                                 <span
                                     v-else
-                                    class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-white dark:bg-stone-800 cursor-not-allowed"
+                                    class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                                     >{{ t("browse.prevPage") }}</span
                                 >
                                 <label
-                                    class="inline-flex items-center gap-1 text-sm text-graphite/60 dark:text-stone-500 px-1"
+                                    class="inline-flex items-center gap-1 text-sm text-graphite/60 dark:text-stone-200 px-1"
                                 >
                                     <span>{{
                                         t("browse.pageInputPrefix")
@@ -301,7 +301,7 @@
                                 >
                                 <span
                                     v-else
-                                    class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-white dark:bg-stone-800 cursor-not-allowed"
+                                    class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                                     >{{ t("browse.nextPage") }}</span
                                 >
                             </nav>
@@ -353,7 +353,7 @@
                         <template v-if="browseData.totalPages > 1">
                             <!-- Row 4: Page input -->
                             <label
-                                class="flex items-center gap-2 text-sm text-graphite/60 dark:text-stone-500"
+                                class="flex items-center gap-2 text-sm text-graphite/60 dark:text-stone-200"
                             >
                                 <span>{{ t("browse.pageInputPrefix") }}</span>
                                 <input
@@ -394,7 +394,7 @@
                                 >
                                 <span
                                     v-else
-                                    class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-white dark:bg-stone-800 cursor-not-allowed"
+                                    class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                                     >{{ t("browse.prevPage") }}</span
                                 >
                                 <NuxtLink
@@ -413,7 +413,7 @@
                                 >
                                 <span
                                     v-else
-                                    class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-600 bg-white dark:bg-stone-800 cursor-not-allowed"
+                                    class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                                     >{{ t("browse.nextPage") }}</span
                                 >
                             </div>
@@ -421,24 +421,25 @@
                     </div>
                 </div>
 
-                <div
-                    v-if="loading"
-                    class="my-4 bg-surface-low dark:bg-stone-900 min-h-[18rem] flex items-center justify-center"
-                >
-                    <div
-                        class="text-center text-graphite/60 dark:text-stone-500"
-                    >
-                        <div
-                            class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-kapok border-t-transparent"
-                        ></div>
-                        <p class="mt-3 text-sm">{{ t("common.loading") }}</p>
-                    </div>
-                </div>
+                <div class="my-4 min-h-[18rem]">
+                  <div
+                      v-if="loading"
+                      class="bg-surface-low dark:bg-stone-900 min-h-[18rem] flex items-center justify-center"
+                  >
+                      <div
+                          class="text-center text-graphite/60 dark:text-stone-200"
+                      >
+                          <div
+                              class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-kapok border-t-transparent"
+                          ></div>
+                          <p class="mt-3 text-sm">{{ t("common.loading") }}</p>
+                      </div>
+                  </div>
 
-                <div
-                    v-else-if="browseData.headwords.length > 0"
-                    class="my-4 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 overflow-hidden bg-surface-low dark:bg-stone-900"
-                >
+                  <div
+                      v-else-if="browseData.headwords.length > 0"
+                      class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 overflow-hidden bg-surface-low dark:bg-stone-900"
+                  >
                     <NuxtLink
                         v-for="headword in browseData.headwords"
                         :key="headword"
@@ -450,11 +451,12 @@
                     </NuxtLink>
                 </div>
 
-                <div
-                    v-else
-                    class="text-center py-10 text-sm text-graphite/60 dark:text-stone-500"
-                >
-                    {{ t("common.noResultsDescription") }}
+                  <div
+                      v-else
+                      class="text-center py-10 text-sm text-graphite/60 dark:text-stone-200"
+                  >
+                      {{ t("common.noResultsDescription") }}
+                  </div>
                 </div>
 
                 <BrowsePagination
