@@ -37,7 +37,7 @@ async function initConverters(): Promise<void> {
       toSimplifiedConverter = OpenCC.Converter({ from: 'hk', to: 'cn' })
       toTraditionalConverter = OpenCC.Converter({ from: 'cn', to: 'hk' })
     } catch (error) {
-      console.error('OpenCC 初始化失败:', error)
+      console.error('OpenCC 初始化失敗:', error)
       // 提供降级方案：直接返回原文
       toSimplifiedConverter = (text: string) => text
       toTraditionalConverter = (text: string) => text
@@ -64,7 +64,7 @@ export const useChineseConverter = () => {
     try {
       return toSimplifiedConverter(text)
     } catch (error) {
-      console.warn('简繁转换失败:', error)
+      console.warn('簡繁轉換失敗:', error)
       return text
     }
   }
@@ -80,7 +80,7 @@ export const useChineseConverter = () => {
     try {
       return toTraditionalConverter(text)
     } catch (error) {
-      console.warn('简繁转换失败:', error)
+      console.warn('簡繁轉換失敗:', error)
       return text
     }
   }
@@ -109,7 +109,7 @@ export const useChineseConverter = () => {
       variants.add(simplified)
       variants.add(traditional)
     } catch (error) {
-      console.warn('获取文本变体失败:', error)
+      console.warn('讀取文字變體失敗:', error)
     }
 
     return Array.from(variants)

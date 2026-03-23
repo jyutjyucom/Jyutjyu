@@ -1,0 +1,7 @@
+@font-face {
+  font-family: 'Chiron Hei HK UI';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('/fonts/chiron-hei-hk-ui.woff2') format('woff2-variations');
+}

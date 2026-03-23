@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error: any) {
-    console.error('搜索失败:', error)
+    console.error('搜尋失敗:', error)
     
     return {
       success: false,

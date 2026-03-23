@@ -1,36 +1,76 @@
 <template>
-  <div
-    class="sticky z-[8] bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/90 supports-[backdrop-filter]:dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700 -mx-4 px-4"
-    :style="stickyStyle"
-  >
+  <div>
+    <!-- Desktop: pill tabs -->
     <div
-      class="overflow-x-auto py-2"
-      role="tablist"
-      :aria-label="ariaLabel"
+      class="hidden sm:block sticky z-[8] bg-parchment/95 dark:bg-stone-950/95 backdrop-blur supports-[backdrop-filter]:bg-parchment/90 supports-[backdrop-filter]:dark:bg-stone-950/90 -mx-6 md:-mx-8 px-6 md:px-8"
+      :style="stickyStyle"
     >
-      <div class="flex flex-nowrap items-center gap-2 min-w-max">
-        <button
-          v-for="(tab, index) in tabs"
-          :key="tab.id"
-          type="button"
-          role="tab"
-          class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm transition-colors whitespace-nowrap"
-          :class="tab.id === modelValue
-            ? 'bg-blue-600 text-white'
-            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20'"
-          :aria-selected="tab.id === modelValue"
-          @click="$emit('update:modelValue', tab.id)"
-          @keydown="onTabKeydown($event, index)"
-        >
-          <span class="font-mono font-semibold">{{ tab.label }}</span>
-          <span
-            class="text-xs px-1.5 py-0.5 rounded-full"
+      <div
+        class="overflow-x-auto py-2"
+        role="tablist"
+        :aria-label="ariaLabel"
+      >
+        <div class="flex flex-nowrap items-center gap-1 min-w-max bg-surface-low dark:bg-stone-900 p-1 w-fit">
+          <button
+            v-for="(tab, index) in tabs"
+            :key="tab.id"
+            type="button"
+            role="tab"
+            class="inline-flex items-center gap-2 px-4 py-1.5 text-base transition-all whitespace-nowrap"
             :class="tab.id === modelValue
-              ? 'bg-white/20 text-white'
-              : 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'"
+              ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
+              : 'text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 font-medium'"
+            :aria-selected="tab.id === modelValue"
+            @click="$emit('update:modelValue', tab.id)"
+            @keydown="onTabKeydown($event, index)"
           >
-            {{ tab.dictionaryCount }}
-          </span>
+            <span class="font-semibold">{{ tab.label }}</span>
+            <span
+              class="text-xs px-1.5 py-0.5 rounded-full"
+              :class="tab.id === modelValue
+                ? 'bg-white/20 text-white'
+                : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'"
+            >
+              {{ tab.dictionaryCount }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile: accordion -->
+    <div class="sm:hidden">
+      <button
+        aria-label="Select pronunciation"
+        :aria-expanded="accordionOpen"
+        class="w-full px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-sm font-medium flex items-center justify-between"
+        @click="accordionOpen = !accordionOpen"
+      >
+        <span>
+          <span class="font-semibold text-kapok">{{ activeLabel }}</span>
+          <span class="ml-2 text-sm text-graphite/60 dark:text-stone-200">{{ t('dictCard.collectedBy', { count: activeDictionaryCount }) }}</span>
+        </span>
+        <svg
+          class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
+          :class="accordionOpen ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div v-show="accordionOpen" class="bg-surface-low dark:bg-stone-900 border-t border-outline-soft/20 dark:border-stone-800">
+        <button
+          v-for="tab in tabs"
+          :key="`mobile:${tab.id}`"
+          type="button"
+          class="w-full flex items-center justify-between px-3 py-2 text-sm transition-colors"
+          :class="tab.id === modelValue
+            ? 'text-kapok font-semibold bg-kapok/5'
+            : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'"
+          @click="selectTab(tab.id)"
+        >
+          <span>{{ tab.label }}</span>
+          <span class="text-xs text-graphite/60 dark:text-stone-200">{{ tab.dictionaryCount }}</span>
         </button>
       </div>
     </div>
@@ -56,9 +96,22 @@ const props = withDefaults(defineProps<Props>(), {
   ariaLabel: 'Pronunciation tabs'
 })
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
+
+const accordionOpen = ref(false)
+
+const activeTab = computed(() => props.tabs.find(tab => tab.id === props.modelValue) || props.tabs[0])
+const activeLabel = computed(() => activeTab.value?.label || '')
+const activeDictionaryCount = computed(() => activeTab.value?.dictionaryCount || 0)
+
+const selectTab = (tabId: string) => {
+  emit('update:modelValue', tabId)
+  accordionOpen.value = false
+}
 
 const stickyStyle = computed(() => ({
   top: `${Math.max(0, props.stickyOffset)}px`

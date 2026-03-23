@@ -102,14 +102,14 @@ export const useDictionary = () => {
       try {
         const response = await fetch('/dictionaries/index.json')
         if (!response.ok) {
-          console.error('获取词典索引失败')
+          console.error('讀取詞典索引失敗')
           return null
         }
         const indexData = await response.json()
         cachedDictionaryIndex = indexData
         return indexData
       } catch (error) {
-        console.error('加载词典索引失败:', error)
+        console.error('載入詞典索引失敗:', error)
         return null
       } finally {
         dictionaryIndexPromise = null
@@ -164,7 +164,7 @@ export const useDictionary = () => {
         return result
       }
     } catch (error) {
-      console.error('获取分片词典列表失败:', error)
+      console.error('讀取分片詞典清單失敗:', error)
     }
 
     // 兜底：避免索引请求偶发失败导致分片词典完全不可搜索
@@ -278,7 +278,7 @@ export const useDictionary = () => {
         const dictionaries = indexData.dictionaries || []
         
         if (dictionaries.length === 0) {
-          console.warn('词典索引为空')
+          console.warn('詞典索引為空')
           return []
         }
         
@@ -291,7 +291,7 @@ export const useDictionary = () => {
               // 检查是否为分片词典（chunked: true）
               if (dict.chunked) {
                 // 分片词典：不在这里加载，而是在搜索时按需加载
-                console.log(`⏭️ 跳过分片词典: ${dict.id} (按需加载)`)
+                if (import.meta.dev) console.log(`跳過分片詞典: ${dict.id} (按需加載)`)
                 return
               }
               
@@ -303,20 +303,20 @@ export const useDictionary = () => {
                   allEntries.push(...data)
                 }
               } else {
-                console.warn(`加载词典失败: ${dict.file}`)
+                console.warn(`載入詞典失敗: ${dict.file}`)
               }
             } catch (error) {
-              console.error(`加载词典 ${dict.file} 时出错:`, error)
+                console.error(`載入詞典 ${dict.file} 時出錯:`, error)
             }
           })
         )
         
         // 缓存结果
         cachedEntries = allEntries
-        console.log(`✅ 词典数据已加载并缓存: ${allEntries.length} 条`)
+        if (import.meta.dev) console.log(`詞典資料已載入並快取: ${allEntries.length} 筆`)
         return allEntries
       } catch (error) {
-        console.error('获取词条失败:', error)
+        console.error('讀取詞條失敗:', error)
         return []
       } finally {
         cachePromise = null
@@ -334,7 +334,7 @@ export const useDictionary = () => {
       const entries = await getAllEntries()
       return entries.find(e => e.id === id) || null
     } catch (error) {
-      console.error('获取词条失败:', error)
+      console.error('讀取詞條失敗:', error)
       return null
     }
   }
@@ -471,7 +471,7 @@ export const useDictionary = () => {
 
     // 只在客户端运行
     if (!process.client) {
-      console.log('⏭️  服务器端跳过搜索')
+      if (import.meta.dev) console.log('伺服器端略過搜尋')
       return []
     }
     
@@ -739,7 +739,7 @@ export const useDictionary = () => {
           // wiktionary 数据量大，仍使用优化的分片策略
           if (searchDefinition && chunk_dir === 'cantowords') {
             requiredChunks = Object.keys(manifest.chunks)
-            console.log(`🔍 反查模式：加载 ${chunk_dir} 所有分片 (${requiredChunks.length} 个)`)
+            if (import.meta.dev) console.log(`反查模式：載入 ${chunk_dir} 所有分片 (${requiredChunks.length} 個)`)
           } else {
             requiredChunks = getRequiredChunks(normalizedQuery, manifest)
           }
@@ -753,7 +753,7 @@ export const useDictionary = () => {
           if (!searchDefinition && needsMixedQueryChunkFallback) {
             const fallbackChunks = Object.keys(manifest.chunks || {}).filter(chunk => !processedChunks.has(chunk))
             if (fallbackChunks.length > 0) {
-              console.log(`🔁 混合查询补全扫描 ${chunk_dir} 剩余分片 (${fallbackChunks.length} 个)`)
+              if (import.meta.dev) console.log(`混合查詢補全掃描 ${chunk_dir} 剩餘分片 (${fallbackChunks.length} 個)`)
               for (const chunk of fallbackChunks) {
                 await processChunk(chunk)
               }
@@ -778,7 +778,7 @@ export const useDictionary = () => {
       
       return finalResults
     } catch (error) {
-      console.error('搜索失败:', error)
+      console.error('搜尋失敗:', error)
       return []
     }
   }
@@ -840,7 +840,7 @@ export const useDictionary = () => {
       
       return index?.dictionaries || []
     } catch (error) {
-      console.error('获取词典列表失败:', error)
+      console.error('讀取詞典清單失敗:', error)
       return []
     }
   }
@@ -875,7 +875,7 @@ export const useDictionary = () => {
       // 目前随机返回
       return entries.slice(0, limit)
     } catch (error) {
-      console.error('获取热门词条失败:', error)
+      console.error('讀取熱門詞條失敗:', error)
       return []
     }
   }
@@ -902,7 +902,7 @@ export const useDictionary = () => {
 
       return response.results
     } catch (error) {
-      console.error('获取随机推荐词条失败:', error)
+      console.error('讀取隨機推薦詞條失敗:', error)
       return []
     }
   }

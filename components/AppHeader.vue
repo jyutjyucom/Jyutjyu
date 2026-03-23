@@ -1,9 +1,9 @@
 <template>
-  <header ref="headerEl" class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
-    <div class="container mx-auto px-4 py-4">
+  <header ref="headerEl" class="bg-parchment/85 dark:bg-stone-950/85 backdrop-blur-md border-b border-outline-soft/20 dark:border-stone-800 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-          <NuxtLink to="/" class="text-xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+          <NuxtLink to="/" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
             {{ t('common.siteName') }}
           </NuxtLink>
 
@@ -13,12 +13,13 @@
                 :value="searchQuery"
                 type="text"
                 :placeholder="t('common.searchPlaceholder')"
-                class="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:border-blue-500"
+                aria-label="Search dictionary"
+                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 focus:outline-none transition-colors"
                 @input="handleQueryInput"
                 @keyup.enter="handleSearch"
               >
               <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 sm:py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors text-sm font-medium"
                 @click="handleSearch"
               >
                 {{ t('common.searchButton') }}
@@ -30,7 +31,7 @@
             <button
               v-if="showMobileOptionsButton"
               type="button"
-              class="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 transition-colors shrink-0"
+              class="lg:hidden flex items-center justify-center w-9 h-9 text-graphite dark:text-stone-400 hover:text-kapok transition-colors shrink-0"
               :aria-label="optionsExpanded ? t('common.optionsCollapse') : t('common.optionsExpand')"
               :aria-expanded="optionsExpanded"
               @click="toggleOptionsExpanded"
@@ -57,7 +58,7 @@
         </div>
       </div>
 
-      <div v-show="optionsExpanded" class="lg:hidden border-t border-gray-100 dark:border-gray-700 pt-3 mt-1 space-y-4">
+      <div v-show="optionsExpanded" class="lg:hidden border-t border-outline-soft/20 dark:border-stone-800 pt-3 mt-1 space-y-4">
         <div class="flex flex-wrap items-center gap-3">
           <SearchReverseCheckbox
             v-if="showReverseToggle"

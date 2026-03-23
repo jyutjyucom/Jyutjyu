@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-parchment dark:bg-stone-950">
     <AppHeader
       v-model:search-query="searchQuery"
       v-model:reverse-search="enableReverseSearch"
@@ -7,29 +7,27 @@
       @search="handleSearch"
     />
 
-    <main class="container mx-auto px-4 py-8">
-      <div class="max-w-7xl mx-auto">
-        <NuxtLink to="/" class="inline-flex items-center gap-1.5 mb-6 text-base font-medium text-blue-600 dark:text-blue-400 hover:underline">
+    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-ui">
+        <NuxtLink to="/" class="inline-flex items-center gap-1.5 mb-6 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           {{ t('browse.backHome') }}
         </NuxtLink>
 
-
         <div v-if="pending && !displayedBrowseData" class="text-center py-16">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
         </div>
 
         <div
           v-else-if="error && !displayedBrowseData"
-          class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/20 px-4 py-6 text-center text-sm text-red-700 dark:text-red-300"
+          class="border-l-4 border-kapok bg-kapok/10 dark:bg-kapok/20 px-4 py-6 text-center text-sm text-kapok"
         >
           <p class="mb-3">
             {{ error.statusMessage || 'Failed to load browse data' }}
           </p>
           <button
-            class="px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+            class="px-3 py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors"
             @click="retryBrowseLoad"
           >
             {{ t('common.searchButton') }}
@@ -37,9 +35,8 @@
         </div>
 
         <template v-else-if="displayedBrowseData">
-          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" />
+          <BrowseDictionaryBrowser :browse-data="displayedBrowseData" :loading="pending" :all-covers="allDictionaryCovers" />
         </template>
-      </div>
     </main>
 
     <SiteFooter />
@@ -47,12 +44,15 @@
 </template>
 
 <script setup lang="ts">
+import '~/styles/chiron-hei-content.css'
+import '~/styles/chiron-sung-content.css'
 import type { BrowseResponse } from '~/composables/useBrowsePageData'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
+const { dictionariesData, getLocalizedValue } = useLocalizedDictionary()
 
 const searchQuery = ref('')
 const enableReverseSearch = ref(false)
@@ -99,6 +99,18 @@ const retryBrowseLoad = () => {
   void refresh()
 }
 
+const allDictionaryCovers = computed(() => {
+  const dictionaries = dictionariesData.value?.dictionaries || []
+  return dictionaries
+    .map((dict: any) => ({
+      id: dict.id,
+      name: getLocalizedValue(dict.name, dict.id),
+      cover: dict.cover || '',
+      author: dict.author ? getLocalizedValue(dict.author, '') : '',
+      year: dict.year || null
+    }))
+})
+
 const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
 const canonicalHref = computed(() => {
   if (!siteUrl.value) return ''
@@ -110,7 +122,10 @@ useHead(() => ({
   title: `${t('browse.title')} | ${t('common.siteName')}`,
   meta: [
     { name: 'description', content: t('browse.metaDescription') },
-    { name: 'robots', content: 'index, follow' }
+    { name: 'robots', content: 'index, follow' },
+    { property: 'og:title', content: `${t('browse.title')} | ${t('common.siteName')}` },
+    { property: 'og:description', content: t('browse.metaDescription') },
+    { property: 'og:url', content: canonicalHref.value || undefined }
   ],
   link: canonicalHref.value
     ? [{ rel: 'canonical', href: canonicalHref.value }]

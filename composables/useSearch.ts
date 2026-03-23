@@ -59,7 +59,7 @@ class SearchCache {
       return null
     }
 
-    console.log(`✅ 使用缓存结果: "${query}" (${cached.results.length} 条)`)
+    if (import.meta.dev) console.log(`使用快取結果: "${query}" (${cached.results.length} 筆)`)
     return cached.results
   }
 
@@ -82,7 +82,7 @@ class SearchCache {
       timestamp: Date.now()
     })
 
-    console.log(`💾 缓存搜索结果: "${query}" (${results.length} 条)`)
+    if (import.meta.dev) console.log(`快取搜尋結果: "${query}" (${results.length} 筆)`)
   }
 
   /**
@@ -90,7 +90,7 @@ class SearchCache {
    */
   clear(): void {
     this.cache.clear()
-    console.log('🗑️ 清空搜索缓存')
+    if (import.meta.dev) console.log('清空搜尋快取')
   }
 
   /**
@@ -163,7 +163,7 @@ export const useSearch = () => {
         const available = await apiSearch.ping()
         apiAvailability = available
         if (available) {
-          console.log('✅ 检测到 API 可用，自动切换到 API 搜索模式')
+          if (import.meta.dev) console.log('偵測到 API 可用，自動切換到 API 搜尋模式')
         }
         return available
       } finally {
@@ -269,6 +269,11 @@ export const useSearch = () => {
    * 获取搜索建议
    */
   const getSuggestions = async (query: string): Promise<string[]> => {
+    const lightweightSuggestions = await apiSearch.getSuggestions(query)
+    if (lightweightSuggestions !== null) {
+      return lightweightSuggestions
+    }
+
     const useApiNow = await resolveUseApi()
     if (useApiNow) {
       // API 模式：使用搜索结果的词头作为建议

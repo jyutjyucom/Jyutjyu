@@ -3,29 +3,29 @@
     <NuxtLink
       v-if="page > 1"
       :to="pageLink(page - 1)"
-      class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-900 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+      class="px-3 py-1.5 text-sm font-medium text-archive-green bg-surface-low dark:bg-stone-800 hover:bg-surface-high dark:hover:bg-stone-700 transition-colors"
     >
       {{ t('browse.prevPage') }}
     </NuxtLink>
     <span
       v-else
-      class="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 rounded-lg cursor-not-allowed"
+      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t('browse.prevPage') }}
     </span>
-    <span class="text-sm text-gray-500 dark:text-gray-400 px-1">
+    <span class="text-sm text-ink dark:text-parchment font-medium px-1">
       {{ t('browse.pageInfo', { page, total: totalPages }) }}
     </span>
     <NuxtLink
       v-if="page < totalPages"
       :to="pageLink(page + 1)"
-      class="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800"
+      class="px-3 py-1.5 text-sm font-medium text-white bg-kapok hover:bg-kapok/90 transition-colors"
     >
       {{ t('browse.nextPage') }}
     </NuxtLink>
     <span
       v-else
-      class="px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 bg-blue-50 dark:bg-blue-950 rounded-lg cursor-not-allowed"
+      class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t('browse.nextPage') }}
     </span>

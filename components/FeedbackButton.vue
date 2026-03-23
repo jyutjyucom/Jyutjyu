@@ -91,7 +91,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   entryData: undefined,
   initialDescription: undefined,
-  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg text-sm whitespace-nowrap hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors',
+  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors',
   iconOnly: false,
   iconOnlyOnMobile: false,
   labelClass: 'text-sm',
