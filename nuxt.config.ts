@@ -157,7 +157,7 @@ export default defineNuxtConfig({
   },
 
   image: {
-    provider: "ipx",
+    provider: "vercel",
   },
 
   // TypeScript 配置
