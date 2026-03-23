@@ -187,7 +187,12 @@
                                     source.id,
                                 )
                             "
-                            :active="activeSourceId === source.id"
+                            :active="
+                                isMobileSourceExpanded(
+                                    activePronunciationGroup.id,
+                                    source.id,
+                                )
+                            "
                             :is-last="
                                 sourceIdx ===
                                 activePronunciationGroup.sources.length - 1
