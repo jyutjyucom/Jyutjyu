@@ -15,7 +15,7 @@
     >
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
         <div class="flex-1 min-w-0">
-          <h3 class="text-xl sm:text-3xl font-bold text-ink dark:text-parchment mb-1 break-words">
+          <h3 class="text-xl sm:text-3xl font-headline font-bold text-ink dark:text-parchment mb-1 break-words">
               {{ primary.headword.display }}
             <span
               v-if="primary.headword.is_placeholder"

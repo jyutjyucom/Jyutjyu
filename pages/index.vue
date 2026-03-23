@@ -139,11 +139,11 @@
             <!-- Featured Entries Section (Asymmetric Grid) -->
             <section class="max-w-7xl mx-auto px-6 py-4 sm:py-20">
                 <div
-                    class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-14 gap-4"
+                    class="flex flex-row items-end justify-between mb-8 sm:mb-14 gap-4"
                 >
                     <div>
                         <h2
-                            class="text-3xl md:text-4xl font-headline text-ink dark:text-stone-100"
+                            class="text-3xl md:text-4xl text-ink dark:text-stone-100"
                         >
                             {{ t("common.recommendedEntries") }}
                         </h2>
@@ -151,7 +151,7 @@
                     <button
                         @click="refreshRandomEntries"
                         :disabled="loadingRandomEntries"
-                        class="text-kapok font-semibold flex items-center gap-2 hover:underline underline-offset-8 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="text-kapok font-semibold flex items-center gap-2 hover:underline underline-offset-8 transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <svg
                             v-if="loadingRandomEntries"
@@ -322,6 +322,8 @@
                 <div
                     v-if="!loadingRandomEntries && currentMobileEntry"
                     class="md:hidden"
+                    @touchstart.passive="onTouchStart"
+                    @touchend.passive="onTouchEnd"
                 >
                     <NuxtLink
                         :to="wordPath(currentMobileEntry.headword.display)"
@@ -456,7 +458,7 @@
                             {{ t("common.includedDictionaries") }}
                         </h2>
                         <p
-                            class="text-graphite dark:text-stone-200 max-w-xl mx-auto font-light"
+                            class="text-graphite text-lg dark:text-stone-200 max-w-xl mx-auto font-light"
                         >
                             {{ t("common.totalEntriesPrefix") }}
                             <span class="text-kapok font-semibold">{{
@@ -491,7 +493,7 @@
                                 <span
                                     class="text-sm tracking-[0.3em] font-medium opacity-90 uppercase relative z-10"
                                 >
-                                    {{ dict.year || '' }}
+                                    {{ dict.year || "" }}
                                 </span>
                                 <div class="mb-4 sm:mb-8 relative z-10">
                                     <div
@@ -768,6 +770,25 @@ const refreshRandomEntries = async () => {
 
 const nextMobileEntry = () => {
     mobileIndex.value = (mobileIndex.value + 1) % randomEntries.value.length;
+};
+
+const prevMobileEntry = () => {
+    mobileIndex.value = (mobileIndex.value - 1 + randomEntries.value.length) % randomEntries.value.length;
+};
+
+let touchStartX = 0;
+let touchStartY = 0;
+const onTouchStart = (e: TouchEvent) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+};
+const onTouchEnd = (e: TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+        if (dx < 0) nextMobileEntry();
+        else prevMobileEntry();
+    }
 };
 
 // 只在首次加载且没有缓存数据时加载推荐词条
