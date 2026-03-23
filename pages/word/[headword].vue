@@ -133,7 +133,12 @@
                                             {{ source.sourceLabel }}
                                         </span>
                                         <span
-                                            class="text-xs text-graphite/60 dark:text-stone-200 whitespace-nowrap ml-2"
+                                            class="text-xs whitespace-nowrap ml-2"
+                                            :class="
+                                                activeSourceId === source.id
+                                                    ? 'text-ink dark:text-parchment'
+                                                    : 'text-graphite dark:text-stone-400'
+                                            "
                                         >
                                             {{ source.entries.length }} 義項
                                         </span>

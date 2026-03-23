@@ -27,7 +27,7 @@
           @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)"
         >
           <div class="flex items-baseline gap-2 mb-1">
-            <span class="text-base font-semibold text-ink dark:text-parchment">{{ group.primary.headword.display }}</span>
+            <span class="text-lg font-headline font-semibold text-ink dark:text-parchment">{{ group.primary.headword.display }}</span>
             <span class="text-sm font-semibold text-kapok">{{ getGroupJyutping(group) }}</span>
           </div>
           <p class="text-sm text-ink/70 dark:text-stone-400 line-clamp-1">{{ getGroupDefinitions(group) }}</p>
@@ -50,7 +50,7 @@
           <tbody class="bg-surface-low dark:bg-stone-900 divide-y divide-outline-soft/20 dark:divide-stone-800">
             <template v-for="group in displayedGroupedResults.exactMatches" :key="group.key">
               <tr class="hover:bg-surface-high dark:hover:bg-stone-800 cursor-pointer transition-colors" role="link" tabindex="0" @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)">
-                <td class="px-3 whitespace-nowrap py-2"><NuxtLink :to="getWordPath(group)" class="text-lg font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors" @click.stop>{{ group.primary.headword.display }}</NuxtLink></td>
+                <td class="px-3 whitespace-nowrap py-2"><NuxtLink :to="getWordPath(group)" class="text-lg font-headline font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors" @click.stop>{{ group.primary.headword.display }}</NuxtLink></td>
                 <td class="px-3 whitespace-nowrap py-2"><div class="text-lg font-semibold text-kapok">{{ getGroupJyutping(group) || '-' }}</div></td>
                 <td class="px-3 py-2"><div class="text-base text-ink/80 dark:text-stone-300 line-clamp-2">{{ getGroupDefinitions(group) || '-' }}</div></td>
                 <td class="px-3 whitespace-nowrap py-2"><div class="flex flex-wrap gap-1"><span v-for="source in getGroupSources(group)" :key="source" class="px-2 py-1 text-sm bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md">{{ source }}</span></div></td>
@@ -96,7 +96,7 @@
           @click="openWordPage(group)" @keydown.enter.prevent="openWordPage(group)"
         >
           <div class="flex items-baseline gap-2 mb-1">
-            <span class="text-base font-semibold text-ink dark:text-parchment">{{ group.primary.headword.display }}</span>
+            <span class="text-lg font-headline font-semibold text-ink dark:text-parchment">{{ group.primary.headword.display }}</span>
             <span class="text-sm font-semibold text-kapok">{{ getGroupJyutping(group) }}</span>
           </div>
           <p class="text-sm text-ink/70 dark:text-stone-400 line-clamp-1">{{ getGroupDefinitions(group) }}</p>
