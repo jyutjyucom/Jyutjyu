@@ -67,28 +67,28 @@
         <!-- 词典标签区 -->
         <div class="flex items-start gap-3">
           <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
-            <span class="px-3 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-sm whitespace-nowrap">
               {{ getEntrySourceBookLabel(entry) }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
             </span>
 
-            <span class="px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green rounded-md text-sm whitespace-nowrap">
               {{ getDialectLabel(entry) }}
             </span>
 
-            <span class="px-3 py-1 bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold rounded-lg text-sm whitespace-nowrap">
+            <span class="px-3 py-1 bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold rounded-md text-sm whitespace-nowrap">
               {{ getEntryTypeLabel(entry) }}
             </span>
 
             <span
               v-if="entry.meta?.register"
-              class="px-3 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-lg text-sm whitespace-nowrap"
+              class="px-3 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-sm whitespace-nowrap"
             >
               {{ entry.meta.register }}
             </span>
 
             <span
               v-if="entry.meta?.category"
-              class="px-3 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-lg text-sm break-words max-w-full"
+              class="px-3 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-sm break-words max-w-full"
             >
               {{ entry.meta.category }}
             </span>
@@ -273,7 +273,7 @@
 
           <div
             v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
-            class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 rounded-lg text-sm text-ink/80 dark:text-stone-300"
+            class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 rounded-md text-sm text-ink/80 dark:text-stone-300"
           >
             <span class="font-semibold text-archive-green">{{ t('dictCard.etymology') }}</span>
             {{ entry.meta.etymology }}
@@ -281,7 +281,7 @@
 
           <div
             v-if="entry.meta?.references && entry.meta.references.length > 0"
-            class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 rounded-lg text-sm text-ink/80 dark:text-stone-300"
+            class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 rounded-md text-sm text-ink/80 dark:text-stone-300"
           >
             <span class="font-semibold text-muted-gold">{{ t('dictCard.references') }}</span>
             <ul class="mt-2 space-y-2">

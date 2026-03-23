@@ -23,7 +23,7 @@
         </p>
         <NuxtLink
           :to="searchLink"
-          class="inline-flex px-5 py-2.5 bg-kapok text-white rounded-md hover:bg-kapok/90 transition-colors font-medium text-sm"
+          class="inline-flex px-5 py-2.5 bg-kapok text-white hover:bg-kapok/90 transition-colors font-medium text-sm"
         >
           {{ t('common.searchButton') }}
         </NuxtLink>
@@ -32,7 +32,7 @@
       <div v-else>
         <NuxtLink
           :to="searchLink"
-          class="inline-flex items-center gap-1.5 text-base font-medium text-archive-green dark:text-archive-green hover:text-archive-green/70 dark:hover:text-archive-green/70 transition-colors mb-8"
+          class="inline-flex items-center gap-1.5 text-base font-medium text-kapok hover:text-kapok/70 transition-colors mb-8"
         >
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -80,7 +80,7 @@
                     v-for="source in activePronunciationGroup.sources"
                     :key="`${activePronunciationGroup.id}:${source.id}`"
                     type="button"
-                    class="w-full px-4 py-3 text-left transition-all flex items-center justify-between group rounded-md"
+                    class="w-full px-4 py-3 text-left transition-all flex items-center justify-between group"
                     :class="activeSourceId === source.id
                       ? 'bg-surface-high dark:bg-stone-800 border-l-4 border-l-kapok'
                       : 'hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-4 border-l-transparent'"

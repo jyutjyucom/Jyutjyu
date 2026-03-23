@@ -19,7 +19,7 @@
           <span
             v-for="dialect in dialectLabels"
             :key="dialect"
-            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap"
+            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-sm whitespace-nowrap"
           >
             {{ dialect }}
           </span>
@@ -60,33 +60,33 @@
           <div class="flex items-start gap-3">
             <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
               <span
-                class="px-2 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-sm whitespace-nowrap"
               >
                 {{ sourceLabel }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
               </span>
 
               <span
-                class="px-2 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-sm whitespace-nowrap"
               >
                 {{ getDialectLabel(entry) }}
               </span>
 
               <span
-                class="px-2 py-1 bg-muted-gold/10 dark:bg-amber-900/20 text-muted-gold dark:text-amber-400 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold rounded-md text-sm whitespace-nowrap"
               >
                 {{ getEntryTypeLabel(entry) }}
               </span>
 
               <span
                 v-if="entry.meta?.register"
-                class="px-2 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-xs whitespace-nowrap"
+                class="px-2 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-sm whitespace-nowrap"
               >
                 {{ entry.meta.register }}
               </span>
 
               <span
                 v-if="entry.meta?.category"
-                class="px-2 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-xs break-words"
+                class="px-2 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-sm break-words"
               >
                 {{ entry.meta.category }}
               </span>
@@ -101,7 +101,7 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green dark:text-archive-green rounded-md text-xs whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green dark:text-archive-green rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
               label-class="text-xs"
             />
           </div>
@@ -157,7 +157,7 @@
 
                   <span
                     v-if="sense.label"
-                    class="px-2.5 py-0.5 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 text-xs font-bold tracking-wider rounded"
+                    class="px-2.5 py-0.5 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 text-sm font-bold tracking-wider rounded"
                   >
                     {{ sense.label }}
                   </span>
@@ -185,9 +185,9 @@
                     <!-- Sub-sense examples in gray card -->
                     <div
                       v-if="subSense.examples && subSense.examples.length > 0"
-                      class="bg-surface-low dark:bg-stone-900 p-6 rounded-xl border-l-2 border-muted-gold/20 mt-3"
+                      class="bg-surface-low dark:bg-stone-900 p-6 border-l-2 border-archive-green/30 mt-3"
                     >
-                      <h4 class="text-xs uppercase tracking-widest font-bold text-muted-gold mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green mb-4">{{ t('dictCard.usageExamples') }}</h4>
                       <div class="space-y-4">
                         <div
                           v-for="(example, exIdx) in subSense.examples"
@@ -226,9 +226,9 @@
                 <!-- Direct examples in gray card -->
                 <div
                   v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
-                  class="bg-surface-low dark:bg-stone-900 p-6 rounded-xl border-l-2 border-muted-gold/20"
+                  class="bg-surface-low dark:bg-stone-900 p-6 border-l-2 border-archive-green/30"
                 >
-                  <h4 class="text-xs uppercase tracking-widest font-bold text-muted-gold mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green mb-4">{{ t('dictCard.usageExamples') }}</h4>
                   <div class="space-y-4">
                     <div
                       v-for="(example, exIdx) in sense.examples"
@@ -267,7 +267,7 @@
 
           <div
             v-if="entry.meta?.notes"
-            class="mt-4 p-4 border-l-2 rounded-lg text-sm"
+            class="mt-4 p-4 border-l-2 text-sm"
             :class="entry.meta?.note_type === 'proofreader'
               ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
               : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'"

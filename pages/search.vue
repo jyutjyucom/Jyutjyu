@@ -6,7 +6,7 @@
       @height-change="searchHeaderHeight = $event">
       <template #search-popover>
         <div v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 rounded-md shadow-lg max-h-60 overflow-y-auto z-20">
+          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20">
           <button v-for="(suggestion, idx) in suggestions" :key="idx"
             class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
             @click="selectSuggestion(suggestion)">

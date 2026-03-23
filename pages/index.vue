@@ -38,9 +38,14 @@
                         <div class="h-px w-12 bg-kapok/30"></div>
                     </div>
                     <p
-                        class="text-lg md:text-xl text-graphite dark:text-stone-400 font-light mb-12 max-w-xl mx-auto leading-relaxed"
+                        class="text-xl md:text-2xl text-ink dark:text-parchment font-light max-w-xl mx-auto leading-relaxed"
                     >
                         {{ t("common.siteSubtitle") }}
+                    </p>
+                    <p
+                        class="text-lg md:text-xl text-ink/80 dark:text-parchment/80 mb-12 max-w-xl mx-auto"
+                    >
+                        {{ t("common.siteDescription") }}
                     </p>
 
                     <!-- Search Bar -->
@@ -581,7 +586,7 @@
                             <a
                                 href="https://github.com/jyutjyucom/jyutjyu"
                                 target="_blank"
-                                class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/90 transition-all shadow-lg shadow-kapok/10"
+                                class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/90 transition-colors"
                             >
                                 <Github class="w-4 h-4" aria-hidden="true" />
                                 {{ t("common.github") }}
@@ -589,13 +594,13 @@
                             <a
                                 href="https://github.com/jyutjyucom/jyutjyu/blob/main/docs/CSV_GUIDE.md"
                                 target="_blank"
-                                class="inline-flex items-center gap-2 text-kapok border border-kapok/20 px-6 py-3 font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
+                                class="inline-flex items-center gap-2 text-kapok border border-kapok/20 px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/10 hover:border-kapok dark:hover:bg-kapok/10 dark:hover:border-kapok transition-colors bg-transparent"
                             >
                                 <Database class="w-4 h-4" aria-hidden="true" />
                                 {{ t("common.contributeData") }}
                             </a>
                             <FeedbackButton
-                                button-class="px-6 py-3 text-kapok border border-kapok/20 font-bold text-sm tracking-wide hover:bg-white/80 dark:hover:bg-stone-800 transition-colors bg-transparent"
+                                button-class="px-6 py-3 text-kapok border border-kapok/20 font-bold text-sm tracking-wide hover:bg-kapok/10 hover:border-kapok dark:hover:bg-kapok/10 dark:hover:border-kapok transition-colors bg-transparent"
                                 label-class="text-sm"
                             />
                         </div>
