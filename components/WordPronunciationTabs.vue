@@ -41,6 +41,8 @@
     <!-- Mobile: accordion -->
     <div class="sm:hidden">
       <button
+        aria-label="Select pronunciation"
+        :aria-expanded="accordionOpen"
         class="w-full px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-sm font-medium flex items-center justify-between"
         @click="accordionOpen = !accordionOpen"
       >

@@ -59,7 +59,7 @@ class SearchCache {
       return null
     }
 
-    console.log(`✅ 使用缓存结果: "${query}" (${cached.results.length} 条)`)
+    if (import.meta.dev) console.log(`✅ 使用缓存结果: "${query}" (${cached.results.length} 条)`)
     return cached.results
   }
 
@@ -82,7 +82,7 @@ class SearchCache {
       timestamp: Date.now()
     })
 
-    console.log(`💾 缓存搜索结果: "${query}" (${results.length} 条)`)
+    if (import.meta.dev) console.log(`💾 缓存搜索结果: "${query}" (${results.length} 条)`)
   }
 
   /**
@@ -90,7 +90,7 @@ class SearchCache {
    */
   clear(): void {
     this.cache.clear()
-    console.log('🗑️ 清空搜索缓存')
+    if (import.meta.dev) console.log('🗑️ 清空搜索缓存')
   }
 
   /**
@@ -163,7 +163,7 @@ export const useSearch = () => {
         const available = await apiSearch.ping()
         apiAvailability = available
         if (available) {
-          console.log('✅ 检测到 API 可用，自动切换到 API 搜索模式')
+          if (import.meta.dev) console.log('✅ 检测到 API 可用，自动切换到 API 搜索模式')
         }
         return available
       } finally {

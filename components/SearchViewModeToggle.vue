@@ -2,7 +2,7 @@
   <div class="inline-flex border border-outline-soft/20 dark:border-stone-700">
     <button
       class="text-xs sm:text-sm font-medium transition-colors"
-      :class="[modelValue === 'card' ? 'bg-kapok text-white' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
+      :class="[modelValue === 'card' ? 'bg-kapok text-white' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
       @click="$emit('update:modelValue', 'card')">
       <span v-if="showIcons" class="flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +15,7 @@
     </button>
     <button
       class="text-sm font-medium transition-colors border-l border-outline-soft/20 dark:border-stone-700"
-      :class="[modelValue === 'list' ? 'bg-kapok text-white' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
+      :class="[modelValue === 'list' ? 'bg-kapok text-white' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
       @click="$emit('update:modelValue', 'list')">
       <span v-if="showIcons" class="flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

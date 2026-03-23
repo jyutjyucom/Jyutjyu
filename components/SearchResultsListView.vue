@@ -3,12 +3,12 @@
     <!-- 完全匹配的结果（仅文字搜索时显示） -->
     <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
       <div
-        class="mb-6 p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green flex items-center gap-2">
-        <svg class="w-4 h-4 text-archive-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="mb-6 p-3 border-l-4 bg-archive-green/10 dark:bg-emerald-900/30 border-archive-green dark:border-emerald-500/50 flex items-center gap-2">
+        <svg class="w-4 h-4 text-archive-green dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span class="text-archive-green text-sm font-semibold">
+        <span class="text-archive-green dark:text-emerald-300 text-sm font-semibold">
           {{ t('common.exactMatchLabel') }}
           {{
             groupedResults.exactMatches.length
@@ -64,22 +64,22 @@
     <!-- 其他相关结果 -->
     <template v-if="displayedGroupedResults.otherResults.length > 0">
       <div
-        class="mb-6 p-3 border-l-4 bg-muted-gold/10 dark:bg-muted-gold/20 border-muted-gold flex items-center gap-2"
+        class="mb-6 p-3 border-l-4 bg-muted-gold/10 dark:bg-amber-900/30 border-muted-gold dark:border-amber-500/50 flex items-center gap-2"
         :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
-        <svg class="w-4 h-4 text-muted-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-muted-gold dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span v-if="isTextSearch && sortBy === 'relevance'"
-          class="text-muted-gold text-sm font-semibold">
+          class="text-muted-gold dark:text-amber-300 text-sm font-semibold">
           {{ t('common.otherResultsLabel') }}
           {{ groupedResults.otherResults.length }}
           {{ t('common.remainingSuffix') }}
           ，{{ t('dictCard.collectedBy', { count: otherResultsDictionaryCount }) }}
         </span>
-        <span v-else class="text-muted-gold text-sm font-semibold">
+        <span v-else class="text-muted-gold dark:text-amber-300 text-sm font-semibold">
           {{ t('common.searchHeader') }}
-          <span class="ml-1 px-1.5 py-0.5 bg-muted-gold/10 text-muted-gold">{{
+          <span class="ml-1 px-1.5 py-0.5 bg-muted-gold/10 dark:bg-amber-900/30 text-muted-gold dark:text-amber-300">{{
             groupedResults.otherResults.length
           }}</span>
           {{ t('common.remainingSuffix') }}

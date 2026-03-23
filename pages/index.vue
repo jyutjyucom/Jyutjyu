@@ -10,7 +10,7 @@
             <LanguageSwitcher />
         </div>
 
-        <main>
+        <main id="main-content">
             <!-- Hero Section -->
             <section
                 class="relative min-h-[580px] md:min-h-[680px] flex flex-col items-center justify-center px-6 pt-16 pb-28 overflow-hidden"
@@ -38,12 +38,12 @@
                         <div class="h-px w-12 bg-kapok/30"></div>
                     </div>
                     <p
-                        class="text-xl md:text-2xl text-ink dark:text-parchment font-light max-w-xl mx-auto leading-relaxed"
+                        class="text-xl md:text-2xl text-ink dark:text-parchment font-serif font-light max-w-xl mx-auto leading-relaxed"
                     >
                         {{ t("common.siteSubtitle") }}
                     </p>
                     <p
-                        class="text-lg md:text-xl text-ink/80 dark:text-parchment/80 mb-12 max-w-xl mx-auto"
+                        class="text-lg md:text-xl text-ink/80 dark:text-parchment/80 font-serif mb-12 max-w-xl mx-auto"
                     >
                         {{ t("common.siteDescription") }}
                     </p>
@@ -78,7 +78,7 @@
                                 class="absolute right-3 flex items-center gap-2"
                             >
                                 <button
-                                    class="bg-kapok text-white px-5 py-2.5 font-medium text-sm hover:bg-kapok/90 transition-colors"
+                                    class="bg-kapok text-white px-5 py-2.5 font-medium text-base hover:bg-kapok/90 transition-colors"
                                     @click="handleSearch"
                                 >
                                     {{ t("common.searchButton") }}
@@ -91,13 +91,13 @@
                         >
                             <template v-if="enableReverseSearch">
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('為什麼')"
                                 >
                                     為什麼
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('奇怪')"
                                 >
                                     奇怪
@@ -105,13 +105,13 @@
                             </template>
                             <template v-else>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('阿Sir')"
                                 >
                                     阿Sir
                                 </button>
                                 <button
-                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-graphite dark:text-stone-400 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
+                                    class="px-3 py-1 bg-surface-low dark:bg-stone-800 rounded-full text-xs text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                                     @click="searchExample('aa3 soe4')"
                                 >
                                     aa3 soe4
@@ -127,7 +127,7 @@
                                     class="w-4 h-4 text-kapok bg-white dark:bg-stone-800 border border-outline-soft dark:border-stone-600 rounded focus:ring-kapok/40"
                                 />
                                 <span
-                                    class="text-xs text-graphite dark:text-stone-400"
+                                    class="text-base text-ink dark:text-stone-100"
                                     >{{ t("common.reverseSearch") }}</span
                                 >
                             </label>
@@ -193,7 +193,7 @@
                     <div
                         class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-kapok border-t-transparent"
                     ></div>
-                    <p class="text-graphite dark:text-stone-500 mt-4 text-sm">
+                    <p class="text-graphite dark:text-stone-200 mt-4 text-sm">
                         {{ t("common.loading") }}
                     </p>
                 </div>
@@ -236,7 +236,7 @@
                                 >
                             </div>
                             <p
-                                class="text-lg text-ink/80 dark:text-stone-300 leading-relaxed max-w-md line-clamp-4"
+                                class="text-lg text-ink/80 dark:text-stone-200 leading-relaxed max-w-md line-clamp-4"
                             >
                                 {{
                                     featuredEntry.senses[0]?.definition ||
@@ -249,7 +249,7 @@
                             class="mt-14 pt-6 border-t border-outline-soft/10 dark:border-stone-800 flex items-center justify-between"
                         >
                             <span
-                                class="text-sm text-graphite/60 dark:text-stone-600 font-medium"
+                                class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
                             >
                                 {{ featuredEntry.source_book }}
                             </span>
@@ -300,16 +300,16 @@
                                 >
                                     {{ entry.phonetic.jyutping[0] }}
                                 </span>
-                                <h4
+                                <h3
                                     class="text-lg font-bold text-ink dark:text-stone-100 mb-2"
                                 >
                                     {{
                                         entry.senses[0]?.definition ||
                                         t("common.noDefinition")
                                     }}
-                                </h4>
+                                </h3>
                                 <p
-                                    class="text-sm text-graphite/60 dark:text-stone-600 font-medium"
+                                    class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
                                 >
                                     {{ entry.source_book }}
                                 </p>
@@ -339,16 +339,16 @@
                             ></div>
                         </div>
                         <div class="text-center">
-                            <h4
+                            <h3
                                 class="text-5xl font-headline text-ink dark:text-stone-100 mb-4"
                             >
                                 {{ currentMobileEntry.headword.display }}
-                            </h4>
+                            </h3>
                             <p class="text-lg text-kapok font-semibold mb-4">
                                 {{ currentMobileEntry.phonetic.jyutping[0] }}
                             </p>
                             <p
-                                class="text-graphite dark:text-stone-400 text-base leading-relaxed line-clamp-4 mb-4"
+                                class="text-graphite dark:text-stone-200 text-base leading-relaxed line-clamp-4 mb-4"
                             >
                                 {{
                                     currentMobileEntry.senses[0]?.definition ||
@@ -356,7 +356,7 @@
                                 }}
                             </p>
                             <span
-                                class="text-xs text-graphite/40 dark:text-stone-600 uppercase tracking-widest"
+                                class="text-xs text-graphite dark:text-stone-200 uppercase tracking-widest"
                             >
                                 {{ currentMobileEntry.source_book }}
                             </span>
@@ -417,7 +417,7 @@
                     <div
                         class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full mx-auto mb-3"
                     ></div>
-                    <p class="text-graphite/60 dark:text-stone-600 text-sm">
+                    <p class="text-graphite/60 dark:text-stone-200 text-sm">
                         {{ t("common.loading") }}
                     </p>
                 </div>
@@ -456,7 +456,7 @@
                             {{ t("common.includedDictionaries") }}
                         </h2>
                         <p
-                            class="text-graphite dark:text-stone-400 max-w-xl mx-auto font-light"
+                            class="text-graphite dark:text-stone-200 max-w-xl mx-auto font-light"
                         >
                             {{ t("common.totalEntriesPrefix") }}
                             <span class="text-kapok font-semibold">{{
@@ -489,7 +489,7 @@
                                 ></div>
 
                                 <span
-                                    class="text-sm tracking-[0.3em] font-medium opacity-60 uppercase relative z-10"
+                                    class="text-sm tracking-[0.3em] font-medium opacity-90 uppercase relative z-10"
                                 >
                                     {{ dict.year || '' }}
                                 </span>
@@ -501,13 +501,13 @@
                                     </div>
                                     <div
                                         v-if="dict.lAuthor"
-                                        class="text-xs sm:text-sm opacity-70 tracking-wider"
+                                        class="text-xs sm:text-sm opacity-90 tracking-wider"
                                     >
                                         {{ dict.lAuthor }}
                                     </div>
                                 </div>
                                 <div
-                                    class="text-sm uppercase tracking-widest opacity-40 relative z-10"
+                                    class="text-sm uppercase tracking-widest opacity-90 relative z-10"
                                 >
                                     {{
                                         dict.entries_count > 0
@@ -518,14 +518,14 @@
                             </div>
 
                             <!-- Below card: description -->
-                            <h4
+                            <h3
                                 class="text-base font-bold text-ink dark:text-stone-100 mb-1 group-hover:text-kapok transition-colors"
                             >
                                 {{ dict.lName }}
-                            </h4>
+                            </h3>
                             <p
                                 v-if="dict.lDescription"
-                                class="text-sm text-graphite dark:text-stone-500"
+                                class="text-sm text-graphite dark:text-stone-200"
                             >
                                 {{ dict.lDescription }}
                             </p>
@@ -534,7 +534,7 @@
 
                     <div class="mt-10 text-center">
                         <p
-                            class="text-graphite/60 dark:text-stone-600 text-base mb-3"
+                            class="text-graphite dark:text-stone-200 text-base mb-3"
                         >
                             {{ t("common.moreDictionariesComing") }}
                         </p>
@@ -551,7 +551,7 @@
             <!-- Contribute Section -->
             <section class="max-w-7xl mx-auto px-6 py-10 sm:py-24">
                 <div
-                    class="p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden bg-surface-low dark:bg-stone-900"
+                    class="p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden bg-surface-low dark:bg-stone-800"
                 >
                     <!-- Decorative background icon -->
                     <div
@@ -579,7 +579,7 @@
                             {{ t("common.contribute") }}
                         </h2>
                         <p
-                            class="text-graphite dark:text-stone-400 mb-8 leading-relaxed"
+                            class="text-graphite dark:text-stone-200 mb-8 leading-relaxed"
                         >
                             {{ t("common.contributeDescription") }}
                         </p>

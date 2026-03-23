@@ -75,19 +75,19 @@
           </span>
 
           <!-- 方言 -->
-          <span class="px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green rounded-lg text-sm whitespace-nowrap">
+          <span class="px-3 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-lg text-sm whitespace-nowrap">
             {{ dialectLabel }}
           </span>
 
           <!-- 词条类型 -->
-          <span class="px-3 py-1 bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold rounded-lg text-sm whitespace-nowrap">
+          <span class="px-3 py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-lg text-sm whitespace-nowrap">
             {{ entryTypeLabel }}
           </span>
 
           <!-- 语域标签（口语、书面、俚语等） -->
           <span
             v-if="entry.meta?.register"
-            class="px-3 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-lg text-sm whitespace-nowrap"
+            class="px-3 py-1 bg-surface-highest dark:bg-stone-600/40 text-graphite dark:text-stone-200 rounded-lg text-sm whitespace-nowrap"
           >
             {{ entry.meta.register }}
           </span>
@@ -95,7 +95,7 @@
           <!-- 分类（如果有） -->
           <span
             v-if="entry.meta?.category"
-            class="px-3 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-lg text-sm break-words max-w-full"
+            class="px-3 py-1 bg-surface-high dark:bg-stone-600/40 text-graphite dark:text-stone-200 rounded-lg text-sm break-words max-w-full"
           >
             {{ entry.meta.category }}
           </span>
@@ -110,7 +110,7 @@
             :initial-description="entryFeedbackDescription"
             initial-type="entry-error"
             icon-only-on-mobile
-            button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
+            button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
             label-class="text-sm"
           />
         </div>

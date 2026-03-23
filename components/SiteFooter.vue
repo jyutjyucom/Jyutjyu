@@ -14,12 +14,12 @@
             <div>
                 <div class="text-4xl font-headline text-kapok mb-4">粵</div>
                 <p
-                    class="text-graphite dark:text-stone-500 text-sm leading-relaxed mb-4"
+                    class="text-graphite dark:text-stone-100 text-sm leading-relaxed mb-4"
                 >
                     {{ t("common.footerCopyright") }}
                 </p>
                 <p
-                    class="text-graphite/60 dark:text-stone-600 text-sm leading-relaxed"
+                    class="text-graphite dark:text-stone-100 text-sm leading-relaxed"
                 >
                     {{ t("common.footerOcrDisclaimerPrefix") }}
                     <ClientOnly>
@@ -34,30 +34,30 @@
 
             <!-- About links -->
             <div>
-                <h5
-                    class="text-base font-bold tracking-[0.05em] uppercase mb-6 text-ink dark:text-stone-200"
+                <p
+                    class="text-base font-bold tracking-[0.05em] uppercase mb-6 text-ink dark:text-stone-100"
                 >
                     {{ t("common.aboutProject") }}
-                </h5>
+                </p>
                 <ul class="flex flex-col gap-3">
                     <li>
                         <NuxtLink
                             to="/about"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             >{{ t("common.aboutProject") }}</NuxtLink
                         >
                     </li>
                     <li>
                         <NuxtLink
                             to="/browse"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             >{{ t("browse.allEntries") }}</NuxtLink
                         >
                     </li>
                     <li>
                         <a
                             href="https://github.com/jyutjyucom/jyutjyu"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             target="_blank"
                             rel="noopener noreferrer"
                             >{{ t("common.github") }}</a
@@ -68,16 +68,16 @@
 
             <!-- Friend links -->
             <div>
-                <h5
-                    class="text-base font-bold tracking-[0.05em] uppercase mb-6 text-ink dark:text-stone-200"
+                <p
+                    class="text-base font-bold tracking-[0.05em] uppercase mb-6 text-ink dark:text-stone-100"
                 >
                     {{ t("common.footerFriendLinks") }}
-                </h5>
+                </p>
                 <ul class="flex flex-col gap-3">
                     <li>
                         <a
                             href="https://jyutping.org/jyutping/"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             target="_blank"
                             rel="noopener noreferrer"
                             >{{ t("common.footerJyutping") }}</a
@@ -86,7 +86,7 @@
                     <li>
                         <a
                             href="https://www.jyutdict.org/"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             target="_blank"
                             rel="noopener noreferrer"
                             >{{ t("common.footerJyutDict") }}</a
@@ -95,7 +95,7 @@
                     <li>
                         <a
                             href="https://jyut.net/"
-                            class="text-sm text-graphite dark:text-stone-500 hover:text-kapok underline-offset-4 hover:underline transition-all"
+                            class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             target="_blank"
                             rel="noopener noreferrer"
                             >{{ t("common.footerJyutNet") }}</a

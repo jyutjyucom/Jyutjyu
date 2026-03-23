@@ -3,7 +3,7 @@
     <input :checked="modelValue" type="checkbox"
       class="w-4 h-4 text-kapok rounded focus:ring-kapok accent-kapok"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)">
-    <span class="text-sm text-graphite dark:text-stone-400">{{ t('common.reverseSearchShort') }}</span>
+    <span class="text-sm text-graphite dark:text-stone-100">{{ t('common.reverseSearchShort') }}</span>
   </label>
 </template>
 

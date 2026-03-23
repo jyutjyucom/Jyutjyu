@@ -8,7 +8,7 @@
       @height-change="appHeaderHeight = $event"
     />
 
-    <main class="max-w-7xl mx-auto px-6 md:px-8 py-8">
+    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8">
       <div v-if="pending" class="text-center py-16">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
         <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.loading') }}</p>
@@ -64,11 +64,11 @@
         </div>
 
         <div v-if="activePronunciationGroup">
-          <p class="hidden sm:block text-base text-graphite dark:text-stone-400 mb-8">
+          <p class="hidden sm:block text-base text-graphite dark:text-stone-200 mb-8">
             <span class="font-semibold text-lg sm:text-xl md:text-2xl text-kapok">
               {{ activePronunciationGroup.label }}
             </span>
-            <span class="mx-2 text-graphite/30 dark:text-stone-600">·</span>
+            <span class="mx-2 text-graphite/30 dark:text-stone-400">·</span>
             {{ t('dictCard.collectedBy', { count: activePronunciationGroup.dictionaryCount }) }}
           </p>
 
@@ -94,7 +94,7 @@
                     >
                       {{ source.sourceLabel }}
                     </span>
-                    <span class="text-xs text-graphite/60 dark:text-stone-500 whitespace-nowrap ml-2">
+                    <span class="text-xs text-graphite/60 dark:text-stone-200 whitespace-nowrap ml-2">
                       {{ source.entries.length }} 義項
                     </span>
                   </button>
@@ -164,12 +164,12 @@
                     <p class="font-serif text-2xl text-ink dark:text-parchment group-hover:text-kapok transition-colors">
                       {{ group.primary.headword.display || group.primary.headword.normalized }}
                     </p>
-                    <p class="text-sm text-graphite dark:text-stone-500 mt-2">
+                    <p class="text-sm text-graphite dark:text-stone-200 mt-2">
                       <span v-if="getEntryJyutpingKey(group.primary)" class="text-kapok font-semibold">{{ getEntryJyutpingKey(group.primary) }}</span>
                       <template v-if="getEntryJyutpingKey(group.primary) && group.primary.senses?.[0]?.definition">
-                        <span class="mx-1.5 text-graphite/30 dark:text-stone-600">·</span>
+                        <span class="mx-1.5 text-graphite/30 dark:text-stone-400">·</span>
                       </template>
-                      <span v-if="group.primary.senses?.[0]?.definition" class="text-graphite/60 dark:text-stone-500">{{ group.primary.senses[0].definition.slice(0, 40) }}{{ group.primary.senses[0].definition.length > 40 ? '…' : '' }}</span>
+                      <span v-if="group.primary.senses?.[0]?.definition" class="text-graphite/60 dark:text-stone-200">{{ group.primary.senses[0].definition.slice(0, 40) }}{{ group.primary.senses[0].definition.length > 40 ? '…' : '' }}</span>
                     </p>
                   </div>
                   <svg class="w-5 h-5 text-graphite/20 dark:text-stone-700 group-hover:text-kapok transition-colors flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -713,7 +713,12 @@ watch(searchHeadword, () => {
 }, { immediate: true })
 
 onMounted(() => {
-  void refreshBackSearchResultCount()
+  const run = () => void refreshBackSearchResultCount()
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(run)
+  } else {
+    setTimeout(run, 100)
+  }
 })
 
 watch(pronunciationGroups, () => {

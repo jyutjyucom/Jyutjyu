@@ -11,7 +11,7 @@
           <h2 class="text-base sm:text-lg font-semibold text-ink dark:text-parchment break-words">
             {{ sourceLabel }}
           </h2>
-          <p class="mt-1 text-xs text-graphite/60 dark:text-stone-500">
+          <p class="mt-1 text-xs text-graphite/60 dark:text-stone-200">
             {{ entries.length }} 義項
           </p>
         </div>
@@ -19,7 +19,7 @@
           <span
             v-for="dialect in dialectLabels"
             :key="dialect"
-            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs sm:text-sm whitespace-nowrap"
+            class="px-2 py-0.5 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
           >
             {{ dialect }}
           </span>
@@ -66,27 +66,27 @@
               </span>
 
               <span
-                class="px-2 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green rounded-md text-xs sm:text-sm whitespace-nowrap"
+                class="px-2 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
               >
                 {{ getDialectLabel(entry) }}
               </span>
 
               <span
-                class="px-2 py-1 bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold rounded-md text-xs sm:text-sm whitespace-nowrap"
+                class="px-2 py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
               >
                 {{ getEntryTypeLabel(entry) }}
               </span>
 
               <span
                 v-if="entry.meta?.register"
-                class="px-2 py-1 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-xs sm:text-sm whitespace-nowrap"
+                class="px-2 py-1 bg-surface-highest dark:bg-stone-600/40 text-graphite dark:text-stone-200 rounded-md text-xs sm:text-sm whitespace-nowrap"
               >
                 {{ entry.meta.register }}
               </span>
 
               <span
                 v-if="entry.meta?.category"
-                class="px-2 py-1 bg-surface-high dark:bg-stone-800 text-graphite dark:text-stone-400 rounded-md text-xs sm:text-sm break-words"
+                class="px-2 py-1 bg-surface-high dark:bg-stone-600/40 text-graphite dark:text-stone-200 rounded-md text-xs sm:text-sm break-words"
               >
                 {{ entry.meta.category }}
               </span>
@@ -101,19 +101,19 @@
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
               icon-only-on-mobile
-              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green dark:text-archive-green rounded-md text-xs sm:text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors"
+              button-class="inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-emerald-900/40 text-archive-green dark:text-emerald-300 rounded-md text-xs sm:text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-emerald-900/60 transition-colors"
               label-class="text-xs"
             />
           </div>
 
           <!-- Additional phonetic info -->
-          <div v-if="shouldShowEntryJyutping(entry) || shouldShowEntryOriginalPhonetic(entry) || (entry.meta?.headword_variants && entry.meta.headword_variants.length > 0)" class="space-y-1 text-sm text-graphite dark:text-stone-400">
+          <div v-if="shouldShowEntryJyutping(entry) || shouldShowEntryOriginalPhonetic(entry) || (entry.meta?.headword_variants && entry.meta.headword_variants.length > 0)" class="space-y-1 text-sm text-graphite dark:text-stone-200">
             <p v-if="shouldShowEntryJyutping(entry)">
-              <span class="text-graphite/60 dark:text-stone-500 mr-2">{{ t('common.jyutpingColumn') }}:</span>
+              <span class="text-graphite/60 dark:text-stone-300 mr-2">{{ t('common.jyutpingColumn') }}:</span>
               <span class="text-kapok font-semibold">{{ getEntryJyutping(entry) }}</span>
             </p>
             <p v-if="shouldShowEntryOriginalPhonetic(entry)" class="break-words">
-              <span class="text-graphite/60 dark:text-stone-500 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
+              <span class="text-graphite/60 dark:text-stone-300 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
               {{ getEntryOriginalPhonetic(entry) }}
             </p>
             <p
@@ -157,7 +157,7 @@
 
                   <span
                     v-if="sense.label"
-                    class="px-2.5 py-0.5 bg-surface-highest dark:bg-stone-800 text-graphite dark:text-stone-400 text-xs sm:text-sm font-bold tracking-wider rounded"
+                    class="px-2.5 py-0.5 bg-surface-highest dark:bg-stone-600/40 text-graphite dark:text-stone-200 text-xs sm:text-sm font-bold tracking-wider rounded"
                   >
                     {{ sense.label }}
                   </span>
@@ -185,9 +185,9 @@
                     <!-- Sub-sense examples in gray card -->
                     <div
                       v-if="subSense.examples && subSense.examples.length > 0"
-                      class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 mt-3"
+                      class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-emerald-500/40 mt-3"
                     >
-                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-emerald-300 mb-4">{{ t('dictCard.usageExamples') }}</h4>
                       <div class="space-y-4">
                         <div
                           v-for="(example, exIdx) in subSense.examples"
@@ -196,12 +196,12 @@
                         >
                           <p
                             v-if="isCantoDict(entry)"
-                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-200"
+                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
                             v-html="formatDefinitionWithLinks(example.text)"
                           ></p>
                           <p
                             v-else
-                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-200"
+                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
                           >
                             {{ example.text }}
                           </p>
@@ -226,9 +226,9 @@
                 <!-- Direct examples in gray card -->
                 <div
                   v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
-                  class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30"
+                  class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-emerald-500/40"
                 >
-                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-emerald-300 mb-4">{{ t('dictCard.usageExamples') }}</h4>
                   <div class="space-y-4">
                     <div
                       v-for="(example, exIdx) in sense.examples"
@@ -237,12 +237,12 @@
                     >
                       <p
                         v-if="isCantoDict(entry)"
-                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-200"
+                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
                         v-html="formatDefinitionWithLinks(example.text)"
                       ></p>
                       <p
                         v-else
-                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-200"
+                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
                       >
                         {{ example.text }}
                       </p>
@@ -269,8 +269,8 @@
             v-if="entry.meta?.notes"
             class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 text-xs sm:text-sm"
             :class="entry.meta?.note_type === 'proofreader'
-              ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
-              : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'"
+              ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 dark:border-kapok/60 text-ink/80 dark:text-stone-300'
+              : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 dark:border-amber-500/40 text-ink/80 dark:text-stone-300'"
           >
             <span
               class="font-semibold"
@@ -283,15 +283,15 @@
 
           <div
             v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
-            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
+            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 dark:border-emerald-500/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-archive-green dark:text-archive-green">{{ t('dictCard.etymology') }}</span>
+            <span class="font-semibold text-archive-green dark:text-emerald-300">{{ t('dictCard.etymology') }}</span>
             {{ entry.meta.etymology }}
           </div>
 
           <div
             v-if="entry.meta?.references && entry.meta.references.length > 0"
-            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
+            class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 dark:border-amber-500/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
           >
             <span class="font-semibold text-muted-gold">{{ t('dictCard.references') }}</span>
             <ul class="mt-2 space-y-2">
@@ -303,7 +303,7 @@
                 <span v-if="ref.work">《{{ ref.work }}》</span>
                 <span v-if="ref.author || ref.work">：</span>
                 <span v-if="ref.quote">{{ ref.quote }}</span>
-                <span v-if="ref.source" class="text-graphite/60 dark:text-stone-500">（{{ ref.source }}）</span>
+                <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200">（{{ ref.source }}）</span>
               </li>
             </ul>
           </div>
@@ -312,7 +312,7 @@
             v-if="entry.refs && entry.refs.length > 0"
             class="mt-4 text-sm"
           >
-            <span class="text-graphite/60 dark:text-stone-500">{{ t('dictCard.seeAlso') }}</span>
+            <span class="text-graphite/60 dark:text-stone-200">{{ t('dictCard.seeAlso') }}</span>
             <span
               v-for="(ref, refIdx) in entry.refs"
               :key="refIdx"

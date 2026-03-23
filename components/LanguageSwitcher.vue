@@ -4,7 +4,7 @@
     <div class="relative">
       <button
         class="flex items-center gap-2 px-1 py-1 text-sm transition-colors focus:outline-none"
-        :class="showDropdown ? 'text-kapok' : 'text-graphite dark:text-stone-400 hover:text-kapok'"
+        :class="showDropdown ? 'text-kapok' : 'text-graphite dark:text-stone-100 hover:text-kapok'"
         @click="toggleDropdown"
       >
         <span>{{ currentLocaleLabel }}</span>
@@ -28,7 +28,7 @@
           v-for="option in locales"
           :key="option.code"
           class="w-full px-4 py-2 text-left text-sm hover:bg-surface-low dark:hover:bg-stone-800 transition-colors"
-          :class="currentLocale === option.code ? 'text-kapok bg-kapok-container dark:bg-kapok/10' : 'text-graphite dark:text-stone-400'"
+          :class="currentLocale === option.code ? 'text-kapok bg-kapok-container dark:bg-kapok/10' : 'text-graphite dark:text-stone-100'"
           @click="selectLocale(option.code)"
         >
           {{ localeLabel(option.code) }}

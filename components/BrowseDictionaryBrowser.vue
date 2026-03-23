@@ -22,7 +22,7 @@
                             :class="
                                 activeScopeId === scope.id
                                     ? 'bg-surface-high dark:bg-stone-800 !border-l-kapok text-ink dark:text-parchment font-semibold'
-                                    : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-transparent font-medium'
+                                    : 'text-graphite dark:text-stone-400 hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-archive-green/30 dark:border-l-emerald-800/40 font-medium'
                             "
                         >
                             <span class="break-words">{{ scope.label }}</span>
@@ -31,7 +31,7 @@
                                 :class="
                                     activeScopeId === scope.id
                                         ? 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
-                                        : 'bg-surface-highest dark:bg-stone-700 text-graphite/60 dark:text-stone-500'
+                                        : 'bg-archive-green/10 dark:bg-emerald-900/30 text-archive-green dark:text-emerald-300'
                                 "
                             >
                                 {{ formatCount(scope.total) }}
@@ -48,9 +48,10 @@
                     class="bg-surface-low dark:bg-stone-900 p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center gap-6"
                 >
                     <div v-if="dictionaryInfo.cover" class="flex-shrink-0">
-                        <img
+                        <NuxtImg
                             :src="dictionaryInfo.cover"
                             :alt="dictionaryInfo.name"
+                            loading="lazy"
                             class="w-24 md:w-32 max-h-40 object-contain"
                         />
                     </div>
@@ -132,6 +133,8 @@
 
                 <div class="lg:hidden -mx-6 md:-mx-8 px-6 md:px-8 py-2">
                     <button
+                        aria-label="Select dictionary"
+                        :aria-expanded="mobileAccordionOpen"
                         class="w-full px-4 py-3 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-base font-medium flex items-center justify-between"
                         @click="mobileAccordionOpen = !mobileAccordionOpen"
                     >

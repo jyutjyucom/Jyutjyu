@@ -1,9 +1,9 @@
 <template>
   <div class="flex items-center gap-2">
-    <span class="text-xs sm:text-sm text-graphite/60 dark:text-stone-500 font-medium">{{ t('common.sortLabel') }}</span>
+    <span class="text-xs sm:text-sm text-graphite/60 dark:text-stone-100 font-medium">{{ t('common.sortLabel') }}</span>
     <div class="relative">
       <button
-      class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700"
+      class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700"
       @click.stop="$emit('toggle-sort')">
       <span>{{ getSortLabel(sortBy) }}</span>
       <svg class="w-4 h-4 transition-transform" :class="showSortDropdown ? 'rotate-180' : ''" fill="none"
@@ -16,7 +16,7 @@
         :class="dropdownAlign === 'right' ? 'right-0' : 'left-0'">
         <button v-for="sort in ['relevance', 'jyutping', 'headword', 'dictionary']" :key="sort"
           class="w-full px-4 py-2 text-left text-sm hover:bg-surface-low dark:hover:bg-stone-800 transition-colors"
-          :class="sortBy === sort ? 'text-kapok font-semibold bg-kapok/10 dark:bg-kapok/20' : 'text-graphite dark:text-stone-400'"
+          :class="sortBy === sort ? 'text-kapok font-semibold bg-kapok/10 dark:bg-kapok/20' : 'text-graphite dark:text-stone-100'"
           @click="$emit('select-sort', sort as any)">
           {{ getSortLabel(sort) }}
         </button>
