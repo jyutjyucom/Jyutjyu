@@ -42,6 +42,14 @@ interface EntryResponse {
   error?: string
 }
 
+interface SuggestionResponse {
+  success: boolean
+  query?: string
+  total: number
+  suggestions: string[]
+  error?: string
+}
+
 /**
  * 词典 API 查询
  */
@@ -101,7 +109,7 @@ export const useDictionaryAPI = () => {
       const response = await $fetch<SearchResponse>(`/api/search?${params}`)
       
       if (!response.success) {
-        console.error('搜索失败:', response.error)
+        console.error('搜尋失敗:', response.error)
         return []
       }
 
@@ -115,7 +123,7 @@ export const useDictionaryAPI = () => {
       return results
       
     } catch (error) {
-      console.error('API 请求失败:', error)
+      console.error('API 請求失敗:', error)
       return []
     }
   }
@@ -132,14 +140,14 @@ export const useDictionaryAPI = () => {
       const response = await $fetch<EntryResponse>(`/api/entry/${encodeURIComponent(id)}`)
       
       if (!response.success) {
-        console.error('获取词条失败:', response.error)
+        console.error('讀取詞條失敗:', response.error)
         return null
       }
 
       return response.entry
       
     } catch (error) {
-      console.error('API 请求失败:', error)
+      console.error('API 請求失敗:', error)
       return null
     }
   }
@@ -152,15 +160,44 @@ export const useDictionaryAPI = () => {
       const response = await $fetch<DictionariesResponse>('/api/dictionaries')
       
       if (!response.success) {
-        console.error('获取词典列表失败:', response.error)
+        console.error('讀取詞典清單失敗:', response.error)
         return []
       }
 
       return response.dictionaries
       
     } catch (error) {
-      console.error('API 请求失败:', error)
+      console.error('API 請求失敗:', error)
       return []
+    }
+  }
+
+  /**
+   * 获取搜索建议
+   * 失败时返回 null，调用方可自行决定是否回退
+   */
+  const getSuggestions = async (
+    query: string,
+    limit: number = 10,
+  ): Promise<string[] | null> => {
+    if (!query || query.trim() === '') {
+      return []
+    }
+
+    try {
+      const params = new URLSearchParams({
+        q: query.trim(),
+        limit: String(limit),
+      })
+
+      const response = await $fetch<SuggestionResponse>(`/api/suggest?${params}`)
+      if (!response.success) {
+        return []
+      }
+
+      return Array.isArray(response.suggestions) ? response.suggestions : []
+    } catch {
+      return null
     }
   }
 
@@ -197,14 +234,14 @@ export const useDictionaryAPI = () => {
       }>(`/api/random?count=${count}`)
       
       if (!response.success) {
-        console.error('获取推荐词条失败:', response.error)
+        console.error('讀取推薦詞條失敗:', response.error)
         return []
       }
       
       return response.results || []
       
     } catch (error) {
-      console.error('API 请求失败:', error)
+      console.error('API 請求失敗:', error)
       return []
     }
   }
@@ -214,6 +251,7 @@ export const useDictionaryAPI = () => {
     ping,
     search,
     searchBasic,
+    getSuggestions,
     getEntryById,
     getDictionaries,
     getRandomRecommendedEntries

@@ -34,8 +34,16 @@ export default {
       fontFamily: {
         sans: [
           '"Inter Variable"',
+          'sans-serif'
+        ],
+        'cjk-sans': [
+          '"Inter Variable"',
           '"Chiron Hei HK Variable"',
           'sans-serif'
+        ],
+        'cjk-serif': [
+          '"Chiron Sung HK Variable"',
+          'serif'
         ],
         serif: [
           '"Chiron Sung HK Variable"',
@@ -88,4 +96,3 @@ export default {
   },
   plugins: []
 }
-

@@ -102,14 +102,14 @@ export const useDictionary = () => {
       try {
         const response = await fetch('/dictionaries/index.json')
         if (!response.ok) {
-          console.error('获取词典索引失败')
+          console.error('讀取詞典索引失敗')
           return null
         }
         const indexData = await response.json()
         cachedDictionaryIndex = indexData
         return indexData
       } catch (error) {
-        console.error('加载词典索引失败:', error)
+        console.error('載入詞典索引失敗:', error)
         return null
       } finally {
         dictionaryIndexPromise = null
@@ -164,7 +164,7 @@ export const useDictionary = () => {
         return result
       }
     } catch (error) {
-      console.error('获取分片词典列表失败:', error)
+      console.error('讀取分片詞典清單失敗:', error)
     }
 
     // 兜底：避免索引请求偶发失败导致分片词典完全不可搜索
@@ -306,17 +306,17 @@ export const useDictionary = () => {
                 console.warn(`載入詞典失敗: ${dict.file}`)
               }
             } catch (error) {
-              console.error(`加载词典 ${dict.file} 时出错:`, error)
+                console.error(`載入詞典 ${dict.file} 時出錯:`, error)
             }
           })
         )
         
         // 缓存结果
         cachedEntries = allEntries
-        if (import.meta.dev) console.log(`詞典數據已載入並緩存: ${allEntries.length} 條`)
+        if (import.meta.dev) console.log(`詞典資料已載入並快取: ${allEntries.length} 筆`)
         return allEntries
       } catch (error) {
-        console.error('获取词条失败:', error)
+        console.error('讀取詞條失敗:', error)
         return []
       } finally {
         cachePromise = null
@@ -334,7 +334,7 @@ export const useDictionary = () => {
       const entries = await getAllEntries()
       return entries.find(e => e.id === id) || null
     } catch (error) {
-      console.error('获取词条失败:', error)
+      console.error('讀取詞條失敗:', error)
       return null
     }
   }
@@ -471,7 +471,7 @@ export const useDictionary = () => {
 
     // 只在客户端运行
     if (!process.client) {
-      if (import.meta.dev) console.log('伺服器端跳過搜索')
+      if (import.meta.dev) console.log('伺服器端略過搜尋')
       return []
     }
     
@@ -778,7 +778,7 @@ export const useDictionary = () => {
       
       return finalResults
     } catch (error) {
-      console.error('搜索失败:', error)
+      console.error('搜尋失敗:', error)
       return []
     }
   }
@@ -840,7 +840,7 @@ export const useDictionary = () => {
       
       return index?.dictionaries || []
     } catch (error) {
-      console.error('获取词典列表失败:', error)
+      console.error('讀取詞典清單失敗:', error)
       return []
     }
   }
@@ -875,7 +875,7 @@ export const useDictionary = () => {
       // 目前随机返回
       return entries.slice(0, limit)
     } catch (error) {
-      console.error('获取热门词条失败:', error)
+      console.error('讀取熱門詞條失敗:', error)
       return []
     }
   }
@@ -902,7 +902,7 @@ export const useDictionary = () => {
 
       return response.results
     } catch (error) {
-      console.error('获取随机推荐词条失败:', error)
+      console.error('讀取隨機推薦詞條失敗:', error)
       return []
     }
   }

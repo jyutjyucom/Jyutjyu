@@ -75,11 +75,11 @@ export default defineNuxtConfig({
     locales: [
       {
         code: "yue-Hant",
-        name: "粵語",
+        name: "粵文",
       },
       {
         code: "yue-Hans",
-        name: "简体粤语",
+        name: "简体粤文",
       },
       {
         code: "zh-Hant",
@@ -152,9 +152,7 @@ export default defineNuxtConfig({
         { name: "twitter:image", content: "https://jyutjyu.com/og.png" },
         { name: "twitter:image:alt", content: "粵語辭叢" },
       ],
-      link: [
-        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-      ],
+      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
   },
 

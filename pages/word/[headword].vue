@@ -8,7 +8,7 @@
             @height-change="appHeaderHeight = $event"
         />
 
-        <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8">
+        <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-sans">
             <div v-if="pending" class="text-center py-16">
                 <div
                     class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
@@ -316,6 +316,7 @@
 </template>
 
 <script setup lang="ts">
+import '~/styles/chiron-sung.css'
 import type { DictionaryEntry } from "~/types/dictionary";
 
 interface WordResponse {

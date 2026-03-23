@@ -361,7 +361,7 @@ const submitFeedback = async () => {
     successIssueNumber.value = res.number
 
   } catch (error) {
-    console.error('提交反馈失败:', error)
+    console.error('提交回饋失敗:', error)
     errorMessage.value = t('feedback.error.submitFailed')
   } finally {
     isSubmitting.value = false

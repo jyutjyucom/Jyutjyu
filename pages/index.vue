@@ -10,7 +10,7 @@
             <LanguageSwitcher />
         </div>
 
-        <main id="main-content">
+        <main id="main-content" class="font-cjk-sans">
             <!-- Hero Section -->
             <section
                 class="relative min-h-[580px] md:min-h-[680px] flex flex-col items-center justify-center px-6 pt-16 pb-28 overflow-hidden"
@@ -630,6 +630,7 @@
 </template>
 
 <script setup lang="ts">
+import '~/styles/chiron-sung.css'
 import { Database, Github } from "lucide-vue-next";
 import type { DictionaryEntry } from "~/types/dictionary";
 

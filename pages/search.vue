@@ -6,7 +6,7 @@
       @height-change="searchHeaderHeight = $event">
       <template #search-popover>
         <div v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20">
+          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-sans">
           <button v-for="(suggestion, idx) in suggestions" :key="idx"
             class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
             @click="selectSuggestion(suggestion)">
@@ -64,7 +64,7 @@
     </AppHeader>
 
     <!-- Main Content -->
-    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh]">
+    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh] font-cjk-sans">
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
@@ -236,6 +236,7 @@
 </template>
 
 <script setup lang="ts">
+import '~/styles/chiron-sung.css'
 import type { DictionaryEntry } from '~/types/dictionary'
 import { hasDialectI18n } from '~/constants/dialect'
 
@@ -282,6 +283,39 @@ const showTypeDropdown = ref(false) // 类型下拉菜单显示状态
 const showSortDropdown = ref(false) // 排序下拉菜单显示状态
 const optionsExpanded = ref(false) // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0)
+const chineseConverterReady = ref(false)
+
+let chineseConverterInitPromise: Promise<void> | null = null
+let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null
+
+const ensureChineseConverterReady = async () => {
+  if (chineseConverterReady.value) {
+    return
+  }
+
+  if (!chineseConverterInitPromise) {
+    chineseConverterInitPromise = ensureInitialized()
+      .then(() => {
+        chineseConverterReady.value = true
+      })
+      .finally(() => {
+        chineseConverterInitPromise = null
+      })
+  }
+
+  await chineseConverterInitPromise
+}
+
+const scheduleChineseConverterWarmup = () => {
+  if (!process.client || chineseConverterReady.value || chineseConverterInitPromise || chineseConverterWarmupTimeout) {
+    return
+  }
+
+  chineseConverterWarmupTimeout = setTimeout(() => {
+    chineseConverterWarmupTimeout = null
+    void ensureChineseConverterReady()
+  }, 0)
+}
 
 // 分页配置
 const PAGE_SIZE = 10 // 每页显示10条
@@ -565,6 +599,14 @@ const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
   const queryTrimmed = query.trim()
   if (!queryTrimmed) return false
 
+  const queryLower = queryTrimmed.toLowerCase()
+  const displayLower = (entry.headword.display || '').toLowerCase()
+  const normalizedLower = (entry.headword.normalized || '').toLowerCase()
+
+  if (!chineseConverterReady.value) {
+    return displayLower === queryLower || normalizedLower === queryLower
+  }
+
   try {
     // 获取查询词的所有变体（原文、简体、繁体），并转换为小写
     const queryVariants = getAllVariants(queryTrimmed).map(v => v.toLowerCase())
@@ -580,11 +622,8 @@ const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
     return queryVariants.some(qv => allHeadwordVariants.has(qv))
   } catch (error) {
     // 如果转换失败，回退到直接匹配
-    console.warn('简繁转换失败，使用直接匹配:', error)
-    const queryLower = queryTrimmed.toLowerCase()
-    const displayMatch = (entry.headword.display || '').toLowerCase() === queryLower
-    const normalizedMatch = (entry.headword.normalized || '').toLowerCase() === queryLower
-    return displayMatch || normalizedMatch
+    console.warn('簡繁轉換失敗，改用直接比對:', error)
+    return displayLower === queryLower || normalizedLower === queryLower
   }
 }
 
@@ -676,6 +715,16 @@ const displayedGroupedResults = computed(() => {
   }
 })
 
+watch(displayedGroupedResults, () => {
+  updateDisplayedResults()
+}, { immediate: true })
+
+watch([isTextSearch, allResults], ([isTextSearchNow, results]) => {
+  if (isTextSearchNow && results.length > 0) {
+    scheduleChineseConverterWarmup()
+  }
+}, { immediate: true })
+
 // 计算各筛选项的数量
 const getDictCount = (dict: string): number => {
   let results = allResults.value
@@ -742,9 +791,6 @@ const performSearch = async (query: string) => {
   selectedDialect.value = null
   selectedType.value = null
 
-  // 确保转换器已初始化（用于完全匹配判断）
-  await ensureInitialized()
-
   try {
     // 流式搜索：搜到什么先展示什么
     await searchBasic(query.trim(), {
@@ -770,7 +816,7 @@ const performSearch = async (query: string) => {
       }
     })
   } catch (error) {
-    console.error('搜索失败:', error)
+    console.error('搜尋失敗:', error)
     allResults.value = []
     displayedResults.value = []
   } finally {
@@ -866,9 +912,6 @@ watch(enableReverseSearch, (newValue) => {
 
 // 点击外部关闭建议和筛选下拉菜单
 onMounted(async () => {
-  // 确保转换器已初始化（用于完全匹配判断）
-  await ensureInitialized()
-
   clickOutsideHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target.closest('.relative')) {
@@ -890,6 +933,10 @@ onUnmounted(() => {
   if (suggestionTimeout) {
     clearTimeout(suggestionTimeout)
     suggestionTimeout = null
+  }
+  if (chineseConverterWarmupTimeout) {
+    clearTimeout(chineseConverterWarmupTimeout)
+    chineseConverterWarmupTimeout = null
   }
 })
 
