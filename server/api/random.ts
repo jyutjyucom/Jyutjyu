@@ -135,7 +135,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error: any) {
-    console.error('MongoDB 随机词条失败，尝试静态推荐回退:', error)
+    console.error('MongoDB 隨機詞條失敗，改用靜態推薦回退:', error)
 
     const fallbackEntries = loadFallbackEntries()
     if (fallbackEntries.length > 0) {

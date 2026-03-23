@@ -3,8 +3,8 @@
     <!-- 自定义下拉按钮，统一成和筛选栏一致的 UI 样式 -->
     <div class="relative">
       <button
-        class="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors"
-        :class="showDropdown ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+        class="flex items-center gap-2 px-1 py-1 text-sm transition-colors focus:outline-none"
+        :class="showDropdown ? 'text-kapok' : 'text-graphite dark:text-stone-100 hover:text-kapok'"
         @click="toggleDropdown"
       >
         <span>{{ currentLocaleLabel }}</span>
@@ -22,13 +22,13 @@
       <!-- 下拉菜单 -->
       <div
         v-if="showDropdown"
-        class="absolute right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 z-30 min-w-[140px]"
+        class="absolute right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 shadow-lg py-1 z-30 min-w-[140px]"
       >
         <button
           v-for="option in locales"
           :key="option.code"
-          class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          :class="currentLocale === option.code ? 'text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30' : 'text-gray-700 dark:text-gray-300'"
+          class="w-full px-4 py-2 text-left text-sm hover:bg-surface-low dark:hover:bg-stone-800 transition-colors"
+          :class="currentLocale === option.code ? 'text-kapok bg-kapok-container dark:bg-kapok/10' : 'text-graphite dark:text-stone-100'"
           @click="selectLocale(option.code)"
         >
           {{ localeLabel(option.code) }}

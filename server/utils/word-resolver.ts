@@ -295,6 +295,7 @@ const matchesQuery = (entry: DictionaryEntry, queryKeys: Set<string>): boolean =
 
 const selectBestBucket = (
   buckets: Map<string, WordBucket>,
+  originalKey: string,
   queryKeys: Set<string>
 ): WordBucket | null => {
   const candidates = Array.from(buckets.values())
@@ -303,6 +304,14 @@ const selectBestBucket = (
   }
 
   candidates.sort((a, b) => {
+    // Highest priority: exact match on original (pre-conversion) headword
+    const aOriginal = a.key === originalKey ? 1 : 0
+    const bOriginal = b.key === originalKey ? 1 : 0
+    if (aOriginal !== bOriginal) {
+      return bOriginal - aOriginal
+    }
+
+    // Next: match on any query form (including converted forms)
     const aExact = queryKeys.has(a.key) ? 1 : 0
     const bExact = queryKeys.has(b.key) ? 1 : 0
     if (aExact !== bExact) {
@@ -321,6 +330,7 @@ const selectBestBucket = (
 
 const groupEntriesByCanonical = (
   entries: DictionaryEntry[],
+  originalKey: string,
   queryKeys: Set<string>
 ): WordBucket | null => {
   const buckets = new Map<string, WordBucket>()
@@ -343,7 +353,7 @@ const groupEntriesByCanonical = (
     bucket.entries.push(entry)
   }
 
-  return selectBestBucket(buckets, queryKeys)
+  return selectBestBucket(buckets, originalKey, queryKeys)
 }
 
 const findEntriesFromChunkedDictionary = async (
@@ -389,6 +399,7 @@ const resolveFromJson = async (headword: string): Promise<ResolvedWordResult | n
     return null
   }
 
+  const originalKey = toComparableKey(normalizeSpace(headword))
   const queryKeys = new Set(queryForms.map(toComparableKey).filter(Boolean))
   const dictionaries = await getDictionaryIndex()
 
@@ -403,7 +414,7 @@ const resolveFromJson = async (headword: string): Promise<ResolvedWordResult | n
   }
 
   const deduped = dedupeEntriesById(candidateEntries)
-  const selected = groupEntriesByCanonical(deduped, queryKeys)
+  const selected = groupEntriesByCanonical(deduped, originalKey, queryKeys)
   if (!selected) {
     return null
   }
@@ -424,6 +435,7 @@ const resolveFromApi = async (headword: string): Promise<ResolvedWordResult | nu
     return null
   }
 
+  const originalKey = toComparableKey(normalizeSpace(headword))
   const queryKeys = new Set(queryForms.map(toComparableKey).filter(Boolean))
   const collection = await getEntriesCollection()
 
@@ -443,7 +455,7 @@ const resolveFromApi = async (headword: string): Promise<ResolvedWordResult | nu
     .toArray()
 
   const deduped = dedupeEntriesById(entries).filter((entry) => matchesQuery(entry, queryKeys))
-  const selected = groupEntriesByCanonical(deduped, queryKeys)
+  const selected = groupEntriesByCanonical(deduped, originalKey, queryKeys)
   if (!selected) {
     return null
   }

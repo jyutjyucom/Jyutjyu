@@ -37,7 +37,7 @@ export default defineEventHandler(async () => {
     }
     
   } catch (error: any) {
-    console.error('获取词典列表失败:', error)
+    console.error('讀取詞典清單失敗:', error)
     
     return {
       success: false,

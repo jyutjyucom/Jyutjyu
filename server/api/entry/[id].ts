@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error: any) {
-    console.error('获取词条失败:', error)
+    console.error('讀取詞條失敗:', error)
     
     return {
       success: false,

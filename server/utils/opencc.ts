@@ -93,9 +93,9 @@ async function initConverters(): Promise<void> {
       toTraditionalConverter = OpenCC.Converter({ from: 'cn', to: 'hk' })
       
       isInitialized = true
-      console.log('✅ OpenCC 初始化成功')
+      console.log('✅ OpenCC 初始化完成')
     } catch (error) {
-      console.error('❌ OpenCC 初始化失败:', error)
+      console.error('❌ OpenCC 初始化失敗:', error)
       // 降级方案：返回原文
       toSimplifiedConverter = (text: string) => text
       toTraditionalConverter = (text: string) => text
@@ -180,7 +180,7 @@ export async function getQueryVariants(query: string): Promise<string[]> {
       })
     })
   } catch (error) {
-    console.warn('获取查询变体失败:', error)
+    console.warn('讀取查詢變體失敗:', error)
   }
   
   return Array.from(variants)

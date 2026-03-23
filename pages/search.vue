@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-parchment dark:bg-stone-950">
     <!-- Header with Search Bar -->
     <AppHeader v-model:search-query="searchQuery" v-model:reverse-search="enableReverseSearch"
       v-model:options-expanded="optionsExpanded" @search="handleSearch" @query-input="handleInput"
       @height-change="searchHeaderHeight = $event">
       <template #search-popover>
         <div v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto z-20">
+          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-content">
           <button v-for="(suggestion, idx) in suggestions" :key="idx"
-            class="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors dark:text-gray-100"
+            class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
             @click="selectSuggestion(suggestion)">
             {{ suggestion }}
           </button>
@@ -38,8 +38,8 @@
 
       <template #after>
         <div v-if="actualSearchQuery && allResults.length > 0"
-          class="hidden lg:block border-t border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
-          <div class="container mx-auto px-4 py-3">
+          class="hidden lg:block border-t border-outline-soft/20 dark:border-stone-800 bg-surface-low/80 dark:bg-stone-900/80">
+          <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
             <div class="flex flex-nowrap items-center gap-3">
               <SearchFilterControls :selected-dict="selectedDict" :selected-dialect="selectedDialect"
                 :selected-type="selectedType" :show-dict-dropdown="showDictDropdown"
@@ -64,18 +64,18 @@
     </AppHeader>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8 min-h-[60vh]">
+    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh] font-cjk-ui">
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.searching') }}</p>
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
+          <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.searching') }}</p>
         </div>
 
         <!-- Results Info -->
-        <div v-else-if="actualSearchQuery" class="mb-6">
-          <h2 class="text-2xl text-gray-900 dark:text-gray-100 flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center p-2 rounded-md font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 leading-none">
+        <div v-else-if="actualSearchQuery" class="mb-4 sm:mb-6 font-cjk-content">
+          <h2 class="text-lg sm:text-2xl text-ink dark:text-parchment flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span class="inline-flex items-center p-1.5 sm:p-2 font-semibold bg-kapok/10 dark:bg-kapok/20 text-kapok leading-none text-base sm:text-2xl">
               {{ actualSearchQuery }}
             </span>
             <span>
@@ -89,14 +89,13 @@
         <!-- No Results -->
         <div v-if="!loading && isSearchComplete && actualSearchQuery && allResults.length === 0"
           class="text-center py-16">
-          <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
             {{ t('common.noResultsTitle') }}
           </h3>
-          <p class="text-gray-600 dark:text-gray-300 mb-6">
+          <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t('common.noResultsDescription') }}
           </p>
-          <div class="text-sm text-gray-500 dark:text-gray-400">
+          <div class="text-sm text-graphite/60 dark:text-stone-200">
             <p class="font-semibold mb-2">{{ t('common.noResultsTipsTitle') }}</p>
             <ul class="space-y-1">
               <li>• {{ t('common.noResultsTip1') }}</li>
@@ -108,19 +107,19 @@
         </div>
 
         <!-- Results -->
-        <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4">
+        <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4 font-cjk-content">
           <!-- 卡片视图 -->
           <div v-if="viewMode === 'card'" class="space-y-4">
             <!-- 完全匹配的结果（仅文字搜索时显示） -->
             <template v-if="isTextSearch && displayedGroupedResults.exactMatches.length > 0">
               <div
-                class="mb-6 p-3 border-l-4 bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600 rounded-r-lg flex items-center gap-2 shadow-sm">
-                <svg class="w-4 h-4 text-green-700 dark:text-green-300" fill="none" stroke="currentColor"
+                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green dark:border-archive-green/50 flex items-center gap-2">
+                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-archive-green dark:text-archive-green-light shrink-0" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="text-green-800 dark:text-green-200 text-sm font-semibold">
+                <span class="text-archive-green dark:text-archive-green-light text-xs sm:text-sm font-semibold">
                   {{ t('common.exactMatchLabel') }} {{ groupedResults.exactMatches.length
                   }} {{ t('common.remainingSuffix') }}
                   ，{{ t('dictCard.collectedBy', { count: exactMatchDictionaryCount }) }}
@@ -133,6 +132,7 @@
                   :entries="group.entries"
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true"
                 />
               </div>
             </template>
@@ -140,21 +140,21 @@
             <!-- 其他相关结果 -->
             <template v-if="displayedGroupedResults.otherResults.length > 0">
               <div
-                class="mb-6 p-3 border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600 rounded-r-lg flex items-center gap-2 shadow-sm"
-                :class="{ 'mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
-                <svg class="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor"
+                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-muted-gold/10 dark:bg-amber-900/30 border-muted-gold dark:border-amber-500/50 flex items-center gap-2"
+                :class="{ 'mt-8 sm:mt-12': isTextSearch && displayedGroupedResults.exactMatches.length > 0 }">
+                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-muted-gold dark:text-amber-300 shrink-0" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span v-if="isTextSearch && sortBy === 'relevance'"
-                  class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                  class="text-muted-gold dark:text-amber-300 text-xs sm:text-sm font-semibold">
                   {{ t('common.otherResultsLabel') }} {{ groupedResults.otherResults.length
                   }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
                     count: otherResultsDictionaryCount
                   }) }}
                 </span>
-                <span v-else class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                <span v-else class="text-muted-gold dark:text-amber-300 text-xs sm:text-sm font-semibold">
                   {{ t('common.searchHeader') }} {{
                     groupedResults.otherResults.length }} {{ t('common.remainingSuffix') }}，{{ t('dictCard.collectedBy', {
                     count: otherResultsDictionaryCount }) }}
@@ -167,6 +167,7 @@
                   :entries="group.entries"
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
+                  :card-clickable="true"
                 />
               </div>
             </template>
@@ -174,7 +175,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -192,7 +193,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
-                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore" @click="loadMore">
                 <span v-if="loadingMore">{{ t('common.loadingMore') }}</span>
                 <span v-else>{{ t('common.loadMore') }} ({{ totalCount - displayedResults.length }} {{
@@ -205,18 +206,17 @@
 
         <!-- Empty State -->
         <div v-else-if="!loading" class="text-center py-16">
-          <div class="text-6xl mb-4">📚</div>
-          <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
             {{ t('common.startSearchTitle') }}
           </h3>
-          <p class="text-gray-600 dark:text-gray-300 mb-6">
+          <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t('common.startSearchDescription') }}
           </p>
           <!-- 示例搜索 -->
           <div class="flex flex-wrap gap-2 justify-center">
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('common.exampleSearchPrefix') }}</span>
+            <span class="text-sm text-graphite/60 dark:text-stone-200">{{ t('common.exampleSearchPrefix') }}</span>
             <button v-for="example in exampleSearches" :key="example"
-              class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full transition-colors"
+              class="px-3 py-1 text-sm bg-surface-low dark:bg-stone-800 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green text-graphite dark:text-stone-400 rounded-full transition-colors"
               @click="searchExample(example)">
               {{ example }}
             </button>
@@ -224,8 +224,8 @@
         </div>
         <template #fallback>
           <div class="text-center py-16">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-            <p class="text-gray-600 dark:text-gray-300 mt-4">{{ t('common.loading') }}</p>
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"></div>
+            <p class="text-graphite dark:text-stone-400 mt-4">{{ t('common.loading') }}</p>
           </div>
         </template>
       </ClientOnly>
@@ -251,6 +251,7 @@ const config = useRuntimeConfig()
 const { searchBasic, getSuggestions, getMode } = useSearch()
 const { t, locale } = useI18n()
 const { getAllVariants, ensureInitialized } = useChineseConverter()
+const warmContentFonts = useWarmContentFonts()
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -282,6 +283,39 @@ const showTypeDropdown = ref(false) // 类型下拉菜单显示状态
 const showSortDropdown = ref(false) // 排序下拉菜单显示状态
 const optionsExpanded = ref(false) // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0)
+const chineseConverterReady = ref(false)
+
+let chineseConverterInitPromise: Promise<void> | null = null
+let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null
+
+const ensureChineseConverterReady = async () => {
+  if (chineseConverterReady.value) {
+    return
+  }
+
+  if (!chineseConverterInitPromise) {
+    chineseConverterInitPromise = ensureInitialized()
+      .then(() => {
+        chineseConverterReady.value = true
+      })
+      .finally(() => {
+        chineseConverterInitPromise = null
+      })
+  }
+
+  await chineseConverterInitPromise
+}
+
+const scheduleChineseConverterWarmup = () => {
+  if (!process.client || chineseConverterReady.value || chineseConverterInitPromise || chineseConverterWarmupTimeout) {
+    return
+  }
+
+  chineseConverterWarmupTimeout = setTimeout(() => {
+    chineseConverterWarmupTimeout = null
+    void ensureChineseConverterReady()
+  }, 0)
+}
 
 // 分页配置
 const PAGE_SIZE = 10 // 每页显示10条
@@ -565,6 +599,14 @@ const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
   const queryTrimmed = query.trim()
   if (!queryTrimmed) return false
 
+  const queryLower = queryTrimmed.toLowerCase()
+  const displayLower = (entry.headword.display || '').toLowerCase()
+  const normalizedLower = (entry.headword.normalized || '').toLowerCase()
+
+  if (!chineseConverterReady.value) {
+    return displayLower === queryLower || normalizedLower === queryLower
+  }
+
   try {
     // 获取查询词的所有变体（原文、简体、繁体），并转换为小写
     const queryVariants = getAllVariants(queryTrimmed).map(v => v.toLowerCase())
@@ -580,11 +622,8 @@ const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
     return queryVariants.some(qv => allHeadwordVariants.has(qv))
   } catch (error) {
     // 如果转换失败，回退到直接匹配
-    console.warn('简繁转换失败，使用直接匹配:', error)
-    const queryLower = queryTrimmed.toLowerCase()
-    const displayMatch = (entry.headword.display || '').toLowerCase() === queryLower
-    const normalizedMatch = (entry.headword.normalized || '').toLowerCase() === queryLower
-    return displayMatch || normalizedMatch
+    console.warn('簡繁轉換失敗，改用直接比對:', error)
+    return displayLower === queryLower || normalizedLower === queryLower
   }
 }
 
@@ -676,6 +715,16 @@ const displayedGroupedResults = computed(() => {
   }
 })
 
+watch(displayedGroupedResults, () => {
+  updateDisplayedResults()
+}, { immediate: true })
+
+watch([isTextSearch, allResults], ([isTextSearchNow, results]) => {
+  if (isTextSearchNow && results.length > 0) {
+    scheduleChineseConverterWarmup()
+  }
+}, { immediate: true })
+
 // 计算各筛选项的数量
 const getDictCount = (dict: string): number => {
   let results = allResults.value
@@ -729,6 +778,7 @@ const performSearch = async (query: string) => {
 
   // 先设置加载状态和清空结果，避免显示旧结果
   loading.value = true
+  warmContentFonts()
   isSearchComplete.value = false
   allResults.value = []
   displayedResults.value = []
@@ -741,9 +791,6 @@ const performSearch = async (query: string) => {
   selectedDict.value = null
   selectedDialect.value = null
   selectedType.value = null
-
-  // 确保转换器已初始化（用于完全匹配判断）
-  await ensureInitialized()
 
   try {
     // 流式搜索：搜到什么先展示什么
@@ -770,7 +817,7 @@ const performSearch = async (query: string) => {
       }
     })
   } catch (error) {
-    console.error('搜索失败:', error)
+    console.error('搜尋失敗:', error)
     allResults.value = []
     displayedResults.value = []
   } finally {
@@ -816,6 +863,7 @@ const handleInput = () => {
 
   suggestionTimeout = setTimeout(async () => {
     if (searchQuery.value.length >= 1) {
+      warmContentFonts()
       suggestions.value = await getSuggestions(searchQuery.value)
       showSuggestions.value = suggestions.value.length > 0
     } else {
@@ -866,9 +914,6 @@ watch(enableReverseSearch, (newValue) => {
 
 // 点击外部关闭建议和筛选下拉菜单
 onMounted(async () => {
-  // 确保转换器已初始化（用于完全匹配判断）
-  await ensureInitialized()
-
   clickOutsideHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target.closest('.relative')) {
@@ -890,6 +935,10 @@ onUnmounted(() => {
   if (suggestionTimeout) {
     clearTimeout(suggestionTimeout)
     suggestionTimeout = null
+  }
+  if (chineseConverterWarmupTimeout) {
+    clearTimeout(chineseConverterWarmupTimeout)
+    chineseConverterWarmupTimeout = null
   }
 })
 

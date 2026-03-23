@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
       entries: resolved.entries
     }
   } catch (error: any) {
-    console.error('获取词头详情失败:', error)
+    console.error('讀取詞頭詳情失敗:', error)
     setResponseStatus(event, 500)
 
     return {
