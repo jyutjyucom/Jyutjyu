@@ -1,7 +1,12 @@
 <template>
     <footer
-        class="bg-parchment dark:bg-stone-950 border-t border-graphite/10 dark:border-stone-800 py-12 px-6 mt-auto"
+        class="bg-parchment dark:bg-stone-950 py-12 px-6 mt-auto"
     >
+        <div class="flex items-center gap-3 max-w-7xl mx-auto w-full mb-12">
+            <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-kapok/60 dark:bg-kapok/40"></div>
+            <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
+        </div>
         <div
             class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto w-full"
         >

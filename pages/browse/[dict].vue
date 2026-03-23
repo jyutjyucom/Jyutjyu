@@ -8,7 +8,7 @@
     />
 
     <main class="max-w-7xl mx-auto px-6 md:px-8 py-8">
-        <NuxtLink to="/" class="inline-flex items-center gap-1.5 mb-6 text-base font-medium text-kapok hover:text-kapok/70 transition-colors">
+        <NuxtLink to="/" class="inline-flex items-center gap-1.5 mb-6 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>

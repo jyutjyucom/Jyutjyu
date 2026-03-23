@@ -137,9 +137,9 @@
             </section>
 
             <!-- Featured Entries Section (Asymmetric Grid) -->
-            <section class="max-w-7xl mx-auto px-6 py-20">
+            <section class="max-w-7xl mx-auto px-6 py-4 sm:py-20">
                 <div
-                    class="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4"
+                    class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-14 gap-4"
                 >
                     <div>
                         <h2
@@ -469,7 +469,7 @@
                     <!-- Book Spine Grid -->
                     <div
                         v-if="dictionariesData"
-                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+                        class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8"
                     >
                         <NuxtLink
                             v-for="(dict, idx) in sortedDictionaries"
@@ -480,7 +480,7 @@
                             <!-- Book Spine Card -->
                             <div
                                 :class="bookCardClass(idx)"
-                                class="aspect-[3/4] p-7 flex flex-col justify-between mb-5 shadow-sm group-hover:-translate-y-2 transition-all duration-500 relative overflow-hidden"
+                                class="aspect-square sm:aspect-[3/4] p-3 sm:p-7 flex flex-col justify-between mb-2 sm:mb-5 shadow-sm group-hover:-translate-y-2 transition-all duration-500 relative overflow-hidden"
                             >
                                 <!-- Decorative corner -->
                                 <div
@@ -489,25 +489,25 @@
                                 ></div>
 
                                 <span
-                                    class="text-[10px] tracking-[0.3em] font-medium opacity-60 uppercase relative z-10"
+                                    class="text-sm tracking-[0.3em] font-medium opacity-60 uppercase relative z-10"
                                 >
-                                    {{ romanNumeral(idx + 1) }}
+                                    {{ dict.year || '' }}
                                 </span>
-                                <div class="mb-8 relative z-10">
+                                <div class="mb-4 sm:mb-8 relative z-10">
                                     <div
-                                        class="text-2xl md:text-3xl font-headline leading-tight mb-2"
+                                        class="text-lg sm:text-2xl md:text-3xl font-headline leading-tight mb-1 sm:mb-2"
                                     >
                                         {{ dict.lName }}
                                     </div>
                                     <div
                                         v-if="dict.lAuthor"
-                                        class="text-sm opacity-70 tracking-wider"
+                                        class="text-xs sm:text-sm opacity-70 tracking-wider"
                                     >
                                         {{ dict.lAuthor }}
                                     </div>
                                 </div>
                                 <div
-                                    class="text-[10px] uppercase tracking-widest opacity-40 relative z-10"
+                                    class="text-sm uppercase tracking-widest opacity-40 relative z-10"
                                 >
                                     {{
                                         dict.entries_count > 0
@@ -525,7 +525,7 @@
                             </h4>
                             <p
                                 v-if="dict.lDescription"
-                                class="text-sm text-graphite dark:text-stone-500 line-clamp-2"
+                                class="text-sm text-graphite dark:text-stone-500"
                             >
                                 {{ dict.lDescription }}
                             </p>
@@ -549,7 +549,7 @@
             </section>
 
             <!-- Contribute Section -->
-            <section class="max-w-7xl mx-auto px-6 py-24">
+            <section class="max-w-7xl mx-auto px-6 py-10 sm:py-24">
                 <div
                     class="p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden bg-surface-low dark:bg-stone-900"
                 >

@@ -32,7 +32,7 @@
       <div v-else>
         <NuxtLink
           :to="searchLink"
-          class="inline-flex items-center gap-1.5 text-base font-medium text-kapok hover:text-kapok/70 transition-colors mb-8"
+          class="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors mb-4 sm:mb-8"
         >
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -40,12 +40,12 @@
           {{ `${backSearchResultCount ?? '...'} 條搜尋結果` }}
         </NuxtLink>
 
-        <div class="mb-8">
-          <h1 class="font-headline text-7xl md:text-8xl font-black text-ink dark:text-parchment leading-none tracking-tighter break-words">
+        <div class="mb-4 sm:mb-8">
+          <h1 class="font-headline text-5xl sm:text-7xl md:text-8xl font-black text-ink dark:text-parchment leading-none tracking-tighter break-words">
             {{ wordData.canonical_headword }}
           </h1>
 
-          <div class="mt-6 mb-2">
+          <div class="mt-5 sm:mt-6 mb-2">
             <WordPronunciationTabs
               v-if="pronunciationTabs.length > 0"
               :model-value="activeJyutpingId"
@@ -64,8 +64,8 @@
         </div>
 
         <div v-if="activePronunciationGroup">
-          <p class="text-base text-graphite dark:text-stone-400 mb-8">
-            <span class="font-semibold text-xl md:text-2xl text-kapok">
+          <p class="hidden sm:block text-base text-graphite dark:text-stone-400 mb-8">
+            <span class="font-semibold text-lg sm:text-xl md:text-2xl text-kapok">
               {{ activePronunciationGroup.label }}
             </span>
             <span class="mx-2 text-graphite/30 dark:text-stone-600">·</span>
@@ -116,9 +116,9 @@
             </section>
           </div>
 
-          <div class="lg:hidden space-y-3">
+          <div class="lg:hidden space-y-2">
             <WordSourcePanel
-              v-for="source in activePronunciationGroup.sources"
+              v-for="(source, sourceIdx) in activePronunciationGroup.sources"
               :key="`${activePronunciationGroup.id}:${source.id}`"
               :source-key="source.id"
               :source-label="source.sourceLabel"
@@ -127,6 +127,7 @@
               :collapsible="true"
               :expanded="isMobileSourceExpanded(activePronunciationGroup.id, source.id)"
               :active="activeSourceId === source.id"
+              :is-last="sourceIdx === activePronunciationGroup.sources.length - 1"
               @toggle="toggleMobileSource(source.id)"
             />
           </div>
@@ -141,7 +142,7 @@
 
         <!-- Related Phrases -->
         <template v-if="relatedWords.length > 0">
-          <div class="flex items-center gap-3 mt-16 mb-8">
+          <div class="flex items-center gap-3 my-8">
             <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
             <div class="w-1.5 h-1.5 rounded-full bg-kapok/60 dark:bg-kapok/40"></div>
             <div class="flex-1 h-px bg-kapok/30 dark:bg-kapok/20"></div>
@@ -552,16 +553,18 @@ const ensureTabState = (group: PronunciationGroup, preferredSourceId = '') => {
   }
 
   const currentExpanded = mobileExpandedSources.value[group.id]
-  if (!currentExpanded || currentExpanded.length === 0) {
+  if (currentExpanded === undefined) {
+    // First time: expand all sources by default
     mobileExpandedSources.value = {
       ...mobileExpandedSources.value,
       [group.id]: [...sourceIds]
     }
   } else {
+    // Already initialized: only filter out invalid source IDs, allow empty
     const filtered = currentExpanded.filter(sourceId => sourceIds.includes(sourceId))
     mobileExpandedSources.value = {
       ...mobileExpandedSources.value,
-      [group.id]: filtered.length > 0 ? filtered : [...sourceIds]
+      [group.id]: filtered
     }
   }
 }

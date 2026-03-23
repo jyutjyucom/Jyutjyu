@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-wrap items-center gap-3">
-    <span class="text-sm text-graphite/60 dark:text-stone-500 font-medium">{{ t('common.filterLabel') }}</span>
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+    <span class="text-xs sm:text-sm text-graphite/60 dark:text-stone-500 font-medium">{{ t('common.filterLabel') }}</span>
 
     <!-- 词典筛选 -->
     <div class="relative">
-      <button class="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors"
+      <button class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="selectedDict ? 'bg-kapok/10 dark:bg-kapok/20 text-kapok' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700'"
         @click="$emit('toggle-dict')">
         <span>{{ selectedDict || t('common.allDictionaries') }}</span>
@@ -30,7 +30,7 @@
 
     <!-- 方言点筛选 -->
     <div class="relative">
-      <button class="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors"
+      <button class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="selectedDialect ? 'bg-archive-green/10 dark:bg-archive-green/20 text-archive-green' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700'"
         @click="$emit('toggle-dialect')">
         <span>{{ selectedDialect ? getDialectLabel(selectedDialect) : t('common.allDialects') }}</span>
@@ -56,7 +56,7 @@
 
     <!-- 类型筛选 -->
     <div class="relative">
-      <button class="flex items-center gap-2 px-3 py-1.5 text-sm transition-colors"
+      <button class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="selectedType ? 'bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700'"
         @click="$emit('toggle-type')">
         <span>{{ selectedType ? getTypeName(selectedType) : t('common.allTypes') }}</span>

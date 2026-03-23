@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-          <NuxtLink to="/" class="text-lg font-headline font-bold text-kapok whitespace-nowrap">
+          <NuxtLink to="/" class="text-base sm:text-lg font-headline font-bold text-kapok whitespace-nowrap">
             {{ t('common.siteName') }}
           </NuxtLink>
 
@@ -13,12 +13,12 @@
                 :value="searchQuery"
                 type="text"
                 :placeholder="t('common.searchPlaceholder')"
-                class="w-full px-4 py-2 pr-20 border-none bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 focus:outline-none transition-colors"
+                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 focus:outline-none transition-colors"
                 @input="handleQueryInput"
                 @keyup.enter="handleSearch"
               >
               <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors text-sm font-medium"
+                class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 sm:py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors text-sm font-medium"
                 @click="handleSearch"
               >
                 {{ t('common.searchButton') }}

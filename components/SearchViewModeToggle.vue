@@ -1,7 +1,7 @@
 <template>
   <div class="inline-flex border border-outline-soft/20 dark:border-stone-700">
     <button
-      class="text-sm font-medium transition-colors"
+      class="text-xs sm:text-sm font-medium transition-colors"
       :class="[modelValue === 'card' ? 'bg-kapok text-white' : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-700', compact ? 'px-3 py-1.5' : 'px-4 py-2']"
       @click="$emit('update:modelValue', 'card')">
       <span v-if="showIcons" class="flex items-center gap-2">
