@@ -39,7 +39,7 @@ const messagesYueHans = {
     "loading": "载入紧...",
     "changeBatch": "换一批",
     "next": "下一个",
-    "recommendedEntries": "随机词条",
+    "recommendedEntries": "睇下词条",
     "includedDictionaries": "收录词典",
     "totalEntriesPrefix": "一共收录咗",
     "totalEntriesSuffix": "条词条",
