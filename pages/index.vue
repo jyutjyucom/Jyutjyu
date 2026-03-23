@@ -10,7 +10,7 @@
             <LanguageSwitcher />
         </div>
 
-        <main id="main-content" class="font-cjk-sans">
+        <main id="main-content" class="font-cjk-ui">
             <!-- Hero Section -->
             <section
                 class="relative min-h-[580px] md:min-h-[680px] flex flex-col items-center justify-center px-6 pt-16 pb-28 overflow-hidden"
@@ -209,7 +209,7 @@
                         :to="wordPath(featuredEntry.headword.display)"
                         :prefetch="false"
                         @click="navigatingToId = featuredEntry.id"
-                        class="md:col-span-7 bg-surface-low dark:bg-stone-900 p-10 lg:p-14 flex flex-col justify-between group cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 relative overflow-hidden"
+                        class="md:col-span-7 bg-surface-low dark:bg-stone-900 p-10 lg:p-14 flex flex-col justify-between group cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 relative overflow-hidden font-cjk-content"
                     >
                         <!-- Loading overlay -->
                         <div
@@ -223,7 +223,7 @@
 
                         <div>
                             <h3
-                                class="text-5xl lg:text-7xl xl:text-8xl font-headline text-ink dark:text-stone-100 mb-6 group-hover:text-kapok transition-colors duration-700 mt-6 break-words"
+                                class="text-5xl lg:text-7xl xl:text-8xl font-sung-content text-ink dark:text-stone-100 mb-6 group-hover:text-kapok transition-colors duration-700 mt-6 break-words"
                             >
                                 {{ featuredEntry.headword.display }}
                             </h3>
@@ -277,7 +277,7 @@
                             :to="wordPath(entry.headword.display)"
                             :prefetch="false"
                             @click="navigatingToId = entry.id"
-                            class="bg-white dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 p-8 flex gap-8 items-center hover:border-kapok/30 hover:bg-kapok-container/30 dark:hover:bg-kapok/5 transition-all duration-300 relative overflow-hidden"
+                            class="bg-white dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 p-8 flex gap-8 items-center hover:border-kapok/30 hover:bg-kapok-container/30 dark:hover:bg-kapok/5 transition-all duration-300 relative overflow-hidden font-cjk-content"
                         >
                             <!-- Loading overlay -->
                             <div
@@ -290,7 +290,7 @@
                             </div>
 
                             <div
-                                class="text-4xl font-headline text-ink dark:text-stone-100 shrink-0 max-w-[45%] break-words leading-tight"
+                                class="text-4xl font-sung-content text-ink dark:text-stone-100 shrink-0 max-w-[45%] break-words leading-tight"
                             >
                                 {{ entry.headword.display }}
                             </div>
@@ -329,7 +329,7 @@
                         :to="wordPath(currentMobileEntry.headword.display)"
                         :prefetch="false"
                         @click="navigatingToId = currentMobileEntry.id"
-                        class="block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden"
+                        class="block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden font-cjk-content"
                     >
                         <!-- Loading overlay -->
                         <div
@@ -342,7 +342,7 @@
                         </div>
                         <div class="text-center">
                             <h3
-                                class="text-5xl font-headline text-ink dark:text-stone-100 mb-4"
+                                class="text-5xl font-sung-content text-ink dark:text-stone-100 mb-4"
                             >
                                 {{ currentMobileEntry.headword.display }}
                             </h3>
@@ -497,7 +497,7 @@
                                 </span>
                                 <div class="mb-4 sm:mb-8 relative z-10">
                                     <div
-                                        class="text-lg sm:text-2xl md:text-3xl font-headline leading-tight mb-1 sm:mb-2"
+                                        class="text-lg sm:text-2xl md:text-3xl font-sung-content leading-tight mb-1 sm:mb-2"
                                     >
                                         {{ dict.lName }}
                                     </div>
@@ -630,13 +630,14 @@
 </template>
 
 <script setup lang="ts">
-import '~/styles/chiron-sung.css'
 import { Database, Github } from "lucide-vue-next";
 import type { DictionaryEntry } from "~/types/dictionary";
 
 const { t } = useI18n();
 const config = useRuntimeConfig();
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary();
+const { ensureLoaded: ensureChironHeiContentLoaded } = useChironHeiContentFont();
+const { ensureLoaded: ensureChironSungContentLoaded } = useChironSungContentFont();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
@@ -733,6 +734,8 @@ const refreshRandomEntries = async () => {
     if (loadingRandomEntries.value) return;
 
     loadingRandomEntries.value = true;
+    void ensureChironHeiContentLoaded();
+    void ensureChironSungContentLoaded();
     try {
         const entries = await getRandomRecommendedEntries(4);
         if (entries.length > 0) {
@@ -774,7 +777,10 @@ const onTouchEnd = (e: TouchEvent) => {
 // 只在首次加载且没有缓存数据时加载推荐词条
 onMounted(() => {
     navigatingToId.value = null;
-    if (randomEntries.value.length === 0) {
+    void ensureChironSungContentLoaded();
+    if (randomEntries.value.length > 0) {
+        void ensureChironHeiContentLoaded();
+    } else {
         refreshRandomEntries();
     }
 });

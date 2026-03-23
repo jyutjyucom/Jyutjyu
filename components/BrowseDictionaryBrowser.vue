@@ -57,7 +57,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <h2
-                            class="text-2xl md:text-3xl font-headline font-bold text-ink dark:text-parchment mb-2"
+                            class="text-2xl md:text-3xl font-sung-content font-bold text-ink dark:text-parchment mb-2"
                         >
                             {{ dictionaryInfo.name }}
                         </h2>
@@ -115,7 +115,7 @@
                                 </span>
                                 <div class="min-w-0">
                                     <div
-                                        class="text-base sm:text-xl font-headline leading-tight sm:truncate"
+                                        class="text-base sm:text-xl font-sung-content leading-tight sm:truncate"
                                     >
                                         {{ dict.name }}
                                     </div>
@@ -438,7 +438,7 @@
 
                   <div
                       v-else-if="browseData.headwords.length > 0"
-                      class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 overflow-hidden bg-surface-low dark:bg-stone-900"
+                      class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-0 overflow-hidden bg-surface-low dark:bg-stone-900 font-cjk-content"
                   >
                     <NuxtLink
                         v-for="headword in browseData.headwords"

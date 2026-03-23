@@ -1,5 +1,5 @@
 <template>
-  <section :class="panelClasses">
+  <section :class="[panelClasses, 'font-cjk-content']">
     <button
       v-if="collapsible"
       type="button"
@@ -196,12 +196,12 @@
                         >
                           <p
                             v-if="isCantoDict(entry)"
-                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
+                            class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                             v-html="formatDefinitionWithLinks(example.text)"
                           ></p>
                           <p
                             v-else
-                            class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
+                            class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                           >
                             {{ example.text }}
                           </p>
@@ -237,12 +237,12 @@
                     >
                       <p
                         v-if="isCantoDict(entry)"
-                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
+                        class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                         v-html="formatDefinitionWithLinks(example.text)"
                       ></p>
                       <p
                         v-else
-                        class="font-serif text-base sm:text-lg text-ink dark:text-stone-100"
+                        class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                       >
                         {{ example.text }}
                       </p>

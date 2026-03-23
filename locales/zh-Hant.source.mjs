@@ -153,8 +153,7 @@ const messagesZhHant = {
     metaDescription:
       "了解粵語辭叢項目的使命、內容授權政策和技術架構。我們致力於打造開放、包容、可持續的粵語詞典聚合平台。",
     title: "關於粵語辭叢",
-    subtitle:
-      "Open Yue Dictionary Collection Platform - 開放的粵語詞典聚合平台",
+    subtitle: "Open Yue Dictionary Collection Platform - 開源粵語詞典聚合平台",
     missionTitle: "使命",
     missionP1:
       "粵語辭叢致力於建立一個先進實用的粵語詞典平台，以現代技術傳承和推廣粵語文化。",

@@ -36,21 +36,34 @@ export default {
           '"Inter Variable"',
           'sans-serif'
         ],
-        'cjk-sans': [
+        'cjk-ui': [
+          '"Inter Variable"',
+          '"Chiron Hei HK UI"',
+          'sans-serif'
+        ],
+        'cjk-content': [
           '"Inter Variable"',
           '"Chiron Hei HK Variable"',
           'sans-serif'
         ],
         'cjk-serif': [
+          '"Chiron Sung HK UI"',
+          'serif'
+        ],
+        'sung-ui': [
+          '"Chiron Sung HK UI"',
+          'serif'
+        ],
+        'sung-content': [
           '"Chiron Sung HK Variable"',
           'serif'
         ],
         serif: [
-          '"Chiron Sung HK Variable"',
+          '"Chiron Sung HK UI"',
           'serif'
         ],
         headline: [
-          '"Chiron Sung HK Variable"',
+          '"Chiron Sung HK UI"',
           'serif'
         ],
         // 粤拼字体

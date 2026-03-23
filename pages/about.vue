@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-parchment dark:bg-stone-950">
-    <div class="max-w-4xl mx-auto px-6 md:px-8 py-16 font-cjk-sans">
+    <div class="max-w-4xl mx-auto px-6 md:px-8 py-16 font-cjk-ui">
       <!-- 页面标题 -->
       <div class="mb-12">
         <div class="flex justify-end items-center gap-3 mb-6">
@@ -421,7 +421,6 @@
 </template>
 
 <script setup lang="ts">
-import '~/styles/chiron-sung.css'
 import { Github, Home } from 'lucide-vue-next'
 
 const { t } = useI18n()

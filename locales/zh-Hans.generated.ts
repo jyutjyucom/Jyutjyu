@@ -149,7 +149,7 @@ const messagesZhHans = {
     "pageTitle": "关于",
     "metaDescription": "了解粤语辞丛项目的使命、内容授权政策和技术架构。我们致力于打造开放、包容、可持续的粤语词典聚合平台。",
     "title": "关于粤语辞丛",
-    "subtitle": "Open Yue Dictionary Collection Platform - 开放的粤语词典聚合平台",
+    "subtitle": "Open Yue Dictionary Collection Platform - 开源粤语词典聚合平台",
     "missionTitle": "使命",
     "missionP1": "粤语辞丛致力于建立一个先进实用的粤语词典平台，以现代技术传承和推广粤语文化。",
     "missionP2": "通过聚合多个来源的粤语词典，我们为粤语学习者、研究者、爱好者提供一个方便且全面的查询工具。",

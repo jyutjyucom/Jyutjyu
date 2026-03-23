@@ -6,7 +6,7 @@
       @height-change="searchHeaderHeight = $event">
       <template #search-popover>
         <div v-if="suggestions.length > 0 && showSuggestions"
-          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-sans">
+          class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-content">
           <button v-for="(suggestion, idx) in suggestions" :key="idx"
             class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
             @click="selectSuggestion(suggestion)">
@@ -64,7 +64,7 @@
     </AppHeader>
 
     <!-- Main Content -->
-    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh] font-cjk-sans">
+    <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh] font-cjk-ui">
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
@@ -73,7 +73,7 @@
         </div>
 
         <!-- Results Info -->
-        <div v-else-if="actualSearchQuery" class="mb-4 sm:mb-6">
+        <div v-else-if="actualSearchQuery" class="mb-4 sm:mb-6 font-cjk-content">
           <h2 class="text-lg sm:text-2xl text-ink dark:text-parchment flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span class="inline-flex items-center p-1.5 sm:p-2 font-semibold bg-kapok/10 dark:bg-kapok/20 text-kapok leading-none text-base sm:text-2xl">
               {{ actualSearchQuery }}
@@ -107,7 +107,7 @@
         </div>
 
         <!-- Results -->
-        <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4">
+        <div v-else-if="!loading && displayedResults.length > 0" class="space-y-4 font-cjk-content">
           <!-- 卡片视图 -->
           <div v-if="viewMode === 'card'" class="space-y-4">
             <!-- 完全匹配的结果（仅文字搜索时显示） -->
@@ -236,7 +236,6 @@
 </template>
 
 <script setup lang="ts">
-import '~/styles/chiron-sung.css'
 import type { DictionaryEntry } from '~/types/dictionary'
 import { hasDialectI18n } from '~/constants/dialect'
 
@@ -252,6 +251,8 @@ const config = useRuntimeConfig()
 const { searchBasic, getSuggestions, getMode } = useSearch()
 const { t, locale } = useI18n()
 const { getAllVariants, ensureInitialized } = useChineseConverter()
+const { ensureLoaded: ensureChironHeiContentLoaded } = useChironHeiContentFont()
+const { ensureLoaded: ensureChironSungContentLoaded } = useChironSungContentFont()
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -287,6 +288,11 @@ const chineseConverterReady = ref(false)
 
 let chineseConverterInitPromise: Promise<void> | null = null
 let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null
+
+const warmContentFonts = () => {
+  void ensureChironHeiContentLoaded()
+  void ensureChironSungContentLoaded()
+}
 
 const ensureChineseConverterReady = async () => {
   if (chineseConverterReady.value) {
@@ -778,6 +784,7 @@ const performSearch = async (query: string) => {
 
   // 先设置加载状态和清空结果，避免显示旧结果
   loading.value = true
+  warmContentFonts()
   isSearchComplete.value = false
   allResults.value = []
   displayedResults.value = []
@@ -862,6 +869,7 @@ const handleInput = () => {
 
   suggestionTimeout = setTimeout(async () => {
     if (searchQuery.value.length >= 1) {
+      warmContentFonts()
       suggestions.value = await getSuggestions(searchQuery.value)
       showSuggestions.value = suggestions.value.length > 0
     } else {

@@ -8,7 +8,10 @@
             @height-change="appHeaderHeight = $event"
         />
 
-        <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-sans">
+        <main
+            id="main-content"
+            class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-ui"
+        >
             <div v-if="pending" class="text-center py-16">
                 <div
                     class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
@@ -35,7 +38,7 @@
                 </NuxtLink>
             </div>
 
-            <div v-else>
+            <div v-else class="font-cjk-content">
                 <NuxtLink
                     :to="searchLink"
                     class="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors mb-4 sm:mb-8"
@@ -59,7 +62,7 @@
 
                 <div class="mb-4 sm:mb-8">
                     <h1
-                        class="font-headline text-5xl sm:text-7xl md:text-8xl font-black text-ink dark:text-parchment leading-none tracking-tighter break-words"
+                        class="font-sung-content text-5xl sm:text-7xl font-black text-ink dark:text-parchment leading-none tracking-tighter break-words"
                     >
                         {{ wordData.canonical_headword }}
                     </h1>
@@ -231,7 +234,7 @@
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <p
-                                            class="font-serif text-2xl text-ink dark:text-parchment group-hover:text-kapok transition-colors"
+                                            class="font-sung-content text-2xl text-ink dark:text-parchment group-hover:text-kapok transition-colors"
                                         >
                                             {{
                                                 group.primary.headword
@@ -316,7 +319,8 @@
 </template>
 
 <script setup lang="ts">
-import '~/styles/chiron-sung.css'
+import "~/styles/chiron-hei-content.css";
+import "~/styles/chiron-sung-content.css";
 import type { DictionaryEntry } from "~/types/dictionary";
 
 interface WordResponse {

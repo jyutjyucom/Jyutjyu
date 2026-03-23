@@ -9,7 +9,8 @@
 
 <script setup lang="ts">
 import '@fontsource-variable/inter'
-import '@fontsource-variable/chiron-hei-hk'
+import '~/styles/chiron-hei-ui.css'
+import '~/styles/chiron-sung-ui.css'
 
 const { locale } = useI18n()
 const { initTheme } = useTheme()
@@ -19,6 +20,22 @@ useHead({
   htmlAttrs: {
     lang: computed(() => locale.value || 'yue-Hant')
   },
+  link: [
+    {
+      rel: 'preload',
+      href: '/fonts/chiron-hei-hk-ui.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossorigin: ''
+    },
+    {
+      rel: 'preload',
+      href: '/fonts/chiron-sung-hk-ui.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossorigin: ''
+    }
+  ],
   meta: [
     { name: 'theme-color', content: '#ffffff' }
   ]
