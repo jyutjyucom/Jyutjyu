@@ -46,14 +46,6 @@ export default {
           '"Chiron Hei HK Variable"',
           'sans-serif'
         ],
-        'cjk-serif': [
-          '"Chiron Sung HK UI"',
-          'serif'
-        ],
-        'sung-ui': [
-          '"Chiron Sung HK UI"',
-          'serif'
-        ],
         'sung-content': [
           '"Chiron Sung HK Variable"',
           'serif'

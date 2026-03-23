@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-          <NuxtLink to="/" class="text-lg sm:text-xl font-headline font-bold text-ink dark:text-parchment whitespace-nowrap">
+          <NuxtLink to="/" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
             {{ t('common.siteName') }}
           </NuxtLink>
 

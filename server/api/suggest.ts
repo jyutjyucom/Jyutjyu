@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       query: searchQuery,
       total: 0,
       suggestions: [],
-      error: error?.message || '服务暂时不可用',
+      error: error?.message || '服務暫時不可用',
     }
   }
 })

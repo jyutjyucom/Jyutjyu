@@ -3,11 +3,11 @@ export interface HeadwordSuggestionRecord {
   searchTerms: string[]
 }
 
-const normalizeValue = (value: string | null | undefined): string => {
+export const normalizeValue = (value: string | null | undefined): string => {
   return String(value || '').replace(/\s+/g, ' ').trim()
 }
 
-const toSearchTerm = (value: string | null | undefined): string => {
+export const toSearchTerm = (value: string | null | undefined): string => {
   return normalizeValue(value).toLowerCase()
 }
 

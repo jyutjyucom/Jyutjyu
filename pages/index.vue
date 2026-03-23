@@ -636,8 +636,7 @@ import type { DictionaryEntry } from "~/types/dictionary";
 const { t } = useI18n();
 const config = useRuntimeConfig();
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary();
-const { ensureLoaded: ensureChironHeiContentLoaded } = useChironHeiContentFont();
-const { ensureLoaded: ensureChironSungContentLoaded } = useChironSungContentFont();
+const warmContentFonts = useWarmContentFonts();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
@@ -706,7 +705,6 @@ const bookCardClass = (index: number) => {
 
 const bookCardIsDark = (index: number) => index % 4 === 0 || index % 4 === 2;
 
-
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
         const params = new URLSearchParams({ q: searchQuery.value });
@@ -734,8 +732,7 @@ const refreshRandomEntries = async () => {
     if (loadingRandomEntries.value) return;
 
     loadingRandomEntries.value = true;
-    void ensureChironHeiContentLoaded();
-    void ensureChironSungContentLoaded();
+    warmContentFonts();
     try {
         const entries = await getRandomRecommendedEntries(4);
         if (entries.length > 0) {
@@ -756,7 +753,9 @@ const nextMobileEntry = () => {
 };
 
 const prevMobileEntry = () => {
-    mobileIndex.value = (mobileIndex.value - 1 + randomEntries.value.length) % randomEntries.value.length;
+    mobileIndex.value =
+        (mobileIndex.value - 1 + randomEntries.value.length) %
+        randomEntries.value.length;
 };
 
 let touchStartX = 0;
@@ -777,10 +776,8 @@ const onTouchEnd = (e: TouchEvent) => {
 // 只在首次加载且没有缓存数据时加载推荐词条
 onMounted(() => {
     navigatingToId.value = null;
-    void ensureChironSungContentLoaded();
-    if (randomEntries.value.length > 0) {
-        void ensureChironHeiContentLoaded();
-    } else {
+    warmContentFonts();
+    if (randomEntries.value.length === 0) {
         refreshRandomEntries();
     }
 });

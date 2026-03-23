@@ -5,6 +5,8 @@ import type { DictionaryEntry } from '~/types/dictionary'
 import { getQueryVariants } from './opencc'
 import {
   type HeadwordSuggestionRecord,
+  normalizeValue,
+  toSearchTerm,
   rankHeadwordSuggestions,
 } from './headword-suggestion-ranking'
 
@@ -32,14 +34,6 @@ const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, 'index.json')
 
 let suggestionRecordsCache: HeadwordSuggestionRecord[] | null = null
 let suggestionRecordsPromise: Promise<HeadwordSuggestionRecord[]> | null = null
-
-const normalizeValue = (value: string | null | undefined): string => {
-  return String(value || '').replace(/\s+/g, ' ').trim()
-}
-
-const toSearchTerm = (value: string | null | undefined): string => {
-  return normalizeValue(value).toLowerCase()
-}
 
 const getEntrySuggestionRecord = (entry: DictionaryEntry): HeadwordSuggestionRecord | null => {
   const display = normalizeValue(entry?.headword?.display)

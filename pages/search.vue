@@ -251,8 +251,7 @@ const config = useRuntimeConfig()
 const { searchBasic, getSuggestions, getMode } = useSearch()
 const { t, locale } = useI18n()
 const { getAllVariants, ensureInitialized } = useChineseConverter()
-const { ensureLoaded: ensureChironHeiContentLoaded } = useChironHeiContentFont()
-const { ensureLoaded: ensureChironSungContentLoaded } = useChironSungContentFont()
+const warmContentFonts = useWarmContentFonts()
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -288,11 +287,6 @@ const chineseConverterReady = ref(false)
 
 let chineseConverterInitPromise: Promise<void> | null = null
 let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null
-
-const warmContentFonts = () => {
-  void ensureChironHeiContentLoaded()
-  void ensureChironSungContentLoaded()
-}
 
 const ensureChineseConverterReady = async () => {
   if (chineseConverterReady.value) {
