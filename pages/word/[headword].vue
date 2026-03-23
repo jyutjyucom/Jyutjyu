@@ -903,15 +903,6 @@ watch(
     { immediate: true },
 );
 
-onMounted(() => {
-    const run = () => void refreshBackSearchResultCount();
-    if ("requestIdleCallback" in window) {
-        requestIdleCallback(run);
-    } else {
-        setTimeout(run, 100);
-    }
-});
-
 watch(
     pronunciationGroups,
     () => {

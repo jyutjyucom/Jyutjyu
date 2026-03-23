@@ -534,27 +534,6 @@ const miniCardStyles = [
 const miniCardClass = (index: number) =>
     miniCardStyles[index % miniCardStyles.length];
 
-const romanNumeral = (num: number): string => {
-    const numerals = [
-        "I",
-        "II",
-        "III",
-        "IV",
-        "V",
-        "VI",
-        "VII",
-        "VIII",
-        "IX",
-        "X",
-        "XI",
-        "XII",
-        "XIII",
-        "XIV",
-        "XV",
-    ];
-    return numerals[num - 1] || String(num);
-};
-
 const DEFAULT_PAGE_SIZE = 100;
 const DEFAULT_SORT_BY: BrowseSort = "headword";
 const pageSizeOptions = [100, 500, 1000];

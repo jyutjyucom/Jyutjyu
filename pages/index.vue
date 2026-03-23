@@ -704,27 +704,6 @@ const bookCardClass = (index: number) => {
 
 const bookCardIsDark = (index: number) => index % 4 === 0 || index % 4 === 2;
 
-// Roman numeral helper for book volume labels
-const romanNumeral = (n: number): string => {
-    const numerals = [
-        "I",
-        "II",
-        "III",
-        "IV",
-        "V",
-        "VI",
-        "VII",
-        "VIII",
-        "IX",
-        "X",
-        "XI",
-        "XII",
-        "XIII",
-        "XIV",
-        "XV",
-    ];
-    return n <= numerals.length ? numerals[n - 1] : String(n);
-};
 
 const handleSearch = () => {
     if (searchQuery.value.trim()) {

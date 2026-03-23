@@ -390,10 +390,7 @@ const { t } = useI18n()
 const entries = computed(() => props.entries || [])
 const panelClasses = computed(() => {
   if (props.collapsible) {
-    return [
-      'overflow-hidden',
-      ''
-    ]
+    return ['overflow-hidden']
   }
   return []
 })
