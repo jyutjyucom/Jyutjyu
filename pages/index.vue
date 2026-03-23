@@ -325,45 +325,56 @@
                     @touchstart.passive="onTouchStart"
                     @touchend.passive="onTouchEnd"
                 >
-                    <NuxtLink
-                        :to="wordPath(currentMobileEntry.headword.display)"
-                        :prefetch="false"
-                        @click="navigatingToId = currentMobileEntry.id"
-                        class="block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden font-cjk-content"
-                    >
-                        <!-- Loading overlay -->
-                        <div
-                            v-if="navigatingToId === currentMobileEntry.id"
-                            class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
-                        >
-                            <div
-                                class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
-                            ></div>
-                        </div>
-                        <div class="text-center">
-                            <h3
-                                class="text-5xl font-sung-content text-ink dark:text-stone-100 mb-4"
+                    <div class="relative overflow-hidden">
+                        <Transition :name="mobileCardTransitionName">
+                            <NuxtLink
+                                :key="currentMobileEntry.id"
+                                :to="wordPath(currentMobileEntry.headword.display)"
+                                :prefetch="false"
+                                @click="navigatingToId = currentMobileEntry.id"
+                                class="mobile-random-card block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden font-cjk-content"
                             >
-                                {{ currentMobileEntry.headword.display }}
-                            </h3>
-                            <p class="text-lg text-kapok font-semibold mb-4">
-                                {{ currentMobileEntry.phonetic.jyutping[0] }}
-                            </p>
-                            <p
-                                class="text-graphite dark:text-stone-200 text-base leading-relaxed line-clamp-4 mb-4"
-                            >
-                                {{
-                                    currentMobileEntry.senses[0]?.definition ||
-                                    t("common.noDefinition")
-                                }}
-                            </p>
-                            <span
-                                class="text-xs text-graphite dark:text-stone-200 uppercase tracking-widest"
-                            >
-                                {{ currentMobileEntry.source_book }}
-                            </span>
-                        </div>
-                    </NuxtLink>
+                                <!-- Loading overlay -->
+                                <div
+                                    v-if="navigatingToId === currentMobileEntry.id"
+                                    class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
+                                >
+                                    <div
+                                        class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
+                                    ></div>
+                                </div>
+                                <div class="text-center">
+                                    <h3
+                                        class="text-5xl font-sung-content text-ink dark:text-stone-100 mb-4"
+                                    >
+                                        {{
+                                            currentMobileEntry.headword.display
+                                        }}
+                                    </h3>
+                                    <p class="text-lg text-kapok font-semibold mb-4">
+                                        {{
+                                            currentMobileEntry.phonetic
+                                                .jyutping[0]
+                                        }}
+                                    </p>
+                                    <p
+                                        class="text-graphite dark:text-stone-200 text-base leading-relaxed line-clamp-4 mb-4"
+                                    >
+                                        {{
+                                            currentMobileEntry.senses[0]
+                                                ?.definition ||
+                                            t("common.noDefinition")
+                                        }}
+                                    </p>
+                                    <span
+                                        class="text-xs text-graphite dark:text-stone-200 uppercase tracking-widest"
+                                    >
+                                        {{ currentMobileEntry.source_book }}
+                                    </span>
+                                </div>
+                            </NuxtLink>
+                        </Transition>
+                    </div>
 
                     <!-- Navigation -->
                     <div class="flex justify-between items-center mt-4 px-2">
@@ -390,7 +401,7 @@
                             <button
                                 v-for="(_, idx) in randomEntries"
                                 :key="idx"
-                                @click="mobileIndex = idx"
+                                @click="selectMobileEntry(idx)"
                                 class="flex items-center justify-center w-9 h-9 rounded-full transition-all"
                                 :aria-label="
                                     t('common.switchEntryAria', {
@@ -749,24 +760,45 @@ const refreshRandomEntries = async () => {
 };
 
 const nextMobileEntry = () => {
-    mobileIndex.value = (mobileIndex.value + 1) % randomEntries.value.length;
+    setMobileEntry(mobileIndex.value + 1, "next");
 };
 
 const prevMobileEntry = () => {
+    setMobileEntry(mobileIndex.value - 1, "prev");
+};
+
+const mobileSlideDirection = ref<"next" | "prev">("next");
+const mobileCardTransitionName = computed(() =>
+    mobileSlideDirection.value === "prev"
+        ? "mobile-card-prev"
+        : "mobile-card-next",
+);
+
+const setMobileEntry = (index: number, direction: "next" | "prev") => {
+    if (randomEntries.value.length === 0) return;
+    mobileSlideDirection.value = direction;
     mobileIndex.value =
-        (mobileIndex.value - 1 + randomEntries.value.length) %
-        randomEntries.value.length;
+        (index + randomEntries.value.length) % randomEntries.value.length;
+};
+
+const selectMobileEntry = (index: number) => {
+    if (index === mobileIndex.value) return;
+    setMobileEntry(index, index > mobileIndex.value ? "next" : "prev");
 };
 
 let touchStartX = 0;
 let touchStartY = 0;
 const onTouchStart = (e: TouchEvent) => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
+    const firstTouch = e.touches[0];
+    if (!firstTouch) return;
+    touchStartX = firstTouch.clientX;
+    touchStartY = firstTouch.clientY;
 };
 const onTouchEnd = (e: TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
+    const changedTouch = e.changedTouches[0];
+    if (!changedTouch) return;
+    const dx = changedTouch.clientX - touchStartX;
+    const dy = changedTouch.clientY - touchStartY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
         if (dx < 0) nextMobileEntry();
         else prevMobileEntry();
@@ -826,3 +858,38 @@ useHead(() => ({
         : [],
 }));
 </script>
+
+<style scoped>
+.mobile-card-next-enter-active,
+.mobile-card-next-leave-active,
+.mobile-card-prev-enter-active,
+.mobile-card-prev-leave-active {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.mobile-card-next-leave-active,
+.mobile-card-prev-leave-active {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    pointer-events: none;
+}
+
+.mobile-card-next-enter-from,
+.mobile-card-prev-leave-to {
+    transform: translate3d(100%, 0, 0);
+}
+
+.mobile-card-next-leave-to,
+.mobile-card-prev-enter-from {
+    transform: translate3d(-100%, 0, 0);
+}
+
+.mobile-card-next-enter-to,
+.mobile-card-next-leave-from,
+.mobile-card-prev-enter-to,
+.mobile-card-prev-leave-from {
+    transform: translate3d(0, 0, 0);
+}
+</style>
