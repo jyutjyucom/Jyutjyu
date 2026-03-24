@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-          <NuxtLink to="/" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
+          <NuxtLink :to="homePath()" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
             {{ t('common.siteName') }}
           </NuxtLink>
 
@@ -13,7 +13,7 @@
                 :value="searchQuery"
                 type="text"
                 :placeholder="t('common.searchPlaceholder')"
-                aria-label="Search dictionary"
+                :aria-label="t('common.searchDictionaryAria')"
                 class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 focus:outline-none transition-colors"
                 @input="handleQueryInput"
                 @keyup.enter="handleSearch"
@@ -103,6 +103,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { homePath } = useAppRoutes()
 
 const headerEl = ref<HTMLElement | null>(null)
 let headerObserver: ResizeObserver | null = null

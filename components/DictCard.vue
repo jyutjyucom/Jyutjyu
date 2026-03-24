@@ -7,7 +7,7 @@
         <div class="flex-1 min-w-0">
           <h3 class="text-2xl font-bold text-ink dark:text-stone-100 mb-1 break-words">
             <NuxtLink
-              :to="`/word/${encodeURIComponent(entry.headword.display)}`"
+              :to="wordPath(entry.headword.display)"
               class="hover:text-kapok transition-colors"
             >
               {{ entry.headword.display }}
@@ -319,7 +319,7 @@
         >
           <NuxtLink
             v-if="ref.type === 'word'"
-            :to="`/word/${encodeURIComponent(ref.target)}`"
+            :to="wordPath(ref.target)"
             class="text-kapok underline decoration-1 underline-offset-2"
           >
             {{ ref.target }}
@@ -379,6 +379,8 @@ import { hasDialectI18n } from '~/constants/dialect'
 
 const { t } = useI18n()
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
+const { wordPath } = useAppRoutes()
+const { getEntryFeedbackDescription: buildEntryFeedbackDescription } = useDictionaryEntry()
 
 interface Props {
   entry: DictionaryEntry
@@ -397,88 +399,9 @@ const localizedSourceBook = computed(() =>
 )
 
 // 为反馈构造包含当前词条完整信息的描述文本，方便用户直接在此基础上修改
-const entryFeedbackDescription = computed(() => {
-  const e = props.entry
-
-  const headerLines: string[] = [
-    '【當前詞條信息，請喺呢度直接修改有問題嘅部分】',
-    '',
-    `詞頭：${e.headword.display}`,
-    e.headword.normalized && e.headword.normalized !== e.headword.display
-      ? `參考詞頭：${e.headword.normalized}`
-      : '',
-    `粵拼：${(e.phonetic.jyutping || []).join(':')}`,
-    e.phonetic.original &&
-    e.phonetic.original !== (e.phonetic.jyutping || []).join(':')
-      ? `原書注音：${e.phonetic.original}` : '',
-    (e.meta?.headword_variants && e.meta.headword_variants.length > 0)
-      ? `異形詞：${e.meta.headword_variants.join('、')}`
-      : '',
-    e.entry_type ? `類型：${e.entry_type}` : '',
-    ''
-  ].filter(Boolean)
-
-  const senseLines: string[] = []
-  e.senses.forEach((sense, idx) => {
-    const indexLabel = e.senses.length > 1 ? `【義項 ${idx + 1}】` : '【義項】'
-    senseLines.push(indexLabel)
-    if (sense.label) {
-      senseLines.push(`詞性：${sense.label}`)
-    }
-    senseLines.push(`釋義：${sense.definition}`)
-
-    // 子義項
-    if (sense.sub_senses && sense.sub_senses.length > 0) {
-      sense.sub_senses.forEach((sub) => {
-        senseLines.push(`- 子義項 ${sub.label}）：${sub.definition}`)
-        if (sub.examples && sub.examples.length > 0) {
-          sub.examples.forEach((ex) => {
-            senseLines.push(`  · 例句：${ex.text}`)
-            if (ex.jyutping) senseLines.push(`    粵拼：${ex.jyutping}`)
-            if (ex.translation) senseLines.push(`    翻譯：${ex.translation}`)
-          })
-        }
-      })
-    } else if (sense.examples && sense.examples.length > 0) {
-      // 直接掛在義項下的例句
-      sense.examples.forEach((ex) => {
-        senseLines.push(`- 例句：${ex.text}`)
-        if (ex.jyutping) senseLines.push(`  粵拼：${ex.jyutping}`)
-        if (ex.translation) senseLines.push(`  翻譯：${ex.translation}`)
-      })
-    }
-
-    senseLines.push('') // 義項之間留空行
-  })
-
-  if (e.meta?.notes) {
-    headerLines.push('備註：' + e.meta.notes, '')
-  }
-
-  if (e.meta?.etymology && typeof e.meta.etymology === 'string') {
-    headerLines.push('詞源：' + e.meta.etymology, '')
-  }
-
-  if (e.meta?.references && e.meta.references.length > 0) {
-    headerLines.push('參考文獻：')
-    e.meta.references.forEach((ref) => {
-      const parts: string[] = []
-      if (ref.author) parts.push(ref.author)
-      if (ref.work) parts.push(`《${ref.work}》`)
-      if (ref.quote) parts.push(ref.quote)
-      if (ref.source) parts.push(`（${ref.source}）`)
-      headerLines.push('- ' + parts.join('：'))
-    })
-    headerLines.push('')
-  }
-
-  if (e.refs && e.refs.length > 0) {
-    headerLines.push('參見：' + e.refs.map((r) => r.target).join('、'), '')
-  }
-
-  const summary = [...headerLines, ...senseLines].join('\n')
-  return summary
-})
+const entryFeedbackDescription = computed(() =>
+  buildEntryFeedbackDescription(props.entry)
+)
 
 // 词条类型标签
 const entryTypeLabel = computed(() => {
@@ -527,7 +450,7 @@ const formatDefinitionWithLinks = (definition: string): string => {
   
   return definition.replace(regex, (match, word) => {
     // 生成词条链接
-    const wordUrl = `/word/${encodeURIComponent(word)}`
+    const wordUrl = wordPath(word)
     return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
   })
 }

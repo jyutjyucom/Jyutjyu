@@ -1,5 +1,5 @@
 <template>
-  <nav class="flex items-center justify-between gap-2" aria-label="Pagination">
+  <nav class="flex items-center justify-between gap-2" :aria-label="t('common.paginationAria')">
     <NuxtLink
       v-if="page > 1"
       :to="pageLink(page - 1)"
@@ -34,6 +34,7 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
+const { browsePath } = useAppRoutes()
 type BrowseSort = 'headword' | 'jyutping'
 
 const props = defineProps<{
@@ -48,7 +49,7 @@ const DEFAULT_PAGE_SIZE = 100
 const DEFAULT_SORT_BY: BrowseSort = 'headword'
 
 const pageLink = (p: number) => {
-  const path = props.basePath || '/browse'
+  const path = props.basePath || browsePath()
   const query = new URLSearchParams()
 
   if (p > 1) {

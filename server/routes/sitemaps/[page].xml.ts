@@ -1,8 +1,10 @@
 import { getCanonicalHeadwords } from '../../utils/word-resolver'
 import { getSitemapLastmod } from '../../utils/sitemap-meta'
 import { getBrowseSitemapStaticPaths } from '../../utils/sitemap-browse'
-
-const PAGE_SIZE = 50000
+import {
+  SITEMAP_GROUP_CAPACITY,
+  buildSitemapUrlEntryXml
+} from '../../../utils/route-paths'
 
 const getSiteUrl = () => {
   const config = useRuntimeConfig()
@@ -16,48 +18,39 @@ const toPageNumber = (value: string | undefined | null): number => {
   return Number.isFinite(parsed) ? parsed : NaN
 }
 
-const buildUrlEntry = (loc: string, lastmod: string): string => {
-  return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>\n`
-}
-
 export default defineEventHandler(async (event) => {
   const pathMatch = getRequestURL(event).pathname.match(/\/sitemaps\/([^/]+?)(?:\.xml)?$/i)
   const page = toPageNumber(pathMatch?.[1] || getRouterParam(event, 'page'))
   const headwords = await getCanonicalHeadwords()
   const browseStaticPaths = await getBrowseSitemapStaticPaths()
-  const firstPageWordCapacity = Math.max(0, PAGE_SIZE - browseStaticPaths.length)
-  const totalPages = headwords.length <= firstPageWordCapacity
-    ? 1
-    : 1 + Math.ceil((headwords.length - firstPageWordCapacity) / PAGE_SIZE)
+  const totalGroups = browseStaticPaths.length + headwords.length
+  const totalPages = Math.max(1, Math.ceil(totalGroups / SITEMAP_GROUP_CAPACITY))
   const siteUrl = getSiteUrl()
   const lastmod = await getSitemapLastmod()
 
   if (!Number.isInteger(page) || page < 1 || page > totalPages) {
     setResponseStatus(event, 404)
     setHeader(event, 'content-type', 'application/xml; charset=UTF-8')
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>\n'
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"></urlset>\n'
   }
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
 
-  if (page === 1) {
-    for (const path of browseStaticPaths) {
-      const location = path ? `${siteUrl}${path}` : siteUrl
-      xml += buildUrlEntry(location, lastmod)
-    }
+  const start = (page - 1) * SITEMAP_GROUP_CAPACITY
+  const end = start + SITEMAP_GROUP_CAPACITY
+
+  const browseSlice = browseStaticPaths.slice(start, Math.min(end, browseStaticPaths.length))
+  for (const path of browseSlice) {
+    xml += `${buildSitemapUrlEntryXml(path, siteUrl, lastmod)}\n`
   }
 
-  const start = page === 1
-    ? 0
-    : firstPageWordCapacity + (page - 2) * PAGE_SIZE
-  const limit = page === 1 ? firstPageWordCapacity : PAGE_SIZE
-  const pageHeadwords = limit > 0
-    ? headwords.slice(start, start + limit)
-    : []
+  const headwordStart = Math.max(0, start - browseStaticPaths.length)
+  const headwordEnd = Math.max(0, end - browseStaticPaths.length)
+  const pageHeadwords = headwords.slice(headwordStart, headwordEnd)
 
   for (const headword of pageHeadwords) {
-    xml += buildUrlEntry(`${siteUrl}/word/${encodeURIComponent(headword)}`, lastmod)
+    xml += `${buildSitemapUrlEntryXml(`/word/${encodeURIComponent(headword)}`, siteUrl, lastmod)}\n`
   }
 
   xml += '</urlset>\n'

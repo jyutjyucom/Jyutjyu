@@ -323,7 +323,7 @@
             >
               <NuxtLink
                 v-if="ref.type === 'word'"
-                :to="`/word/${encodeURIComponent(ref.target)}`"
+                :to="wordPath(ref.target)"
                 class="text-kapok underline decoration-1 underline-offset-2"
               >
                 {{ ref.target }}
@@ -361,6 +361,7 @@ import type { DictionaryEntry } from '~/types/dictionary'
 const { t } = useI18n()
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
 const { getEntryTypeLabel, getDialectLabel, isCantoDict, formatDefinitionWithLinks, getEntryJyutpingList, getEntryJyutping, getEntryOriginalPhonetic, getEntryOriginalPhoneticList, getEntryFeedbackDescription } = useDictionaryEntry()
+const { wordPath } = useAppRoutes()
 
 interface Props {
   entries: DictionaryEntry[]
@@ -443,7 +444,7 @@ const shouldSkipCardNavigation = (target: EventTarget | null): boolean => {
 const openPrimaryWordPage = () => {
   const word = primary.value?.headword?.display?.trim()
   if (!word) return
-  navigateTo(`/word/${encodeURIComponent(word)}`)
+  navigateTo(wordPath(word))
 }
 
 const handleCardClick = (event: MouseEvent) => {

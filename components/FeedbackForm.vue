@@ -185,6 +185,8 @@
 </template>
 
 <script setup lang="ts">
+import { LOCALE_ROUTE_DEFINITIONS } from '~/utils/route-paths'
+
 const { t, locale } = useI18n()
 
 // 根据当前语言获取词典名称
@@ -192,16 +194,24 @@ const getDictionaryName = (name: string | Record<string, string>): string => {
   if (typeof name === 'string') {
     return name
   }
-  // 尝试匹配当前语言
-  const currentLocale = locale.value
-  if (name[currentLocale]) {
-    return name[currentLocale]
+  const fallbacks = new Set<string>()
+  const currentLocale = String(locale.value || '').trim()
+
+  if (currentLocale) {
+    fallbacks.add(currentLocale)
+
+    if (currentLocale.endsWith('Hans')) {
+      fallbacks.add(currentLocale.replace(/Hans$/, 'Hant'))
+    } else if (currentLocale.endsWith('Hant')) {
+      fallbacks.add(currentLocale.replace(/Hant$/, 'Hans'))
+    }
   }
-  // fallback 顺序：yue-Hant -> yue-Hans -> 第一个可用
-  const fallbacks = ['yue-Hant', 'yue-Hans']
-  for (const fb of fallbacks) {
-    if (name[fb]) {
-      return name[fb]
+
+  LOCALE_ROUTE_DEFINITIONS.forEach(({ code }) => fallbacks.add(code))
+
+  for (const localeCode of fallbacks) {
+    if (name[localeCode]) {
+      return name[localeCode]
     }
   }
   // 最后尝试返回第一个可用的值

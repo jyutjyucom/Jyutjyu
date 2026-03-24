@@ -36,7 +36,7 @@
             <FeedbackButton
               button-class="inline-flex items-center gap-2 px-4 py-2 border border-archive-green text-archive-green hover:bg-archive-green/10 transition-colors whitespace-nowrap flex-shrink-0"
               label-class="text-base" />
-            <NuxtLink to="/"
+            <NuxtLink :to="homePath()"
               class="inline-flex items-center gap-2 px-4 py-2 border border-kapok text-kapok hover:bg-kapok/10 transition-colors whitespace-nowrap flex-shrink-0">
               <Home class="w-5 h-5" aria-hidden="true" />
               {{ t('about.backHome') }}
@@ -142,7 +142,7 @@
               <p class="text-sm text-ink/80 dark:text-stone-300 mb-3">
                 <a href="https://words.hk/base/hoifong/"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium" target="_blank">Non-Commercial
-                  Open Data License 1.0</a>（非商业开放资料授权协议）
+                  Open Data License 1.0</a>{{ t('about.community.wordsLicenseNote') }}
               </p>
 
               <h5 class="font-semibold text-ink dark:text-parchment text-sm mb-2">
@@ -180,7 +180,7 @@
               <p class="text-sm text-ink/80 dark:text-stone-300 mb-3">
                 <a href="https://creativecommons.org/licenses/by-sa/4.0/"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium" target="_blank">CC BY-SA
-                  4.0</a>（知识共享 署名-相同方式共享 4.0 国际许可协议）
+                  4.0</a>{{ t('about.community.wiktLicenseNote') }}
               </p>
 
               <h5 class="font-semibold text-ink dark:text-parchment text-sm mb-2">
@@ -268,8 +268,7 @@
               </h5>
               <p class="text-sm text-ink/80 dark:text-stone-300 mb-3">
                 <a href="https://www.gnu.org/licenses/gpl-3.0.html"
-                  class="text-kapok hover:text-kapok/80 hover:underline font-medium" target="_blank">GPL-3.0</a>（GNU
-                通用公共许可证 3.0）
+                  class="text-kapok hover:text-kapok/80 hover:underline font-medium" target="_blank">GPL-3.0</a>{{ t('about.original.qzLicenseNote') }}
               </p>
 
               <h5 class="font-semibold text-ink dark:text-parchment text-sm mb-2">
@@ -425,6 +424,7 @@ import { Github, Home } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const { dictionariesData } = useLocalizedDictionary()
+const { homePath } = useAppRoutes()
 
 const wordsCountDisplay = computed(() => {
   const data = dictionariesData.value as any
@@ -454,21 +454,12 @@ const tsCountDisplay = computed(() => {
   return (dict?.entries_count || 0).toLocaleString()
 })
 
-// SEO
-const config = useRuntimeConfig()
-const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
-
-useHead({
-  title: computed(() => `${t('about.pageTitle')} | ${t('common.siteName')}`),
+useHead(() => ({
+  title: `${t('about.pageTitle')} | ${t('common.siteName')}`,
   meta: [
-    {
-      name: 'description',
-      content: computed(() => t('about.metaDescription'))
-    }
-  ],
-  link: computed(() => siteUrl.value
-    ? [{ rel: 'canonical', href: `${siteUrl.value}/about` }]
-    : []
-  )
-})
+    { name: 'description', content: t('about.metaDescription') },
+    { property: 'og:title', content: `${t('about.pageTitle')} | ${t('common.siteName')}` },
+    { property: 'og:description', content: t('about.metaDescription') }
+  ]
+}))
 </script>

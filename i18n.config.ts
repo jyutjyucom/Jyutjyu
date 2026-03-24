@@ -1,3 +1,4 @@
+import messagesEn from './locales/en.source.mjs'
 import messagesYueHans from './locales/yue-Hans.generated'
 import messagesYueHant from './locales/yue-Hant.source.mjs'
 import messagesZhHans from './locales/zh-Hans.generated'
@@ -8,6 +9,7 @@ export default defineI18nConfig(() => ({
   locale: 'yue-Hant',
   fallbackLocale: 'yue-Hant',
   messages: {
+    en: messagesEn,
     'yue-Hans': messagesYueHans,
     'yue-Hant': messagesYueHant,
     'zh-Hant': messagesZhHant,

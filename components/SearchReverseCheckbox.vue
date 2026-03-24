@@ -1,5 +1,5 @@
 <template>
-  <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap select-none" title="反查：从释义中搜索词语">
+  <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap select-none" :title="t('common.reverseSearchTooltip')">
     <input :checked="modelValue" type="checkbox"
       class="w-4 h-4 text-kapok rounded focus:ring-kapok accent-kapok"
       @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)">

@@ -9,7 +9,7 @@
                         {{ t("browse.dictionaries") }}
                     </p>
                     <nav
-                        aria-label="Dictionary browse scopes"
+                        :aria-label="t('common.dictionaryBrowseScopesAria')"
                         class="divide-y divide-outline-soft/10 dark:divide-stone-800"
                     >
                         <NuxtLink
@@ -101,7 +101,7 @@
                         <NuxtLink
                             v-for="(dict, idx) in allCovers"
                             :key="dict.id"
-                            :to="`/browse/${encodeURIComponent(dict.id)}`"
+                            :to="browsePath(dict.id)"
                             class="group"
                         >
                             <div
@@ -133,7 +133,7 @@
 
                 <div class="lg:hidden -mx-6 md:-mx-8 px-6 md:px-8 py-2">
                     <button
-                        aria-label="Select dictionary"
+                        :aria-label="t('common.selectDictionaryAria')"
                         :aria-expanded="mobileAccordionOpen"
                         class="w-full px-4 py-3 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-base font-medium flex items-center justify-between"
                         @click="mobileAccordionOpen = !mobileAccordionOpen"
@@ -239,7 +239,7 @@
                             <nav
                                 v-if="browseData.totalPages > 1"
                                 class="inline-flex items-center gap-2"
-                                aria-label="Top pagination"
+                                :aria-label="t('common.topPaginationAria')"
                             >
                                 <NuxtLink
                                     v-if="browseData.page > 1"
@@ -443,7 +443,7 @@
                     <NuxtLink
                         v-for="headword in browseData.headwords"
                         :key="headword"
-                        :to="`/word/${encodeURIComponent(headword)}`"
+                        :to="wordPath(headword)"
                         :prefetch="false"
                         class="px-2 py-1.5 sm:px-3 sm:py-2.5 text-center text-sm sm:text-base font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-high dark:hover:bg-stone-800 transition-colors truncate"
                     >
@@ -540,8 +540,9 @@ const pageSizeOptions = [100, 500, 1000];
 const sortOptions: BrowseSort[] = ["headword", "jyutping"];
 
 const route = useRoute();
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const { dictionariesData, getLocalizedValue } = useLocalizedDictionary();
+const { browsePath, wordPath } = useAppRoutes();
 
 const activeScopeId = computed(() => {
     const routeDict = Array.isArray(route.params.dict)
@@ -552,8 +553,8 @@ const activeScopeId = computed(() => {
     return props.browseData.scope || "all";
 });
 const activeBasePath = computed(() => {
-    if (activeScopeId.value === "all") return "/browse";
-    return `/browse/${encodeURIComponent(activeScopeId.value)}`;
+    if (activeScopeId.value === "all") return browsePath();
+    return browsePath(activeScopeId.value);
 });
 
 const localizedLabelById = computed(() => {
@@ -586,10 +587,7 @@ const scopeTabs = computed(() => {
 
 const activeScopeLabel = computed(() => {
     if (activeScopeId.value === "all") {
-        const suffix = locale.value.endsWith("Hans")
-            ? "合并去重后"
-            : "合併去重後";
-        return `${t("browse.allSources")}(${suffix})`;
+        return t("browse.allSourcesDeduped");
     }
 
     const active = scopeTabs.value.find(
@@ -624,26 +622,13 @@ const buildScopePath = (
     pageSize = props.browseData.pageSize,
     sortBy = safeSortBy.value,
 ): string => {
-    const basePath =
-        scopeId === "all"
-            ? "/browse"
-            : `/browse/${encodeURIComponent(scopeId)}`;
-    const query = new URLSearchParams();
-
-    if (page > 1) {
-        query.set("page", String(page));
-    }
-
-    if (pageSize !== DEFAULT_PAGE_SIZE) {
-        query.set("size", String(pageSize));
-    }
-
-    if (sortBy !== DEFAULT_SORT_BY) {
-        query.set("sort", sortBy);
-    }
-
-    const suffix = query.toString();
-    return suffix ? `${basePath}?${suffix}` : basePath;
+    return browsePath(scopeId === "all" ? undefined : scopeId, {
+        page,
+        pageSize,
+        sortBy,
+        defaultPageSize: DEFAULT_PAGE_SIZE,
+        defaultSortBy: DEFAULT_SORT_BY,
+    });
 };
 
 const buildScopeLink = (scopeId: string) => {

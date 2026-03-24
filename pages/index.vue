@@ -438,7 +438,7 @@
                 <!-- Browse all link -->
                 <div class="mt-12 text-center">
                     <NuxtLink
-                        to="/browse"
+                        :to="dictionaryBrowsePath()"
                         class="inline-flex items-center gap-2 bg-kapok text-white px-8 py-4 font-medium text-base hover:bg-kapok/90 transition-colors"
                     >
                         {{ t("browse.allEntries") }}
@@ -552,7 +552,7 @@
                             {{ t("common.moreDictionariesComing") }}
                         </p>
                         <NuxtLink
-                            to="/about"
+                            :to="localizedPath('/about')"
                             class="text-archive-green dark:text-archive-green-light text-base font-semibold hover:underline underline-offset-4 transition-all"
                         >
                             {{ t("common.viewLicense") }}
@@ -645,9 +645,17 @@ import { Database, Github } from "lucide-vue-next";
 import type { DictionaryEntry } from "~/types/dictionary";
 
 const { t } = useI18n();
-const config = useRuntimeConfig();
 const { localizeDictionary, dictionariesData } = useLocalizedDictionary();
 const warmContentFonts = useWarmContentFonts();
+const {
+    absoluteUrl,
+    browsePath: getBrowsePath,
+    homePath,
+    localizedPath,
+    searchPath,
+    siteUrl,
+    wordPath: getWordPath,
+} = useAppRoutes();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
@@ -718,11 +726,7 @@ const bookCardIsDark = (index: number) => index % 4 === 0 || index % 4 === 2;
 
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
-        const params = new URLSearchParams({ q: searchQuery.value });
-        if (enableReverseSearch.value) {
-            params.set("reverse", "1");
-        }
-        router.push(`/search?${params.toString()}`);
+        router.push(searchPath(searchQuery.value, enableReverseSearch.value));
     }
 };
 
@@ -731,13 +735,9 @@ const searchExample = (query: string) => {
     handleSearch();
 };
 
-const wordPath = (headword: string) => {
-    const cleaned = headword.replace(/[\u200B-\u200D\uFEFF]/g, "");
-    return `/word/${encodeURIComponent(cleaned)}`;
-};
+const wordPath = (headword: string) => getWordPath(headword);
 
-const dictionaryBrowsePath = (dictId: string) =>
-    `/browse/${encodeURIComponent(dictId)}`;
+const dictionaryBrowsePath = (dictId?: string) => getBrowsePath(dictId);
 
 const refreshRandomEntries = async () => {
     if (loadingRandomEntries.value) return;
@@ -814,22 +814,22 @@ onMounted(() => {
     }
 });
 
-const siteUrl = computed(() =>
-    String(config.public.siteUrl || "").replace(/\/+$/, ""),
-);
 const searchTargetUrl = computed(() =>
-    siteUrl.value ? `${siteUrl.value}/search?q={search_term_string}` : "",
+    siteUrl.value
+        ? `${siteUrl.value}${localizedPath("/search")}?q={search_term_string}`
+        : "",
 );
+const localizedHomeUrl = computed(() => absoluteUrl(homePath()));
 
 const websiteStructuredData = computed(() => {
-    if (!siteUrl.value || !searchTargetUrl.value) return "";
+    if (!localizedHomeUrl.value || !searchTargetUrl.value) return "";
 
     return JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: t("common.siteName"),
         alternateName: t("common.siteSubtitle"),
-        url: siteUrl.value,
+        url: localizedHomeUrl.value,
         potentialAction: {
             "@type": "SearchAction",
             target: searchTargetUrl.value,
@@ -844,10 +844,15 @@ useHead(() => ({
     meta: [
         {
             name: "description",
-            content: `${t("common.siteName")} ${t("common.siteDescription")}`,
+            content: t("common.metaDescription"),
         },
+        { name: "keywords", content: t("common.metaKeywords") },
+        {
+            property: "og:title",
+            content: `${t("common.siteName")} - ${t("common.siteSubtitle")}`,
+        },
+        { property: "og:description", content: t("common.metaDescription") },
     ],
-    link: siteUrl.value ? [{ rel: "canonical", href: siteUrl.value }] : [],
     script: websiteStructuredData.value
         ? [
               {

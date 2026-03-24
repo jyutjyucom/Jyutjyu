@@ -167,15 +167,16 @@ When adding a new dictionary, create a new adapter following the pattern in exis
 
 ### Internationalization
 
-Configured in `i18n.config.ts` with 4 locales:
+Configured in `i18n.config.ts` with 5 locales:
 - `yue-Hant`: 粵語 (Cantonese in traditional characters) - source locale
 - `yue-Hans`: 简体粤语 (Cantonese in simplified characters) - auto-generated
 - `zh-Hant`: 繁體普通話 (Mandarin in traditional characters) - source locale
 - `zh-Hans`: 简体普通话 (Mandarin in simplified characters) - auto-generated
+- `en`: English UI - manually maintained source locale
 
-Strategy: `no_prefix` (no URL prefix for locales), browser language detection disabled.
+Strategy: `prefix_except_default` (default locale unprefixed, all others prefixed), browser language detection disabled so the default Cantonese UI is always shown until the user switches manually.
 
-The `yue-Hans` and `zh-Hans` locales are auto-generated from their respective source locales by `scripts/generate-yue-hans.js` and `scripts/generate-zh-hans.js` (run automatically during `prebuild`/`pregenerate`). Source messages live in `locales/yue-Hant.source.mjs` and `locales/zh-Hant.source.mjs`.
+The `yue-Hans` and `zh-Hans` locales are auto-generated from their respective source locales by `scripts/generate-yue-hans.js` and `scripts/generate-zh-hans.js` (run automatically during `prebuild`/`pregenerate`). Source messages live in `locales/yue-Hant.source.mjs`, `locales/zh-Hant.source.mjs`, and `locales/en.source.mjs`.
 
 ### Build Hooks
 

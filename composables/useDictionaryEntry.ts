@@ -5,6 +5,7 @@ const CANTO_DICT_SOURCES = ['粵典 (words.hk)', '粵典']
 
 export const useDictionaryEntry = () => {
   const { t } = useI18n()
+  const { wordPath } = useAppRoutes()
 
   const getEntryTypeLabel = (entry: DictionaryEntry) => {
     const labels = {
@@ -31,7 +32,7 @@ export const useDictionaryEntry = () => {
     if (!definition) return ''
     const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g
     return definition.replace(regex, (match, word) => {
-      const wordUrl = `/word/${encodeURIComponent(word)}`
+      const wordUrl = wordPath(word)
       return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
     })
   }
@@ -99,49 +100,56 @@ export const useDictionaryEntry = () => {
   }
 
   const getEntryFeedbackDescription = (entry: DictionaryEntry): string => {
+    const line = (labelKey: string, value: string) => `${t(labelKey)}${value}`
+
     const headerLines: string[] = [
-      '【當前詞條信息，請喺呢度直接修改有問題嘅部分】',
+      t('feedback.prefill.header'),
       '',
-      `詞頭：${entry.headword.display}`,
+      line('feedback.prefill.headword', entry.headword.display),
       entry.headword.normalized && entry.headword.normalized !== entry.headword.display
-        ? `參考詞頭：${entry.headword.normalized}`
+        ? line('feedback.prefill.normalizedHeadword', entry.headword.normalized)
         : '',
-      `粵拼：${(entry.phonetic.jyutping || []).join(':')}`,
+      line('feedback.prefill.jyutping', (entry.phonetic.jyutping || []).join(':')),
       entry.phonetic.original &&
       entry.phonetic.original !== (entry.phonetic.jyutping || []).join(':')
-        ? `原書注音：${entry.phonetic.original}` : '',
+        ? line('feedback.prefill.originalPhonetic', String(entry.phonetic.original)) : '',
       (entry.meta?.headword_variants && entry.meta.headword_variants.length > 0)
-        ? `異形詞：${entry.meta.headword_variants.join('、')}`
+        ? line('feedback.prefill.variantWords', entry.meta.headword_variants.join(t('feedback.prefill.listSeparator')))
         : '',
-      entry.entry_type ? `類型：${entry.entry_type}` : '',
+      entry.entry_type ? line('feedback.prefill.entryType', getEntryTypeLabel(entry)) : '',
       ''
     ].filter(Boolean)
 
     const senseLines: string[] = []
     entry.senses.forEach((sense, idx) => {
-      const indexLabel = entry.senses.length > 1 ? `【義項 ${idx + 1}】` : '【義項】'
+      const indexLabel = entry.senses.length > 1
+        ? t('feedback.prefill.senseHeading', { index: idx + 1 })
+        : t('feedback.prefill.singleSenseHeading')
       senseLines.push(indexLabel)
       if (sense.label) {
-        senseLines.push(`詞性：${sense.label}`)
+        senseLines.push(line('feedback.prefill.partOfSpeech', sense.label))
       }
-      senseLines.push(`釋義：${sense.definition}`)
+      senseLines.push(line('feedback.prefill.definition', sense.definition))
 
       if (sense.sub_senses && sense.sub_senses.length > 0) {
         sense.sub_senses.forEach((sub) => {
-          senseLines.push(`- 子義項 ${sub.label}）：${sub.definition}`)
+          senseLines.push(t('feedback.prefill.subSense', {
+            label: sub.label,
+            definition: sub.definition
+          }))
           if (sub.examples && sub.examples.length > 0) {
             sub.examples.forEach((ex) => {
-              senseLines.push(`  · 例句：${ex.text}`)
-              if (ex.jyutping) senseLines.push(`    粵拼：${ex.jyutping}`)
-              if (ex.translation) senseLines.push(`    翻譯：${ex.translation}`)
+              senseLines.push(`  ${line('feedback.prefill.example', ex.text)}`)
+              if (ex.jyutping) senseLines.push(`    ${line('feedback.prefill.jyutping', ex.jyutping)}`)
+              if (ex.translation) senseLines.push(`    ${line('feedback.prefill.translation', ex.translation)}`)
             })
           }
         })
       } else if (sense.examples && sense.examples.length > 0) {
         sense.examples.forEach((ex) => {
-          senseLines.push(`- 例句：${ex.text}`)
-          if (ex.jyutping) senseLines.push(`  粵拼：${ex.jyutping}`)
-          if (ex.translation) senseLines.push(`  翻譯：${ex.translation}`)
+          senseLines.push(`- ${line('feedback.prefill.example', ex.text)}`)
+          if (ex.jyutping) senseLines.push(`  ${line('feedback.prefill.jyutping', ex.jyutping)}`)
+          if (ex.translation) senseLines.push(`  ${line('feedback.prefill.translation', ex.translation)}`)
         })
       }
 
@@ -149,28 +157,31 @@ export const useDictionaryEntry = () => {
     })
 
     if (entry.meta?.notes) {
-      headerLines.push('備註：' + entry.meta.notes, '')
+      headerLines.push(line('feedback.prefill.notes', entry.meta.notes), '')
     }
 
     if (entry.meta?.etymology && typeof entry.meta.etymology === 'string') {
-      headerLines.push('詞源：' + entry.meta.etymology, '')
+      headerLines.push(line('feedback.prefill.etymology', entry.meta.etymology), '')
     }
 
     if (entry.meta?.references && entry.meta.references.length > 0) {
-      headerLines.push('參考文獻：')
+      headerLines.push(t('feedback.prefill.referencesHeading'))
       entry.meta.references.forEach((ref) => {
         const parts: string[] = []
         if (ref.author) parts.push(ref.author)
-        if (ref.work) parts.push(`《${ref.work}》`)
+        if (ref.work) parts.push(ref.work)
         if (ref.quote) parts.push(ref.quote)
-        if (ref.source) parts.push(`（${ref.source}）`)
-        headerLines.push('- ' + parts.join('：'))
+        if (ref.source) parts.push(ref.source)
+        headerLines.push(`- ${parts.join(' | ')}`)
       })
       headerLines.push('')
     }
 
     if (entry.refs && entry.refs.length > 0) {
-      headerLines.push('參見：' + entry.refs.map((r) => r.target).join('、'), '')
+      headerLines.push(
+        line('feedback.prefill.seeAlso', entry.refs.map((r) => r.target).join(t('feedback.prefill.listSeparator'))),
+        ''
+      )
     }
 
     return [...headerLines, ...senseLines].join('\n')
