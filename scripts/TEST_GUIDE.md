@@ -24,6 +24,7 @@ node scripts/validate.js data/processed/gz-practical-classified.csv
 ```
 
 **预期输出**:
+
 ```
 🔍 开始验证...
 
@@ -75,6 +76,7 @@ node scripts/csv-to-json.js \
 ```
 
 **预期输出**:
+
 ```
 🚀 开始转换...
 
@@ -127,6 +129,7 @@ code content/dictionaries/gz-practical-classified.json
 ```
 
 **预期结构**:
+
 ```json
 [
   {
@@ -175,17 +178,20 @@ code content/dictionaries/gz-practical-classified.json
 ### 测试 1: 特殊标记处理
 
 **CSV 行**:
+
 ```csv
 1,*哋1,dei6,詞尾，表示人稱的複數。,...
 ```
 
 **验证点**:
+
 - [x] 星号 `*` 应被识别为特殊标记
 - [x] 数字 `1` 应被去除
 - [x] `normalized` 应为 `"哋"`
 - [x] 验证脚本应产生警告
 
 **测试命令**:
+
 ```bash
 node scripts/validate.js data/processed/gz-practical-classified.csv | grep "特殊标记"
 ```
@@ -193,16 +199,19 @@ node scripts/validate.js data/processed/gz-practical-classified.csv | grep "特�
 ### 测试 2: 例句解析
 
 **CSV 行**:
+
 ```csv
 2,我哋,ngo5 dei6,我們；咱們。你哋去，～唔去。（你們去，我們不去。）...
 ```
 
 **验证点**:
+
 - [x] 释义应为 `"我們；咱們"`
 - [x] 例句应被提取: `"你哋去，～唔去"`
 - [x] 翻译应被提取: `"你們去，我們不去"`
 
 **测试命令**:
+
 ```bash
 node -e "
 import('./scripts/utils/text-processor.js').then(m => {
@@ -215,16 +224,19 @@ import('./scripts/utils/text-processor.js').then(m => {
 ### 测试 3: 分类处理
 
 **CSV 行**:
+
 ```csv
 1,...,一、人物,一A泛稱,一A1人稱、指代
 ```
 
 **验证点**:
+
 - [x] 三级分类应合并为路径
 - [x] `category` 应为 `"一、人物 > 一A泛稱 > 一A1人稱、指代"`
 - [x] `subcategories` 应包含三个元素
 
 **测试命令**:
+
 ```bash
 pnpm build:data:gz
 grep -A 5 '"category"' content/dictionaries/gz-practical-classified.json | head -10
@@ -233,6 +245,7 @@ grep -A 5 '"category"' content/dictionaries/gz-practical-classified.json | head 
 ### 测试 4: 粤拼验证
 
 **有效格式**:
+
 ```
 ✅ dei6
 ✅ ngo5 dei6
@@ -240,6 +253,7 @@ grep -A 5 '"category"' content/dictionaries/gz-practical-classified.json | head 
 ```
 
 **无效格式**:
+
 ```
 ❌ dei (缺少声调)
 ❌ dei7 (声调超出范围)
@@ -247,6 +261,7 @@ grep -A 5 '"category"' content/dictionaries/gz-practical-classified.json | head 
 ```
 
 **测试命令**:
+
 ```bash
 # 创建测试文件
 echo "index,words,jyutping,meanings
@@ -397,6 +412,7 @@ chmod +x scripts/test-integration.sh
 ### 问题 1: `papaparse` not found
 
 **解决**:
+
 ```bash
 pnpm install papaparse
 ```
@@ -404,6 +420,7 @@ pnpm install papaparse
 ### 问题 2: `opencc-js` not found
 
 **解决**:
+
 ```bash
 pnpm install opencc-js
 ```
@@ -411,11 +428,13 @@ pnpm install opencc-js
 ### 问题 3: CSV 编码问题
 
 **检查编码**:
+
 ```bash
 file -I data/processed/your-file.csv
 ```
 
 **转换为 UTF-8**:
+
 ```bash
 iconv -f GB2312 -t UTF-8 input.csv > output.csv
 ```
@@ -423,6 +442,7 @@ iconv -f GB2312 -t UTF-8 input.csv > output.csv
 ### 问题 4: JSON 文件过大
 
 **解决**: 使用压缩（未来实现）
+
 ```bash
 gzip content/dictionaries/large-dict.json
 ```
@@ -440,4 +460,3 @@ gzip content/dictionaries/large-dict.json
 ---
 
 **需要帮助？** 查看 [scripts/adapters/README.md](./adapters/README.md)
-

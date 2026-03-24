@@ -1,15 +1,15 @@
 /**
  * 《现代粤语词典》数据适配器
- * 
+ *
  * 原始 CSV 格式:
  * index, entry_type, headword, pronunciation, jyutping, api_suggestion, verification_status, definition, page, source_file
- * 
+ *
  * 特点:
  * - 现代权威粤语词典，收录广州话词汇及释义
  * - pronunciation 为原书拼音标注
  * - jyutping 为转换后的粤拼（用于词典展示和搜索优化）
  * - 包含校对状态（verification_status）
- * 
+ *
  * 数据处理规则:
  * - 只保留 verification_status 为 "✓ 匹配" 的词条
  * - entry_type 直接使用原书标注（字头/词头）
@@ -19,71 +19,81 @@
 import {
   generateKeywords,
   cleanHeadword,
-  parseNote
-} from '../utils/text-processor.js'
+  parseNote,
+} from "../utils/text-processor.js";
 
 /**
  * 词典元数据
  */
 export const DICTIONARY_INFO = {
-  id: 'gz-modern',
+  id: "gz-modern",
   name: {
-    'zh-Hans': '现代粤语词典',
-    'zh-Hant': '現代粵語詞典',
-    'yue-Hans': '现代粤语词典',
-    'yue-Hant': '現代粵語詞典'
+    "zh-Hans": "现代粤语词典",
+    "zh-Hant": "現代粵語詞典",
+    "yue-Hans": "现代粤语词典",
+    "yue-Hant": "現代粵語詞典",
   },
   dialect: {
-    name: '广州',
-    region_code: 'GZ'
+    name: "广州",
+    region_code: "GZ",
   },
-  source_book: '现代粤语词典',
+  source_book: "现代粤语词典",
   author: {
-    'zh-Hans': '范俊军、范兰德等',
-    'zh-Hant': '范俊軍、范蘭德等',
-    'yue-Hans': '范俊军、范兰德等',
-    'yue-Hant': '范俊軍、范蘭德等'
+    "zh-Hans": "范俊军、范兰德等",
+    "zh-Hant": "范俊軍、范蘭德等",
+    "yue-Hans": "范俊军、范兰德等",
+    "yue-Hant": "范俊軍、范蘭德等",
   },
   publisher: {
-    'zh-Hans': '广东人民出版社',
-    'zh-Hant': '廣東人民出版社',
-    'yue-Hans': '广东人民出版社',
-    'yue-Hant': '廣東人民出版社'
+    "zh-Hans": "广东人民出版社",
+    "zh-Hant": "廣東人民出版社",
+    "yue-Hans": "广东人民出版社",
+    "yue-Hant": "廣東人民出版社",
   },
   year: 2021,
   version: new Date().toISOString().slice(0, 10),
   description: {
-    'zh-Hans': '大而全的粤语（广州话）词典，系统收录广州话词汇，包含详细释义、读音、用例等',
-    'zh-Hant': '大而全的粵語（廣州話）詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等',
-    'yue-Hans': '大而全嘅粤语（广州话）词典，系统收录广州话词汇，包含详细释义、读音、用例等',
-    'yue-Hant': '大而全嘅粵語（廣州話）詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等'
+    "zh-Hans":
+      "大而全的粤语（广州话）词典，系统收录广州话词汇，包含详细释义、读音、用例等",
+    "zh-Hant":
+      "大而全的粵語（廣州話）詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等",
+    "yue-Hans":
+      "大而全嘅粤语（广州话）词典，系统收录广州话词汇，包含详细释义、读音、用例等",
+    "yue-Hant":
+      "大而全嘅粵語（廣州話）詞典，系統收錄廣州話詞彙，包含詳細釋義、讀音、用例等",
   },
-  source: 'scanned_from_internet',
+  source: "scanned_from_internet",
   license: {
-    'zh-Hans': '版权所有，仅供技术演示',
-    'zh-Hant': '版權所有，僅供技術演示',
-    'yue-Hans': '版权所有，只供技术演示',
-    'yue-Hant': '版權所有，只供技术演示'
+    "zh-Hans": "版权所有，仅供技术演示",
+    "zh-Hant": "版權所有，僅供技術演示",
+    "yue-Hans": "版权所有，只供技术演示",
+    "yue-Hant": "版權所有，只供技术演示",
   },
   usage_restriction: {
-    'zh-Hans': '此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。',
-    'zh-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。',
-    'yue-Hans': '此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。',
-    'yue-Hant': '此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。'
+    "zh-Hans":
+      "此词表内容受版权保护，来源于互联网公开扫描资源，仅用于本项目原型验证和技术演示，不得用于商业用途或二次分发。",
+    "zh-Hant":
+      "此詞表內容受版權保護，來源於互聯網公開掃描資源，僅用於本項目原型驗證和技術演示，不得用於商業用途或二次分發。",
+    "yue-Hans":
+      "此词表内容受版权保护，来源於互联网公开扫描资源，只供本项目原型验证同技术演示，唔可以用于商业用途或二次分发。",
+    "yue-Hant":
+      "此詞表內容受版權保護，來源於互聯網公開掃描資源，只供本項目原型驗證同技術演示，唔可以用於商業用途或二次分發。",
   },
   attribution: {
-    'zh-Hans': '《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版',
-    'zh-Hant': '《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版',
-    'yue-Hans': '《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版',
-    'yue-Hant': '《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版'
+    "zh-Hans": "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
+    "zh-Hant": "《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版",
+    "yue-Hans":
+      "《现代粤语词典》，范俊军、范兰德等编，广东人民出版社，2021年版",
+    "yue-Hant":
+      "《現代粵語詞典》，范俊軍、范蘭德等編，廣東人民出版社，2021年版",
   },
-  cover: '/gz-modern.jpg'
-}
+  cover: "/gz-modern.jpg",
+};
 
 /**
  * 必填字段验证
  */
-export const REQUIRED_FIELDS = ['index', 'headword', 'jyutping', 'definition']
+export const REQUIRED_FIELDS = ["index", "headword", "jyutping", "definition"];
 
 /**
  * 检查行是否应该被过滤（未校对完成或非"✓ 匹配"状态）
@@ -92,7 +102,7 @@ export const REQUIRED_FIELDS = ['index', 'headword', 'jyutping', 'definition']
  */
 function shouldFilterRow(row) {
   // 只保留 verification_status 为 "✓ 匹配" 的词条
-  return row.verification_status !== '✓ 匹配'
+  return row.verification_status !== "✓ 匹配";
 }
 
 /**
@@ -103,57 +113,64 @@ function shouldFilterRow(row) {
 function parseSenses(definition) {
   if (!definition || !definition.trim()) {
     return {
-      senses: [{
-        definition: '',
-        examples: []
-      }],
-      notes: null
-    }
+      senses: [
+        {
+          definition: "",
+          examples: [],
+        },
+      ],
+      notes: null,
+    };
   }
-  
-  const text = definition.trim()
-  
+
+  const text = definition.trim();
+
   // 先提取备注（‖ 或 || 后面的内容，兼容OCR识别差异）
-  let mainText = text
-  let notes = null
-  const noteMatch = text.match(/\s*(?:‖|\|\|)\s*(.+)$/)
+  let mainText = text;
+  let notes = null;
+  const noteMatch = text.match(/\s*(?:‖|\|\|)\s*(.+)$/);
   if (noteMatch) {
-    notes = noteMatch[1].trim()
-    mainText = text.substring(0, noteMatch.index).trim()
+    notes = noteMatch[1].trim();
+    mainText = text.substring(0, noteMatch.index).trim();
   }
-  
+
   // 检查是否包含 ❶❷❸❹❺❻❼❽❾❿ 或 ①②③④⑤⑥⑦⑧⑨⑩ 等标记
-  const sensePattern = /[❶❷❸❹❺❻❼❽❾❿⓫⓬⓭⓮⓯⓰⓱⓲⓳⓴①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/g
-  const matches = [...mainText.matchAll(sensePattern)]
-  
+  const sensePattern = /[❶❷❸❹❺❻❼❽❾❿⓫⓬⓭⓮⓯⓰⓱⓲⓳⓴①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/g;
+  const matches = [...mainText.matchAll(sensePattern)];
+
   if (matches.length === 0) {
     // 没有多义项标记，整个作为一个义项
     return {
       senses: parseExamplesInDefinition(mainText),
-      notes
-    }
+      notes,
+    };
   }
-  
+
   // 有多义项标记，分割
-  const senses = []
+  const senses = [];
   for (let i = 0; i < matches.length; i++) {
-    const start = matches[i].index + 1 // 跳过标记符号
-    const end = i < matches.length - 1 ? matches[i + 1].index : mainText.length
-    const senseText = mainText.substring(start, end).trim()
-    
+    const start = matches[i].index + 1; // 跳过标记符号
+    const end = i < matches.length - 1 ? matches[i + 1].index : mainText.length;
+    const senseText = mainText.substring(start, end).trim();
+
     if (senseText) {
-      const parsedSenses = parseExamplesInDefinition(senseText)
-      senses.push(...parsedSenses)
+      const parsedSenses = parseExamplesInDefinition(senseText);
+      senses.push(...parsedSenses);
     }
   }
-  
+
   return {
-    senses: senses.length > 0 ? senses : [{
-      definition: mainText,
-      examples: []
-    }],
-    notes
-  }
+    senses:
+      senses.length > 0
+        ? senses
+        : [
+            {
+              definition: mainText,
+              examples: [],
+            },
+          ],
+    notes,
+  };
 }
 
 /**
@@ -163,85 +180,90 @@ function parseSenses(definition) {
  */
 function parseExamplesInDefinition(text) {
   if (!text || !text.trim()) {
-    return [{
-      definition: '',
-      examples: []
-    }]
+    return [
+      {
+        definition: "",
+        examples: [],
+      },
+    ];
   }
-  
+
   const sense = {
-    definition: '',
-    examples: []
-  }
-  
+    definition: "",
+    examples: [],
+  };
+
   // 尝试分离释义和例句
   // 例句通常用冒号、竖线或方括号分隔
   // 格式1: 释义：例句1丨例句2
   // 格式2: 释义［翻译］
-  
+
   // 检查是否有例句（用冒号或丨分隔）
-  const exampleSplit = text.split(/[:：]/)
-  
+  const exampleSplit = text.split(/[:：]/);
+
   if (exampleSplit.length > 1) {
     // 有冒号分隔，第一部分是释义，后面是例句
-    sense.definition = exampleSplit[0].trim()
-    
+    sense.definition = exampleSplit[0].trim();
+
     // 解析例句（可能用丨分隔多个例句）
-    const exampleText = exampleSplit.slice(1).join('：').trim()
-    const exampleParts = exampleText.split(/[丨｜|]/).map(part => part.trim()).filter(part => part)
-    
-    exampleParts.forEach(part => {
+    const exampleText = exampleSplit.slice(1).join("：").trim();
+    const exampleParts = exampleText
+      .split(/[丨｜|]/)
+      .map((part) => part.trim())
+      .filter((part) => part);
+
+    exampleParts.forEach((part) => {
       // 检查是否有方括号包裹的翻译（［］）
-      const translationMatch = part.match(/［([^］]+)］/)
-      
+      const translationMatch = part.match(/［([^］]+)］/);
+
       if (translationMatch) {
-        const translation = translationMatch[1].trim()
-        const exampleText = part.replace(/［[^］]+］/, '').trim()
+        const translation = translationMatch[1].trim();
+        const exampleText = part.replace(/［[^］]+］/, "").trim();
         sense.examples.push({
           text: exampleText,
-          translation: translation
-        })
+          translation: translation,
+        });
       } else {
         sense.examples.push({
-          text: part
-        })
+          text: part,
+        });
       }
-    })
+    });
   } else {
     // 没有冒号分隔，可能整个定义中就包含［］翻译
     // 检查是否有方括号包裹的翻译
-    const translationMatch = text.match(/［([^］]+)］/)
-    
+    const translationMatch = text.match(/［([^］]+)］/);
+
     if (translationMatch) {
       // 有翻译，提取出来
-      const translation = translationMatch[1].trim()
-      const defText = text.replace(/［[^］]+］/, '').trim()
-      sense.definition = defText
+      const translation = translationMatch[1].trim();
+      const defText = text.replace(/［[^］]+］/, "").trim();
+      sense.definition = defText;
       // 这种情况翻译可能作为整体释义的补充说明
       if (translation) {
         sense.examples.push({
-          text: '',
-          translation: translation
-        })
+          text: "",
+          translation: translation,
+        });
       }
     } else {
       // 没有分隔，整个作为释义
-      sense.definition = text
+      sense.definition = text;
     }
   }
-  
-  return [sense]
+
+  return [sense];
 }
 
 /**
  * 解析字头中的圆括号和方括号，提取异形词
  * @param {string} headword - 原始字头字符串
- * @returns {Object} { 
+ * @returns {Object} {
  *   mainWord: 主词头（去除所有括号）,
  *   variants: 异形词数组,
  *   normalized: 规范化词头（去除所有括号）
  * }
- * 
+ *
  * 例如:
  * - "鳌（鼇）［鼇］" → { mainWord: "鳌", variants: ["鼇"], normalized: "鳌" }
  * - "暗［唵、闇］" → { mainWord: "暗", variants: ["唵", "闇"], normalized: "暗" }
@@ -250,56 +272,64 @@ function parseExamplesInDefinition(text) {
  */
 function parseHeadwordVariants(headword) {
   if (!headword) {
-    return { mainWord: '', variants: [], normalized: '' }
+    return { mainWord: "", variants: [], normalized: "" };
   }
-  
-  const variants = []
-  let text = headword.trim()
-  
+
+  const variants = [];
+  let text = headword.trim();
+
   // 提取所有括号中的内容（圆括号和方括号）
   // 圆括号: （）
-  const roundBracketRegex = /[（(]([^）)]+)[）)]/g
-  let match
-  
+  const roundBracketRegex = /[（(]([^）)]+)[）)]/g;
+  let match;
+
   while ((match = roundBracketRegex.exec(text)) !== null) {
-    const content = match[1].trim()
+    const content = match[1].trim();
     // 如果内容包含顿号，分别提取
-    if (content.includes('、') || content.includes(',')) {
-      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
-      variants.push(...parts)
+    if (content.includes("、") || content.includes(",")) {
+      const parts = content
+        .split(/[、,]/)
+        .map((p) => p.trim())
+        .filter((p) => p);
+      variants.push(...parts);
     } else {
-      variants.push(content)
+      variants.push(content);
     }
   }
-  
+
   // 方括号: ［］
-  const squareBracketRegex = /［([^］]+)］/g
+  const squareBracketRegex = /［([^］]+)］/g;
   while ((match = squareBracketRegex.exec(text)) !== null) {
-    const content = match[1].trim()
+    const content = match[1].trim();
     // 如果内容包含顿号，分别提取
-    if (content.includes('、') || content.includes(',')) {
-      const parts = content.split(/[、,]/).map(p => p.trim()).filter(p => p)
-      variants.push(...parts)
+    if (content.includes("、") || content.includes(",")) {
+      const parts = content
+        .split(/[、,]/)
+        .map((p) => p.trim())
+        .filter((p) => p);
+      variants.push(...parts);
     } else {
-      variants.push(content)
+      variants.push(content);
     }
   }
-  
+
   // 主词头：去除所有括号及其内容
   const mainWord = text
-    .replace(/\s*[（(][^）)]+[）)]\s*/g, '')  // 移除圆括号及其内容
-    .replace(/\s*［[^］]+］\s*/g, '')        // 移除方括号及其内容
-    .replace(/\s+/g, '')                      // 移除多余空格
-    .trim()
-  
+    .replace(/\s*[（(][^）)]+[）)]\s*/g, "") // 移除圆括号及其内容
+    .replace(/\s*［[^］]+］\s*/g, "") // 移除方括号及其内容
+    .replace(/\s+/g, "") // 移除多余空格
+    .trim();
+
   // 去重异形词
-  const uniqueVariants = [...new Set(variants)].filter(v => v && v !== mainWord)
-  
+  const uniqueVariants = [...new Set(variants)].filter(
+    (v) => v && v !== mainWord,
+  );
+
   return {
     mainWord,
     variants: uniqueVariants,
-    normalized: mainWord
-  }
+    normalized: mainWord,
+  };
 }
 
 /**
@@ -310,29 +340,29 @@ function parseHeadwordVariants(headword) {
  */
 function mapEntryType(originalType, headword) {
   // 如果原书标记为"字头"，直接返回 character
-  if (originalType === '字头') {
-    return 'character'
+  if (originalType === "字头") {
+    return "character";
   }
-  
+
   // 如果原书标记为"词头"，根据长度判断
-  if (originalType === '词头') {
-    const chineseChars = headword.match(/[\u4e00-\u9fa5]/g) || []
-    const length = chineseChars.length
-    
-    if (length === 0) return 'word' // 外来词
-    if (length === 1) return 'character' // 单字（以防万一）
-    if (length <= 4) return 'word' // 2-4字为词语
-    return 'phrase' // 5字以上为短语
+  if (originalType === "词头") {
+    const chineseChars = headword.match(/[\u4e00-\u9fa5]/g) || [];
+    const length = chineseChars.length;
+
+    if (length === 0) return "word"; // 外来词
+    if (length === 1) return "character"; // 单字（以防万一）
+    if (length <= 4) return "word"; // 2-4字为词语
+    return "phrase"; // 5字以上为短语
   }
-  
+
   // 默认根据长度判断
-  const chineseChars = headword.match(/[\u4e00-\u9fa5]/g) || []
-  const length = chineseChars.length
-  
-  if (length === 0) return 'word'
-  if (length === 1) return 'character'
-  if (length <= 4) return 'word'
-  return 'phrase'
+  const chineseChars = headword.match(/[\u4e00-\u9fa5]/g) || [];
+  const length = chineseChars.length;
+
+  if (length === 0) return "word";
+  if (length === 1) return "character";
+  if (length <= 4) return "word";
+  return "phrase";
 }
 
 /**
@@ -343,85 +373,85 @@ function mapEntryType(originalType, headword) {
 export function transformRow(row) {
   // 1. 检查是否应该过滤
   if (shouldFilterRow(row)) {
-    return null
+    return null;
   }
-  
+
   // 2. 解析字头中的异形词（圆括号和方括号）
-  const variantInfo = parseHeadwordVariants(row.headword)
-  
+  const variantInfo = parseHeadwordVariants(row.headword);
+
   // 3. 清理词头（处理星号、数字等标记）
-  const headwordInfo = cleanHeadword(variantInfo.normalized)
-  
+  const headwordInfo = cleanHeadword(variantInfo.normalized);
+
   // 4. 处理粤拼（已经是转换后的格式）
   const jyutpingArray = row.jyutping
-    ? row.jyutping.split(/[,;/]/)
-        .map(j => j.trim())
-        .filter(j => j)
-    : []
-  
+    ? row.jyutping
+        .split(/[,;/]/)
+        .map((j) => j.trim())
+        .filter((j) => j)
+    : [];
+
   // 5. 解析释义和例句（包括提取作者备注）
-  const parseResult = parseSenses(row.definition)
-  
+  const parseResult = parseSenses(row.definition);
+
   // 6. 映射词条类型：原书分类 → 标准格式
-  const entryType = mapEntryType(row.entry_type, headwordInfo.normalized)
-  
+  const entryType = mapEntryType(row.entry_type, headwordInfo.normalized);
+
   // 7. 构建标准词条
   const entry = {
-    id: `${DICTIONARY_INFO.id}_${String(row.index).padStart(6, '0')}`,
+    id: `${DICTIONARY_INFO.id}_${String(row.index).padStart(6, "0")}`,
     source_book: DICTIONARY_INFO.source_book,
     source_id: String(row.index),
-    
+
     dialect: DICTIONARY_INFO.dialect,
-    
+
     headword: {
       display: headwordInfo.normalized, // 只显示首选词头（去除括号）
       search: headwordInfo.normalized,
       normalized: headwordInfo.normalized,
-      is_placeholder: headwordInfo.isPlaceholder || false
+      is_placeholder: headwordInfo.isPlaceholder || false,
     },
-    
+
     phonetic: {
-      original: row.pronunciation || '', // 原书拼音标注
-      jyutping: jyutpingArray // 转换后的粤拼
+      original: row.pronunciation || "", // 原书拼音标注
+      jyutping: jyutpingArray, // 转换后的粤拼
     },
-    
+
     entry_type: entryType,
-    
+
     senses: parseResult.senses,
-    
+
     meta: {
       // 页码
       page: row.page || null,
-      
+
       // 原书词条分类（字头/词头）
       original_entry_type: row.entry_type || null,
-      
+
       // 作者备注（从释义中提取的 || 后的内容）
       notes: parseResult.notes || undefined,
-      
+
       // 异形词（从圆括号和方括号中提取）
-      headword_variants: variantInfo.variants.length > 0 
-        ? variantInfo.variants 
-        : null
-      
+      headword_variants:
+        variantInfo.variants.length > 0 ? variantInfo.variants : null,
+
       // 注：api_suggestion, verification_status, source_file 字段已省略
     },
-    
-    created_at: new Date().toISOString()
-  }
-  
+
+    created_at: new Date().toISOString(),
+  };
+
   // 8. 生成搜索关键词
-  entry.keywords = generateKeywords(entry)
-  
+  entry.keywords = generateKeywords(entry);
+
   // 9. 添加异形词到关键词
   if (variantInfo.variants.length > 0) {
-    variantInfo.variants.forEach(variant => {
-      entry.keywords.push(variant)
-    })
-    entry.keywords = [...new Set(entry.keywords)]
+    variantInfo.variants.forEach((variant) => {
+      entry.keywords.push(variant);
+    });
+    entry.keywords = [...new Set(entry.keywords)];
   }
-  
-  return entry
+
+  return entry;
 }
 
 /**
@@ -430,44 +460,48 @@ export function transformRow(row) {
  * @returns {Object} { entries, errors, filtered }
  */
 export function transformAll(rows) {
-  const entries = []
-  const errors = []
-  let filteredCount = 0
-  
+  const entries = [];
+  const errors = [];
+  let filteredCount = 0;
+
   rows.forEach((row, index) => {
     try {
-      const entry = transformRow(row)
-      
+      const entry = transformRow(row);
+
       if (entry === null) {
         // 被过滤的行（非"✓ 匹配"状态）
-        filteredCount++
+        filteredCount++;
       } else {
-        entries.push(entry)
+        entries.push(entry);
       }
     } catch (error) {
       errors.push({
         row: index + 2, // +2 因为有表头且从1开始计数
         error: error.message,
-        data: row
-      })
+        data: row,
+      });
     }
-  })
-  
-  return { entries, errors, filteredCount }
+  });
+
+  return { entries, errors, filteredCount };
 }
 
 /**
  * 特殊字段处理说明
  */
 export const FIELD_NOTES = {
-  headword: '词头，主词条。圆括号（ ）和方括号［ ］中的内容会被提取为异形词，存入 meta.headword_variants',
-  pronunciation: '原书拼音标注',
-  jyutping: '转换后的粤拼，用于词典展示和搜索优化',
-  definition: '释义，可能包含多义项（①②③）、例句。双竖线后的内容会被提取为作者备注，存入 meta.notes',
-  page: '词典页码',
-  entry_type: '原书词条类型（字头/词头），映射为标准格式（character/word/phrase），原值保存到 meta.original_entry_type',
-  api_suggestion: '已省略，不处理',
+  headword:
+    "词头，主词条。圆括号（ ）和方括号［ ］中的内容会被提取为异形词，存入 meta.headword_variants",
+  pronunciation: "原书拼音标注",
+  jyutping: "转换后的粤拼，用于词典展示和搜索优化",
+  definition:
+    "释义，可能包含多义项（①②③）、例句。双竖线后的内容会被提取为作者备注，存入 meta.notes",
+  page: "词典页码",
+  entry_type:
+    "原书词条类型（字头/词头），映射为标准格式（character/word/phrase），原值保存到 meta.original_entry_type",
+  api_suggestion: "已省略，不处理",
   verification_status: '用于过滤，只保留"✓ 匹配"的词条，不存入metadata',
-  source_file: '已省略，不处理',
-  headword_variants: '异形词数组，从字头的圆括号和方括号中提取。例如："鳌（鼇）［鼇］" → ["鼇"]，"暗［唵、闇］" → ["唵", "闇"]'
-}
+  source_file: "已省略，不处理",
+  headword_variants:
+    '异形词数组，从字头的圆括号和方括号中提取。例如："鳌（鼇）［鼇］" → ["鼇"]，"暗［唵、闇］" → ["唵", "闇"]',
+};

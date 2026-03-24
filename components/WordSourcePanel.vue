@@ -26,7 +26,7 @@
                 : 'text-graphite dark:text-stone-400'
             "
           >
-            {{ t('common.senseCount', { count: entries.length }) }}
+            {{ t("common.senseCount", { count: entries.length }) }}
           </p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -45,29 +45,38 @@
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </div>
     </button>
 
-    <div
-      v-show="!collapsible || expanded"
-      :class="collapsible ? 'py-3' : ''"
-    >
+    <div v-show="!collapsible || expanded" :class="collapsible ? 'py-3' : ''">
       <article
         v-for="(entry, entryIdx) in entries"
         :key="entry.id"
         class="relative"
-        :class="collapsible
-          ? 'mt-4 first:mt-0'
-          : 'mt-12 first:mt-0'"
+        :class="collapsible ? 'mt-4 first:mt-0' : 'mt-12 first:mt-0'"
       >
         <!-- Red divider between entries (desktop) -->
-        <div v-if="!collapsible && entryIdx > 0" class="flex items-center gap-3 mb-8 -mt-2">
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
-          <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"></div>
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+        <div
+          v-if="!collapsible && entryIdx > 0"
+          class="flex items-center gap-3 mb-8 -mt-2"
+        >
+          <div
+            class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+          ></div>
+          <div
+            class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"
+          ></div>
+          <div
+            class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+          ></div>
         </div>
         <div class="space-y-6">
           <!-- Metadata badges + feedback button (top) -->
@@ -76,7 +85,10 @@
               <span
                 class="px-2 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-xs sm:text-sm whitespace-nowrap"
               >
-                {{ sourceLabel }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+                {{ sourceLabel
+                }}<template v-if="entry.source_id"
+                  >: {{ entry.source_id }}</template
+                >
               </span>
 
               <span
@@ -110,7 +122,7 @@
               :entry-data="{
                 word: entry.headword.display,
                 source: entry.source_book,
-                id: entry.id
+                id: entry.id,
               }"
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
@@ -121,20 +133,41 @@
           </div>
 
           <!-- Additional phonetic info -->
-          <div v-if="shouldShowEntryJyutping(entry) || shouldShowEntryOriginalPhonetic(entry) || (entry.meta?.headword_variants && entry.meta.headword_variants.length > 0)" class="space-y-1 text-sm text-graphite dark:text-stone-200">
+          <div
+            v-if="
+              shouldShowEntryJyutping(entry) ||
+              shouldShowEntryOriginalPhonetic(entry) ||
+              (entry.meta?.headword_variants &&
+                entry.meta.headword_variants.length > 0)
+            "
+            class="space-y-1 text-sm text-graphite dark:text-stone-200"
+          >
             <p v-if="shouldShowEntryJyutping(entry)">
-              <span class="text-graphite/60 dark:text-stone-300 mr-2">{{ t('common.jyutpingColumn') }}:</span>
-              <span class="text-kapok font-semibold">{{ getEntryJyutping(entry) }}</span>
+              <span class="text-graphite/60 dark:text-stone-300 mr-2"
+                >{{ t("common.jyutpingColumn") }}:</span
+              >
+              <span class="text-kapok font-semibold">{{
+                getEntryJyutping(entry)
+              }}</span>
             </p>
-            <p v-if="shouldShowEntryOriginalPhonetic(entry)" class="break-words">
-              <span class="text-graphite/60 dark:text-stone-300 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
+            <p
+              v-if="shouldShowEntryOriginalPhonetic(entry)"
+              class="break-words"
+            >
+              <span class="text-graphite/60 dark:text-stone-300 mr-2">{{
+                t("dictCard.originalPhonetic")
+              }}</span>
               {{ getEntryOriginalPhonetic(entry) }}
             </p>
             <p
-              v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
+              v-if="
+                entry.meta?.headword_variants &&
+                entry.meta.headword_variants.length > 0
+              "
               class="text-ink/80 dark:text-stone-300 break-words"
             >
-              {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
+              {{ t("dictCard.variantWords")
+              }}{{ entry.meta.headword_variants.join("、") }}
             </p>
           </div>
 
@@ -151,7 +184,7 @@
                 v-if="entry.senses.length > 1"
                 class="flex-shrink-0 text-sm text-kapok font-bold italic font-serif"
               >
-                {{ String(senseIdx + 1).padStart(2, '0') }}
+                {{ String(senseIdx + 1).padStart(2, "0") }}
               </span>
 
               <div class="flex-1 space-y-4">
@@ -201,7 +234,11 @@
                       v-if="subSense.examples && subSense.examples.length > 0"
                       class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-archive-green/40 mt-3"
                     >
-                      <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                      <h4
+                        class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4"
+                      >
+                        {{ t("dictCard.usageExamples") }}
+                      </h4>
                       <div class="space-y-4">
                         <div
                           v-for="(example, exIdx) in subSense.examples"
@@ -239,10 +276,18 @@
 
                 <!-- Direct examples in gray card -->
                 <div
-                  v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
+                  v-if="
+                    (!sense.sub_senses || sense.sub_senses.length === 0) &&
+                    sense.examples &&
+                    sense.examples.length > 0
+                  "
                   class="bg-surface-low dark:bg-stone-900 p-3 sm:p-6 border-l-2 border-archive-green/30 dark:border-archive-green/40"
                 >
-                  <h4 class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4">{{ t('dictCard.usageExamples') }}</h4>
+                  <h4
+                    class="text-sm uppercase tracking-widest font-bold text-archive-green dark:text-archive-green-light mb-4"
+                  >
+                    {{ t("dictCard.usageExamples") }}
+                  </h4>
                   <div class="space-y-4">
                     <div
                       v-for="(example, exIdx) in sense.examples"
@@ -282,24 +327,39 @@
           <div
             v-if="entry.meta?.notes"
             class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 text-xs sm:text-sm"
-            :class="entry.meta?.note_type === 'proofreader'
-              ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 dark:border-kapok/60 text-ink/80 dark:text-stone-300'
-              : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 dark:border-amber-500/40 text-ink/80 dark:text-stone-300'"
+            :class="
+              entry.meta?.note_type === 'proofreader'
+                ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 dark:border-kapok/60 text-ink/80 dark:text-stone-300'
+                : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 dark:border-amber-500/40 text-ink/80 dark:text-stone-300'
+            "
           >
             <span
               class="font-semibold"
-              :class="entry.meta?.note_type === 'proofreader' ? 'text-kapok' : 'text-muted-gold'"
+              :class="
+                entry.meta?.note_type === 'proofreader'
+                  ? 'text-kapok'
+                  : 'text-muted-gold'
+              "
             >
-              {{ entry.meta?.note_type === 'proofreader' ? t('dictCard.proofreaderNote') : t('dictCard.note') }}
+              {{
+                entry.meta?.note_type === "proofreader"
+                  ? t("dictCard.proofreaderNote")
+                  : t("dictCard.note")
+              }}
             </span>
             {{ entry.meta.notes }}
           </div>
 
           <div
-            v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
+            v-if="
+              entry.meta?.etymology && typeof entry.meta.etymology === 'string'
+            "
             class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 dark:border-archive-green/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-archive-green dark:text-archive-green-light">{{ t('dictCard.etymology') }}</span>
+            <span
+              class="font-semibold text-archive-green dark:text-archive-green-light"
+              >{{ t("dictCard.etymology") }}</span
+            >
             {{ entry.meta.etymology }}
           </div>
 
@@ -307,26 +367,30 @@
             v-if="entry.meta?.references && entry.meta.references.length > 0"
             class="mt-3 sm:mt-4 p-3 sm:p-6 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 dark:border-amber-500/40 text-xs sm:text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-muted-gold">{{ t('dictCard.references') }}</span>
+            <span class="font-semibold text-muted-gold">{{
+              t("dictCard.references")
+            }}</span>
             <ul class="mt-2 space-y-2">
-              <li
-                v-for="(ref, refIdx) in entry.meta.references"
-                :key="refIdx"
-              >
-                <span v-if="ref.author" class="font-medium">{{ ref.author }}</span>
+              <li v-for="(ref, refIdx) in entry.meta.references" :key="refIdx">
+                <span v-if="ref.author" class="font-medium">{{
+                  ref.author
+                }}</span>
                 <span v-if="ref.work">《{{ ref.work }}》</span>
                 <span v-if="ref.author || ref.work">：</span>
                 <span v-if="ref.quote">{{ ref.quote }}</span>
-                <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200">（{{ ref.source }}）</span>
+                <span
+                  v-if="ref.source"
+                  class="text-graphite/60 dark:text-stone-200"
+                  >（{{ ref.source }}）</span
+                >
               </li>
             </ul>
           </div>
 
-          <div
-            v-if="entry.refs && entry.refs.length > 0"
-            class="mt-4 text-sm"
-          >
-            <span class="text-graphite/60 dark:text-stone-200">{{ t('dictCard.seeAlso') }}</span>
+          <div v-if="entry.refs && entry.refs.length > 0" class="mt-4 text-sm">
+            <span class="text-graphite/60 dark:text-stone-200">{{
+              t("dictCard.seeAlso")
+            }}</span>
             <span
               v-for="(ref, refIdx) in entry.refs"
               :key="refIdx"
@@ -339,10 +403,7 @@
               >
                 {{ ref.target }}
               </NuxtLink>
-              <span
-                v-else
-                class="text-graphite dark:text-stone-400"
-              >
+              <span v-else class="text-graphite dark:text-stone-400">
                 {{ ref.target }}
               </span>
               <span
@@ -358,32 +419,39 @@
             v-if="entry.meta?.usage"
             class="mt-4 text-sm text-graphite dark:text-stone-400"
           >
-            <span class="font-semibold">{{ t('dictCard.usage') }}</span> {{ entry.meta.usage }}
+            <span class="font-semibold">{{ t("dictCard.usage") }}</span>
+            {{ entry.meta.usage }}
           </div>
         </div>
       </article>
     </div>
     <!-- Divider at bottom of accordion (mobile, not on last item) -->
     <div v-if="collapsible && !isLast" class="flex items-center gap-3 mt-4">
-      <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
-      <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"></div>
-      <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+      <div
+        class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+      ></div>
+      <div
+        class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"
+      ></div>
+      <div
+        class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+      ></div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { DictionaryEntry } from '~/types/dictionary'
+import type { DictionaryEntry } from "~/types/dictionary";
 
 interface Props {
-  sourceKey: string
-  sourceLabel: string
-  entries: DictionaryEntry[]
-  tabJyutpingList?: string[]
-  expanded?: boolean
-  collapsible?: boolean
-  active?: boolean
-  isLast?: boolean
+  sourceKey: string;
+  sourceLabel: string;
+  entries: DictionaryEntry[];
+  tabJyutpingList?: string[];
+  expanded?: boolean;
+  collapsible?: boolean;
+  active?: boolean;
+  isLast?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -391,59 +459,67 @@ const props = withDefaults(defineProps<Props>(), {
   expanded: true,
   collapsible: true,
   active: false,
-  isLast: false
-})
+  isLast: false,
+});
 
 defineEmits<{
-  toggle: []
-}>()
+  toggle: [];
+}>();
 
-const { t } = useI18n()
-const { getEntryTypeLabel, getDialectLabel, isCantoDict, formatDefinitionWithLinks, getEntryJyutpingList, getEntryJyutping, getEntryOriginalPhonetic, getEntryOriginalPhoneticList, getEntryFeedbackDescription } = useDictionaryEntry()
-const { wordPath } = useAppRoutes()
+const { t } = useI18n();
+const {
+  getEntryTypeLabel,
+  getDialectLabel,
+  isCantoDict,
+  formatDefinitionWithLinks,
+  getEntryJyutpingList,
+  getEntryJyutping,
+  getEntryOriginalPhonetic,
+  getEntryOriginalPhoneticList,
+  getEntryFeedbackDescription,
+} = useDictionaryEntry();
+const { wordPath } = useAppRoutes();
 
-const entries = computed(() => props.entries || [])
+const entries = computed(() => props.entries || []);
 const panelClasses = computed(() => {
   if (props.collapsible) {
-    return ['overflow-hidden']
+    return ["overflow-hidden"];
   }
-  return []
-})
+  return [];
+});
 
 const dialectLabels = computed(() => {
-  const set = new Set<string>()
+  const set = new Set<string>();
   entries.value.forEach((entry) => {
-    const label = getDialectLabel(entry)
-    if (label) set.add(label)
-  })
-  return Array.from(set).slice(0, 3)
-})
+    const label = getDialectLabel(entry);
+    if (label) set.add(label);
+  });
+  return Array.from(set).slice(0, 3);
+});
 
 const tabJyutpingSet = computed(() => {
-  const set = new Set<string>()
+  const set = new Set<string>();
   props.tabJyutpingList.forEach((jp) => {
-    const value = jp?.trim()
-    if (value) set.add(value)
-  })
-  return set
-})
-
+    const value = jp?.trim();
+    if (value) set.add(value);
+  });
+  return set;
+});
 
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
-  const entryJps = getEntryJyutpingList(entry)
-  if (entryJps.length === 0) return false
-  const primarySet = tabJyutpingSet.value
-  if (primarySet.size === 0) return true
-  return entryJps.some(jp => !primarySet.has(jp))
-}
+  const entryJps = getEntryJyutpingList(entry);
+  if (entryJps.length === 0) return false;
+  const primarySet = tabJyutpingSet.value;
+  if (primarySet.size === 0) return true;
+  return entryJps.some((jp) => !primarySet.has(jp));
+};
 
 const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
-  const originalList = getEntryOriginalPhoneticList(entry)
-  if (originalList.length === 0) return false
-  const primarySet = tabJyutpingSet.value
-  if (primarySet.size === 0) return true
-  if (originalList.length !== primarySet.size) return true
-  return originalList.some(value => !primarySet.has(value))
-}
-
+  const originalList = getEntryOriginalPhoneticList(entry);
+  if (originalList.length === 0) return false;
+  const primarySet = tabJyutpingSet.value;
+  if (primarySet.size === 0) return true;
+  if (originalList.length !== primarySet.size) return true;
+  return originalList.some((value) => !primarySet.has(value));
+};
 </script>

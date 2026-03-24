@@ -4,17 +4,18 @@
     class="dict-card bg-surface-low dark:bg-stone-900 overflow-visible transition-colors duration-300 font-cjk-content"
   >
     <!-- 头部：词头 + 粤拼（共享信息） -->
-    <div
-      :class="headerClasses"
-      :style="stickyHeaderStyle"
-    >
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
+    <div :class="headerClasses" :style="stickyHeaderStyle">
+      <div
+        class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4"
+      >
         <div class="flex-1 min-w-0">
-          <h3 class="text-xl sm:text-3xl font-sung-content font-bold text-ink dark:text-parchment mb-1 break-words">
+          <h3
+            class="text-2xl sm:text-3xl font-sung-content font-bold text-ink dark:text-parchment mb-1 break-words"
+          >
             <NuxtLink
               v-if="cardClickable && primaryWordTo"
               :to="primaryWordTo"
-              class="text-inherit hover:text-kapok dark:hover:text-kapok transition-colors underline-offset-2 hover:underline"
+              class="text-inherit hover:text-kapok dark:hover:text-kapok transition-colors"
             >
               {{ primary.headword.display }}
             </NuxtLink>
@@ -26,7 +27,7 @@
               class="ml-2 text-sm text-kapok font-normal"
               :title="t('dictCard.placeholderWord')"
             >
-              {{ t('dictCard.placeholderWord') }}
+              {{ t("dictCard.placeholderWord") }}
             </span>
             <sup
               v-if="primary.meta?.variant_number"
@@ -42,20 +43,29 @@
               :key="idx"
               class="flex items-center gap-1.5 flex-wrap"
             >
-              <div class="text-base sm:text-lg text-kapok font-semibold break-words">
+              <div
+                class="text-base sm:text-lg text-kapok font-semibold break-words"
+              >
                 {{ jp }}
               </div>
             </div>
           </div>
-          <p v-if="dictionaryCount > 0" class="mt-2 text-sm text-graphite/60 dark:text-stone-200">
-            {{ t('dictCard.collectedBy', { count: dictionaryCount }) }}
+          <p
+            v-if="dictionaryCount > 0"
+            class="mt-2 text-sm text-graphite/60 dark:text-stone-200"
+          >
+            {{
+              t("dictCard.collectedBy", {
+                count: dictionaryCount,
+              })
+            }}
           </p>
 
           <p
             v-if="primary.headword.display !== primary.headword.normalized"
             class="text-sm text-graphite/60 dark:text-stone-200 break-words mt-1"
           >
-            {{ t('dictCard.standardWriting') }}{{ primary.headword.normalized }}
+            {{ t("dictCard.standardWriting") }}{{ primary.headword.normalized }}
           </p>
         </div>
       </div>
@@ -77,22 +87,37 @@
       >
         <!-- Entry divider -->
         <div v-if="entryIdx > 0" class="flex items-center gap-3 mb-4 sm:mb-6">
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
-          <div class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"></div>
-          <div class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"></div>
+          <div
+            class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+          ></div>
+          <div
+            class="w-1.5 h-1.5 rounded-full bg-archive-green/60 dark:bg-archive-green/40"
+          ></div>
+          <div
+            class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
+          ></div>
         </div>
         <!-- 词典标签区 -->
         <div class="flex items-start gap-3">
           <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
-            <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-xs sm:text-sm whitespace-nowrap">
-              {{ getEntrySourceBookLabel(entry) }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+            <span
+              class="px-2 sm:px-3 py-0.5 sm:py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-md text-xs sm:text-sm whitespace-nowrap"
+            >
+              {{ getEntrySourceBookLabel(entry)
+              }}<template v-if="entry.source_id"
+                >: {{ entry.source_id }}</template
+              >
             </span>
 
-            <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap">
+            <span
+              class="px-2 sm:px-3 py-0.5 sm:py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap"
+            >
               {{ getDialectLabel(entry) }}
             </span>
 
-            <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-md text-xs sm:text-sm whitespace-nowrap">
+            <span
+              class="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-md text-xs sm:text-sm whitespace-nowrap"
+            >
               {{ getEntryTypeLabel(entry) }}
             </span>
 
@@ -116,7 +141,7 @@
               :entry-data="{
                 word: entry.headword.display,
                 source: entry.source_book,
-                id: entry.id
+                id: entry.id,
               }"
               :initial-description="getEntryFeedbackDescription(entry)"
               initial-type="entry-error"
@@ -129,20 +154,32 @@
 
         <!-- 仅当该词典粤拼与主词条不同才显示 -->
         <div v-if="shouldShowEntryJyutping(entry)" class="mt-3 text-sm">
-          <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2">{{ t('common.jyutpingColumn') }}:</span>
-          <span class="text-kapok font-semibold">{{ getEntryJyutping(entry) }}</span>
+          <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2"
+            >{{ t("common.jyutpingColumn") }}:</span
+          >
+          <span class="text-kapok font-semibold">{{
+            getEntryJyutping(entry)
+          }}</span>
         </div>
 
         <div v-if="shouldShowEntryOriginalPhonetic(entry)" class="mt-2 text-sm">
-          <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2">{{ t('dictCard.originalPhonetic') }}</span>
-          <span class="text-ink/80 dark:text-stone-300 break-words">{{ getEntryOriginalPhonetic(entry) }}</span>
+          <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2">{{
+            t("dictCard.originalPhonetic")
+          }}</span>
+          <span class="text-ink/80 dark:text-stone-300 break-words">{{
+            getEntryOriginalPhonetic(entry)
+          }}</span>
         </div>
 
         <p
-          v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
+          v-if="
+            entry.meta?.headword_variants &&
+            entry.meta.headword_variants.length > 0
+          "
           class="text-base text-ink dark:text-stone-100 break-words mt-3"
         >
-          {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
+          {{ t("dictCard.variantWords")
+          }}{{ entry.meta.headword_variants.join("、") }}
         </p>
 
         <!-- 释义 -->
@@ -157,7 +194,7 @@
                 v-if="entry.senses.length > 1"
                 class="flex-shrink-0 text-sm text-kapok font-bold italic font-serif"
               >
-                {{ String(senseIdx + 1).padStart(2, '0') }}
+                {{ String(senseIdx + 1).padStart(2, "0") }}
               </span>
 
               <div class="flex-1">
@@ -235,7 +272,11 @@
                 </div>
 
                 <div
-                  v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
+                  v-if="
+                    (!sense.sub_senses || sense.sub_senses.length === 0) &&
+                    sense.examples &&
+                    sense.examples.length > 0
+                  "
                   class="space-y-2"
                 >
                   <div
@@ -275,24 +316,38 @@
           <div
             v-if="entry.meta?.notes"
             class="mt-4 p-3 border-l-4 text-sm"
-            :class="entry.meta?.note_type === 'proofreader'
-              ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
-              : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'"
+            :class="
+              entry.meta?.note_type === 'proofreader'
+                ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
+                : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'
+            "
           >
-            <span 
+            <span
               class="font-semibold"
-              :class="entry.meta?.note_type === 'proofreader' ? 'text-kapok' : 'text-muted-gold'"
+              :class="
+                entry.meta?.note_type === 'proofreader'
+                  ? 'text-kapok'
+                  : 'text-muted-gold'
+              "
             >
-              {{ entry.meta?.note_type === 'proofreader' ? t('dictCard.proofreaderNote') : t('dictCard.note') }}
+              {{
+                entry.meta?.note_type === "proofreader"
+                  ? t("dictCard.proofreaderNote")
+                  : t("dictCard.note")
+              }}
             </span>
             {{ entry.meta.notes }}
           </div>
 
           <div
-            v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
+            v-if="
+              entry.meta?.etymology && typeof entry.meta.etymology === 'string'
+            "
             class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-archive-green/40 rounded-md text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-archive-green">{{ t('dictCard.etymology') }}</span>
+            <span class="font-semibold text-archive-green">{{
+              t("dictCard.etymology")
+            }}</span>
             {{ entry.meta.etymology }}
           </div>
 
@@ -300,26 +355,30 @@
             v-if="entry.meta?.references && entry.meta.references.length > 0"
             class="mt-4 p-4 border-l-2 bg-surface-low dark:bg-stone-900 border-muted-gold/40 rounded-md text-sm text-ink/80 dark:text-stone-300"
           >
-            <span class="font-semibold text-muted-gold">{{ t('dictCard.references') }}</span>
+            <span class="font-semibold text-muted-gold">{{
+              t("dictCard.references")
+            }}</span>
             <ul class="mt-2 space-y-2">
-              <li
-                v-for="(ref, refIdx) in entry.meta.references"
-                :key="refIdx"
-              >
-                <span v-if="ref.author" class="font-medium">{{ ref.author }}</span>
+              <li v-for="(ref, refIdx) in entry.meta.references" :key="refIdx">
+                <span v-if="ref.author" class="font-medium">{{
+                  ref.author
+                }}</span>
                 <span v-if="ref.work">《{{ ref.work }}》</span>
                 <span v-if="ref.author || ref.work">：</span>
                 <span v-if="ref.quote">{{ ref.quote }}</span>
-                <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200">（{{ ref.source }}）</span>
+                <span
+                  v-if="ref.source"
+                  class="text-graphite/60 dark:text-stone-200"
+                  >（{{ ref.source }}）</span
+                >
               </li>
             </ul>
           </div>
 
-          <div
-            v-if="entry.refs && entry.refs.length > 0"
-            class="mt-4 text-sm"
-          >
-            <span class="text-graphite/60 dark:text-stone-200">{{ t('dictCard.seeAlso') }}</span>
+          <div v-if="entry.refs && entry.refs.length > 0" class="mt-4 text-sm">
+            <span class="text-graphite/60 dark:text-stone-200">{{
+              t("dictCard.seeAlso")
+            }}</span>
             <span
               v-for="(ref, refIdx) in entry.refs"
               :key="refIdx"
@@ -332,10 +391,7 @@
               >
                 {{ ref.target }}
               </NuxtLink>
-              <span
-                v-else
-                class="text-graphite dark:text-stone-400"
-              >
+              <span v-else class="text-graphite dark:text-stone-400">
                 {{ ref.target }}
               </span>
               <span
@@ -351,7 +407,8 @@
             v-if="showDetails && entry.meta?.usage"
             class="mt-4 text-sm text-graphite dark:text-stone-400"
           >
-            <span class="font-semibold">{{ t('dictCard.usage') }}</span> {{ entry.meta.usage }}
+            <span class="font-semibold">{{ t("dictCard.usage") }}</span>
+            {{ entry.meta.usage }}
           </div>
         </div>
       </div>
@@ -360,87 +417,95 @@
 </template>
 
 <script setup lang="ts">
-import type { DictionaryEntry } from '~/types/dictionary'
+import type { DictionaryEntry } from "~/types/dictionary";
 
-const { t } = useI18n()
-const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
-const { getEntryTypeLabel, getDialectLabel, isCantoDict, formatDefinitionWithLinks, getEntryJyutpingList, getEntryJyutping, getEntryOriginalPhonetic, getEntryOriginalPhoneticList, getEntryFeedbackDescription } = useDictionaryEntry()
-const { wordPath } = useAppRoutes()
+const { t } = useI18n();
+const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
+const {
+  getEntryTypeLabel,
+  getDialectLabel,
+  isCantoDict,
+  formatDefinitionWithLinks,
+  getEntryJyutpingList,
+  getEntryJyutping,
+  getEntryOriginalPhonetic,
+  getEntryOriginalPhoneticList,
+  getEntryFeedbackDescription,
+} = useDictionaryEntry();
+const { wordPath } = useAppRoutes();
 
 interface Props {
-  entries: DictionaryEntry[]
-  showDetails?: boolean
-  stickyHeader?: boolean
-  stickyOffset?: number
-  cardClickable?: boolean
+  entries: DictionaryEntry[];
+  showDetails?: boolean;
+  stickyHeader?: boolean;
+  stickyOffset?: number;
+  cardClickable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showDetails: true,
   stickyHeader: false,
   stickyOffset: 0,
-  cardClickable: false
-})
+  cardClickable: false,
+});
 
-const entries = computed(() => props.entries || [])
+const entries = computed(() => props.entries || []);
 const headerClasses = computed(() => [
-  'card-header px-3 sm:px-6 py-3 sm:py-4 transition-colors duration-300',
+  "card-header px-3 sm:px-6 py-3 sm:py-4 transition-colors duration-300",
   props.stickyHeader
-    ? 'sticky z-[5] bg-surface-low/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-surface-low/90 supports-[backdrop-filter]:dark:bg-stone-900/90'
-    : ''
-])
+    ? "sticky z-[5] bg-surface-low/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-surface-low/90 supports-[backdrop-filter]:dark:bg-stone-900/90"
+    : "",
+]);
 const stickyHeaderStyle = computed(() => {
-  if (!props.stickyHeader) return undefined
+  if (!props.stickyHeader) return undefined;
   return {
-    top: `${Math.max(0, props.stickyOffset)}px`
-  }
-})
-const primary = computed(() => entries.value[0] as DictionaryEntry)
+    top: `${Math.max(0, props.stickyOffset)}px`,
+  };
+});
+const primary = computed(() => entries.value[0] as DictionaryEntry);
 const primaryWordTo = computed(() => {
-  const word = primary.value?.headword?.display?.trim()
-  if (!word) return null
-  return wordPath(word)
-})
+  const word = primary.value?.headword?.display?.trim();
+  if (!word) return null;
+  return wordPath(word);
+});
 const dictionaryCount = computed(() => {
-  const sources = new Set<string>()
-  entries.value.forEach(entry => {
-    const value = entry.source_book?.trim()
-    if (value) sources.add(value)
-  })
-  return sources.size || entries.value.length
-})
+  const sources = new Set<string>();
+  entries.value.forEach((entry) => {
+    const value = entry.source_book?.trim();
+    if (value) sources.add(value);
+  });
+  return sources.size || entries.value.length;
+});
 const primaryJyutpingSet = computed(() => {
-  const set = new Set<string>()
-  const jps = primary.value?.phonetic?.jyutping || []
-  jps.forEach(jp => {
-    const value = jp?.trim()
-    if (value) set.add(value)
-  })
-  return set
-})
+  const set = new Set<string>();
+  const jps = primary.value?.phonetic?.jyutping || [];
+  jps.forEach((jp) => {
+    const value = jp?.trim();
+    if (value) set.add(value);
+  });
+  return set;
+});
 
 const getEntrySourceBookLabel = (entry: DictionaryEntry) => {
-  return getLocalizedSourceBookLabel(entry.source_book)
-}
-
+  return getLocalizedSourceBookLabel(entry.source_book);
+};
 
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
-  if (!entry || entry.id === primary.value?.id) return false
-  const entryJps = getEntryJyutpingList(entry)
-  if (entryJps.length === 0) return false
-  const primarySet = primaryJyutpingSet.value
-  return entryJps.some(jp => !primarySet.has(jp))
-}
+  if (!entry || entry.id === primary.value?.id) return false;
+  const entryJps = getEntryJyutpingList(entry);
+  if (entryJps.length === 0) return false;
+  const primarySet = primaryJyutpingSet.value;
+  return entryJps.some((jp) => !primarySet.has(jp));
+};
 
 const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
-  const originalList = getEntryOriginalPhoneticList(entry)
-  if (originalList.length === 0) return false
-  const primarySet = primaryJyutpingSet.value
-  if (primarySet.size === 0) return true
-  if (originalList.length !== primarySet.size) return true
-  return originalList.some(value => !primarySet.has(value))
-}
-
+  const originalList = getEntryOriginalPhoneticList(entry);
+  if (originalList.length === 0) return false;
+  const primarySet = primaryJyutpingSet.value;
+  if (primarySet.size === 0) return true;
+  if (originalList.length !== primarySet.size) return true;
+  return originalList.some((value) => !primarySet.has(value));
+};
 </script>
 
 <style scoped>

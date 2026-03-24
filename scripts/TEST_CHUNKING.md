@@ -7,6 +7,7 @@ Wiktionary 适配器现在支持自动分片，在数据生成完成后会自动
 ## 配置状态
 
 ✅ 适配器配置完成：
+
 - `enable_chunking: true` - 启用自动分片
 - `chunk_output_dir: 'wiktionary'` - 分片输出目录
 - `postProcess()` 函数 - 自动执行分片
@@ -64,6 +65,7 @@ node scripts/jsonl-to-json.js \
 ```
 
 预期输出：
+
 - ✅ 生成完整 JSON 文件
 - ✅ 自动执行分片
 - ✅ 生成 2-5 个分片文件
@@ -83,6 +85,7 @@ ls public/dictionaries/wiktionary/*.json | wc -l
 ```
 
 检查项：
+
 - ✅ 分片文件存在（20-30 个 .json 文件）
 - ✅ manifest.json 存在
 - ✅ 各分片文件大小合理（0.5-8 MB）
@@ -91,6 +94,7 @@ ls public/dictionaries/wiktionary/*.json | wc -l
 ### 3. 前端功能测试
 
 1. 启动开发服务器（如果未运行）：
+
    ```bash
    npm run dev
    ```
@@ -110,22 +114,24 @@ ls public/dictionaries/wiktionary/*.json | wc -l
 
 ## 性能对比
 
-| 场景 | 优化前 | 优化后 | 改善 |
-|------|--------|--------|------|
-| 首次访问 | 下载 135MB | 0 MB | ↓ 100% |
-| 搜索 "book" | 已加载 | 下载 4MB | ↓ 97% |
-| 搜索 "nei5" | 已加载 | 下载 2.5MB | ↓ 98% |
-| 内存占用 | ~200 MB | ~30 MB | ↓ 85% |
+| 场景        | 优化前     | 优化后     | 改善   |
+| ----------- | ---------- | ---------- | ------ |
+| 首次访问    | 下载 135MB | 0 MB       | ↓ 100% |
+| 搜索 "book" | 已加载     | 下载 4MB   | ↓ 97%  |
+| 搜索 "nei5" | 已加载     | 下载 2.5MB | ↓ 98%  |
+| 内存占用    | ~200 MB    | ~30 MB     | ↓ 85%  |
 
 ## 故障排除
 
 ### 问题：分片未自动执行
 
 **症状**：
+
 - 只生成了 `wiktionary-cantonese.json`
 - 没有生成 `wiktionary/` 目录
 
 **检查**：
+
 ```bash
 # 1. 确认配置正确
 node -e "import('./scripts/adapters/wiktionary-cantonese.js').then(m => console.log(m.DICTIONARY_INFO.enable_chunking))"
@@ -136,9 +142,11 @@ node -e "import('./scripts/adapters/wiktionary-cantonese.js').then(m => console.
 ### 问题：前端未使用分片
 
 **症状**：
+
 - 浏览器仍然下载 `wiktionary-cantonese.json`
 
 **检查**：
+
 ```bash
 # 1. 确认索引文件配置正确
 cat public/dictionaries/index.json | grep -A 5 wiktionary
@@ -151,10 +159,12 @@ cat public/dictionaries/index.json | grep -A 5 wiktionary
 ### 问题：分片文件缺失
 
 **症状**：
+
 - 搜索某些词语失败
 - 控制台报 404 错误
 
 **解决**：
+
 ```bash
 # 重新运行分片脚本
 node scripts/split-dictionary.cjs \
@@ -170,9 +180,9 @@ node scripts/split-dictionary.cjs \
 // scripts/adapters/wiktionary-cantonese.js
 export const DICTIONARY_INFO = {
   // ...
-  enable_chunking: false,  // 改为 false
+  enable_chunking: false, // 改为 false
   // ...
-}
+};
 ```
 
 ## 手动分片
@@ -191,4 +201,3 @@ node scripts/split-dictionary.cjs \
 - 适配器源码：`scripts/adapters/wiktionary-cantonese.js`
 - 分片脚本：`scripts/split-dictionary.cjs`
 - 前端实现：`composables/useDictionary.ts`
-

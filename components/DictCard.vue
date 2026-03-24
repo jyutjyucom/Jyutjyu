@@ -1,11 +1,17 @@
 <template>
   <div class="dict-card bg-surface-low dark:bg-stone-900 overflow-hidden">
     <!-- 头部：词头 + 粤拼 -->
-    <div class="card-header px-6 py-4 border-b border-outline-soft/20 dark:border-stone-800">
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
+    <div
+      class="card-header px-6 py-4 border-b border-outline-soft/20 dark:border-stone-800"
+    >
+      <div
+        class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4"
+      >
         <!-- 词头部分 -->
         <div class="flex-1 min-w-0">
-          <h3 class="text-2xl font-bold text-ink dark:text-stone-100 mb-1 break-words">
+          <h3
+            class="text-2xl font-bold text-ink dark:text-stone-100 mb-1 break-words"
+          >
             <NuxtLink
               :to="wordPath(entry.headword.display)"
               class="hover:text-kapok transition-colors"
@@ -18,7 +24,7 @@
               class="ml-2 text-xs text-muted-gold font-normal"
               :title="t('dictCard.placeholderWord')"
             >
-              {{ t('dictCard.placeholderWord') }}
+              {{ t("dictCard.placeholderWord") }}
             </span>
             <!-- 同形异义标记 -->
             <sup
@@ -28,7 +34,7 @@
               {{ entry.meta.variant_number }}
             </sup>
           </h3>
-          
+
           <!-- 粤拼 + 原书注音（紧跟在词头下方） -->
           <div class="mt-2">
             <!-- 多个粤拼读音 -->
@@ -46,41 +52,59 @@
                 v-if="getOriginalPhonetic(entry, idx)"
                 class="text-xs text-graphite/60 dark:text-stone-200 break-words"
               >
-                <span class="text-graphite/40 dark:text-stone-300">{{ t('dictCard.originalPhonetic') }}</span>{{ getOriginalPhonetic(entry, idx) }}
+                <span class="text-graphite/40 dark:text-stone-300">{{
+                  t("dictCard.originalPhonetic")
+                }}</span
+                >{{ getOriginalPhonetic(entry, idx) }}
               </div>
             </div>
           </div>
-          
+
           <!-- 异形词 -->
           <p
-            v-if="entry.meta?.headword_variants && entry.meta.headword_variants.length > 0"
+            v-if="
+              entry.meta?.headword_variants &&
+              entry.meta.headword_variants.length > 0
+            "
             class="text-sm text-graphite dark:text-stone-400 break-words mt-2"
           >
-            {{ t('dictCard.variantWords') }}{{ entry.meta.headword_variants.join('、') }}
+            {{ t("dictCard.variantWords")
+            }}{{ entry.meta.headword_variants.join("、") }}
           </p>
           <!-- 如果显示词和标准词不同，显示标准词 -->
           <p
             v-if="entry.headword.display !== entry.headword.normalized"
             class="text-sm text-graphite/60 dark:text-stone-200 break-words mt-1"
           >
-            {{ t('dictCard.standardWriting') }}{{ entry.headword.normalized }}
+            {{ t("dictCard.standardWriting") }}{{ entry.headword.normalized }}
           </p>
         </div>
 
         <!-- 右侧：标签（反馈放在最后一个） -->
-        <div class="flex flex-wrap gap-2 md:justify-end md:mt-0 md:ml-4 md:max-w-[40%]">
+        <div
+          class="flex flex-wrap gap-2 md:justify-end md:mt-0 md:ml-4 md:max-w-[40%]"
+        >
           <!-- 来源词典: ID -->
-          <span class="px-3 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-lg text-sm whitespace-nowrap">
-            {{ localizedSourceBook }}<template v-if="entry.source_id">: {{ entry.source_id }}</template>
+          <span
+            class="px-3 py-1 bg-kapok/10 dark:bg-kapok/20 text-kapok rounded-lg text-sm whitespace-nowrap"
+          >
+            {{ localizedSourceBook
+            }}<template v-if="entry.source_id"
+              >: {{ entry.source_id }}</template
+            >
           </span>
 
           <!-- 方言 -->
-          <span class="px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-lg text-sm whitespace-nowrap">
+          <span
+            class="px-3 py-1 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-lg text-sm whitespace-nowrap"
+          >
             {{ dialectLabel }}
           </span>
 
           <!-- 词条类型 -->
-          <span class="px-3 py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-lg text-sm whitespace-nowrap">
+          <span
+            class="px-3 py-1 bg-muted-gold/10 dark:bg-amber-900/40 text-muted-gold dark:text-amber-300 rounded-lg text-sm whitespace-nowrap"
+          >
             {{ entryTypeLabel }}
           </span>
 
@@ -105,7 +129,7 @@
             :entry-data="{
               word: entry.headword.display,
               source: entry.source_book,
-              id: entry.id
+              id: entry.id,
             }"
             :initial-description="entryFeedbackDescription"
             initial-type="entry-error"
@@ -131,7 +155,7 @@
             v-if="entry.senses.length > 1"
             class="flex-shrink-0 text-kapok font-bold italic font-serif text-sm"
           >
-            {{ String(senseIdx + 1).padStart(2, '0') }}
+            {{ String(senseIdx + 1).padStart(2, "0") }}
           </span>
 
           <div class="flex-1">
@@ -175,7 +199,7 @@
                     {{ subSense.definition }}
                   </span>
                 </div>
-                
+
                 <!-- 子义项的例句 -->
                 <div
                   v-if="subSense.examples && subSense.examples.length > 0"
@@ -191,10 +215,7 @@
                       class="text-ink/80 dark:text-stone-300 text-base"
                       v-html="formatDefinitionWithLinks(example.text)"
                     ></p>
-                    <p
-                      v-else
-                      class="text-ink/80 dark:text-stone-300 text-base"
-                    >
+                    <p v-else class="text-ink/80 dark:text-stone-300 text-base">
                       {{ example.text }}
                     </p>
                     <!-- 例句粤拼 -->
@@ -218,7 +239,11 @@
 
             <!-- 例句（仅在没有子义项时显示） -->
             <div
-              v-if="(!sense.sub_senses || sense.sub_senses.length === 0) && sense.examples && sense.examples.length > 0"
+              v-if="
+                (!sense.sub_senses || sense.sub_senses.length === 0) &&
+                sense.examples &&
+                sense.examples.length > 0
+              "
               class="space-y-2"
             >
               <div
@@ -231,10 +256,7 @@
                   class="text-ink/80 dark:text-stone-300 text-base"
                   v-html="formatDefinitionWithLinks(example.text)"
                 ></p>
-                <p
-                  v-else
-                  class="text-ink/80 dark:text-stone-300 text-base"
-                >
+                <p v-else class="text-ink/80 dark:text-stone-300 text-base">
                   {{ example.text }}
                 </p>
                 <!-- 例句粤拼 -->
@@ -261,15 +283,25 @@
       <div
         v-if="entry.meta?.notes"
         class="mt-4 p-3 border-l-4 text-sm"
-        :class="entry.meta?.note_type === 'proofreader'
-          ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
-          : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'"
+        :class="
+          entry.meta?.note_type === 'proofreader'
+            ? 'bg-surface-low dark:bg-stone-900 border-kapok/40 text-ink/80 dark:text-stone-300'
+            : 'bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-ink/80 dark:text-stone-300'
+        "
       >
-        <span 
+        <span
           class="font-semibold"
-          :class="entry.meta?.note_type === 'proofreader' ? 'text-kapok' : 'text-muted-gold'"
+          :class="
+            entry.meta?.note_type === 'proofreader'
+              ? 'text-kapok'
+              : 'text-muted-gold'
+          "
         >
-          {{ entry.meta?.note_type === 'proofreader' ? t('dictCard.proofreaderNote') : t('dictCard.note') }}
+          {{
+            entry.meta?.note_type === "proofreader"
+              ? t("dictCard.proofreaderNote")
+              : t("dictCard.note")
+          }}
         </span>
         {{ entry.meta.notes }}
       </div>
@@ -279,7 +311,9 @@
         v-if="entry.meta?.etymology && typeof entry.meta.etymology === 'string'"
         class="mt-4 p-3 border-l-4 bg-surface-low dark:bg-stone-900 border-archive-green/40 text-sm text-ink/80 dark:text-stone-300"
       >
-        <span class="font-semibold text-archive-green">{{ t('dictCard.etymology') }}</span>
+        <span class="font-semibold text-archive-green">{{
+          t("dictCard.etymology")
+        }}</span>
         {{ entry.meta.etymology }}
       </div>
 
@@ -288,12 +322,11 @@
         v-if="entry.meta?.references && entry.meta.references.length > 0"
         class="mt-4 p-3 border-l-4 bg-surface-low dark:bg-stone-900 border-muted-gold/40 text-sm text-ink/80 dark:text-stone-300"
       >
-        <span class="font-semibold text-muted-gold">{{ t('dictCard.references') }}</span>
+        <span class="font-semibold text-muted-gold">{{
+          t("dictCard.references")
+        }}</span>
         <ul class="mt-2 space-y-2">
-          <li
-            v-for="(ref, refIdx) in entry.meta.references"
-            :key="refIdx"
-          >
+          <li v-for="(ref, refIdx) in entry.meta.references" :key="refIdx">
             <!-- 作者和作品 -->
             <span v-if="ref.author" class="font-medium">{{ ref.author }}</span>
             <span v-if="ref.work">《{{ ref.work }}》</span>
@@ -301,22 +334,19 @@
             <!-- 引文（用 ～ 代替词头） -->
             <span v-if="ref.quote">{{ ref.quote }}</span>
             <!-- 出处 -->
-            <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200">（{{ ref.source }}）</span>
+            <span v-if="ref.source" class="text-graphite/60 dark:text-stone-200"
+              >（{{ ref.source }}）</span
+            >
           </li>
         </ul>
       </div>
 
       <!-- 参见 -->
-      <div
-        v-if="entry.refs && entry.refs.length > 0"
-        class="mt-4 text-sm"
-      >
-        <span class="text-graphite/60 dark:text-stone-200">{{ t('dictCard.seeAlso') }}</span>
-        <span
-          v-for="(ref, refIdx) in entry.refs"
-          :key="refIdx"
-          class="ml-2"
-        >
+      <div v-if="entry.refs && entry.refs.length > 0" class="mt-4 text-sm">
+        <span class="text-graphite/60 dark:text-stone-200">{{
+          t("dictCard.seeAlso")
+        }}</span>
+        <span v-for="(ref, refIdx) in entry.refs" :key="refIdx" class="ml-2">
           <NuxtLink
             v-if="ref.type === 'word'"
             :to="wordPath(ref.target)"
@@ -324,10 +354,7 @@
           >
             {{ ref.target }}
           </NuxtLink>
-          <span
-            v-else
-            class="text-graphite dark:text-stone-400"
-          >
+          <span v-else class="text-graphite dark:text-stone-400">
             {{ ref.target }}
           </span>
           <span
@@ -349,7 +376,10 @@
         class="text-sm text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 flex items-center gap-1"
         @click="detailsExpanded = !detailsExpanded"
       >
-        <span>{{ detailsExpanded ? t('dictCard.collapse') : t('dictCard.expand') }} {{ t('dictCard.details') }}</span>
+        <span
+          >{{ detailsExpanded ? t("dictCard.collapse") : t("dictCard.expand") }}
+          {{ t("dictCard.details") }}</span
+        >
         <svg
           class="w-4 h-4 transition-transform"
           :class="{ 'rotate-180': detailsExpanded }"
@@ -357,7 +387,12 @@
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -366,7 +401,8 @@
         class="mt-3 text-sm text-graphite dark:text-stone-400 space-y-1"
       >
         <p v-if="entry.meta?.usage">
-          <span class="font-semibold">{{ t('dictCard.usage') }}</span> {{ entry.meta.usage }}
+          <span class="font-semibold">{{ t("dictCard.usage") }}</span>
+          {{ entry.meta.usage }}
         </p>
       </div>
     </div>
@@ -374,86 +410,87 @@
 </template>
 
 <script setup lang="ts">
-import type { DictionaryEntry } from '~/types/dictionary'
-import { hasDialectI18n } from '~/constants/dialect'
+import type { DictionaryEntry } from "~/types/dictionary";
+import { hasDialectI18n } from "~/constants/dialect";
 
-const { t } = useI18n()
-const { getLocalizedSourceBookLabel } = useLocalizedDictionary()
-const { wordPath } = useAppRoutes()
-const { getEntryFeedbackDescription: buildEntryFeedbackDescription } = useDictionaryEntry()
+const { t } = useI18n();
+const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
+const { wordPath } = useAppRoutes();
+const { getEntryFeedbackDescription: buildEntryFeedbackDescription } =
+  useDictionaryEntry();
 
 interface Props {
-  entry: DictionaryEntry
-  showDetails?: boolean
+  entry: DictionaryEntry;
+  showDetails?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showDetails: true
-})
+  showDetails: true,
+});
 
-const detailsExpanded = ref(false)
+const detailsExpanded = ref(false);
 
 // 根据 source_book 获取本地化的词典名称
 const localizedSourceBook = computed(() =>
-  getLocalizedSourceBookLabel(props.entry.source_book)
-)
+  getLocalizedSourceBookLabel(props.entry.source_book),
+);
 
 // 为反馈构造包含当前词条完整信息的描述文本，方便用户直接在此基础上修改
 const entryFeedbackDescription = computed(() =>
-  buildEntryFeedbackDescription(props.entry)
-)
+  buildEntryFeedbackDescription(props.entry),
+);
 
 // 词条类型标签
 const entryTypeLabel = computed(() => {
   const labels = {
-    character: t('dictCard.entryTypeCharacter'),
-    word: t('dictCard.entryTypeWord'),
-    phrase: t('dictCard.entryTypePhrase')
-  }
-  return labels[props.entry.entry_type] || props.entry.entry_type
-})
+    character: t("dictCard.entryTypeCharacter"),
+    word: t("dictCard.entryTypeWord"),
+    phrase: t("dictCard.entryTypePhrase"),
+  };
+  return labels[props.entry.entry_type] || props.entry.entry_type;
+});
 
 // 方言标签：使用地区代码映射（便于 i18n）
 const dialectLabel = computed(() => {
-  const code = props.entry.dialect?.region_code?.toUpperCase()
+  const code = props.entry.dialect?.region_code?.toUpperCase();
   if (hasDialectI18n(code)) {
-    return t(`dictCard.dialect.${code}`)
+    return t(`dictCard.dialect.${code}`);
   }
   // 回退：无地区代码时使用原始名称（兼容旧数据）
-  return props.entry.dialect?.name || ''
-})
+  return props.entry.dialect?.name || "";
+});
 
 // 是否有额外信息（不包括词源和语域，因为它们已在顶部展示）
 const hasExtraInfo = computed(() => {
-  return !!(
-    props.entry.meta?.usage
-  )
-})
+  return !!props.entry.meta?.usage;
+});
 
 // 判断是否为粤典
 const isCantoDict = computed(() => {
-  return props.entry.source_book === '粵典 (words.hk)' || 
-         props.entry.source_book === '粵典'
-})
+  return (
+    props.entry.source_book === "粵典 (words.hk)" ||
+    props.entry.source_book === "粵典"
+  );
+});
 
 /**
  * 将释义中以#开头的词组转换为可点击的搜索链接
  * 仅用于粤典词条
  */
 const formatDefinitionWithLinks = (definition: string): string => {
-  if (!definition) return ''
-  
+  if (!definition) return "";
+
   // 匹配以#开头的词组（仅汉字）
   // 使用排除法：排除 ASCII 字符、空格、中文标点、全角字符等
   // 这样可以自动支持所有汉字区块（包括未来的扩展区块）
-  const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g
-  
+  const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g;
+
   return definition.replace(regex, (match, word) => {
     // 生成词条链接
-    const wordUrl = wordPath(word)
-    return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`
-  })
-}
+    const wordUrl = wordPath(word);
+    return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`;
+  });
+};
 
 /**
  * 统一获取指定索引的原书注音
@@ -463,85 +500,89 @@ const formatDefinitionWithLinks = (definition: string): string => {
  * @returns 原书注音字符串或null
  */
 const getOriginalPhonetic = (entry: any, idx: number): string | null => {
-  const original = entry.phonetic.original
-  const jyutpingArray = entry.phonetic.jyutping || []
-  const currentJyutping = jyutpingArray[idx]
-  
+  const original = entry.phonetic.original;
+  const jyutpingArray = entry.phonetic.jyutping || [];
+  const currentJyutping = jyutpingArray[idx];
+
   if (!original || (Array.isArray(original) && original.length === 0)) {
-    return null
+    return null;
   }
-  
+
   // 如果 original 是数组
   if (Array.isArray(original)) {
     // 如果数组只有一个元素，只在第一个粤拼时显示
     if (original.length === 1) {
       if (idx === 0) {
-        const singleOriginal = original[0]
+        const singleOriginal = original[0];
         // 如果原书注音等于当前粤拼，不显示
-        if (singleOriginal === currentJyutping) return null
-        return singleOriginal
+        if (singleOriginal === currentJyutping) return null;
+        return singleOriginal;
       }
-      return null
+      return null;
     }
     // 数组有多个元素时，返回对应索引的值
-    const matchedOriginal = original[idx]
+    const matchedOriginal = original[idx];
     if (matchedOriginal && matchedOriginal !== currentJyutping) {
-      return matchedOriginal
+      return matchedOriginal;
     }
-    return null
+    return null;
   }
-  
+
   // 如果 original 是单个值，只在第一个粤拼时显示
   if (idx === 0) {
     // 如果原书注音等于当前粤拼，不显示
-    if (original === currentJyutping) return null
-    
+    if (original === currentJyutping) return null;
+
     // 检查是否是冒号分隔的多读音格式 (hk-cantowords)
-    if (original.includes(':')) {
-      const originalParts = original.split(':').map((p: string) => p.trim())
-      const jyutpingSet = new Set(jyutpingArray)
-      
+    if (original.includes(":")) {
+      const originalParts = original.split(":").map((p: string) => p.trim());
+      const jyutpingSet = new Set(jyutpingArray);
+
       // 如果所有原始读音部分都在 jyutping 数组中，说明已经正确拆分显示，不显示
       if (originalParts.every((part: string) => jyutpingSet.has(part))) {
-        return null
+        return null;
       }
     }
-    
+
     // 检查是否是括号变体格式 (gz-practical-classified)
     // 例如: "baau6 (biu6, beu6)" 或 "dit1 (dik1) gam3 doe1 (do1)"
-    if (original.includes('(') || original.includes('（')) {
+    if (original.includes("(") || original.includes("（")) {
       // 提取所有独立的读音：去掉括号，用空格和逗号分割
       const cleanedOriginal = original
-        .replace(/[（(]/g, ' ')
-        .replace(/[）)]/g, ' ')
-        .replace(/[,，]/g, ' ')
-      const allSyllables = cleanedOriginal.split(/\s+/).filter((s: string) => s.trim())
-      
+        .replace(/[（(]/g, " ")
+        .replace(/[）)]/g, " ")
+        .replace(/[,，]/g, " ");
+      const allSyllables = cleanedOriginal
+        .split(/\s+/)
+        .filter((s: string) => s.trim());
+
       // 检查 jyutping 数组是否覆盖了所有提取的读音
-      const syllableSet = new Set(allSyllables)
-      
+      const syllableSet = new Set(allSyllables);
+
       // 方法1：检查所有独立音节是否都出现在 jyutping 数组中（单字多音情况）
-      const allSyllablesInJyutping = allSyllables.every((s: string) => 
-        jyutpingArray.includes(s) || jyutpingArray.some((jp: string) => jp.includes(s))
-      )
-      
+      const allSyllablesInJyutping = allSyllables.every(
+        (s: string) =>
+          jyutpingArray.includes(s) ||
+          jyutpingArray.some((jp: string) => jp.includes(s)),
+      );
+
       // 方法2：检查 jyutping 数组中的所有项是否都由原始音节组成
       const allJyutpingFromSyllables = jyutpingArray.every((jp: string) => {
-        const jpSyllables = jp.split(/\s+/)
-        return jpSyllables.every((s: string) => syllableSet.has(s))
-      })
-      
+        const jpSyllables = jp.split(/\s+/);
+        return jpSyllables.every((s: string) => syllableSet.has(s));
+      });
+
       if (allSyllablesInJyutping || allJyutpingFromSyllables) {
-        return null
+        return null;
       }
     }
-    
+
     // 其他情况显示原书注音（如耶鲁拼音等不同的注音系统）
-    return original
+    return original;
   }
-  
-  return null
-}
+
+  return null;
+};
 </script>
 
 <style scoped>

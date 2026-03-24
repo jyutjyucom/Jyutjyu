@@ -14,10 +14,7 @@ const resolvedUseApi = resolveUseApi();
 const i18nLocales = LOCALE_ROUTE_DEFINITIONS.map(
   ({ prefix: _prefix, ...locale }) => locale,
 );
-const prerenderStaticRoutes = [
-  "/",
-  "/about",
-];
+const prerenderStaticRoutes = ["/", "/about"];
 const localizedPrerenderRoutes = LOCALE_ROUTE_DEFINITIONS.flatMap(
   ({ prefix }) =>
     prerenderStaticRoutes.map((route) => applyLocalePrefix(route, prefix)),

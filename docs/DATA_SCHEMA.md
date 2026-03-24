@@ -3,6 +3,7 @@
 ## 1. 概述
 
 本文档定义了粤语辞丛项目的核心数据结构，包括：
+
 - TypeScript 类型定义（JSON 格式）
 - CSV 输入格式规范
 - 数据转换逻辑说明
@@ -27,39 +28,39 @@
  * - word: 词语（双字及以上）
  * - phrase: 短语/俗语
  */
-type EntryType = 'character' | 'word' | 'phrase';
+type EntryType = "character" | "word" | "phrase";
 
 /**
  * 参见类型
  * - word: 参见其他词条（站内跳转）
  * - section: 参见书中章节（显示提示）
  */
-type RefType = 'word' | 'section';
+type RefType = "word" | "section";
 
 /**
  * 方言信息
  */
 interface Dialect {
-  name: string;           // 方言名称: '广州话' | '钦州白话' | '北海白话'
-  region_code?: string;   // 地区代码: 'GZ' | 'QZ' | 'BH' (可选，用于可视化)
+  name: string; // 方言名称: '广州话' | '钦州白话' | '北海白话'
+  region_code?: string; // 地区代码: 'GZ' | 'QZ' | 'BH' (可选，用于可视化)
 }
 
 /**
  * 词头信息（处理异形词、括号、推荐写法）
  */
 interface Headword {
-  display: string;        // 原书写法（展示用）: "阿（亚）SIR"
-  search: string;         // 清洗后（搜索用）: "阿Sir" 或 "亚Sir"
-  normalized: string;     // 推荐标准写法: "阿Sir"
-  is_placeholder: boolean;// 是否包含开天窗字 □
+  display: string; // 原书写法（展示用）: "阿（亚）SIR"
+  search: string; // 清洗后（搜索用）: "阿Sir" 或 "亚Sir"
+  normalized: string; // 推荐标准写法: "阿Sir"
+  is_placeholder: boolean; // 是否包含开天窗字 □
 }
 
 /**
  * 标音信息
  */
 interface Phonetic {
-  original: string;       // 原书注音（如耶鲁拼音、不规范拼音）
-  jyutping: string[];     // 粤拼（数组支持多音）: ["aa3", "aa3 soe4"]
+  original: string; // 原书注音（如耶鲁拼音、不规范拼音）
+  jyutping: string[]; // 粤拼（数组支持多音）: ["aa3", "aa3 soe4"]
   tone_sandhi?: string[]; // 变调信息（可选）
 }
 
@@ -67,27 +68,27 @@ interface Phonetic {
  * 释义单元（支持多义项）
  */
 interface Sense {
-  definition: string;     // 释义内容
-  label?: string;         // 词性/分类标签: "[名词]" | "[形容词]" | "旧时"
-  examples?: Example[];   // 例句/组词数组
+  definition: string; // 释义内容
+  label?: string; // 词性/分类标签: "[名词]" | "[形容词]" | "旧时"
+  examples?: Example[]; // 例句/组词数组
 }
 
 /**
  * 例句/组词
  */
 interface Example {
-  text: string;           // 例句内容: "阿Sir早晨"
-  jyutping?: string;      // 例句拼音（可选）
-  translation?: string;   // 翻译（普通话/英文，可选）
+  text: string; // 例句内容: "阿Sir早晨"
+  jyutping?: string; // 例句拼音（可选）
+  translation?: string; // 翻译（普通话/英文，可选）
 }
 
 /**
  * 参见引用
  */
 interface Reference {
-  type: RefType;          // 引用类型
-  target: string;         // 目标: "臊虾仔" 或 "二C2"
-  url?: string;           // 内部链接（构建时生成）
+  type: RefType; // 引用类型
+  target: string; // 目标: "臊虾仔" 或 "二C2"
+  url?: string; // 内部链接（构建时生成）
 }
 
 /**
@@ -95,44 +96,44 @@ interface Reference {
  */
 interface DictionaryEntry {
   // --- 唯一标识 ---
-  id: string;             // 唯一ID: "dict_gz_practical_0001"
-  source_book: string;    // 来源词典: "实用广州话分类词典"
-  source_id?: string;     // 原书编号（如有）: "A-001"
-  
+  id: string; // 唯一ID: "dict_gz_practical_0001"
+  source_book: string; // 来源词典: "实用广州话分类词典"
+  source_id?: string; // 原书编号（如有）: "A-001"
+
   // --- 方言维度 ---
   dialect: Dialect;
-  
+
   // --- 词头与标音 ---
   headword: Headword;
   phonetic: Phonetic;
-  
+
   // --- 词条类型 ---
   entry_type: EntryType;
-  
+
   // --- 释义（核心内容，结构化数组）---
   senses: Sense[];
-  
+
   // --- 参见系统 ---
   refs?: Reference[];
-  
+
   // --- 搜索优化字段（构建时生成）---
-  keywords: string[];     // 包含：简体、繁体、无声调拼音、拆字等
-  
+  keywords: string[]; // 包含：简体、繁体、无声调拼音、拆字等
+
   // --- 词典特有字段 ---
   meta: {
-    category?: string;    // 分类（"实用分类词典"特有）: "职业" | "饮食"
-    pos?: string;         // 词性: "名词" | "动词"
-    etymology?: string;   // 词源（"词源词典"特有）
-    usage?: string;       // 用法说明（"俗语词典"特有）
-    region?: string;      // 地域变体信息
-    register?: string;    // 语域: "口语" | "书面" | "粗俗"
-    notes?: string;       // 备注/典故
-    [key: string]: any;   // 允许任意其他扩展字段
+    category?: string; // 分类（"实用分类词典"特有）: "职业" | "饮食"
+    pos?: string; // 词性: "名词" | "动词"
+    etymology?: string; // 词源（"词源词典"特有）
+    usage?: string; // 用法说明（"俗语词典"特有）
+    region?: string; // 地域变体信息
+    register?: string; // 语域: "口语" | "书面" | "粗俗"
+    notes?: string; // 备注/典故
+    [key: string]: any; // 允许任意其他扩展字段
   };
-  
+
   // --- 元数据 ---
-  created_at?: string;    // 创建时间（ISO 8601）
-  updated_at?: string;    // 更新时间（ISO 8601）
+  created_at?: string; // 创建时间（ISO 8601）
+  updated_at?: string; // 更新时间（ISO 8601）
 }
 ```
 
@@ -178,8 +179,15 @@ interface DictionaryEntry {
     }
   ],
   "keywords": [
-    "阿Sir", "阿sir", "aa3soe4", "aa3 soe4", "aasoe4",
-    "阿", "sir", "警察", "jing2 caat3"
+    "阿Sir",
+    "阿sir",
+    "aa3soe4",
+    "aa3 soe4",
+    "aasoe4",
+    "阿",
+    "sir",
+    "警察",
+    "jing2 caat3"
   ],
   "meta": {
     "category": "职业称谓",
@@ -230,8 +238,13 @@ interface DictionaryEntry {
     }
   ],
   "keywords": [
-    "阿茂整饼", "阿茂", "整饼", "aa3mau6zing2beng2",
-    "亚茂整饼", "无章法", "乱来"
+    "阿茂整饼",
+    "阿茂",
+    "整饼",
+    "aa3mau6zing2beng2",
+    "亚茂整饼",
+    "无章法",
+    "乱来"
   ],
   "meta": {
     "usage": "贬义，多用于批评",
@@ -273,9 +286,7 @@ interface DictionaryEntry {
       ]
     }
   ],
-  "keywords": [
-    "□嘢", "mat1je5", "matje5", "什么", "乜嘢", "咩嘢"
-  ],
+  "keywords": ["□嘢", "mat1je5", "matje5", "什么", "乜嘢", "咩嘢"],
   "meta": {
     "notes": "有音无字，常见异形词写法：乜嘢、咩嘢"
   }
@@ -307,25 +318,17 @@ interface DictionaryEntry {
     {
       "definition": "鸟虫用翼在空中活动",
       "label": "[动词]",
-      "examples": [
-        { "text": "雀仔飞咗去" },
-        { "text": "飞机" }
-      ]
+      "examples": [{ "text": "雀仔飞咗去" }, { "text": "飞机" }]
     },
     {
       "definition": "形容快速",
       "label": "[形容词]",
-      "examples": [
-        { "text": "飞快" },
-        { "text": "健步如飞" }
-      ]
+      "examples": [{ "text": "飞快" }, { "text": "健步如飞" }]
     },
     {
       "definition": "消失，走掉",
       "label": "[动词]",
-      "examples": [
-        { "text": "佢飞咗去边" }
-      ]
+      "examples": [{ "text": "佢飞咗去边" }]
     }
   ],
   "refs": [
@@ -355,28 +358,28 @@ interface DictionaryEntry {
 
 ### 3.1 基础字段（所有词典必填）
 
-| 列名 | 说明 | 示例 |
-|------|------|------|
-| `id` | 行ID（可选，用于聚合） | GZ001 |
-| `parent_id` | 父ID（字词关系） | - |
-| `headword_display` | 原书词头 | 阿（亚）SIR |
-| `headword_normalized` | 推荐写法 | 阿Sir |
-| `jyutping` | 粤拼（空格分隔） | aa3 soe4 |
-| `original_romanization` | 原书注音 | aa3 soe4 |
-| `entry_type` | 类型 | word |
-| `definition` | 释义 | 警察 |
-| `examples` | 例句（`\|` 分隔） | 阿Sir早晨\|差佬阿Sir |
-| `label` | 词性/标签 | [名词] |
+| 列名                    | 说明                   | 示例                 |
+| ----------------------- | ---------------------- | -------------------- |
+| `id`                    | 行ID（可选，用于聚合） | GZ001                |
+| `parent_id`             | 父ID（字词关系）       | -                    |
+| `headword_display`      | 原书词头               | 阿（亚）SIR          |
+| `headword_normalized`   | 推荐写法               | 阿Sir                |
+| `jyutping`              | 粤拼（空格分隔）       | aa3 soe4             |
+| `original_romanization` | 原书注音               | aa3 soe4             |
+| `entry_type`            | 类型                   | word                 |
+| `definition`            | 释义                   | 警察                 |
+| `examples`              | 例句（`\|` 分隔）      | 阿Sir早晨\|差佬阿Sir |
+| `label`                 | 词性/标签              | [名词]               |
 
 ### 3.2 特有字段（按词典类型）
 
-| 列名 | 说明 | 适用词典 |
-|------|------|----------|
-| `category` | 分类 | 实用分类词典 |
-| `usage` | 用法说明 | 俗语词典 |
-| `etymology` | 词源 | 词源词典 |
-| `ref_word` | 参见词条 | 所有 |
-| `ref_section` | 参见章节 | 所有 |
+| 列名          | 说明     | 适用词典     |
+| ------------- | -------- | ------------ |
+| `category`    | 分类     | 实用分类词典 |
+| `usage`       | 用法说明 | 俗语词典     |
+| `etymology`   | 词源     | 词源词典     |
+| `ref_word`    | 参见词条 | 所有         |
+| `ref_section` | 参见章节 | 所有         |
 
 ### 3.3 CSV 多行聚合示例
 
@@ -433,14 +436,14 @@ GZ002,GZ001,飞发,fei1 faat3,word,理发
 function extractSearchVariants(display) {
   // "阿（亚）SIR" → ["阿SIR", "亚SIR"]
   const regex = /(\w*)\((\w+)\)(\w*)/g;
-  let variants = [display.replace(/[()]/g, '')]; // 基础版本
-  
+  let variants = [display.replace(/[()]/g, "")]; // 基础版本
+
   let match;
   while ((match = regex.exec(display)) !== null) {
     const [, before, inside, after] = match;
     variants.push(before + inside + after);
   }
-  
+
   return [...new Set(variants)];
 }
 ```
@@ -450,27 +453,27 @@ function extractSearchVariants(display) {
 ```javascript
 function generateKeywords(entry) {
   const keywords = new Set();
-  
+
   // 1. 词头变体
   keywords.add(entry.headword.display);
   keywords.add(entry.headword.normalized);
-  entry.headword.search.split(',').forEach(v => keywords.add(v));
-  
+  entry.headword.search.split(",").forEach((v) => keywords.add(v));
+
   // 2. 简繁转换
-  const simplified = OpenCC.convertSync(entry.headword.normalized, 't2s');
+  const simplified = OpenCC.convertSync(entry.headword.normalized, "t2s");
   keywords.add(simplified);
-  
+
   // 3. 粤拼变体
-  entry.phonetic.jyutping.forEach(jp => {
-    keywords.add(jp);                      // "aa3 soe4"
-    keywords.add(jp.replace(/\s/g, ''));  // "aa3soe4"
-    keywords.add(removeTones(jp));         // "aa sir"
+  entry.phonetic.jyutping.forEach((jp) => {
+    keywords.add(jp); // "aa3 soe4"
+    keywords.add(jp.replace(/\s/g, "")); // "aa3soe4"
+    keywords.add(removeTones(jp)); // "aa sir"
   });
-  
+
   // 4. 拆字
   const chars = entry.headword.normalized.match(/[\u4e00-\u9fa5]/g);
-  if (chars) chars.forEach(c => keywords.add(c));
-  
+  if (chars) chars.forEach((c) => keywords.add(c));
+
   return Array.from(keywords);
 }
 ```
@@ -483,13 +486,13 @@ function generateKeywords(entry) {
 
 ```javascript
 const requiredFields = [
-  'headword.display',
-  'headword.normalized',
-  'phonetic.jyutping',
-  'entry_type',
-  'senses',
-  'dialect.name',
-  'source_book'
+  "headword.display",
+  "headword.normalized",
+  "phonetic.jyutping",
+  "entry_type",
+  "senses",
+  "dialect.name",
+  "source_book",
 ];
 ```
 
@@ -500,7 +503,7 @@ const requiredFields = [
 const jyutpingRegex = /^[a-z]+[1-6](\s[a-z]+[1-6])*$/;
 
 function validateJyutping(jyutping) {
-  return jyutping.every(jp => jyutpingRegex.test(jp));
+  return jyutping.every((jp) => jyutpingRegex.test(jp));
 }
 ```
 
@@ -509,11 +512,11 @@ function validateJyutping(jyutping) {
 ```javascript
 // 检查所有 type='word' 的 refs.target 是否存在对应词条
 function validateReferences(entries) {
-  const headwords = new Set(entries.map(e => e.headword.normalized));
-  
-  entries.forEach(entry => {
-    entry.refs?.forEach(ref => {
-      if (ref.type === 'word' && !headwords.has(ref.target)) {
+  const headwords = new Set(entries.map((e) => e.headword.normalized));
+
+  entries.forEach((entry) => {
+    entry.refs?.forEach((ref) => {
+      if (ref.type === "word" && !headwords.has(ref.target)) {
         console.warn(`Missing ref: ${ref.target} in ${entry.id}`);
       }
     });
@@ -617,4 +620,3 @@ data/raw/
 
 **维护者**: @jyutjyucom  
 **最后更新**: 2025-12-31
-

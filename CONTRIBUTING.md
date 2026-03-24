@@ -81,6 +81,7 @@
   ```
 
 ⚠️ **贡献者注意**：
+
 - 不要直接修改粵典数据，如发现错误请向 words.hk 反馈
 - 本项目仅用于技术演示和学习研究
 - 如需商业使用，请直接联系 words.hk (info@words.hk)
@@ -98,6 +99,7 @@
 💡 **默认协议**：所有个人原创词表的贡献者，默认同意将其内容以 **[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)** 协议发布。
 
 这意味着：
+
 - ✅ 他人可以在**非商业用途**下自由复制、分享和改编您的作品
 - ✅ 必须**明确署名**原作者
 - ❌ 不可用于盈利目的
@@ -105,6 +107,7 @@
 **其他许可方式**：如果您希望采用其他许可方式（如 CC0、CC BY、CC BY-SA），请在提交 Pull Request 时在描述中特别说明。
 
 **署名格式示例**：
+
 ```
 作者姓名. (年份). 词表名称. 粤语辞丛 (jyutjyu.com)
 ```
@@ -120,10 +123,12 @@
 如果您是收录内容的权利人（作者、出版社、版权继承人等），对本平台的使用有任何疑问或意见：
 
 **联系方式**:
+
 - **GitHub Issues** (推荐): https://github.com/jyutjyucom/jyutjyu/issues
 - **GitHub Discussions**: https://github.com/jyutjyucom/jyutjyu/discussions
 
 **回应承诺**:
+
 - 常规请求：7个工作日内回应
 - 紧急下架请求：48小时内处理
 
@@ -144,6 +149,7 @@
 
 **方式 B - 提供新词典**  
 如果你有粤语词典资源（纸质或电子）:
+
 1. 在 [Discussions](https://github.com/jyutjyucom/jyutjyu/discussions) 发帖说明
 2. 与维护者讨论版权和录入方案
 3. 获得批准后开始 OCR 或手工录入
@@ -151,6 +157,7 @@
 #### Step 2: 学习 CSV 规范
 
 详细阅读 [CSV 录入规范](./docs/CSV_GUIDE.md)，了解:
+
 - 必填字段
 - 粤拼格式
 - 多义项处理
@@ -164,6 +171,7 @@
 4. **保存为 UTF-8 编码的 CSV**
 
 **校对技巧**:
+
 - 每录入 50-100 条，运行一次验证脚本
 - 使用 [粤音资料集成](https://jyut.net) 核对粤拼
 - 遇到疑问记录在 `notes` 栏
@@ -196,6 +204,7 @@ pnpm run validate -- data/processed/your-file.csv
 ## 数据贡献
 
 ### 词典信息
+
 - **书名/词表名**: 《实用广州话分类词典》
 - **作者**: 麦耘、谭步云
 - **出版社**: 广东人民出版社（如适用）
@@ -204,20 +213,24 @@ pnpm run validate -- data/processed/your-file.csv
 - **数据来源**: [请选择：出版词典扫描 / 个人原创整理 / 公有领域]
 
 ### 完成情况
+
 - [x] OCR 提取（或手工录入）
 - [x] 人工校对
 - [x] 粤拼标注
 - [x] 验证通过
 
 ### 授权信息
+
 - **版权状态**: [请说明：受版权保护 / CC BY-NC 4.0 / CC0 / 公有领域]
 - **使用许可**: [如为原创，请确认同意以 CC BY-NC 4.0 发布；如为出版物，请说明仅用于技术演示]
 - **署名要求**: [建议的署名方式]
 
 ### 备注
+
 部分开天窗字已用 □ 标记，并在 notes 中注明常见写法。
 
 ### Checklist
+
 - [x] 已阅读 CSV 录入规范
 - [x] 已阅读并理解内容授权政策
 - [x] 运行验证脚本无错误
@@ -288,6 +301,7 @@ git push origin feat/your-feature-name
 ```
 
 创建 PR 并详细描述:
+
 - 解决了什么问题
 - 如何测试
 - 截图（如 UI 改动）
@@ -313,6 +327,7 @@ git push origin feat/your-feature-name
 搜索"阿Sir"时，简体"阿sir"无法匹配。
 
 **复现步骤**
+
 1. 打开首页
 2. 输入"阿sir"（全小写）
 3. 点击搜索
@@ -322,6 +337,7 @@ git push origin feat/your-feature-name
 应该能匹配到"阿Sir"词条（忽略大小写）。
 
 **环境**
+
 - 浏览器: Chrome 120
 - 操作系统: macOS 14
 - 网站版本: v0.1.0
@@ -365,32 +381,32 @@ jyutjyu/
 // composables/useDictionary.ts
 export const useDictionary = () => {
   const searchEntries = async (query: string) => {
-    return await queryContent('dictionaries')
+    return await queryContent("dictionaries")
       .where({
         $or: [
-          { 'headword.search': { $contains: query } },
-          { 'keywords': { $contains: query } }
-        ]
+          { "headword.search": { $contains: query } },
+          { keywords: { $contains: query } },
+        ],
       })
-      .find()
-  }
-}
+      .find();
+  };
+};
 ```
 
 #### 2. MiniSearch 集成
 
 ```typescript
 // composables/useSearch.ts
-import MiniSearch from 'minisearch'
+import MiniSearch from "minisearch";
 
 const miniSearch = new MiniSearch({
-  fields: ['headword.search', 'keywords', 'senses.definition'],
-  storeFields: ['id', 'headword', 'phonetic'],
+  fields: ["headword.search", "keywords", "senses.definition"],
+  storeFields: ["id", "headword", "phonetic"],
   searchOptions: {
-    boost: { 'headword.search': 2 },
-    fuzzy: 0.2
-  }
-})
+    boost: { "headword.search": 2 },
+    fuzzy: 0.2,
+  },
+});
 ```
 
 #### 3. 响应式布局
@@ -401,7 +417,7 @@ const miniSearch = new MiniSearch({
   <div class="md:hidden">
     <DictCard v-for="entry in entries" :key="entry.id" :entry="entry" />
   </div>
-  
+
   <!-- 桌面端：表格 -->
   <div class="hidden md:block">
     <DictTable :entries="entries" />
@@ -428,10 +444,10 @@ const miniSearch = new MiniSearch({
 ```vue
 <script setup lang="ts">
 interface Props {
-  entry: DictionaryEntry
+  entry: DictionaryEntry;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 </script>
 ```
 
@@ -538,15 +554,18 @@ A: 当然可以！数据校对、词条补充、错误反馈都是重要贡献�
 ## 📚 参考资源
 
 ### 法律法规
+
 - [中华人民共和国著作权法](https://enipc.court.gov.cn/zh-cn/news/view-405.html)
 - [信息网络传播权保护条例](https://www.cac.gov.cn/2013-02/18/c_126468776.htm)
 
 ### 知识共享协议
+
 - [CC BY-NC 4.0 中文版](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans)
 - [选择许可协议工具](https://creativecommons.org/choose/)
 - [知识共享中国大陆](https://creativecommons.net.cn/)
 
 ### 项目文档
+
 - [数据规范 (DATA_SCHEMA.md)](./docs/DATA_SCHEMA.md)
 - [CSV 录入指南 (CSV_GUIDE.md)](./docs/CSV_GUIDE.md)
 
@@ -572,4 +591,3 @@ A: 当然可以！数据校对、词条补充、错误反馈都是重要贡献�
 **再次感谢你的贡献！** 🙏
 
 每一行代码、每一条数据都是在为粤语文化的保育和传承添砖加瓦。
-
