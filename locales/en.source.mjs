@@ -18,9 +18,9 @@ const messagesEn = {
     pageSize: "Page size",
   },
   common: {
-    siteName: "Jyutjyu",
-    siteSubtitle: "Open Yue Dictionary Collection Platform",
-    siteDescription: "Open platform for Cantonese dictionaries",
+    siteName: "粵語辭叢",
+    siteSubtitle: "Open Cantonese Dictionary Collection Platform",
+    siteDescription: "開源粵語詞典聚合平台",
     metaDescription:
       "Open Cantonese dictionary platform with multi-dictionary search, Jyutping lookup, and comprehensive entries for learners and researchers.",
     metaKeywords: "Cantonese,dictionary,Jyutping,Yue,linguistics,lexicon",
@@ -41,7 +41,7 @@ const messagesEn = {
     examplesPrefix: "Examples:",
     exampleSearchPrefix: "Try searching:",
     loading: "Loading...",
-    changeBatch: "Refresh",
+    changeBatch: "Another batch",
     next: "Next",
     recommendedEntries: "Featured entries",
     includedDictionaries: "Included dictionaries",
@@ -149,11 +149,11 @@ const messagesEn = {
     standardWriting: "Reference headword: ",
     collectedBy: "included in {count} dictionaries",
     dialect: {
-      GZ: "Guangzhou",
+      GZ: "Canton",
       HK: "Hong Kong",
-      QZ: "Qinzhou",
-      KP: "Kaiping",
-      TS: "Taishan",
+      QZ: "Jam Zau",
+      KP: "Hoi Ping",
+      TS: "Toi Saan",
       YUE: "Yue",
     },
     entryTypeCharacter: "Character",
@@ -174,13 +174,13 @@ const messagesEn = {
   about: {
     pageTitle: "About",
     metaDescription:
-      "Learn about Jyutjyu's mission, content licensing policy, and technical stack. We are building an open, inclusive, and sustainable Cantonese dictionary platform.",
-    title: "About Jyutjyu",
+      "Learn about 粵語辭叢's mission, content licensing policy, and technical stack. We are building an open, inclusive, and sustainable Cantonese dictionary platform.",
+    title: "About 粵語辭叢",
     subtitle:
-      "Open Yue Dictionary Collection Platform - an open Cantonese dictionary platform",
+      "Open-sourced Yue Dictionary Collection Platform - an open Cantonese dictionary platform",
     missionTitle: "Mission",
     missionP1:
-      "Jyutjyu is building a practical, modern Cantonese dictionary platform that helps preserve and share Cantonese through contemporary technology.",
+      "粵語辭叢 is building a practical, modern Cantonese / Yue / Jyut dictionary platform that helps preserve and share Cantonese through contemporary technology.",
     missionP2:
       "By bringing together Cantonese dictionaries from multiple sources, we provide learners, researchers, and language enthusiasts with one convenient and comprehensive lookup tool.",
     backHome: "Back to home",
@@ -366,7 +366,8 @@ const messagesEn = {
       buttonLabel: "Try again",
     },
     prefill: {
-      header: "[Current entry details - edit the incorrect parts directly below]",
+      header:
+        "[Current entry details - edit the incorrect parts directly below]",
       headword: "Headword: ",
       normalizedHeadword: "Reference headword: ",
       jyutping: "Jyutping: ",
