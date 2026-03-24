@@ -2,11 +2,6 @@
   <div
     v-if="entries.length > 0"
     class="dict-card bg-surface-low dark:bg-stone-900 overflow-visible transition-colors duration-300 font-cjk-content"
-    :class="cardClickable ? 'cursor-pointer group hover:bg-surface-high dark:hover:bg-stone-800' : ''"
-    :role="cardClickable ? 'link' : undefined"
-    :tabindex="cardClickable ? 0 : undefined"
-    @click="handleCardClick"
-    @keydown.enter.prevent="handleCardKeydown"
   >
     <!-- 头部：词头 + 粤拼（共享信息） -->
     <div
@@ -16,7 +11,16 @@
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
         <div class="flex-1 min-w-0">
           <h3 class="text-xl sm:text-3xl font-sung-content font-bold text-ink dark:text-parchment mb-1 break-words">
+            <NuxtLink
+              v-if="cardClickable && primaryWordTo"
+              :to="primaryWordTo"
+              class="text-inherit hover:text-kapok dark:hover:text-kapok transition-colors underline-offset-2 hover:underline"
+            >
               {{ primary.headword.display }}
+            </NuxtLink>
+            <template v-else>
+              {{ primary.headword.display }}
+            </template>
             <span
               v-if="primary.headword.is_placeholder"
               class="ml-2 text-sm text-kapok font-normal"
@@ -383,9 +387,6 @@ const headerClasses = computed(() => [
   'card-header px-3 sm:px-6 py-3 sm:py-4 transition-colors duration-300',
   props.stickyHeader
     ? 'sticky z-[5] bg-surface-low/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-surface-low/90 supports-[backdrop-filter]:dark:bg-stone-900/90'
-    : '',
-  props.cardClickable
-    ? 'group-hover:bg-surface-high dark:group-hover:bg-stone-800'
     : ''
 ])
 const stickyHeaderStyle = computed(() => {
@@ -395,6 +396,11 @@ const stickyHeaderStyle = computed(() => {
   }
 })
 const primary = computed(() => entries.value[0] as DictionaryEntry)
+const primaryWordTo = computed(() => {
+  const word = primary.value?.headword?.display?.trim()
+  if (!word) return null
+  return wordPath(word)
+})
 const dictionaryCount = computed(() => {
   const sources = new Set<string>()
   entries.value.forEach(entry => {
@@ -433,31 +439,6 @@ const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
   if (primarySet.size === 0) return true
   if (originalList.length !== primarySet.size) return true
   return originalList.some(value => !primarySet.has(value))
-}
-
-const shouldSkipCardNavigation = (target: EventTarget | null): boolean => {
-  const element = target as HTMLElement | null
-  if (!element) return false
-  return !!element.closest('a, button, input, textarea, select, label, [role="button"], [data-no-card-nav]')
-}
-
-const openPrimaryWordPage = () => {
-  const word = primary.value?.headword?.display?.trim()
-  if (!word) return
-  navigateTo(wordPath(word))
-}
-
-const handleCardClick = (event: MouseEvent) => {
-  if (!props.cardClickable) return
-  if (shouldSkipCardNavigation(event.target)) return
-  openPrimaryWordPage()
-}
-
-const handleCardKeydown = (event: KeyboardEvent) => {
-  if (!props.cardClickable) return
-  if (shouldSkipCardNavigation(event.target)) return
-  if (event.key !== 'Enter') return
-  openPrimaryWordPage()
 }
 
 </script>
