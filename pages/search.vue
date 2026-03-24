@@ -386,6 +386,7 @@
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
+import { isJyutpingQuery } from "~/utils/query-classify";
 
 interface AggregatedEntry {
   key: string;
@@ -396,6 +397,7 @@ interface AggregatedEntry {
 const route = useRoute();
 const router = useRouter();
 const { searchBasic, getSuggestions, getMode } = useSearch();
+const { navigateFromSearchInput } = useSearchNavigation();
 const { t, locale } = useI18n();
 const { getAllVariants, ensureInitialized } = useChineseConverter();
 const warmContentFonts = useWarmContentFonts();
@@ -753,15 +755,6 @@ const resultsHeaderLabel = computed(() => {
   return label.replace(/[：:]\s*$/, "");
 });
 
-// 判断查询是否是粤拼查询（只包含字母、数字和空格，不包含中文字符）
-const isJyutpingQuery = (query: string): boolean => {
-  const trimmed = query.trim();
-  if (!trimmed) return false;
-  // 粤拼查询：只包含字母、数字、空格和常见标点，不包含中文字符
-  // 中文字符范围：\u4e00-\u9fa5
-  return !/[\u4e00-\u9fa5]/.test(trimmed);
-};
-
 // 检查词条是否与查询词完全匹配（仅文字搜索时，支持简繁转换）
 const isExactMatch = (entry: DictionaryEntry, query: string): boolean => {
   if (enableReverseSearch.value) {
@@ -1040,10 +1033,14 @@ const loadMore = () => {
 
 // 处理搜索
 const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    router.push(searchPath(searchQuery.value, enableReverseSearch.value));
-    showSuggestions.value = false;
-  }
+  const query = searchQuery.value.trim();
+  if (!query) return;
+
+  showSuggestions.value = false;
+  void navigateFromSearchInput({
+    query,
+    reverse: enableReverseSearch.value,
+  });
 };
 
 // 输入时获取建议
@@ -1070,7 +1067,11 @@ const handleInput = () => {
 const selectSuggestion = (suggestion: string) => {
   searchQuery.value = suggestion;
   showSuggestions.value = false;
-  handleSearch();
+  void navigateFromSearchInput({
+    query: suggestion,
+    reverse: enableReverseSearch.value,
+    knownExactHeadword: !enableReverseSearch.value,
+  });
 };
 
 // 示例搜索

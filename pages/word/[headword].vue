@@ -326,6 +326,7 @@ const { t, locale } = useI18n();
 const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
 const { searchBasic } = useSearch();
+const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
 
 const normalizeComparable = (value: string) =>
@@ -850,7 +851,10 @@ const handleSearch = () => {
   if (!query) return;
 
   optionsExpanded.value = false;
-  router.push(searchPath(query, enableReverseSearch.value));
+  void navigateFromSearchInput({
+    query,
+    reverse: enableReverseSearch.value,
+  });
 };
 
 watch(requestedHeadword, (headword) => {

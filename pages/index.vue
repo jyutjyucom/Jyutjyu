@@ -646,14 +646,13 @@ const {
   browsePath: getBrowsePath,
   homePath,
   localizedPath,
-  searchPath,
   siteUrl,
   wordPath: getWordPath,
 } = useAppRoutes();
+const { navigateFromSearchInput } = useSearchNavigation();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
-const router = useRouter();
 
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>(
@@ -718,7 +717,10 @@ const bookCardIsDark = (index: number) => index % 4 === 0 || index % 4 === 2;
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    router.push(searchPath(searchQuery.value, enableReverseSearch.value));
+    void navigateFromSearchInput({
+      query: searchQuery.value,
+      reverse: enableReverseSearch.value,
+    });
   }
 };
 
