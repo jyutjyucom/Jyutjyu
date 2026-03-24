@@ -23,7 +23,9 @@ export function useWarmContentFonts() {
   const hei = useChironHeiContentFont()
   const sung = useChironSungContentFont()
   return () => {
-    void hei.ensureLoaded()
-    void sung.ensureLoaded()
+    return Promise.all([
+      hei.ensureLoaded(),
+      sung.ensureLoaded()
+    ])
   }
 }

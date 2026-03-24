@@ -187,7 +187,7 @@
 
                 <!-- Loading state -->
                 <div
-                    v-if="loadingRandomEntries && randomEntries.length > 0"
+                    v-if="loadingRandomEntries && randomEntries.length === 0"
                     class="text-center py-16"
                 >
                     <div
@@ -198,228 +198,250 @@
                     </p>
                 </div>
 
-                <!-- Desktop: Asymmetric grid (1 large + 2 small) -->
                 <div
-                    v-if="!loadingRandomEntries && randomEntries.length > 0"
-                    class="hidden md:grid md:grid-cols-12 gap-8"
+                    v-if="randomEntries.length > 0"
+                    class="relative"
                 >
-                    <!-- Large Featured Card (first entry) -->
-                    <NuxtLink
-                        v-if="featuredEntry"
-                        :to="wordPath(featuredEntry.headword.display)"
-                        :prefetch="false"
-                        @click="navigatingToId = featuredEntry.id"
-                        class="md:col-span-7 bg-surface-low dark:bg-stone-900 p-10 lg:p-14 flex flex-col justify-between group cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 relative overflow-hidden font-cjk-content"
+                    <div
+                        class="random-batch-stage"
+                        :class="{ 'is-hidden': !randomEntriesVisible }"
                     >
-                        <!-- Loading overlay -->
-                        <div
-                            v-if="navigatingToId === featuredEntry.id"
-                            class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
-                        >
-                            <div
-                                class="animate-spin w-8 h-8 border-2 border-kapok border-t-transparent rounded-full"
-                            ></div>
-                        </div>
-
-                        <div>
-                            <h3
-                                class="text-5xl lg:text-7xl xl:text-8xl font-sung-content text-ink dark:text-stone-100 mb-6 group-hover:text-kapok transition-colors duration-700 mt-6 break-words"
-                            >
-                                {{ featuredEntry.headword.display }}
-                            </h3>
-                            <div class="flex items-center gap-4 mb-6">
-                                <span
-                                    class="text-2xl text-kapok font-semibold"
-                                    >{{
-                                        featuredEntry.phonetic.jyutping[0]
-                                    }}</span
-                                >
-                            </div>
-                            <p
-                                class="text-lg text-ink/80 dark:text-stone-200 leading-relaxed max-w-md line-clamp-4"
-                            >
-                                {{
-                                    featuredEntry.senses[0]?.definition ||
-                                    t("common.noDefinition")
-                                }}
-                            </p>
-                        </div>
-
-                        <div
-                            class="mt-14 pt-6 border-t border-outline-soft/10 dark:border-stone-800 flex items-center justify-between"
-                        >
-                            <span
-                                class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
-                            >
-                                {{ featuredEntry.source_book }}
-                            </span>
-                            <svg
-                                class="w-5 h-5 text-kapok group-hover:translate-x-2 transition-transform"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M7 17L17 7M17 7H7M17 7v10"
-                                />
-                            </svg>
-                        </div>
-                    </NuxtLink>
-
-                    <!-- Secondary Cards Stack -->
-                    <div class="md:col-span-5 grid grid-cols-1 gap-8">
-                        <NuxtLink
-                            v-for="entry in secondaryEntries"
-                            :key="entry.id"
-                            :to="wordPath(entry.headword.display)"
-                            :prefetch="false"
-                            @click="navigatingToId = entry.id"
-                            class="bg-white dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 p-8 flex gap-8 items-center hover:border-kapok/30 hover:bg-kapok-container/30 dark:hover:bg-kapok/5 transition-all duration-300 relative overflow-hidden font-cjk-content"
-                        >
-                            <!-- Loading overlay -->
-                            <div
-                                v-if="navigatingToId === entry.id"
-                                class="absolute inset-0 bg-white/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
-                            >
-                                <div
-                                    class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
-                                ></div>
-                            </div>
-
-                            <div
-                                class="text-4xl font-sung-content text-ink dark:text-stone-100 shrink-0 max-w-[45%] break-words leading-tight"
-                            >
-                                {{ entry.headword.display }}
-                            </div>
-                            <div class="min-w-0">
-                                <span
-                                    class="text-base text-kapok font-semibold tracking-widest block mb-1"
-                                >
-                                    {{ entry.phonetic.jyutping[0] }}
-                                </span>
-                                <h3
-                                    class="text-lg font-bold text-ink dark:text-stone-100 mb-2"
-                                >
-                                    {{
-                                        entry.senses[0]?.definition ||
-                                        t("common.noDefinition")
-                                    }}
-                                </h3>
-                                <p
-                                    class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
-                                >
-                                    {{ entry.source_book }}
-                                </p>
-                            </div>
-                        </NuxtLink>
-                    </div>
-                </div>
-
-                <!-- Mobile: 1 card at a time -->
-                <div
-                    v-if="!loadingRandomEntries && currentMobileEntry"
-                    class="md:hidden"
-                    @touchstart.passive="onTouchStart"
-                    @touchend.passive="onTouchEnd"
-                >
-                    <div class="relative overflow-hidden">
-                        <Transition :name="mobileCardTransitionName">
+                        <!-- Desktop: Asymmetric grid (1 large + 2 small) -->
+                        <div class="hidden md:grid md:grid-cols-12 gap-8">
+                            <!-- Large Featured Card (first entry) -->
                             <NuxtLink
-                                :key="currentMobileEntry.id"
-                                :to="wordPath(currentMobileEntry.headword.display)"
+                                v-if="featuredEntry"
+                                :to="wordPath(featuredEntry.headword.display)"
                                 :prefetch="false"
-                                @click="navigatingToId = currentMobileEntry.id"
-                                class="mobile-random-card block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden font-cjk-content"
+                                @click="navigatingToId = featuredEntry.id"
+                                class="md:col-span-7 bg-surface-low dark:bg-stone-900 p-10 lg:p-14 flex flex-col justify-between group cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 relative overflow-hidden font-cjk-content"
                             >
                                 <!-- Loading overlay -->
                                 <div
-                                    v-if="navigatingToId === currentMobileEntry.id"
+                                    v-if="navigatingToId === featuredEntry.id"
                                     class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
                                 >
                                     <div
-                                        class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
+                                        class="animate-spin w-8 h-8 border-2 border-kapok border-t-transparent rounded-full"
                                     ></div>
                                 </div>
-                                <div class="text-center">
+
+                                <div>
                                     <h3
-                                        class="text-5xl font-sung-content text-ink dark:text-stone-100 mb-4"
+                                        class="text-5xl lg:text-7xl xl:text-8xl font-sung-content text-ink dark:text-stone-100 mb-6 group-hover:text-kapok transition-colors duration-700 mt-6 break-words"
                                     >
-                                        {{
-                                            currentMobileEntry.headword.display
-                                        }}
+                                        {{ featuredEntry.headword.display }}
                                     </h3>
-                                    <p class="text-lg text-kapok font-semibold mb-4">
-                                        {{
-                                            currentMobileEntry.phonetic
-                                                .jyutping[0]
-                                        }}
-                                    </p>
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <span
+                                            class="text-2xl text-kapok font-semibold"
+                                            >{{
+                                                featuredEntry.phonetic.jyutping[0]
+                                            }}</span
+                                        >
+                                    </div>
                                     <p
-                                        class="text-graphite dark:text-stone-200 text-base leading-relaxed line-clamp-4 mb-4"
+                                        class="text-lg text-ink/80 dark:text-stone-200 leading-relaxed max-w-md line-clamp-4"
                                     >
                                         {{
-                                            currentMobileEntry.senses[0]
-                                                ?.definition ||
+                                            featuredEntry.senses[0]?.definition ||
                                             t("common.noDefinition")
                                         }}
                                     </p>
+                                </div>
+
+                                <div
+                                    class="mt-14 pt-6 border-t border-outline-soft/10 dark:border-stone-800 flex items-center justify-between"
+                                >
                                     <span
-                                        class="text-xs text-graphite dark:text-stone-200 uppercase tracking-widest"
+                                        class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
                                     >
-                                        {{ currentMobileEntry.source_book }}
+                                        {{ featuredEntry.source_book }}
                                     </span>
+                                    <svg
+                                        class="w-5 h-5 text-kapok group-hover:translate-x-2 transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M7 17L17 7M17 7H7M17 7v10"
+                                        />
+                                    </svg>
                                 </div>
                             </NuxtLink>
-                        </Transition>
-                    </div>
 
-                    <!-- Navigation -->
-                    <div class="flex justify-between items-center mt-4 px-2">
-                        <button
-                            @click="nextMobileEntry"
-                            class="text-kapok font-medium flex items-center gap-1 text-sm"
+                            <!-- Secondary Cards Stack -->
+                            <div class="md:col-span-5 grid grid-cols-1 gap-8">
+                                <NuxtLink
+                                    v-for="entry in secondaryEntries"
+                                    :key="entry.id"
+                                    :to="wordPath(entry.headword.display)"
+                                    :prefetch="false"
+                                    @click="navigatingToId = entry.id"
+                                    class="bg-white dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 p-8 flex gap-8 items-center hover:border-kapok/30 hover:bg-kapok-container/30 dark:hover:bg-kapok/5 transition-all duration-300 relative overflow-hidden font-cjk-content"
+                                >
+                                    <!-- Loading overlay -->
+                                    <div
+                                        v-if="navigatingToId === entry.id"
+                                        class="absolute inset-0 bg-white/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
+                                    >
+                                        <div
+                                            class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
+                                        ></div>
+                                    </div>
+
+                                    <div
+                                        class="text-4xl font-sung-content text-ink dark:text-stone-100 shrink-0 max-w-[45%] break-words leading-tight"
+                                    >
+                                        {{ entry.headword.display }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <span
+                                            class="text-base text-kapok font-semibold tracking-widest block mb-1"
+                                        >
+                                            {{ entry.phonetic.jyutping[0] }}
+                                        </span>
+                                        <h3
+                                            class="text-lg font-bold text-ink dark:text-stone-100 mb-2"
+                                        >
+                                            {{
+                                                entry.senses[0]?.definition ||
+                                                t("common.noDefinition")
+                                            }}
+                                        </h3>
+                                        <p
+                                            class="text-sm text-graphite/60 dark:text-stone-200 font-medium"
+                                        >
+                                            {{ entry.source_book }}
+                                        </p>
+                                    </div>
+                                </NuxtLink>
+                            </div>
+                        </div>
+
+                        <!-- Mobile: 1 card at a time -->
+                        <div
+                            v-if="currentMobileEntry"
+                            class="md:hidden"
+                            @touchstart.passive="onTouchStart"
+                            @touchend.passive="onTouchEnd"
                         >
-                            {{ t("common.next") }}
-                            <svg
-                                class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5l7 7-7 7"
-                                />
-                            </svg>
-                        </button>
-                        <div class="flex gap-2">
-                            <button
-                                v-for="(_, idx) in randomEntries"
-                                :key="idx"
-                                @click="selectMobileEntry(idx)"
-                                class="flex items-center justify-center w-9 h-9 rounded-full transition-all"
-                                :aria-label="
-                                    t('common.switchEntryAria', {
-                                        index: Number(idx) + 1,
-                                    })
-                                "
-                            >
-                                <span
-                                    class="block rounded-full transition-all"
-                                    :class="
-                                        idx === mobileIndex
-                                            ? 'bg-kapok w-5 h-1.5'
-                                            : 'bg-outline-soft dark:bg-stone-700 w-1.5 h-1.5'
-                                    "
-                                />
-                            </button>
+                            <div class="relative overflow-hidden">
+                                <Transition :name="mobileCardTransitionName">
+                                    <NuxtLink
+                                        :key="currentMobileEntry.id"
+                                        :to="wordPath(currentMobileEntry.headword.display)"
+                                        :prefetch="false"
+                                        @click="navigatingToId = currentMobileEntry.id"
+                                        class="mobile-random-card block bg-surface-low dark:bg-stone-900 p-8 active:bg-surface-high dark:active:bg-stone-800 transition-colors relative overflow-hidden font-cjk-content"
+                                    >
+                                        <!-- Loading overlay -->
+                                        <div
+                                            v-if="navigatingToId === currentMobileEntry.id"
+                                            class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
+                                        >
+                                            <div
+                                                class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
+                                            ></div>
+                                        </div>
+                                        <div class="text-center">
+                                            <h3
+                                                class="text-5xl font-sung-content text-ink dark:text-stone-100 mb-4"
+                                            >
+                                                {{
+                                                    currentMobileEntry.headword.display
+                                                }}
+                                            </h3>
+                                            <p class="text-lg text-kapok font-semibold mb-4">
+                                                {{
+                                                    currentMobileEntry.phonetic
+                                                        .jyutping[0]
+                                                }}
+                                            </p>
+                                            <p
+                                                class="text-graphite dark:text-stone-200 text-base leading-relaxed line-clamp-4 mb-4"
+                                            >
+                                                {{
+                                                    currentMobileEntry.senses[0]
+                                                        ?.definition ||
+                                                    t("common.noDefinition")
+                                                }}
+                                            </p>
+                                            <span
+                                                class="text-xs text-graphite dark:text-stone-200 uppercase tracking-widest"
+                                            >
+                                                {{ currentMobileEntry.source_book }}
+                                            </span>
+                                        </div>
+                                    </NuxtLink>
+                                </Transition>
+                            </div>
+                            <!-- Navigation -->
+                            <div class="flex justify-between items-center mt-4 px-2">
+                                <button
+                                    @click="nextMobileEntry"
+                                    class="text-kapok font-medium flex items-center gap-1 text-sm"
+                                >
+                                    {{ t("common.next") }}
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </button>
+                                <div class="flex gap-2">
+                                    <button
+                                        v-for="(_, idx) in randomEntries"
+                                        :key="idx"
+                                        @click="selectMobileEntry(idx)"
+                                        class="flex items-center justify-center w-9 h-9 rounded-full transition-all"
+                                        :aria-label="
+                                            t('common.switchEntryAria', {
+                                                index: Number(idx) + 1,
+                                            })
+                                        "
+                                    >
+                                        <span
+                                            class="block rounded-full transition-all"
+                                            :class="
+                                                idx === mobileIndex
+                                                    ? 'bg-kapok w-5 h-1.5'
+                                                    : 'bg-outline-soft dark:bg-stone-700 w-1.5 h-1.5'
+                                            "
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <Transition name="random-batch-spinner">
+                        <div
+                            v-if="showRandomEntriesSpinner"
+                            class="absolute inset-0 flex items-center justify-center bg-parchment/72 dark:bg-stone-950/72 backdrop-blur-[2px] pointer-events-none"
+                        >
+                            <div class="text-center">
+                                <div
+                                    class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-kapok border-t-transparent"
+                                ></div>
+                                <p class="text-graphite dark:text-stone-200 mt-4 text-sm">
+                                    {{ t("common.loading") }}
+                                </p>
+                            </div>
+                        </div>
+                    </Transition>
                 </div>
 
                 <!-- Initial loading -->
@@ -670,8 +692,6 @@ const mobileIndex = useState<number>("home-mobile-index", () => 0);
 const loadingRandomEntries = ref(false);
 const navigatingToId = ref<string | null>(null);
 
-const { getRandomRecommendedEntries } = useSearch();
-
 // Featured entry (first) and secondary entries (rest) for asymmetric layout
 const featuredEntry = computed(() => randomEntries.value[0] || null);
 const secondaryEntries = computed(() => randomEntries.value.slice(1));
@@ -739,23 +759,97 @@ const wordPath = (headword: string) => getWordPath(headword);
 
 const dictionaryBrowsePath = (dictId?: string) => getBrowsePath(dictId);
 
+const RANDOM_BATCH_FADE_OUT_MS = 180;
+const RANDOM_BATCH_FADE_IN_MS = 220;
+const RANDOM_BATCH_SPINNER_DELAY_MS =
+    RANDOM_BATCH_FADE_OUT_MS + RANDOM_BATCH_FADE_IN_MS;
+
+const randomEntriesVisible = ref(true);
+const showRandomEntriesSpinner = ref(false);
+
+let randomEntriesSpinnerTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const wait = (durationMs: number) =>
+    new Promise<void>((resolve) => {
+        setTimeout(resolve, durationMs);
+    });
+
+const clearRandomEntriesSpinnerTimeout = () => {
+    if (randomEntriesSpinnerTimeout) {
+        clearTimeout(randomEntriesSpinnerTimeout);
+        randomEntriesSpinnerTimeout = null;
+    }
+};
+
+const fetchRandomEntries = async (): Promise<DictionaryEntry[]> => {
+    try {
+        const response = await $fetch<{
+            success?: boolean;
+            results?: DictionaryEntry[];
+        }>("/api/random?count=4");
+
+        return response?.success && Array.isArray(response.results)
+            ? response.results
+            : [];
+    } catch (error) {
+        console.error("加載隨機詞條失敗:", error);
+        return [];
+    }
+};
+
+const revealRandomEntries = async () => {
+    await nextTick();
+    await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+            randomEntriesVisible.value = true;
+            resolve();
+        });
+    });
+    await wait(RANDOM_BATCH_FADE_IN_MS);
+};
+
 const refreshRandomEntries = async () => {
     if (loadingRandomEntries.value) return;
 
     loadingRandomEntries.value = true;
-    warmContentFonts();
+    const hasExistingEntries = randomEntries.value.length > 0;
+
+    if (hasExistingEntries) {
+        randomEntriesVisible.value = false;
+        showRandomEntriesSpinner.value = false;
+        clearRandomEntriesSpinnerTimeout();
+        randomEntriesSpinnerTimeout = setTimeout(() => {
+            if (loadingRandomEntries.value && !randomEntriesVisible.value) {
+                showRandomEntriesSpinner.value = true;
+            }
+        }, RANDOM_BATCH_SPINNER_DELAY_MS);
+    }
+
     try {
-        const entries = await getRandomRecommendedEntries(4);
+        const fetchPromise = fetchRandomEntries();
+        const entries = hasExistingEntries
+            ? (
+                  await Promise.all([
+                      fetchPromise,
+                      wait(RANDOM_BATCH_FADE_OUT_MS),
+                  ])
+              )[0]
+            : await fetchPromise;
+
         if (entries.length > 0) {
+            await warmContentFonts();
             randomEntries.value = entries;
             mobileIndex.value = 0;
         }
-    } catch (error) {
-        console.error("加載隨機詞條失敗:", error);
     } finally {
+        clearRandomEntriesSpinnerTimeout();
+        showRandomEntriesSpinner.value = false;
+
+        if (randomEntries.value.length > 0) {
+            await revealRandomEntries();
+        }
+
         loadingRandomEntries.value = false;
-        // 确保 Vue 响应式更新完成
-        await nextTick();
     }
 };
 
@@ -808,10 +902,13 @@ const onTouchEnd = (e: TouchEvent) => {
 // 只在首次加载且没有缓存数据时加载推荐词条
 onMounted(() => {
     navigatingToId.value = null;
-    warmContentFonts();
     if (randomEntries.value.length === 0) {
         refreshRandomEntries();
     }
+});
+
+onUnmounted(() => {
+    clearRandomEntriesSpinnerTimeout();
 });
 
 const searchTargetUrl = computed(() =>
@@ -865,6 +962,29 @@ useHead(() => ({
 </script>
 
 <style scoped>
+.random-batch-stage {
+    transition:
+        opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.random-batch-stage.is-hidden {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    pointer-events: none;
+}
+
+.random-batch-spinner-enter-active,
+.random-batch-spinner-leave-active {
+    transition: opacity 180ms ease;
+}
+
+.random-batch-spinner-enter-from,
+.random-batch-spinner-leave-to {
+    opacity: 0;
+}
+
 .mobile-card-next-enter-active,
 .mobile-card-next-leave-active,
 .mobile-card-prev-enter-active,
