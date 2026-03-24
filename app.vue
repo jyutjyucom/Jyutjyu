@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-parchment dark:bg-stone-950 transition-colors duration-200">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-kapok focus:text-white focus:text-sm">
-      Skip to content
+      {{ t('common.skipToContent') }}
     </a>
     <NuxtPage />
   </div>
@@ -11,15 +11,66 @@
 import '@fontsource-variable/inter'
 import '~/styles/chiron-hei-ui.css'
 import '~/styles/chiron-sung-ui.css'
+import {
+  buildSeoAlternateLinkDefinitions,
+  buildSeoRoutePath,
+  type RouteQueryLike,
+  withSiteUrl
+} from '~/utils/route-paths'
 
-const { locale } = useI18n()
 const { initTheme } = useTheme()
+const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const { locale, t } = useI18n()
+const localeHead = useLocaleHead({
+  addSeoAttributes: true,
+  addDirAttribute: false
+})
+
+const normalizedSiteUrl = computed(() => String(runtimeConfig.public.siteUrl || ''))
+const currentQuery = computed(() => route.query as RouteQueryLike)
+const seoHead = computed(() => {
+  const i18nLinkEntries = localeHead.value.link as Array<{ hid?: string }>
+  const i18nMetaEntries = localeHead.value.meta as Array<{ hid?: string }>
+  const canonicalHref = withSiteUrl(
+    normalizedSiteUrl.value,
+    buildSeoRoutePath(route.path, currentQuery.value, locale.value)
+  )
+
+  return {
+    htmlAttrs: localeHead.value.htmlAttrs,
+    link: [
+      ...i18nLinkEntries.filter((entry) => {
+        return typeof entry.hid !== 'string' || !entry.hid.startsWith('i18n-')
+      }),
+      ...buildSeoAlternateLinkDefinitions(route.path, normalizedSiteUrl.value, currentQuery.value)
+        .map((entry) => ({
+          hid: entry.id,
+          rel: 'alternate',
+          href: entry.href,
+          hreflang: entry.hreflang
+        })),
+      {
+        hid: 'i18n-can',
+        rel: 'canonical',
+        href: canonicalHref
+      }
+    ],
+    meta: [
+      ...i18nMetaEntries.filter((entry) => entry.hid !== 'i18n-og-url'),
+      {
+        hid: 'i18n-og-url',
+        property: 'og:url',
+        content: canonicalHref
+      }
+    ]
+  }
+})
+
+useHead(() => seoHead.value)
 
 // 全局配置
 useHead({
-  htmlAttrs: {
-    lang: computed(() => locale.value || 'yue-Hant')
-  },
   link: [
     {
       rel: 'preload',

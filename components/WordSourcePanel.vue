@@ -26,7 +26,7 @@
                 : 'text-graphite dark:text-stone-400'
             "
           >
-            {{ entries.length }} 義項
+            {{ t('common.senseCount', { count: entries.length }) }}
           </p>
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
@@ -334,7 +334,7 @@
             >
               <NuxtLink
                 v-if="ref.type === 'word'"
-                :to="`/word/${encodeURIComponent(ref.target)}`"
+                :to="wordPath(ref.target)"
                 class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2"
               >
                 {{ ref.target }}
@@ -400,6 +400,7 @@ defineEmits<{
 
 const { t } = useI18n()
 const { getEntryTypeLabel, getDialectLabel, isCantoDict, formatDefinitionWithLinks, getEntryJyutpingList, getEntryJyutping, getEntryOriginalPhonetic, getEntryOriginalPhoneticList, getEntryFeedbackDescription } = useDictionaryEntry()
+const { wordPath } = useAppRoutes()
 
 const entries = computed(() => props.entries || [])
 const panelClasses = computed(() => {

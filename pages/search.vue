@@ -247,11 +247,11 @@ interface AggregatedEntry {
 
 const route = useRoute()
 const router = useRouter()
-const config = useRuntimeConfig()
 const { searchBasic, getSuggestions, getMode } = useSearch()
 const { t, locale } = useI18n()
 const { getAllVariants, ensureInitialized } = useChineseConverter()
 const warmContentFonts = useWarmContentFonts()
+const { searchPath } = useAppRoutes()
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -844,11 +844,7 @@ const loadMore = () => {
 // 处理搜索
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const params = new URLSearchParams({ q: searchQuery.value })
-    if (enableReverseSearch.value) {
-      params.set('reverse', '1')
-    }
-    router.push(`/search?${params.toString()}`)
+    router.push(searchPath(searchQuery.value, enableReverseSearch.value))
     showSuggestions.value = false
   }
 }
@@ -904,11 +900,7 @@ watch(() => [route.query.q, route.query.reverse], ([newQuery, newReverse]) => {
 // 监听反查开关变化，更新 URL 并重新搜索
 watch(enableReverseSearch, (newValue) => {
   if (process.client && actualSearchQuery.value) {
-    const params = new URLSearchParams({ q: actualSearchQuery.value })
-    if (newValue) {
-      params.set('reverse', '1')
-    }
-    router.replace(`/search?${params.toString()}`)
+    router.replace(searchPath(actualSearchQuery.value, newValue))
   }
 })
 
@@ -942,24 +934,23 @@ onUnmounted(() => {
   }
 })
 
-const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
-const searchCanonicalUrl = computed(() => {
-  if (!siteUrl.value) return ''
-  return `${siteUrl.value}/search`
-})
-
-// SEO
-useHead({
-  title: computed(() => actualSearchQuery.value
+useHead(() => {
+  const pageTitle = actualSearchQuery.value
     ? `${actualSearchQuery.value} - ${t('common.searchHeader')} | ${t('common.siteName')}`
     : `${t('common.searchHeader')} | ${t('common.siteName')}`
-  ),
-  link: searchCanonicalUrl.value
-    ? [{ rel: 'canonical', href: searchCanonicalUrl.value }]
-    : [],
-  meta: [
-    { name: 'robots', content: 'noindex, follow' }
-  ]
+  const pageDescription = actualSearchQuery.value
+    ? `${t('common.searchHeader')}：${actualSearchQuery.value}`
+    : t('common.metaDescription')
+
+  return {
+    title: pageTitle,
+    meta: [
+      { name: 'description', content: pageDescription },
+      { property: 'og:title', content: pageTitle },
+      { property: 'og:description', content: pageDescription },
+      { name: 'robots', content: 'noindex, follow' }
+    ]
+  }
 })
 </script>
 

@@ -1,8 +1,7 @@
 import { getCanonicalHeadwords } from '../utils/word-resolver'
 import { getSitemapLastmod } from '../utils/sitemap-meta'
 import { getBrowseSitemapStaticPaths } from '../utils/sitemap-browse'
-
-const PAGE_SIZE = 50000
+import { SITEMAP_GROUP_CAPACITY } from '../../utils/route-paths'
 
 const getSiteUrl = () => {
   const config = useRuntimeConfig()
@@ -12,10 +11,8 @@ const getSiteUrl = () => {
 export default defineEventHandler(async (event) => {
   const headwords = await getCanonicalHeadwords()
   const browseStaticPaths = await getBrowseSitemapStaticPaths()
-  const firstPageWordCapacity = Math.max(0, PAGE_SIZE - browseStaticPaths.length)
-  const totalPages = headwords.length <= firstPageWordCapacity
-    ? 1
-    : 1 + Math.ceil((headwords.length - firstPageWordCapacity) / PAGE_SIZE)
+  const totalGroups = browseStaticPaths.length + headwords.length
+  const totalPages = Math.max(1, Math.ceil(totalGroups / SITEMAP_GROUP_CAPACITY))
   const siteUrl = getSiteUrl()
   const lastmod = await getSitemapLastmod()
 

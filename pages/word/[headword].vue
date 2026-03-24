@@ -57,7 +57,11 @@
                             d="M15 19l-7-7 7-7"
                         />
                     </svg>
-                    {{ `${backSearchResultCount ?? "..."} 條搜尋結果` }}
+                    {{
+                        t("common.searchResultsCount", {
+                            count: backSearchResultCount ?? "...",
+                        })
+                    }}
                 </NuxtLink>
 
                 <div class="mb-4 sm:mb-8">
@@ -73,7 +77,7 @@
                             :model-value="activeJyutpingId"
                             :tabs="pronunciationTabs"
                             :sticky-offset="appHeaderHeight"
-                            aria-label="Jyutping tabs"
+                            :aria-label="t('common.pronunciationTabsAria')"
                             @update:model-value="handleTabChange"
                         />
                     </div>
@@ -143,7 +147,11 @@
                                                     : 'text-graphite dark:text-stone-400'
                                             "
                                         >
-                                            {{ source.entries.length }} 義項
+                                            {{
+                                                t("common.senseCount", {
+                                                    count: source.entries.length,
+                                                })
+                                            }}
                                         </span>
                                     </button>
                                 </nav>
@@ -233,7 +241,12 @@
                             <NuxtLink
                                 v-for="group in relatedWords.slice(0, 8)"
                                 :key="group.key"
-                                :to="`/word/${encodeURIComponent(group.primary.headword.display || group.primary.headword.normalized)}`"
+                                :to="
+                                    wordPath(
+                                        group.primary.headword.display ||
+                                            group.primary.headword.normalized,
+                                    )
+                                "
                                 class="p-5 bg-surface-low dark:bg-stone-900 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 group"
                             >
                                 <div class="flex justify-between items-start">
@@ -362,10 +375,10 @@ interface PronunciationGroup {
 const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
-const config = useRuntimeConfig();
 const { getLocalizedSourceBookLabel, dictionariesData } =
     useLocalizedDictionary();
 const { searchBasic } = useSearch();
+const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
 
 const normalizeComparable = (value: string) =>
     value.replace(/\s+/g, " ").trim().toLowerCase();
@@ -405,9 +418,7 @@ const canonicalHeadword = computed(() =>
 const searchHeadword = computed(
     () => canonicalHeadword.value || requestedHeadword.value,
 );
-const searchLink = computed(
-    () => `/search?q=${encodeURIComponent(searchHeadword.value)}`,
-);
+const searchLink = computed(() => searchPath(searchHeadword.value));
 const shouldRedirect = computed(() => {
     if (!wordData.value) return false;
     return (
@@ -423,13 +434,10 @@ const redirectToCanonicalIfNeeded = async () => {
 
     redirectingToCanonical.value = true;
     try {
-        await navigateTo(
-            `/word/${encodeURIComponent(canonicalHeadword.value)}`,
-            {
-                redirectCode: 301,
-                replace: true,
-            },
-        );
+        await navigateTo(wordPath(canonicalHeadword.value), {
+            redirectCode: 301,
+            replace: true,
+        });
     } finally {
         redirectingToCanonical.value = false;
     }
@@ -652,7 +660,9 @@ const pronunciationGroups = computed<PronunciationGroup[]>(() => {
         const firstEntry = jpEntries[0];
         const jyutpingList = firstEntry ? getEntryJyutpingList(firstEntry) : [];
         const label =
-            jyutpingList.length > 0 ? jyutpingList.join("; ") : "（未標注）";
+            jyutpingList.length > 0
+                ? jyutpingList.join("; ")
+                : t("common.unannotatedPronunciation");
 
         const sourceMap = new Map<string, DictionaryEntry[]>();
         jpEntries.forEach((entry) => {
@@ -897,13 +907,8 @@ const handleSearch = () => {
     const query = searchQuery.value.trim();
     if (!query) return;
 
-    const params = new URLSearchParams({ q: query });
-    if (enableReverseSearch.value) {
-        params.set("reverse", "1");
-    }
-
     optionsExpanded.value = false;
-    router.push(`/search?${params.toString()}`);
+    router.push(searchPath(query, enableReverseSearch.value));
 };
 
 watch(requestedHeadword, (headword) => {
@@ -942,6 +947,9 @@ const firstDefinition = computed(() => {
 const primaryPronunciationLabel = computed(
     () => pronunciationGroups.value[0]?.label || "",
 );
+const primaryHasPronunciation = computed(
+    () => (pronunciationGroups.value[0]?.jyutpingList.length || 0) > 0,
+);
 
 const primaryDictionaryName = computed(() => {
     const firstSourceLabel =
@@ -963,25 +971,22 @@ const totalDictionaryCount = computed(() => {
     return sourceBooks.size;
 });
 
-const siteUrl = computed(() =>
-    String(config.public.siteUrl || "").replace(/\/+$/, ""),
-);
-const canonicalUrl = computed(() => {
+const wordPageUrl = computed(() => {
     const word = canonicalHeadword.value || requestedHeadword.value;
-    if (!siteUrl.value || !word) return "";
-    return `${siteUrl.value}/word/${encodeURIComponent(word)}`;
+    if (!word) return "";
+    return absoluteUrl(wordPath(word));
 });
+const localizedHomeUrl = computed(() => absoluteUrl(homePath()));
 
 const pageTitle = computed(() => {
     if (!wordData.value) {
         return `${t("common.noResultsTitle")} | ${t("common.siteName")}`;
     }
     const jp =
-        primaryPronunciationLabel.value &&
-        primaryPronunciationLabel.value !== "（未標注）"
+        primaryHasPronunciation.value && primaryPronunciationLabel.value
             ? `（${primaryPronunciationLabel.value}）`
             : "";
-    return `${canonicalHeadword.value}${jp} 粵語解釋 | ${t("common.siteName")}`;
+    return `${canonicalHeadword.value}${jp} ${t("wordPage.metaTitleSuffix")} | ${t("common.siteName")}`;
 });
 
 const pageDescription = computed(() => {
@@ -990,39 +995,42 @@ const pageDescription = computed(() => {
     }
     const summary = firstDefinition.value || t("common.noDefinition");
     const pronunciationPart =
-        primaryPronunciationLabel.value &&
-        primaryPronunciationLabel.value !== "（未標注）"
+        primaryHasPronunciation.value && primaryPronunciationLabel.value
             ? `（${primaryPronunciationLabel.value}）`
             : "";
     const dictionaryPart = primaryDictionaryName.value
-        ? `${primaryDictionaryName.value}詞義`
-        : "粵語詞義";
+        ? t("wordPage.metaDictionaryDefinition", {
+              dictionary: primaryDictionaryName.value,
+          })
+        : t("wordPage.metaFallbackDefinition");
     const coveragePart =
         totalDictionaryCount.value > 1
-            ? `，收錄於 ${totalDictionaryCount.value} 本詞典`
+            ? `，${t("wordPage.metaCoverage", { count: totalDictionaryCount.value })}`
             : "";
     return `${canonicalHeadword.value}${pronunciationPart}，${dictionaryPart}${coveragePart}：${summary}`;
 });
 
 const definedTermData = computed(() => {
-    if (!wordData.value || !canonicalUrl.value) return "";
+    if (!wordData.value || !wordPageUrl.value || !localizedHomeUrl.value)
+        return "";
     return JSON.stringify({
         "@context": "https://schema.org",
         "@type": "DefinedTerm",
         name: canonicalHeadword.value,
         description: pageDescription.value,
         termCode: wordData.value.entries[0]?.id || canonicalHeadword.value,
-        url: canonicalUrl.value,
+        url: wordPageUrl.value,
         inDefinedTermSet: {
             "@type": "DefinedTermSet",
             name: t("common.siteName"),
-            url: siteUrl.value,
+            url: localizedHomeUrl.value,
         },
     });
 });
 
 const breadcrumbData = computed(() => {
-    if (!wordData.value || !siteUrl.value) return "";
+    if (!wordData.value || !localizedHomeUrl.value || !wordPageUrl.value)
+        return "";
     return JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -1031,13 +1039,13 @@ const breadcrumbData = computed(() => {
                 "@type": "ListItem",
                 position: 1,
                 name: t("common.siteName"),
-                item: siteUrl.value,
+                item: localizedHomeUrl.value,
             },
             {
                 "@type": "ListItem",
                 position: 2,
                 name: canonicalHeadword.value,
-                item: canonicalUrl.value,
+                item: wordPageUrl.value,
             },
         ],
     });
@@ -1049,7 +1057,6 @@ useHead(() => {
         { property: "og:title", content: pageTitle.value },
         { property: "og:description", content: pageDescription.value },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: canonicalUrl.value || undefined },
         { name: "twitter:title", content: pageTitle.value },
         { name: "twitter:description", content: pageDescription.value },
     ];
@@ -1074,9 +1081,6 @@ useHead(() => {
 
     return {
         title: pageTitle.value,
-        link: canonicalUrl.value
-            ? [{ rel: "canonical", href: canonicalUrl.value }]
-            : [],
         meta,
         script: scripts,
     };

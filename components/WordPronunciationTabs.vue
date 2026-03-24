@@ -5,11 +5,11 @@
       class="hidden sm:block sticky z-[8] bg-parchment/95 dark:bg-stone-950/95 backdrop-blur supports-[backdrop-filter]:bg-parchment/90 supports-[backdrop-filter]:dark:bg-stone-950/90 -mx-6 md:-mx-8 px-6 md:px-8"
       :style="stickyStyle"
     >
-      <div
-        class="overflow-x-auto py-2"
-        role="tablist"
-        :aria-label="ariaLabel"
-      >
+    <div
+      class="overflow-x-auto py-2"
+      role="tablist"
+      :aria-label="resolvedAriaLabel"
+    >
         <div class="flex flex-nowrap items-center gap-1 min-w-max bg-surface-low dark:bg-stone-900 p-1 w-fit">
           <button
             v-for="(tab, index) in tabs"
@@ -41,7 +41,7 @@
     <!-- Mobile: accordion -->
     <div class="sm:hidden">
       <button
-        aria-label="Select pronunciation"
+        :aria-label="t('common.selectPronunciationAria')"
         :aria-expanded="accordionOpen"
         class="w-full px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-sm font-medium flex items-center justify-between"
         @click="accordionOpen = !accordionOpen"
@@ -93,7 +93,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   stickyOffset: 0,
-  ariaLabel: 'Pronunciation tabs'
+  ariaLabel: ''
 })
 
 const { t } = useI18n()
@@ -107,6 +107,7 @@ const accordionOpen = ref(false)
 const activeTab = computed(() => props.tabs.find(tab => tab.id === props.modelValue) || props.tabs[0])
 const activeLabel = computed(() => activeTab.value?.label || '')
 const activeDictionaryCount = computed(() => activeTab.value?.dictionaryCount || 0)
+const resolvedAriaLabel = computed(() => props.ariaLabel || t('common.pronunciationTabsAria'))
 
 const selectTab = (tabId: string) => {
   emit('update:modelValue', tabId)

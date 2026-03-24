@@ -1,3 +1,5 @@
+import { LOCALE_ROUTE_DEFINITIONS } from '~/utils/route-paths'
+
 /**
  * 词典本地化工具 Composable
  * 
@@ -5,6 +7,24 @@
  */
 export function useLocalizedDictionary() {
   const { locale } = useI18n()
+
+  const buildFallbackLocales = (currentLocale: string) => {
+    const locales = new Set<string>()
+    const normalizedLocale = String(currentLocale || '').trim()
+
+    if (normalizedLocale) {
+      locales.add(normalizedLocale)
+
+      if (normalizedLocale.endsWith('Hans')) {
+        locales.add(normalizedLocale.replace(/Hans$/, 'Hant'))
+      } else if (normalizedLocale.endsWith('Hant')) {
+        locales.add(normalizedLocale.replace(/Hant$/, 'Hans'))
+      }
+    }
+
+    LOCALE_ROUTE_DEFINITIONS.forEach(({ code }) => locales.add(code))
+    return Array.from(locales)
+  }
   
   /**
    * 获取本地化的字段值
@@ -16,18 +36,13 @@ export function useLocalizedDictionary() {
     if (typeof value === 'string') return value
     
     const currentLocale = locale.value
-    
-    // 尝试精确匹配当前语言
-    if (value[currentLocale]) return value[currentLocale]
-    
-    // 回退逻辑：yue-Hans <-> yue-Hant
-    if (currentLocale.startsWith('yue')) {
-      const fallbackLocale = currentLocale.endsWith('Hans') ? 'yue-Hant' : 'yue-Hans'
-      if (value[fallbackLocale]) return value[fallbackLocale]
-    }
+    const fallbackLocales = buildFallbackLocales(currentLocale)
 
-    if (value['yue-Hant']) return value['yue-Hant']
-    if (value['yue-Hans']) return value['yue-Hans']
+    for (const localeCode of fallbackLocales) {
+      if (value[localeCode]) {
+        return value[localeCode]
+      }
+    }
     
     // 如果都没有，返回第一个可用值
     const firstValue = Object.values(value)[0]
