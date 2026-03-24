@@ -39,14 +39,10 @@
 </template>
 
 <script setup lang="ts">
-const { locale, locales, t, setLocale } = useI18n()
+const { locale, locales, t } = useI18n()
+const switchLocalePath = useSwitchLocalePath()
 
-const currentLocale = computed({
-  get: () => locale.value,
-  set: async (value: string) => {
-    await setLocale(value)
-  }
-})
+const currentLocale = computed(() => locale.value)
 
 const currentLocaleLabel = computed(() => localeLabel(currentLocale.value))
 
@@ -58,23 +54,24 @@ const toggleDropdown = () => {
 
 const selectLocale = async (code: string) => {
   if (code !== currentLocale.value) {
-    currentLocale.value = code
+    const nextPath = switchLocalePath(code)
+    if (nextPath) {
+      await navigateTo(nextPath)
+    }
   }
   showDropdown.value = false
 }
 
 const localeLabel = (code: string) => {
-  switch (code) {
-    case 'yue-Hans':
-      return t('common.langYueHans')
-    case 'yue-Hant':
-      return t('common.langYueHant')
-    case 'zh-Hant':
-      return t('common.langZhHant')
-    case 'zh-Hans':
-      return t('common.langZhHans')
-    default:
-      return code
+  const labelKeyByCode: Record<string, string> = {
+    en: 'common.langEn',
+    'yue-Hans': 'common.langYueHans',
+    'yue-Hant': 'common.langYueHant',
+    'zh-Hant': 'common.langZhHant',
+    'zh-Hans': 'common.langZhHans'
   }
+
+  const labelKey = labelKeyByCode[code]
+  return labelKey ? t(labelKey) : code
 }
 </script>

@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-4 flex-1 min-w-0">
-          <NuxtLink to="/" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
+          <NuxtLink :to="homePath()" class="text-lg sm:text-xl font-headline font-bold text-kapok whitespace-nowrap">
             {{ t('common.siteName') }}
           </NuxtLink>
 
@@ -13,7 +13,7 @@
                 :value="searchQuery"
                 type="text"
                 :placeholder="t('common.searchPlaceholder')"
-                aria-label="Search dictionary"
+                :aria-label="t('common.searchDictionaryAria')"
                 class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 focus:outline-none transition-colors"
                 @input="handleQueryInput"
                 @keyup.enter="handleSearch"
@@ -103,12 +103,41 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { homePath } = useAppRoutes()
 
 const headerEl = ref<HTMLElement | null>(null)
 let headerObserver: ResizeObserver | null = null
+let resizeFrame: number | null = null
+let resizeFallbackHandler: (() => void) | null = null
+let lastHeaderHeight = -1
 
-const emitHeaderHeight = () => {
-  emit('height-change', headerEl.value?.offsetHeight || 0)
+const emitHeaderHeight = (height?: number) => {
+  const measuredHeight = typeof height === 'number'
+    ? height
+    : (headerEl.value?.getBoundingClientRect().height || 0)
+  const nextHeight = Math.ceil(measuredHeight)
+
+  if (nextHeight === lastHeaderHeight) {
+    return
+  }
+
+  lastHeaderHeight = nextHeight
+  emit('height-change', nextHeight)
+}
+
+const scheduleHeaderHeightEmit = (height?: number) => {
+  if (!import.meta.client) {
+    return
+  }
+
+  if (resizeFrame !== null) {
+    window.cancelAnimationFrame(resizeFrame)
+  }
+
+  resizeFrame = window.requestAnimationFrame(() => {
+    resizeFrame = null
+    emitHeaderHeight(height)
+  })
 }
 
 const handleQueryInput = (event: Event) => {
@@ -131,26 +160,44 @@ const toggleOptionsExpanded = () => {
 
 watch(() => props.optionsExpanded, async () => {
   await nextTick()
-  emitHeaderHeight()
+  scheduleHeaderHeightEmit()
 })
 
 onMounted(() => {
-  emitHeaderHeight()
-  window.addEventListener('resize', emitHeaderHeight, { passive: true })
+  scheduleHeaderHeightEmit()
 
   if (headerEl.value && 'ResizeObserver' in window) {
-    headerObserver = new ResizeObserver(() => {
-      emitHeaderHeight()
+    headerObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      const borderBoxSize = Array.isArray(entry?.borderBoxSize)
+        ? entry.borderBoxSize[0]
+        : entry?.borderBoxSize
+      const observedHeight = borderBoxSize?.blockSize ?? entry?.contentRect.height
+
+      scheduleHeaderHeightEmit(observedHeight)
     })
     headerObserver.observe(headerEl.value)
+    return
   }
+
+  resizeFallbackHandler = () => {
+    scheduleHeaderHeightEmit()
+  }
+  window.addEventListener('resize', resizeFallbackHandler, { passive: true })
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', emitHeaderHeight)
+  if (resizeFallbackHandler) {
+    window.removeEventListener('resize', resizeFallbackHandler)
+    resizeFallbackHandler = null
+  }
   if (headerObserver) {
     headerObserver.disconnect()
     headerObserver = null
+  }
+  if (resizeFrame !== null) {
+    window.cancelAnimationFrame(resizeFrame)
+    resizeFrame = null
   }
 })
 </script>

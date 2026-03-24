@@ -8,7 +8,7 @@
     />
 
     <main id="main-content" class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-ui">
-        <NuxtLink to="/" class="inline-flex items-center gap-1.5 mb-6 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors">
+        <NuxtLink :to="homePath()" class="inline-flex items-center gap-1.5 mb-6 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -51,8 +51,8 @@ import type { BrowseResponse } from '~/composables/useBrowsePageData'
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const config = useRuntimeConfig()
 const { dictionariesData, getLocalizedValue } = useLocalizedDictionary()
+const { homePath, searchPath } = useAppRoutes()
 
 const searchQuery = ref('')
 const enableReverseSearch = ref(false)
@@ -75,9 +75,7 @@ const currentSortBy = computed(() => {
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const params = new URLSearchParams({ q: searchQuery.value })
-    if (enableReverseSearch.value) params.set('reverse', '1')
-    router.push(`/search?${params.toString()}`)
+    router.push(searchPath(searchQuery.value, enableReverseSearch.value))
   }
 }
 
@@ -127,25 +125,13 @@ const activeDictionaryInfo = computed(() => {
   }
 })
 
-const siteUrl = computed(() => String(config.public.siteUrl || '').replace(/\/+$/, ''))
-const canonicalHref = computed(() => {
-  if (!siteUrl.value) return ''
-  const base = `${siteUrl.value}/browse/${encodeURIComponent(activeDictId.value)}`
-  if (currentPage.value <= 1) return base
-  return `${base}?page=${currentPage.value}`
-})
-
 useHead(() => ({
   title: `${activeDictionaryLabel.value} · ${t('browse.title')} | ${t('common.siteName')}`,
   meta: [
     { name: 'description', content: t('browse.metaDescription') },
     { name: 'robots', content: 'index, follow' },
     { property: 'og:title', content: `${activeDictionaryLabel.value} · ${t('browse.title')} | ${t('common.siteName')}` },
-    { property: 'og:description', content: t('browse.metaDescription') },
-    { property: 'og:url', content: canonicalHref.value || undefined }
-  ],
-  link: canonicalHref.value
-    ? [{ rel: 'canonical', href: canonicalHref.value }]
-    : []
+    { property: 'og:description', content: t('browse.metaDescription') }
+  ]
 }))
 </script>

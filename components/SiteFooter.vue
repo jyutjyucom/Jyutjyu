@@ -42,14 +42,14 @@
                 <ul class="flex flex-col gap-3">
                     <li>
                         <NuxtLink
-                            to="/about"
+                            :to="localizedPath('/about')"
                             class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             >{{ t("common.aboutProject") }}</NuxtLink
                         >
                     </li>
                     <li>
                         <NuxtLink
-                            to="/browse"
+                            :to="localizedPath('/browse')"
                             class="text-sm text-graphite dark:text-stone-100 hover:text-kapok underline-offset-4 hover:underline transition-all"
                             >{{ t("browse.allEntries") }}</NuxtLink
                         >
@@ -109,6 +109,7 @@
 
 <script setup lang="ts">
 const { t } = useI18n();
+const { localizedPath } = useAppRoutes()
 
 interface Props {
     variant?: "home" | "search";

@@ -15,12 +15,15 @@ const messagesYueHans = {
     "allEntries": "全部词条",
     "dictionaries": "词典来源",
     "allSources": "全部词典",
+    "allSourcesDeduped": "全部词典（合并去重后）",
     "pageSize": "每页数量"
   },
   "common": {
     "siteName": "粤语辞丛",
     "siteSubtitle": "Open Yue Dictionary Collection Platform",
     "siteDescription": "开源粤语词典聚合平台",
+    "metaDescription": "开源粤语词典聚合平台，多词典统一搜寻查询、粤拼搜索，粤语学习同研究者嘅便捷工具。",
+    "metaKeywords": "粤语,广州话,词典,粤拼,Cantonese,Jyutping",
     "contribute": "一齐嚟贡献",
     "contributeDescription": "本平台系开源项目，欢迎外部贡献",
     "github": "GitHub",
@@ -31,6 +34,7 @@ const messagesYueHans = {
     "searchButton": "搜寻",
     "reverseSearch": "通过释义反查",
     "reverseSearchTitle": "用释义反查词条",
+    "reverseSearchTooltip": "反查：由释义入面搜寻词语",
     "noDefinition": "暂时未有释义",
     "clickToView": "点击睇详情",
     "reverseSearchShort": "释义反查",
@@ -101,6 +105,7 @@ const messagesYueHans = {
     "langYueHans": "简体粤文",
     "langZhHant": "繁体普通话",
     "langZhHans": "简体普通话",
+    "langEn": "English",
     "exactMatchLabel": "完全匹配",
     "otherResultsLabel": "其他相关结果",
     "sortByRelevance": "相关度",
@@ -114,7 +119,24 @@ const messagesYueHans = {
     "themeSystem": "跟随系统",
     "themeToggle": "切换主题",
     "showMoreDictionaries": "显示更多词典 ({count} 个)",
-    "showLess": "收起"
+    "showLess": "收起",
+    "skipToContent": "跳去主要内容",
+    "searchDictionaryAria": "搜寻词典",
+    "paginationAria": "分页导航",
+    "dictionaryBrowseScopesAria": "词典浏览范围",
+    "selectDictionaryAria": "选择词典",
+    "topPaginationAria": "顶部分页",
+    "pronunciationTabsAria": "粤拼分页",
+    "selectPronunciationAria": "选择读音",
+    "searchResultsCount": "{count} 条搜寻结果",
+    "senseCount": "{count} 义项",
+    "unannotatedPronunciation": "（未标注）"
+  },
+  "wordPage": {
+    "metaTitleSuffix": "粤语解释",
+    "metaDictionaryDefinition": "{dictionary}词义",
+    "metaFallbackDefinition": "粤语词义",
+    "metaCoverage": "收录于 {count} 本词典"
   },
   "dictCard": {
     "placeholderWord": "有音无字",
@@ -186,6 +208,7 @@ const messagesYueHans = {
       "allowed2": "必须保留署名同版权告示",
       "commercialTitle": "商业使用",
       "commercialDesc": "需要另外攞授权（收入低过地区中位数 3 倍嘅小型个人业务可以豁免）",
+      "wordsLicenseNote": "（非商业开放资料授权协议）",
       "wordsCopyright": "版权持有人：香港辞书有限公司",
       "wiktTitle": "维基辞典 - {count} 词条",
       "wiktDesc": "来自维基辞典嘅粤语词条，由全球志愿者协作编写，内容丰富全面。",
@@ -194,6 +217,7 @@ const messagesYueHans = {
       "wiktAllowed3": "修改与演绎：可以修改、混合、转换或者基于呢啲内容再创作",
       "wiktCond1": "署名：必须畀出适当署名，并且提供指向许可协议嘅链接",
       "wiktCond2": "相同方式共享：如果对作品作出修改，必须以相同许可协议再分发",
+      "wiktLicenseNote": "（知识共享 署名-相同方式共享 4.0 国际许可协议）",
       "wiktCopyright": "版权持有人：维基媒体基金会 & 维基辞典贡献者"
     },
     "original": {
@@ -218,6 +242,7 @@ const messagesYueHans = {
       "qzAllowed3": "修改与演绎：可以修改、混合、转换或者基于呢个作品创作",
       "qzConditions1": "保留版权声明：必须保留原始版权声明同许可协议",
       "qzConditions2": "相同方式共享：如果对本作品进行修改，必须以相同许可协议（GPL-3.0）分发",
+      "qzLicenseNote": "（GNU 通用公共许可证 3.0）",
       "qzCopyright": "版权持有人：Lai Joengzit 等。数据来源：https://github.com/LaiJoengzit/hamzau_jyutping"
     },
     "webDict": {
@@ -296,6 +321,27 @@ const messagesYueHans = {
       "title": "提交失败",
       "submitFailed": "提交失败，请稍后再试，或者直接喺 GitHub 提 Issue。",
       "buttonLabel": "提交失败"
+    },
+    "prefill": {
+      "header": "【当前词条信息，请喺呢度直接修改有问题嘅部分】",
+      "headword": "词头：",
+      "normalizedHeadword": "参考词头：",
+      "jyutping": "粤拼：",
+      "originalPhonetic": "原书注音：",
+      "variantWords": "异形词：",
+      "entryType": "类型：",
+      "senseHeading": "【义项 {index}】",
+      "singleSenseHeading": "【义项】",
+      "partOfSpeech": "词性：",
+      "definition": "释义：",
+      "subSense": "- 子义项 {label}：{definition}",
+      "example": "例句：",
+      "translation": "翻译：",
+      "notes": "备注：",
+      "etymology": "词源：",
+      "referencesHeading": "参考文献：",
+      "seeAlso": "参见：",
+      "listSeparator": "、"
     }
   }
 }

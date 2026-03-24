@@ -1,32 +1,7 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
-const loadDictionaryIds = (): string[] => {
-  const candidates = [
-    resolve(process.cwd(), "content/dictionaries/index.json"),
-    resolve(process.cwd(), "public/dictionaries/index.json"),
-  ];
-
-  for (const filePath of candidates) {
-    try {
-      const raw = readFileSync(filePath, "utf8");
-      const parsed = JSON.parse(raw) as {
-        dictionaries?: Array<{ id?: string }>;
-      };
-      if (Array.isArray(parsed?.dictionaries)) {
-        return parsed.dictionaries
-          .map((dict) => String(dict?.id || "").trim())
-          .filter((id) => id);
-      }
-    } catch {
-      // Ignore missing or invalid files
-    }
-  }
-
-  return [];
-};
-
-const dictionaryIds = loadDictionaryIds();
+import {
+  LOCALE_ROUTE_DEFINITIONS,
+  applyLocalePrefix,
+} from "./utils/route-paths";
 const resolveUseApi = (): boolean => {
   const explicit = process.env.NUXT_PUBLIC_USE_API;
   if (explicit === "true") return true;
@@ -36,6 +11,25 @@ const resolveUseApi = (): boolean => {
 };
 
 const resolvedUseApi = resolveUseApi();
+const i18nLocales = LOCALE_ROUTE_DEFINITIONS.map(
+  ({ prefix: _prefix, ...locale }) => locale,
+);
+const prerenderStaticRoutes = [
+  "/",
+  "/about",
+];
+const localizedPrerenderRoutes = LOCALE_ROUTE_DEFINITIONS.flatMap(
+  ({ prefix }) =>
+    prerenderStaticRoutes.map((route) => applyLocalePrefix(route, prefix)),
+);
+const localizedRouteRules = Object.fromEntries(
+  LOCALE_ROUTE_DEFINITIONS.flatMap(({ prefix }) => [
+    [applyLocalePrefix("/word/**", prefix), { swr: 86400 }],
+    [applyLocalePrefix("/browse/**", prefix), { swr: 86400 }],
+    [applyLocalePrefix("/", prefix), { prerender: true }],
+    [applyLocalePrefix("/about", prefix), { prerender: true }],
+  ]),
+);
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -70,26 +64,10 @@ export default defineNuxtConfig({
   i18n: {
     vueI18n: "./i18n.config.ts",
     defaultLocale: "yue-Hant",
-    strategy: "no_prefix",
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL || "https://jyutjyu.com",
+    strategy: "prefix_except_default",
     detectBrowserLanguage: false,
-    locales: [
-      {
-        code: "yue-Hant",
-        name: "粵文",
-      },
-      {
-        code: "yue-Hans",
-        name: "简体粤文",
-      },
-      {
-        code: "zh-Hant",
-        name: "繁體普通話",
-      },
-      {
-        code: "zh-Hans",
-        name: "简体普通话",
-      },
-    ],
+    locales: i18nLocales,
   },
 
   // Nuxt Content 配置
@@ -110,47 +88,26 @@ export default defineNuxtConfig({
   // App 配置
   app: {
     head: {
-      title: "粵語辭叢 - The Yue Dictionary Collection",
+      title: "Jyutjyu - The Yue Dictionary Collection",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "color-scheme", content: "light dark" },
-        {
-          name: "description",
-          content:
-            "開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries",
-        },
-        {
-          name: "keywords",
-          content: "粵語,廣州話,詞典,粵拼,Cantonese,Jyutping",
-        },
         { name: "author", content: "Jyut Collection" },
         {
           name: "google-site-verification",
           content: "n6gCW8_c_OVeNtCgQLEdDxep5cZY5att-ikH1K_kLdw",
         },
-        // Open Graph
-        {
-          property: "og:title",
-          content: "粵語辭叢 - The Yue Dictionary Collection",
-        },
-        {
-          property: "og:description",
-          content:
-            "開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries",
-        },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: "https://jyutjyu.com" },
         { property: "og:image", content: "https://jyutjyu.com/og.png" },
         { property: "og:image:type", content: "image/png" },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
-        { property: "og:image:alt", content: "粵語辭叢" },
-        { property: "og:locale", content: "zh_HK" },
+        { property: "og:image:alt", content: "Jyutjyu" },
         // Twitter
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:image", content: "https://jyutjyu.com/og.png" },
-        { name: "twitter:image:alt", content: "粵語辭叢" },
+        { name: "twitter:image:alt", content: "Jyutjyu" },
       ],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
@@ -190,23 +147,14 @@ export default defineNuxtConfig({
     },
   },
 
-  routeRules: {
-    "/word/**": { swr: 86400 },
-    "/browse/**": { swr: 86400 },
-    "/": { prerender: true },
-    "/about": { prerender: true },
-  },
+  routeRules: localizedRouteRules,
 
   // Nitro 配置（服务端）
   nitro: {
     // Vercel 自动检测 preset，无需显式指定（显式指定会导致本地 preview 失效）
     prerender: {
       crawlLinks: false,
-      routes: [
-        "/",
-        "/browse",
-        ...dictionaryIds.map((id) => `/browse/${encodeURIComponent(id)}`),
-      ],
+      routes: localizedPrerenderRoutes,
     },
   },
 

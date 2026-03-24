@@ -61,7 +61,9 @@
       "Bash(sed -i '' 's/text-lg font-semibold text-ink dark:text-parchment hover:text-kapok/text-lg font-headline font-semibold text-ink dark:text-parchment hover:text-kapok/g' /Users/laufei/Documents/GitHub/Jyutjyu/components/SearchResultsListView.vue)",
       "Bash(npm ls:*)",
       "Bash(npx --yes puppeteer --version)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(find /Users/laufei/Documents/GitHub/Jyutjyu/node_modules/@nuxtjs/i18n -name *.d.ts)",
+      "Bash(git show:*)"
     ]
   }
 }

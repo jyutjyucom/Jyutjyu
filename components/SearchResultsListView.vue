@@ -137,6 +137,7 @@ import type { DictionaryEntry } from '~/types/dictionary'
 
 const { t } = useI18n()
 const router = useRouter()
+const { searchPath, wordPath } = useAppRoutes()
 
 interface AggregatedEntryGroup {
   key: string
@@ -185,13 +186,13 @@ const otherResultsDictionaryCount = computed(() => {
 
 const getWordPath = (group: AggregatedEntryGroup): string => {
   const word = group.primary.headword.display?.trim()
-  if (!word) return '/search'
-  return `/word/${encodeURIComponent(word)}`
+  if (!word) return searchPath()
+  return wordPath(word)
 }
 
 const openWordPage = (group: AggregatedEntryGroup) => {
   const path = getWordPath(group)
-  if (!path || path === '/search') return
+  if (!path || path === searchPath()) return
   router.push(path)
 }
 </script>
