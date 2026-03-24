@@ -17,6 +17,13 @@
                     class="text-graphite dark:text-stone-100 text-sm leading-relaxed mb-4"
                 >
                     {{ t("common.footerCopyright") }}
+                    <a
+                        href="https://github.com/jyutjyucom/jyutjyu"
+                        class="text-kapok hover:text-kapok/80 underline-offset-4 hover:underline transition-all"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >{{ t("common.github") }}</a
+                    >
                 </p>
                 <p
                     class="text-graphite dark:text-stone-100 text-sm leading-relaxed"

@@ -29,7 +29,7 @@ const messagesEn = {
     github: "GitHub",
     contributeData: "Contribute data",
     aboutProject: "About",
-    footerCopyright: "Jyutjyu © 2025-2026 · Open source on",
+    footerCopyright: "Jyutjyu © 2025-2026 · Open source on ",
     searchPlaceholder: "Search headword, Jyutping, or definition...",
     searchButton: "Search",
     reverseSearch: "Reverse search",
