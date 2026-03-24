@@ -4,14 +4,16 @@
  * 新增方言时需同步更新 i18n.config.ts 中 dictCard.dialect。
  */
 export const DIALECT_REGION_CODES_WITH_I18N = new Set<string>([
-  'GZ',
-  'HK',
-  'YUE',
-  'QZ',
-  'KP',
-  'TS'
-])
+  "GZ",
+  "HK",
+  "YUE",
+  "QZ",
+  "KP",
+  "TS",
+]);
 
 export function hasDialectI18n(regionCode: string | undefined): boolean {
-  return !!regionCode && DIALECT_REGION_CODES_WITH_I18N.has(regionCode.toUpperCase())
+  return (
+    !!regionCode && DIALECT_REGION_CODES_WITH_I18N.has(regionCode.toUpperCase())
+  );
 }

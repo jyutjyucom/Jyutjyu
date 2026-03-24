@@ -1,15 +1,15 @@
 @font-face {
-  font-family: 'Chiron Sung HK UI';
+  font-family: "Chiron Sung HK UI";
   font-style: normal;
   font-display: swap;
   font-weight: 200 900;
-  src: url('/fonts/chiron-sung-hk-ui.woff2') format('woff2-variations');
+  src: url("/fonts/chiron-sung-hk-ui.woff2") format("woff2-variations");
 }
 
 @font-face {
-  font-family: 'Chiron Sung HK UI';
+  font-family: "Chiron Sung HK UI";
   font-style: italic;
   font-display: swap;
   font-weight: 200 900;
-  src: url('/fonts/chiron-sung-hk-ui-italic.woff2') format('woff2-variations');
+  src: url("/fonts/chiron-sung-hk-ui-italic.woff2") format("woff2-variations");
 }

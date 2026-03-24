@@ -15,14 +15,14 @@
 ```javascript
 // 1. 词典元数据
 export const DICTIONARY_INFO = {
-  id: 'dict-id',
-  name: '词典名称',
-  dialect: { name: '广州话', region_code: 'GZ' },
+  id: "dict-id",
+  name: "词典名称",
+  dialect: { name: "广州话", region_code: "GZ" },
   // ...
-}
+};
 
 // 2. 必填字段
-export const REQUIRED_FIELDS = ['field1', 'field2']
+export const REQUIRED_FIELDS = ["field1", "field2"];
 
 // 3. 单行转换函数
 export function transformRow(row) {
@@ -54,6 +54,7 @@ id,word,pronunciation,definition,example,dialect_area
 ```
 
 **需要分析**:
+
 - 哪些字段是必填的？
 - 哪些字段包含多个值（需要分割）？
 - 释义和例句是否混合？
@@ -69,82 +70,79 @@ id,word,pronunciation,definition,example,dialect_area
 
 ```javascript
 export const DICTIONARY_INFO = {
-  id: 'my-new-dict',
-  name: '我的新词典',
+  id: "my-new-dict",
+  name: "我的新词典",
   dialect: {
-    name: '广州话',
-    region_code: 'GZ'
+    name: "广州话",
+    region_code: "GZ",
   },
-  source_book: '我的新词典',
-  author: '作者名',
-  publisher: '出版社',
-  year: 2000
-}
+  source_book: "我的新词典",
+  author: "作者名",
+  publisher: "出版社",
+  year: 2000,
+};
 
-export const REQUIRED_FIELDS = ['id', 'word', 'pronunciation', 'definition']
+export const REQUIRED_FIELDS = ["id", "word", "pronunciation", "definition"];
 ```
 
 ### Step 4: 实现 transformRow
 
 ```javascript
-import {
-  generateKeywords,
-  cleanHeadword
-} from '../utils/text-processor.js'
+import { generateKeywords, cleanHeadword } from "../utils/text-processor.js";
 
 // 注意：简繁体转换已移至运行时处理，无需在适配器中处理
 
 export function transformRow(row) {
   // 1. 处理词头
-  const headwordInfo = cleanHeadword(row.word)
-  
+  const headwordInfo = cleanHeadword(row.word);
+
   // 2. 处理粤拼
   const jyutpingArray = row.pronunciation
     .split(/[,;]/)
-    .map(j => j.trim())
-    .filter(j => j)
-  
+    .map((j) => j.trim())
+    .filter((j) => j);
+
   // 3. 构建词条
   const entry = {
-    id: `${DICTIONARY_INFO.id}_${String(row.id).padStart(6, '0')}`,
+    id: `${DICTIONARY_INFO.id}_${String(row.id).padStart(6, "0")}`,
     source_book: DICTIONARY_INFO.source_book,
     source_id: row.id,
-    
+
     dialect: DICTIONARY_INFO.dialect,
-    
+
     headword: {
       display: row.word,
       search: headwordInfo.normalized,
       normalized: headwordInfo.normalized,
-      is_placeholder: headwordInfo.isPlaceholder || false
+      is_placeholder: headwordInfo.isPlaceholder || false,
     },
-    
+
     phonetic: {
       original: row.pronunciation,
-      jyutping: jyutpingArray
+      jyutping: jyutpingArray,
     },
-    
+
     entry_type: guessEntryType(headwordInfo.normalized),
-    
+
     senses: [
       {
         definition: row.definition,
-        examples: row.example ? [{ text: row.example }] : []
-      }
+        examples: row.example ? [{ text: row.example }] : [],
+      },
     ],
-    
+
     meta: {
       // 词典特有字段放这里
-      dialect_area: row.dialect_area
+      dialect_area: row.dialect_area,
     },
-    
-    created_at: new Date().toISOString()
-  }
-  
+
+    created_at: new Date().toISOString(),
+  };
+
   // 4. 生成搜索关键词
-  entry.keywords = generateKeywords(entry)
-  
-  return entry
+  entry.keywords = generateKeywords(entry);
+
+  return entry;
 }
 ```
 
@@ -152,23 +150,23 @@ export function transformRow(row) {
 
 ```javascript
 export function transformAll(rows) {
-  const entries = []
-  const errors = []
-  
+  const entries = [];
+  const errors = [];
+
   rows.forEach((row, index) => {
     try {
-      const entry = transformRow(row)
-      entries.push(entry)
+      const entry = transformRow(row);
+      entries.push(entry);
     } catch (error) {
       errors.push({
         row: index + 2,
         error: error.message,
-        data: row
-      })
+        data: row,
+      });
     }
-  })
-  
-  return { entries, errors }
+  });
+
+  return { entries, errors };
 }
 ```
 
@@ -189,9 +187,10 @@ export function aggregateEntries(entries) {
 
 ```javascript
 const ADAPTERS = {
-  'gz-practical-classified': () => import('./adapters/gz-practical-classified.js'),
-  'my-new-dict': () => import('./adapters/my-new-dict.js'), // 添加这行
-}
+  "gz-practical-classified": () =>
+    import("./adapters/gz-practical-classified.js"),
+  "my-new-dict": () => import("./adapters/my-new-dict.js"), // 添加这行
+};
 ```
 
 ### Step 8: 测试
@@ -219,25 +218,28 @@ node scripts/csv-to-json.js \
 参考 `gz-practical-classified.js`，它展示了如何处理：
 
 1. **特殊标记** (`*哋1`)
+
    ```javascript
-   const headwordInfo = cleanHeadword(row.words)
+   const headwordInfo = cleanHeadword(row.words);
    ```
 
 2. **混合的释义和例句**
+
    ```javascript
-   const { definition, examples } = parseExamples(row.meanings)
+   const { definition, examples } = parseExamples(row.meanings);
    ```
 
 3. **三级分类**
+
    ```javascript
-   const categories = [row.category_1, row.category_2, row.category_3]
-   const categoryPath = categories.filter(c => c).join(' > ')
+   const categories = [row.category_1, row.category_2, row.category_3];
+   const categoryPath = categories.filter((c) => c).join(" > ");
    ```
 
 4. **方括号备注**
    ```javascript
    meta: {
-     notes: parseNote(row.note)
+     notes: parseNote(row.note);
    }
    ```
 
@@ -251,71 +253,75 @@ node scripts/csv-to-json.js \
 
 ```javascript
 export function preprocessRows(rows) {
-  return rows.map(row => {
-    const keys = Object.keys(row)
-    const longKey = keys.find(k => k.length > 100) || keys[2]
-    
+  return rows.map((row) => {
+    const keys = Object.keys(row);
+    const longKey = keys.find((k) => k.length > 100) || keys[2];
+
     return {
-      id: row[''] || '',
-      headwords_jyutping: row['_1'] || '',
-      content: row[longKey] || '',
-      review_status: row['__parsed_extra']?.[1] || '',
-      publish_status: row['__parsed_extra']?.[2] || ''
-    }
-  })
+      id: row[""] || "",
+      headwords_jyutping: row["_1"] || "",
+      content: row[longKey] || "",
+      review_status: row["__parsed_extra"]?.[1] || "",
+      publish_status: row["__parsed_extra"]?.[2] || "",
+    };
+  });
 }
 ```
 
 ### 核心功能实现
 
 1. **复杂的结构化内容**（包含多种标记）
-   
+
    内容格式：`(pos:xxx)` `<explanation>` `<eg>` `yue:` `eng:` `----`
-   
+
    ```javascript
    function parseContent(content) {
      // 按 ---- 分割多个义项
-     const senseParts = content.split(/\n?----\n?/).filter(p => p.trim())
-     
-     senseParts.forEach(sensePart => {
+     const senseParts = content.split(/\n?----\n?/).filter((p) => p.trim());
+
+     senseParts.forEach((sensePart) => {
        // 提取词性：(pos:語句)
-       const posMatch = sensePart.match(/\(pos:([^)]+)\)/)
-       
+       const posMatch = sensePart.match(/\(pos:([^)]+)\)/);
+
        // 分割释义和例句部分
-       const parts = sensePart.split(/<eg>/i)
-       const explanationPart = parts[0]
-       const examplePart = parts[1]
-       
+       const parts = sensePart.split(/<eg>/i);
+       const explanationPart = parts[0];
+       const examplePart = parts[1];
+
        // 提取 yue: 和 eng: 内容
-       const yueMatch = explanationPart.match(/yue:(.+?)(?=\neng:|$)/s)
-       const engMatch = explanationPart.match(/eng:(.+?)$/s)
-     })
+       const yueMatch = explanationPart.match(/yue:(.+?)(?=\neng:|$)/s);
+       const engMatch = explanationPart.match(/eng:(.+?)$/s);
+     });
    }
    ```
 
 2. **多个词头变体**（用冒号和逗号分隔）
-   
+
    格式：`小意思:siu2 ji3 si1,小小意思:siu2 siu2 ji3 si1`
-   
+
    ```javascript
    function parseHeadwordsWithJyutping(headwordsStr) {
-     const variants = []
-     const parts = headwordsStr.split(',').map(p => p.trim()).filter(p => p)
-     
-     parts.forEach(part => {
-       const colonIndex = part.indexOf(':')
+     const variants = [];
+     const parts = headwordsStr
+       .split(",")
+       .map((p) => p.trim())
+       .filter((p) => p);
+
+     parts.forEach((part) => {
+       const colonIndex = part.indexOf(":");
        if (colonIndex > 0) {
          variants.push({
            headword: part.substring(0, colonIndex).trim(),
-           jyutping: part.substring(colonIndex + 1).trim()
-         })
+           jyutping: part.substring(colonIndex + 1).trim(),
+         });
        }
-     })
-     return variants
+     });
+     return variants;
    }
    ```
 
 3. **审核和公开状态**
+
    ```javascript
    meta: {
      review_status: reviewStatus,
@@ -326,15 +332,16 @@ export function preprocessRows(rows) {
    ```
 
 4. **多语言释义和例句**（粤语和英语）
+
    ```javascript
    // 从 yue: 和 eng: 标记中提取
-   const yueMatch = text.match(/yue:(.+?)(?=\neng:|$)/s)
-   const engMatch = text.match(/eng:(.+?)$/s)
-   
+   const yueMatch = text.match(/yue:(.+?)(?=\neng:|$)/s);
+   const engMatch = text.match(/eng:(.+?)$/s);
+
    if (yueMatch) {
-     sense.definition = yueMatch[1].trim()
+     sense.definition = yueMatch[1].trim();
      if (engMatch) {
-       sense.definition += ` (${engMatch[1].trim()})`
+       sense.definition += ` (${engMatch[1].trim()})`;
      }
    }
    ```
@@ -358,6 +365,7 @@ node scripts/csv-to-json.js --dict hk-cantowords --input /tmp/test.csv
 ### 注意事项
 
 ⚠️ **重要**：粵典数据采用《非商业开放资料授权协议 1.0》
+
 - 版权持有人：Hong Kong Lexicography Limited
 - 允许非商业使用，商业使用需授权
 - 详见：https://words.hk/base/hoifong/
@@ -385,108 +393,111 @@ Wiktionary 数据为 JSONL 格式（每行一个JSON对象），需要使用专�
 ### 核心功能实现
 
 1. **筛选粤语词条**
+
    ```javascript
    function isCantoneseEntry(entry) {
      // 检查sounds中是否有Cantonese标签
      if (entry.sounds && Array.isArray(entry.sounds)) {
-       const hasCantoneseSound = entry.sounds.some(sound => 
-         sound.tags?.some(tag => 
-           tag?.toLowerCase().includes('cantonese')
-         )
-       )
-       if (hasCantoneseSound) return true
+       const hasCantoneseSound = entry.sounds.some((sound) =>
+         sound.tags?.some((tag) => tag?.toLowerCase().includes("cantonese")),
+       );
+       if (hasCantoneseSound) return true;
      }
-     return false
+     return false;
    }
    ```
 
 2. **提取粤拼（Jyutping）**
+
    ```javascript
    function extractJyutping(sounds) {
-     const jyutpingSet = new Set()
-     
-     sounds.forEach(sound => {
+     const jyutpingSet = new Set();
+
+     sounds.forEach((sound) => {
        if (sound.tags) {
-         const hasCantonese = sound.tags.some(tag => 
-           tag?.toLowerCase().includes('cantonese')
-         )
-         const hasJyutping = sound.tags.some(tag => 
-           tag?.toLowerCase().includes('jyutping')
-         )
-         
+         const hasCantonese = sound.tags.some((tag) =>
+           tag?.toLowerCase().includes("cantonese"),
+         );
+         const hasJyutping = sound.tags.some((tag) =>
+           tag?.toLowerCase().includes("jyutping"),
+         );
+
          if (hasCantonese && hasJyutping && sound.zh_pron) {
            // 标准化声调标记：¹²³ → 123
-           let normalized = sound.zh_pron
-             .replace(/¹/g, '1')
-             .replace(/²/g, '2')
-             // ...
-           jyutpingSet.add(normalized)
+           let normalized = sound.zh_pron.replace(/¹/g, "1").replace(/²/g, "2");
+           // ...
+           jyutpingSet.add(normalized);
          }
        }
-     })
-     
-     return Array.from(jyutpingSet)
+     });
+
+     return Array.from(jyutpingSet);
    }
    ```
 
 3. **提取IPA音标**
+
    ```javascript
    function extractIPA(sounds) {
      for (const sound of sounds) {
-       if (sound.tags?.some(tag => 
-         tag?.toLowerCase().includes('cantonese')
-       ) && sound.ipa) {
-         return sound.ipa
+       if (
+         sound.tags?.some((tag) => tag?.toLowerCase().includes("cantonese")) &&
+         sound.ipa
+       ) {
+         return sound.ipa;
        }
      }
-     return null
+     return null;
    }
    ```
 
 4. **词性映射（英文→中文）**
+
    ```javascript
    const POS_MAP = {
-     'noun': '名词',
-     'verb': '动词',
-     'adj': '形容词',
-     'adv': '副词',
+     noun: "名词",
+     verb: "动词",
+     adj: "形容词",
+     adv: "副词",
      // ...
-   }
-   
-   const posChinese = POS_MAP[entry.pos?.toLowerCase()] || entry.pos
+   };
+
+   const posChinese = POS_MAP[entry.pos?.toLowerCase()] || entry.pos;
    ```
 
 5. **提取异体字**
+
    ```javascript
    function extractVariants(forms) {
-     const variants = []
-     forms?.forEach(form => {
-       if (form.tags?.includes('alternative')) {
-         variants.push(form.form)
+     const variants = [];
+     forms?.forEach((form) => {
+       if (form.tags?.includes("alternative")) {
+         variants.push(form.form);
        }
-     })
-     return variants
+     });
+     return variants;
    }
    ```
 
 6. **处理标签系统**
+
    ```javascript
    function extractRegion(tags) {
      for (const tag of tags) {
-       const lower = tag?.toLowerCase()
-       if (lower?.includes('hong-kong')) return '香港'
-       if (lower?.includes('guangzhou')) return '广州'
+       const lower = tag?.toLowerCase();
+       if (lower?.includes("hong-kong")) return "香港";
+       if (lower?.includes("guangzhou")) return "广州";
      }
-     return null
+     return null;
    }
-   
+
    function extractRegister(tags) {
      for (const tag of tags) {
-       const lower = tag?.toLowerCase()
-       if (lower?.includes('colloquial')) return '口语'
-       if (lower?.includes('slang')) return '俚语'
+       const lower = tag?.toLowerCase();
+       if (lower?.includes("colloquial")) return "口语";
+       if (lower?.includes("slang")) return "俚语";
      }
-     return null
+     return null;
    }
    ```
 
@@ -513,19 +524,20 @@ node scripts/jsonl-to-json.js \
 
 ### 特殊字段说明
 
-| 字段 | 说明 | 处理方式 |
-|------|------|---------|
-| `sounds` | 发音数组 | 筛选Cantonese+Jyutping标签 |
-| `ipa` | IPA音标 | 作为`original`字段展示 |
-| `pos` | 词性（英文） | 映射为中文词性 |
-| `forms` | 词形变化 | 提取alternative标记的异体字 |
-| `etymology_text` | 词源 | 保存到meta.etymology |
-| `tags` | 标签 | 识别地区和语域信息 |
-| `senses` | 释义数组 | 包含glosses、examples等 |
+| 字段             | 说明         | 处理方式                    |
+| ---------------- | ------------ | --------------------------- |
+| `sounds`         | 发音数组     | 筛选Cantonese+Jyutping标签  |
+| `ipa`            | IPA音标      | 作为`original`字段展示      |
+| `pos`            | 词性（英文） | 映射为中文词性              |
+| `forms`          | 词形变化     | 提取alternative标记的异体字 |
+| `etymology_text` | 词源         | 保存到meta.etymology        |
+| `tags`           | 标签         | 识别地区和语域信息          |
+| `senses`         | 释义数组     | 包含glosses、examples等     |
 
 ### 注意事项
 
 ⚠️ **重要**：Wiktionary数据采用 CC BY-SA 4.0 协议
+
 - 允许自由使用和修改
 - 需保留署名：Wiktionary contributors
 - 详见：https://creativecommons.org/licenses/by-sa/4.0/
@@ -543,36 +555,39 @@ node scripts/jsonl-to-json.js \
 参考 `gz-colloquialisms.js`，它展示了如何处理：
 
 1. **歇后语结构**（前后半句用逗号分隔）
+
    ```javascript
    function detectColloquialismType(phrase) {
-     if (phrase.includes('，') || phrase.includes(',')) {
-       const parts = phrase.split(/[，,]/)
+     if (phrase.includes("，") || phrase.includes(",")) {
+       const parts = phrase.split(/[，,]/);
        if (parts.length === 2 && parts[0].length > 2 && parts[1].length > 2) {
-         return 'xiehouyu' // 歇后语
+         return "xiehouyu"; // 歇后语
        }
      }
-     return 'idiom'
+     return "idiom";
    }
    ```
 
 2. **多义项聚合**（按 index 和 sense_number）
+
    ```javascript
    export function aggregateEntries(entries) {
      // 按 index 分组
-     const grouped = new Map()
-     entries.forEach(entry => {
-       const index = entry.meta._originalIndex
+     const grouped = new Map();
+     entries.forEach((entry) => {
+       const index = entry.meta._originalIndex;
        if (!grouped.has(index)) {
-         grouped.set(index, [])
+         grouped.set(index, []);
        }
-       grouped.get(index).push(entry)
-     })
+       grouped.get(index).push(entry);
+     });
      // 聚合每组的 senses
      // ...
    }
    ```
 
 3. **保留广州话拼音方案**（gwongping 作为原始注音）
+
    ```javascript
    phonetic: {
      original: row.gwongping || row.jyutping,
@@ -605,82 +620,85 @@ index,headword,verified_headword,jyutping,verified_jyutping,definition,page,sour
 ```
 
 **关键特性**：
+
 - `verified_headword` 和 `verified_jyutping`：如果有内容，说明还在校对中
 - 数据处理时需要过滤掉未完成校对的行
 
 ### 核心功能实现
 
 1. **过滤未校对数据**
-   
+
    ```javascript
    function shouldFilterRow(row) {
      // 如果 verified_headword 或 verified_jyutping 有内容，说明还没校对好
-     return (row.verified_headword && row.verified_headword.trim() !== '') ||
-            (row.verified_jyutping && row.verified_jyutping.trim() !== '')
+     return (
+       (row.verified_headword && row.verified_headword.trim() !== "") ||
+       (row.verified_jyutping && row.verified_jyutping.trim() !== "")
+     );
    }
-   
+
    export function transformRow(row) {
      if (shouldFilterRow(row)) {
-       return null // 过滤掉
+       return null; // 过滤掉
      }
      // ... 继续处理
    }
    ```
 
 2. **解析多义项和例句**
-   
+
    释义格式：`①副詞。表程度：例句1丨例句2<翻译>`
-   
+
    ```javascript
    function parseSenses(definition) {
      // 检查是否包含 ① ② ③ 等标记
-     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g
-     const matches = [...text.matchAll(sensePattern)]
-     
+     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g;
+     const matches = [...text.matchAll(sensePattern)];
+
      if (matches.length === 0) {
        // 没有多义项标记，整个作为一个义项
-       return parseExamplesInDefinition(text)
+       return parseExamplesInDefinition(text);
      }
-     
+
      // 有多义项标记，分割处理
      // ...
    }
    ```
 
 3. **提取例句和翻译**
-   
+
    支持多种格式：
    - `释义：例句1丨例句2`
    - `释义<翻译>`
    - `释义 ‖ 备注`
-   
+
    ```javascript
    function parseExamplesInDefinition(text) {
      // 先提取备注（‖ 后面的内容）
-     const noteMatch = text.match(/\s*‖\s*(.+)$/)
-     
+     const noteMatch = text.match(/\s*‖\s*(.+)$/);
+
      // 检查是否有例句（用冒号或丨分隔）
-     const exampleSplit = mainText.split(/[:：]/)
-     
+     const exampleSplit = mainText.split(/[:：]/);
+
      if (exampleSplit.length > 1) {
-       sense.definition = exampleSplit[0].trim()
+       sense.definition = exampleSplit[0].trim();
        // 解析例句（可能用丨分隔多个例句）
-       const exampleParts = exampleText.split(/[丨｜|]/)
+       const exampleParts = exampleText.split(/[丨｜|]/);
        // ...
      }
    }
    ```
 
 4. **忽略特定字段**
-   
+
    按照要求，以下字段不需要处理：
-   
+
    ```javascript
    // ❌ 不处理的字段：
    // - source_file
    // - verification_status
    // - verification_notes
-   
+
    meta: {
      page: row.page || null,
      // 注：source_file, verification_status, verification_notes 字段已省略
@@ -722,6 +740,7 @@ node scripts/csv-to-json.js \
 ### 注意事项
 
 ⚠️ **重要**：
+
 - 有 `verified_headword` 或 `verified_jyutping` 的行会被自动过滤
 - 这些字段有内容说明数据还在校对中，暂不纳入最终词典
 - `source_file`、`verification_status`、`verification_notes` 字段不处理
@@ -731,13 +750,13 @@ node scripts/csv-to-json.js \
 
 ```javascript
 export const DICTIONARY_INFO = {
-  id: 'gz-dialect',
-  name: '廣州方言詞典',
-  author: '白宛如',
-  publisher: '江苏教育出版社',
+  id: "gz-dialect",
+  name: "廣州方言詞典",
+  author: "白宛如",
+  publisher: "江苏教育出版社",
   year: 1998,
-  description: '收录广州话词汇，包含释义、读音、用例等'
-}
+  description: "收录广州话词汇，包含释义、读音、用例等",
+};
 ```
 
 ## 示例 6：现代粤语词典
@@ -755,6 +774,7 @@ index,entry_type,headword,pronunciation,jyutping,api_suggestion,verification_sta
 ```
 
 **关键特性**：
+
 - `pronunciation`：原书拼音标注
 - `jyutping`：转换后的粤拼（用于词典展示和搜索优化）
 - `verification_status`：校对状态（"✓ 匹配"、"建議"、"⚠️ API未找到，請檢查字頭"）
@@ -763,23 +783,23 @@ index,entry_type,headword,pronunciation,jyutping,api_suggestion,verification_sta
 ### 核心功能实现
 
 1. **过滤未匹配数据**
-   
+
    ```javascript
    function shouldFilterRow(row) {
      // 只保留 verification_status 为 "✓ 匹配" 的词条
-     return row.verification_status !== '✓ 匹配'
+     return row.verification_status !== "✓ 匹配";
    }
-   
+
    export function transformRow(row) {
      if (shouldFilterRow(row)) {
-       return null // 过滤掉
+       return null; // 过滤掉
      }
      // ... 继续处理
    }
    ```
 
 2. **处理原书拼音和粤拼**
-   
+
    ```javascript
    // pronunciation 作为 phonetic.original（原书标注）
    // jyutping 作为 phonetic.jyutping（标准粤拼）
@@ -790,75 +810,75 @@ index,entry_type,headword,pronunciation,jyutping,api_suggestion,verification_sta
    ```
 
 3. **解析多义项和例句**
-   
+
    释义格式：`①表示同意：好～［好的］丨系～［是啊］！`
-   
+
    ```javascript
    function parseSenses(definition) {
      // 检查是否包含 ① ② ③ 等标记
-     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g
-     const matches = [...text.matchAll(sensePattern)]
-     
+     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g;
+     const matches = [...text.matchAll(sensePattern)];
+
      if (matches.length === 0) {
        // 没有多义项标记，整个作为一个义项
-       return parseExamplesInDefinition(text)
+       return parseExamplesInDefinition(text);
      }
-     
+
      // 有多义项标记，分割处理
      // ...
    }
    ```
 
 4. **提取例句和翻译（方括号格式）**
-   
+
    支持格式：`释义：例句1［翻译1］丨例句2［翻译2］`
-   
+
    ```javascript
    function parseExamplesInDefinition(text) {
      // 检查是否有例句（用冒号或丨分隔）
-     const exampleSplit = text.split(/[:：]/)
-     
+     const exampleSplit = text.split(/[:：]/);
+
      if (exampleSplit.length > 1) {
-       sense.definition = exampleSplit[0].trim()
+       sense.definition = exampleSplit[0].trim();
        // 解析例句（可能用丨分隔多个例句）
-       const exampleParts = exampleText.split(/[丨｜|]/)
-       
-       exampleParts.forEach(part => {
+       const exampleParts = exampleText.split(/[丨｜|]/);
+
+       exampleParts.forEach((part) => {
          // 检查是否有方括号包裹的翻译（［］）
-         const translationMatch = part.match(/［([^］]+)］/)
+         const translationMatch = part.match(/［([^］]+)］/);
          if (translationMatch) {
            sense.examples.push({
              text: exampleText,
-             translation: translation
-           })
+             translation: translation,
+           });
          }
-       })
+       });
      }
    }
    ```
 
 5. **映射词条类型**
-   
+
    原书分类映射到标准格式：
-   
+
    ```javascript
    function mapEntryType(originalType, headword) {
      // "字头" → 'character'
      if (originalType === '字头') {
        return 'character'
      }
-     
+
      // "词头" → 根据长度判断 'word' 或 'phrase'
      if (originalType === '词头') {
        const length = headword.match(/[\u4e00-\u9fa5]/g)?.length || 0
        if (length <= 4) return 'word'
        return 'phrase'
      }
-     
+
      // 默认根据长度判断
      // ...
    }
-   
+
    // 原书分类保存到 meta
    meta: {
      original_entry_type: row.entry_type, // "字头"/"词头"
@@ -866,15 +886,15 @@ index,entry_type,headword,pronunciation,jyutping,api_suggestion,verification_sta
    ```
 
 6. **忽略特定字段**
-   
+
    按照要求，以下字段不需要处理：
-   
+
    ```javascript
    // ❌ 不处理的字段：
    // - api_suggestion (API建议)
    // - verification_status (用于过滤，不存入metadata)
    // - source_file (源文件)
-   
+
    meta: {
      page: row.page || null,
      // 注：api_suggestion, verification_status, source_file 字段已省略
@@ -917,6 +937,7 @@ node scripts/csv-to-json.js \
 ### 注意事项
 
 ⚠️ **重要**：
+
 - 只保留 verification_status 为 "✓ 匹配" 的词条
 - 其他状态（"建議"、"⚠️ API未找到"）的词条会被过滤
 - `entry_type` 映射关系：
@@ -932,13 +953,13 @@ node scripts/csv-to-json.js \
 
 ```javascript
 export const DICTIONARY_INFO = {
-  id: 'gz-modern',
-  name: '现代粤语词典',
-  author: '范俊军、范兰德等',
-  publisher: '广东人民出版社',
+  id: "gz-modern",
+  name: "现代粤语词典",
+  author: "范俊军、范兰德等",
+  publisher: "广东人民出版社",
   year: 2021,
-  description: '现代权威粤语词典，系统收录广州话词汇'
-}
+  description: "现代权威粤语词典，系统收录广州话词汇",
+};
 ```
 
 ## 示例 7：粵語辭源
@@ -961,120 +982,121 @@ page,index,verified,entry,gwongping,jyutping,content,proofreaders_note
 ### 核心功能实现
 
 1. **按 page+index 分组**
-   
+
    同一词条的多行数据需要先分组再处理：
-   
+
    ```javascript
    function groupByEntry(rows) {
-     const grouped = new Map()
-     
-     rows.forEach(row => {
-       const key = `${row.page}_${row.index}`
+     const grouped = new Map();
+
+     rows.forEach((row) => {
+       const key = `${row.page}_${row.index}`;
        if (!grouped.has(key)) {
-         grouped.set(key, [])
+         grouped.set(key, []);
        }
-       grouped.get(key).push(row)
-     })
-     
-     return grouped
+       grouped.get(key).push(row);
+     });
+
+     return grouped;
    }
    ```
 
 2. **解析 content 字段**
-   
+
    content 字段可能包含释义、词源引用或按语：
-   
+
    ```javascript
    function parseContent(content) {
-     if (content.startsWith('【源】')) {
+     if (content.startsWith("【源】")) {
        // 词源引用行
-       const etymologyText = content.replace(/^【源】/, '').trim()
+       const etymologyText = content.replace(/^【源】/, "").trim();
        return {
-         definition: '',
+         definition: "",
          etymology: [etymologyText],
-         commentary: null
-       }
-     } else if (content.startsWith('案：')) {
+         commentary: null,
+       };
+     } else if (content.startsWith("案：")) {
        // 按语/说明行
-       const commentary = content.replace(/^案：/, '').trim()
+       const commentary = content.replace(/^案：/, "").trim();
        return {
-         definition: '',
+         definition: "",
          etymology: [],
-         commentary: commentary
-       }
+         commentary: commentary,
+       };
      } else {
        // 释义行
        return {
          definition: content,
          etymology: [],
-         commentary: null
-       }
+         commentary: null,
+       };
      }
    }
    ```
 
 3. **解析多义项标记**（①②③格式）
-   
+
    ```javascript
    function parseSenses(definition) {
-     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g
-     const matches = [...definition.matchAll(sensePattern)]
-     
+     const sensePattern = /[①②③④⑤⑥⑦⑧⑨⑩]/g;
+     const matches = [...definition.matchAll(sensePattern)];
+
      if (matches.length === 0) {
-       return [{ definition: definition.trim(), examples: [] }]
+       return [{ definition: definition.trim(), examples: [] }];
      }
-     
-     const senses = []
+
+     const senses = [];
      for (let i = 0; i < matches.length; i++) {
-       const start = matches[i].index + 1
-       const end = i < matches.length - 1 ? matches[i + 1].index : definition.length
-       const senseText = definition.substring(start, end).trim()
-       
+       const start = matches[i].index + 1;
+       const end =
+         i < matches.length - 1 ? matches[i + 1].index : definition.length;
+       const senseText = definition.substring(start, end).trim();
+
        if (senseText) {
-         senses.push({ definition: senseText, examples: [] })
+         senses.push({ definition: senseText, examples: [] });
        }
      }
-     
-     return senses
+
+     return senses;
    }
    ```
 
 4. **处理同形异义词**（如"一味1"、"一味2"）
-   
+
    ```javascript
    function parseEntryName(entry) {
      // 检查是否有数字后缀
-     const match = entry.match(/^(.+?)(\d+)$/)
+     const match = entry.match(/^(.+?)(\d+)$/);
      if (match) {
        return {
          baseEntry: match[1].trim(),
-         variantNumber: parseInt(match[2])
-       }
+         variantNumber: parseInt(match[2]),
+       };
      }
-     
+
      return {
        baseEntry: entry.trim(),
-       variantNumber: null
-     }
+       variantNumber: null,
+     };
    }
-   
+
    // 在 aggregateEntries 中聚合同形异义词
    export function aggregateEntries(entries) {
      // 按词头和读音分组
-     const grouped = new Map()
-     entries.forEach(entry => {
-       const key = `${entry.headword.normalized}_${entry.phonetic.jyutping[0]}`
+     const grouped = new Map();
+     entries.forEach((entry) => {
+       const key = `${entry.headword.normalized}_${entry.phonetic.jyutping[0]}`;
        // ... 聚合逻辑
-     })
+     });
    }
    ```
 
 5. **灵活的必填字段验证**
-   
+
    因为后续行的entry和jyutping为空，所以只验证核心字段：
-   
+
    ```javascript
-   export const REQUIRED_FIELDS = ['page', 'index', 'content']
+   export const REQUIRED_FIELDS = ["page", "index", "content"];
    // entry 和 jyutping 不是必填，允许词源引用行为空
    ```
 
@@ -1119,6 +1141,7 @@ node scripts/csv-to-json.js \
 ### 注意事项
 
 ⚠️ **重要**：
+
 - CSV中同一词条包含多行，需要正确分组
 - 词源引用（【源】）和按语（案：）在单独的行中
 - 同形异义词（如"一味1"、"一味2"）会被自动聚合
@@ -1189,10 +1212,10 @@ node scripts/csv-to-json.js \
 ### Q: 如何处理例句中的翻译？
 
 ```javascript
-import { parseExamples } from '../utils/text-processor.js'
+import { parseExamples } from "../utils/text-processor.js";
 
 // 自动解析 "例句。（翻译。）" 格式
-const { definition, examples } = parseExamples(row.meanings)
+const { definition, examples } = parseExamples(row.meanings);
 ```
 
 ### Q: 如何处理多音字？
@@ -1205,10 +1228,12 @@ const { definition, examples } = parseExamples(row.meanings)
 
 ```javascript
 if (row.ref_word) {
-  entry.refs = [{
-    type: 'word',
-    target: row.ref_word
-  }]
+  entry.refs = [
+    {
+      type: "word",
+      target: row.ref_word,
+    },
+  ];
 }
 ```
 
@@ -1217,7 +1242,7 @@ if (row.ref_word) {
 `cleanHeadword()` 会自动检测：
 
 ```javascript
-const headwordInfo = cleanHeadword('□嘢')
+const headwordInfo = cleanHeadword("□嘢");
 // headwordInfo.isPlaceholder === true
 ```
 
@@ -1227,14 +1252,14 @@ const headwordInfo = cleanHeadword('□嘢')
 
 位于 `scripts/utils/text-processor.js`:
 
-| 函数 | 用途 |
-|------|------|
-| `removeTones(jyutping)` | 去除粤拼声调 |
+| 函数                      | 用途                         |
+| ------------------------- | ---------------------------- |
+| `removeTones(jyutping)`   | 去除粤拼声调                 |
 | `generateKeywords(entry)` | 生成搜索关键词（不含简繁体） |
-| `extractVariants(text)` | 提取异形词 |
-| `cleanHeadword(word)` | 清理词头标记 |
-| `parseExamples(meanings)` | 解析例句 |
-| `parseNote(note)` | 解析备注 |
+| `extractVariants(text)`   | 提取异形词                   |
+| `cleanHeadword(word)`     | 清理词头标记                 |
+| `parseExamples(meanings)` | 解析例句                     |
+| `parseNote(note)`         | 解析备注                     |
 
 **注意**：简繁体转换已移至运行时处理（`composables/useChineseConverter.ts`），无需在适配器中处理。所有词典的数据只需保持原始形式即可，搜索时会自动支持简繁体。
 
@@ -1277,6 +1302,7 @@ const headwordInfo = cleanHeadword('□嘢')
 ## 大型词典优化：分片加载
 
 对于词条数量超过 10 万的大型词典（如 Wiktionary），生成的 JSON 文件可能超过 100MB，导致：
+
 - ❌ 首次加载慢（需要下载整个大文件）
 - ❌ 内存占用大（浏览器需要解析所有数据）
 - ❌ 搜索性能差（需要遍历大量数据）
@@ -1292,12 +1318,12 @@ const headwordInfo = cleanHeadword('□嘢')
 
 ### 效果对比
 
-| 指标 | 优化前 | 优化后 | 改善 |
-|------|--------|--------|------|
-| 文件总大小 | 135 MB | 66 MB | ↓ 51% |
-| 首次加载 | 下载 135MB | 0 MB | ↓ 100% |
-| 搜索"book" | 已加载全部 | 下载 4MB | ↓ 97% |
-| 内存占用 | ~200 MB | ~30 MB | ↓ 85% |
+| 指标       | 优化前     | 优化后   | 改善   |
+| ---------- | ---------- | -------- | ------ |
+| 文件总大小 | 135 MB     | 66 MB    | ↓ 51%  |
+| 首次加载   | 下载 135MB | 0 MB     | ↓ 100% |
+| 搜索"book" | 已加载全部 | 下载 4MB | ↓ 97%  |
+| 内存占用   | ~200 MB    | ~30 MB   | ↓ 85%  |
 
 ### 使用方法
 
@@ -1307,14 +1333,14 @@ const headwordInfo = cleanHeadword('□嘢')
 
 ```javascript
 export const DICTIONARY_INFO = {
-  id: 'my-large-dict',
-  name: '我的大型词典',
+  id: "my-large-dict",
+  name: "我的大型词典",
   // ... 其他字段
-  
+
   // 启用分片（词条数 > 50000 建议启用）
   enable_chunking: true,
-  chunk_output_dir: 'my-large-dict' // 分片输出目录名
-}
+  chunk_output_dir: "my-large-dict", // 分片输出目录名
+};
 ```
 
 #### Step 2: 在适配器中添加分片后处理
@@ -1327,26 +1353,27 @@ export const DICTIONARY_INFO = {
  */
 export async function postProcess(entries, outputPath) {
   if (!DICTIONARY_INFO.enable_chunking) {
-    return entries // 不分片，直接返回
+    return entries; // 不分片，直接返回
   }
-  
-  console.log('🔧 检测到大型词典，启用自动分片...')
-  
+
+  console.log("🔧 检测到大型词典，启用自动分片...");
+
   // 动态导入分片模块
-  const { splitDictionary } = await import('../split-dictionary.cjs')
-  
+  const { splitDictionary } = await import("../split-dictionary.cjs");
+
   // 确定输出目录
-  const outputDir = outputPath.replace(/\.json$/, '')
-  const chunkDir = DICTIONARY_INFO.chunk_output_dir || 
-                   DICTIONARY_INFO.id.replace(/-cantonese$/, '')
-  
-  const finalOutputDir = outputDir + '/' + chunkDir
-  
+  const outputDir = outputPath.replace(/\.json$/, "");
+  const chunkDir =
+    DICTIONARY_INFO.chunk_output_dir ||
+    DICTIONARY_INFO.id.replace(/-cantonese$/, "");
+
+  const finalOutputDir = outputDir + "/" + chunkDir;
+
   // 执行分片
-  await splitDictionary(outputPath, finalOutputDir)
-  
-  console.log('✅ 分片完成')
-  return entries
+  await splitDictionary(outputPath, finalOutputDir);
+
+  console.log("✅ 分片完成");
+  return entries;
 }
 ```
 
@@ -1371,25 +1398,26 @@ export async function postProcess(entries, outputPath) {
 ### 分片策略
 
 **按拼音首字母分片**：
+
 - a-z: 26个基础分片
 - other: 特殊字符分片
 
 **数据优化**：
+
 ```javascript
 // 保留字段（搜索必需）
 {
-  id, source_book, headword, phonetic, 
-  entry_type, senses, keywords
+  (id, source_book, headword, phonetic, entry_type, senses, keywords);
 }
 
 // 精简 meta（只保留核心）
 meta: {
-  pos, register, variants
+  (pos, register, variants);
 }
 
 // 移除字段（非搜索必需）
 // ❌ meta.etymology
-// ❌ meta.ipa  
+// ❌ meta.ipa
 // ❌ meta.derived
 // ❌ meta.related
 // ❌ created_at
@@ -1414,31 +1442,28 @@ public/dictionaries/
 
 ```javascript
 export const DICTIONARY_INFO = {
-  id: 'wiktionary-cantonese',
-  name: 'Wiktionary粤语词条',
+  id: "wiktionary-cantonese",
+  name: "Wiktionary粤语词条",
   // ... 其他字段
   enable_chunking: true,
-  chunk_output_dir: 'wiktionary'
-}
+  chunk_output_dir: "wiktionary",
+};
 
 // 聚合后自动分片
 export async function postProcess(entries, outputPath) {
-  if (!DICTIONARY_INFO.enable_chunking) return entries
-  
-  const path = await import('path')
-  const outputDir = path.dirname(outputPath)
-  const chunkDir = path.join(
-    outputDir, 
-    DICTIONARY_INFO.chunk_output_dir
-  )
-  
+  if (!DICTIONARY_INFO.enable_chunking) return entries;
+
+  const path = await import("path");
+  const outputDir = path.dirname(outputPath);
+  const chunkDir = path.join(outputDir, DICTIONARY_INFO.chunk_output_dir);
+
   // 导入分片模块
-  const splitModule = await import('../split-dictionary.cjs')
-  
+  const splitModule = await import("../split-dictionary.cjs");
+
   // 执行分片
-  await splitModule.splitDictionary(outputPath, chunkDir)
-  
-  return entries
+  await splitModule.splitDictionary(outputPath, chunkDir);
+
+  return entries;
 }
 ```
 
@@ -1452,11 +1477,13 @@ export async function postProcess(entries, outputPath) {
 ### 何时使用分片
 
 ✅ **建议启用分片**：
+
 - 词条数 > 50,000
 - JSON 文件 > 30 MB
 - 搜索性能有明显延迟
 
 ❌ **不建议分片**：
+
 - 词条数 < 20,000
 - JSON 文件 < 10 MB
 - 文件已经很小且加载快速
@@ -1472,4 +1499,3 @@ export async function postProcess(entries, outputPath) {
 ```
 
 ---
-

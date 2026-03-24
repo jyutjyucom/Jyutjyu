@@ -50,20 +50,21 @@ npm run build:data:wiktionary  # 完整版
 
 ### 核心字段
 
-| Wiktionary 字段 | 项目字段 | 说明 |
-|----------------|---------|------|
-| `word` | `headword` | 词条本身 |
-| `pos` | `meta.pos` | 词性（映射为中文） |
-| `sounds[].zh_pron` | `phonetic.jyutping` | 粤拼（筛选 Jyutping 标签） |
-| `sounds[].ipa` | `phonetic.original` | IPA音标 |
-| `senses[].glosses` | `senses[].definition` | 释义 |
-| `senses[].tags` | `senses[].label` | 地区/语域标签 |
-| `forms[]` | `meta.variants` | 异体字 |
-| `etymology_text` | `meta.etymology` | 词源 |
+| Wiktionary 字段    | 项目字段              | 说明                       |
+| ------------------ | --------------------- | -------------------------- |
+| `word`             | `headword`            | 词条本身                   |
+| `pos`              | `meta.pos`            | 词性（映射为中文）         |
+| `sounds[].zh_pron` | `phonetic.jyutping`   | 粤拼（筛选 Jyutping 标签） |
+| `sounds[].ipa`     | `phonetic.original`   | IPA音标                    |
+| `senses[].glosses` | `senses[].definition` | 释义                       |
+| `senses[].tags`    | `senses[].label`      | 地区/语域标签              |
+| `forms[]`          | `meta.variants`       | 异体字                     |
+| `etymology_text`   | `meta.etymology`      | 词源                       |
 
 ### 筛选条件
 
 保留包含以下任一特征的词条：
+
 - `sounds` 中有 `Cantonese`/`Jyutping` 标签
 - `senses` 中有 `Cantonese`/`Hong-Kong` 标签
 - 释义或分类中提到 "Cantonese"
@@ -88,14 +89,16 @@ phrase → 短语 | proverb → 谚语 | classifier → 量词
   "word": "book",
   "pos": "verb",
   "sounds": [
-    {"zh_pron": "buk¹", "tags": ["Cantonese", "Jyutping"]},
-    {"ipa": "/pʊk̚⁵/", "tags": ["Cantonese"]}
+    { "zh_pron": "buk¹", "tags": ["Cantonese", "Jyutping"] },
+    { "ipa": "/pʊk̚⁵/", "tags": ["Cantonese"] }
   ],
-  "forms": [{"form": "卜", "tags": ["alternative"]}],
-  "senses": [{
-    "glosses": ["to book; to reserve"],
-    "tags": ["Cantonese", "Hong-Kong", "colloquial"]
-  }],
+  "forms": [{ "form": "卜", "tags": ["alternative"] }],
+  "senses": [
+    {
+      "glosses": ["to book; to reserve"],
+      "tags": ["Cantonese", "Hong-Kong", "colloquial"]
+    }
+  ],
   "etymology_text": "From English book."
 }
 ```
@@ -105,12 +108,14 @@ phrase → 短语 | proverb → 谚语 | classifier → 量词
 ```json
 {
   "id": "wiktionary-cantonese_00000001",
-  "headword": {"display": "book", "normalized": "book"},
-  "phonetic": {"original": "/pʊk̚⁵/", "jyutping": ["buk1"]},
-  "senses": [{
-    "definition": "to book; to reserve",
-    "label": "香港，口语"
-  }],
+  "headword": { "display": "book", "normalized": "book" },
+  "phonetic": { "original": "/pʊk̚⁵/", "jyutping": ["buk1"] },
+  "senses": [
+    {
+      "definition": "to book; to reserve",
+      "label": "香港，口语"
+    }
+  ],
   "meta": {
     "pos": "动词",
     "variants": ["卜"],
@@ -125,12 +130,12 @@ phrase → 短语 | proverb → 谚语 | classifier → 量词
 
 ### 相关脚本
 
-| 脚本 | 功能 |
-|------|------|
-| `scripts/preprocess/wiktionary/extract_cantonese.py` | 筛选粤语词条 |
-| `scripts/adapters/wiktionary-cantonese.js` | 字段转换适配器 |
-| `scripts/jsonl-to-json.js` | JSONL → JSON 处理 |
-| `scripts/split-dictionary.cjs` | 按首字母分割 |
+| 脚本                                                 | 功能              |
+| ---------------------------------------------------- | ----------------- |
+| `scripts/preprocess/wiktionary/extract_cantonese.py` | 筛选粤语词条      |
+| `scripts/adapters/wiktionary-cantonese.js`           | 字段转换适配器    |
+| `scripts/jsonl-to-json.js`                           | JSONL → JSON 处理 |
+| `scripts/split-dictionary.cjs`                       | 按首字母分割      |
 
 ### 关键函数（adapter）
 
@@ -161,10 +166,12 @@ A: 重新下载最新数据，重新运行筛选和转换脚本即可。
 ## 许可与署名
 
 維基辭典 数据遵循 **CC BY-SA 4.0** 协议：
+
 - ✅ 允许自由使用和商业使用
 - ⚠️ 需保留署名和相同协议
 
 **署名格式**:
+
 ```
 数据来源: 維基辭典貢獻者
 许可协议: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)

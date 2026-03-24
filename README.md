@@ -55,6 +55,7 @@
 ## 快速開始
 
 ### 環境要求
+
 - Node.js >= 18.0.0
 
 ### 安裝與運行
@@ -70,6 +71,7 @@ npm install
 # Start dev server
 npm run dev
 ```
+
 瀏覽 http://localhost:3002
 
 ### 數據存儲模式
@@ -98,6 +100,7 @@ npm run build:data:gzpc   # 分類詞典
 ## 參與貢獻
 
 歡迎大家幫手校對或提供詞典資料！
+
 - [貢獻指南](./CONTRIBUTING.md)
 - [CSV 錄入規範](./docs/CSV_GUIDE.md)
 

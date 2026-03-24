@@ -18,6 +18,7 @@ node scripts/preprocess/hamzau-jyutping.js
 ```
 
 使用默认路径：
+
 - 输入: `data/raw/hamzau_jyutping.dict.yaml`
 - 输出: `data/processed/qz-jyutping.csv`
 
@@ -28,6 +29,7 @@ node scripts/preprocess/hamzau-jyutping.js [input.yaml] [output.csv]
 ```
 
 示例：
+
 ```bash
 node scripts/preprocess/hamzau-jyutping.js \
   data/raw/hamzau_jyutping.dict.yaml \
@@ -37,29 +39,31 @@ node scripts/preprocess/hamzau-jyutping.js \
 ## 输入格式说明
 
 Rime 词典格式：
+
 - 前 14 行为 YAML 元数据（以 `---` 开始，以 `...` 结束）
 - 从第 16 行开始为实际数据，格式：`词头\t拼音\t权重（可选）`
 
 示例：
+
 ```
-𢶹	am4	
-𣍐	mui3	
-噶	ga3	
-一把柴	aa1 baa2 caai4	
-一癲你去搬磚	aa1 din1 ni2 hi3 bun1 zin1	
+𢶹	am4
+𣍐	mui3
+噶	ga3
+一把柴	aa1 baa2 caai4
+一癲你去搬磚	aa1 din1 ni2 hi3 bun1 zin1
 ```
 
 ## 输出格式说明
 
 CSV 文件包含以下列：
 
-| 列名 | 说明 | 示例 |
-|------|------|------|
-| `index` | 行号索引（从1开始） | `1` |
-| `entry_type` | 词条类型 | `character` / `word` / `phrase` |
-| `headword` | 词头 | `𢶹` |
-| `jyutping` | 粤拼（空格分隔音节） | `am4` |
-| `definition` | 释义 | `未有內容 NO DATA`（默认值） |
+| 列名         | 说明                 | 示例                            |
+| ------------ | -------------------- | ------------------------------- |
+| `index`      | 行号索引（从1开始）  | `1`                             |
+| `entry_type` | 词条类型             | `character` / `word` / `phrase` |
+| `headword`   | 词头                 | `𢶹`                            |
+| `jyutping`   | 粤拼（空格分隔音节） | `am4`                           |
+| `definition` | 释义                 | `未有內容 NO DATA`（默认值）    |
 
 **注意**: 由于这是拼音词典，不包含释义内容，所有词条的 `definition` 字段默认设置为 `未有內容 NO DATA`。
 
@@ -72,10 +76,12 @@ CSV 文件包含以下列：
 ## 处理统计
 
 脚本运行后会显示：
+
 - 总词条数
 - 各类型词条数量统计
 
 示例输出：
+
 ```
 📖 HamZau_JyutPing 词典预处理脚本
    输入文件: /path/to/hamzau_jyutping.dict.yaml

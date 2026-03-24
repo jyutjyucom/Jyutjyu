@@ -10,10 +10,12 @@
     >
       <MessageSquare v-if="!hideIcon" class="w-3.5 h-3.5" aria-hidden="true" />
       <template v-if="iconOnly">
-        <span class="sr-only">{{ t('feedback.buttonTitle') }}</span>
+        <span class="sr-only">{{ t("feedback.buttonTitle") }}</span>
       </template>
       <template v-else>
-        <span :class="[labelClass, iconOnlyOnMobile && 'hidden sm:inline']">{{ t('feedback.buttonShort') }}</span>
+        <span :class="[labelClass, iconOnlyOnMobile && 'hidden sm:inline']">{{
+          t("feedback.buttonShort")
+        }}</span>
       </template>
     </button>
 
@@ -60,51 +62,52 @@
 </template>
 
 <script setup lang="ts">
-import { MessageSquare } from 'lucide-vue-next'
+import { MessageSquare } from "lucide-vue-next";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 // Props
 interface Props {
   entryData?: {
-    word: string
-    source?: string
-    id?: string
-  }
+    word: string;
+    source?: string;
+    id?: string;
+  };
   /**
    * 外部提供的初始描述内容
    * 例如：从词条卡片传入完整词条信息，方便用户在反馈时直接修改
    */
-  initialDescription?: string
-  buttonClass?: string
-  iconOnly?: boolean
+  initialDescription?: string;
+  buttonClass?: string;
+  iconOnly?: boolean;
   /**
    * 为 true 时，移动端仅显示图标以节省空间；首页、关于页等大按钮场景不传即可
    */
-  iconOnlyOnMobile?: boolean
-  labelClass?: string
-  initialType?: 'bug' | 'feature' | 'entry-error'
+  iconOnlyOnMobile?: boolean;
+  labelClass?: string;
+  initialType?: "bug" | "feature" | "entry-error";
   /** 为 true 时不显示图标，仅显示文字，便于内联链接样式使用 */
-  hideIcon?: boolean
+  hideIcon?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   entryData: undefined,
   initialDescription: undefined,
-  buttonClass: 'inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors',
+  buttonClass:
+    "inline-flex items-center gap-1.5 px-3 py-1 bg-archive-green/10 dark:bg-archive-green/40 text-archive-green rounded-md text-sm whitespace-nowrap hover:bg-archive-green/20 dark:hover:bg-archive-green/50 transition-colors",
   iconOnly: false,
   iconOnlyOnMobile: false,
-  labelClass: 'text-sm',
+  labelClass: "text-sm",
   initialType: undefined,
-  hideIcon: false
-})
+  hideIcon: false,
+});
 
 // 状态
-const showFeedbackModal = ref(false)
+const showFeedbackModal = ref(false);
 
 // 处理反馈提交
 const handleFeedbackSubmitted = () => {
-  showFeedbackModal.value = false
+  showFeedbackModal.value = false;
   // 可以在这里添加一些成功提示或统计
-}
+};
 </script>

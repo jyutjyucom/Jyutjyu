@@ -1,0 +1,7 @@
+.nuxt
+.output
+dist
+node_modules
+coverage
+public/dictionaries
+locales/*.generated.*

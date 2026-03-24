@@ -65,6 +65,7 @@
 ## 📊 三个典型示例
 
 ### 示例1: book（来自英语的粤语口语词）
+
 - **词条**: book
 - **词性**: verb（动词）
 - **粤拼**: buk¹
@@ -75,6 +76,7 @@
 - **替代写法**: 卜
 
 ### 示例2: GDP（国际缩写词）
+
 - **词条**: GDP
 - **词性**: noun（名词）
 - **粤拼**: zi¹ di¹ pi¹
@@ -85,6 +87,7 @@
 - **注**: 同时包含普通话发音
 
 ### 示例3: A（网络俚语）
+
 - **词条**: A
 - **词性**: adj（形容词）
 - **粤拼**: ei¹
@@ -106,18 +109,19 @@
 
 ## 📈 统计数据
 
-| 指标 | 数值 |
-|------|------|
-| 总词条数 | 120,223 |
+| 指标                | 数值             |
+| ------------------- | ---------------- |
+| 总词条数            | 120,223          |
 | 包含粤拼 (Jyutping) | 119,780 (99.63%) |
-| 包含IPA音标 | 119,998 (99.81%) |
-| 最常见词性 | noun (41.21%) |
-| 平均词长 | 2.31字符 |
-| 来自英语词源 | 2,517词 |
+| 包含IPA音标         | 119,998 (99.81%) |
+| 最常见词性          | noun (41.21%)    |
+| 平均词长            | 2.31字符         |
+| 来自英语词源        | 2,517词          |
 
 ## 🎯 常用字段速查
 
 ### 获取粤语拼音（Jyutping）
+
 ```python
 for sound in entry['sounds']:
     if 'Jyutping' in sound.get('tags', []):
@@ -126,6 +130,7 @@ for sound in entry['sounds']:
 ```
 
 ### 获取粤语IPA
+
 ```python
 for sound in entry['sounds']:
     if 'Cantonese' in sound.get('tags', []) and 'ipa' in sound:
@@ -134,6 +139,7 @@ for sound in entry['sounds']:
 ```
 
 ### 获取词义
+
 ```python
 for sense in entry.get('senses', []):
     if 'Cantonese' in sense.get('tags', []):
@@ -141,9 +147,10 @@ for sense in entry.get('senses', []):
 ```
 
 ### 判断是否为香港粤语特有词
+
 ```python
 is_hk_cantonese = any(
-    'Hong-Kong' in sense.get('tags', []) or 
+    'Hong-Kong' in sense.get('tags', []) or
     'Hong Kong' in sense.get('raw_tags', [])
     for sense in entry.get('senses', [])
 )
@@ -161,4 +168,3 @@ is_hk_cantonese = any(
 - sounds数组通常同时包含多种罗马化方案（Jyutping、Yale、Pinyin等）
 - 有些词条既有普通话发音也有粤语发音
 - etymology_number用于区分同形异源的词（如"A"有多个不同来源的义项）
-
