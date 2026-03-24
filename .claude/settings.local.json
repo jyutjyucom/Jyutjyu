@@ -63,7 +63,8 @@
       "Bash(npx --yes puppeteer --version)",
       "Bash(python3 -c \":*)",
       "Bash(find /Users/laufei/Documents/GitHub/Jyutjyu/node_modules/@nuxtjs/i18n -name *.d.ts)",
-      "Bash(git show:*)"
+      "Bash(git show:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

@@ -73,9 +73,9 @@ import type { BrowseResponse } from "~/composables/useBrowsePageData";
 
 const { t } = useI18n();
 const route = useRoute();
-const router = useRouter();
+const { navigateFromSearchInput } = useSearchNavigation();
 const { dictionariesData, getLocalizedValue } = useLocalizedDictionary();
-const { homePath, searchPath } = useAppRoutes();
+const { homePath } = useAppRoutes();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
@@ -106,7 +106,10 @@ const currentSortBy = computed(() => {
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    router.push(searchPath(searchQuery.value, enableReverseSearch.value));
+    void navigateFromSearchInput({
+      query: searchQuery.value,
+      reverse: enableReverseSearch.value,
+    });
   }
 };
 
