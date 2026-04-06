@@ -2,6 +2,9 @@ import {
   LOCALE_ROUTE_DEFINITIONS,
   applyLocalePrefix,
 } from "./utils/route-paths";
+
+const DEFAULT_SITE_URL = "https://jyutjyu.com";
+
 const resolveUseApi = (): boolean => {
   const explicit = process.env.NUXT_PUBLIC_USE_API;
   if (explicit === "true") return true;
@@ -61,7 +64,7 @@ export default defineNuxtConfig({
   i18n: {
     vueI18n: "./i18n.config.ts",
     defaultLocale: "yue-Hant",
-    baseUrl: process.env.NUXT_PUBLIC_SITE_URL || "https://jyutjyu.com",
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
     strategy: "prefix_except_default",
     detectBrowserLanguage: false,
     locales: i18nLocales,
@@ -96,14 +99,14 @@ export default defineNuxtConfig({
           content: "n6gCW8_c_OVeNtCgQLEdDxep5cZY5att-ikH1K_kLdw",
         },
         { property: "og:type", content: "website" },
-        { property: "og:image", content: "https://jyutjyu.com/og.png" },
+        { property: "og:image", content: `${DEFAULT_SITE_URL}/og.png` },
         { property: "og:image:type", content: "image/png" },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
         { property: "og:image:alt", content: "Jyutjyu" },
         // Twitter
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: "https://jyutjyu.com/og.png" },
+        { name: "twitter:image", content: `${DEFAULT_SITE_URL}/og.png` },
         { name: "twitter:image:alt", content: "Jyutjyu" },
       ],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
@@ -132,7 +135,7 @@ export default defineNuxtConfig({
 
     // 客户端公开配置
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "https://jyutjyu.com",
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
       siteName: "粵語辭叢",
       siteDescription:
         "開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries",
