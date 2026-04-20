@@ -19,17 +19,16 @@ export default defineEventHandler(async (event) => {
       resolution,
     };
   } catch (error: any) {
-    console.error("讀取搜尋落點失敗:", error);
-    setResponseStatus(event, 500);
+    console.error("讀取搜尋落點失敗，回退到普通搜尋:", error);
     return {
-      success: false,
+      success: true,
       query: searchQuery,
       reverse,
       resolution: {
         type: "search",
         reason: "no_exact_match",
       },
-      error: error?.message || "服務暫時不可用",
+      degraded: true,
     };
   }
 });

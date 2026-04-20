@@ -14,6 +14,7 @@ import {
 import { isJyutpingQuery, normalizeSearchQuery } from "~/utils/query-classify";
 
 import { getEntriesCollection } from "./mongodb";
+import { getIsServerApiEnabled } from "./runtime-mode";
 
 interface CandidateResolution {
   originalKey: string;
@@ -25,13 +26,6 @@ let apiCanonicalHeadwordsCache: string[] | null = null;
 let apiCanonicalHeadwordsPromise: Promise<string[]> | null = null;
 
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
-
-const getIsApiEnabled = (): boolean => {
-  const config = useRuntimeConfig();
-  return (
-    config.public.useApi === true || String(config.public.useApi) === "true"
-  );
-};
 
 const escapeRegex = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -171,7 +165,7 @@ export const resolveWordEntries = async (
     return null;
   }
 
-  const useApi = getIsApiEnabled();
+  const useApi = getIsServerApiEnabled();
 
   if (useApi) {
     try {
@@ -214,7 +208,7 @@ export const resolveSearchLanding = async (
     };
   }
 
-  const useApi = getIsApiEnabled();
+  const useApi = getIsServerApiEnabled();
 
   if (useApi) {
     try {
@@ -222,10 +216,13 @@ export const resolveSearchLanding = async (
       return resolveSearchLandingFromEntries(candidates?.entries || []);
     } catch (error) {
       console.error(
-        "Search landing resolve (API mode) failed, fallback to JSON mode:",
+        "Search landing resolve (API mode) failed, fallback to search result:",
         error,
       );
-      return resolveSearchLandingFromJson(cleaned, options);
+      return {
+        type: "search",
+        reason: "no_exact_match",
+      };
     }
   }
 
@@ -233,7 +230,7 @@ export const resolveSearchLanding = async (
 };
 
 export const getCanonicalHeadwords = async (): Promise<string[]> => {
-  const useApi = getIsApiEnabled();
+  const useApi = getIsServerApiEnabled();
 
   if (useApi) {
     try {
