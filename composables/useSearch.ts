@@ -141,9 +141,18 @@ export const useSearch = () => {
   // 获取缓存实例
   const cache = getSearchCache();
 
+  const markApiUnavailable = () => {
+    apiAvailability = false;
+    apiAvailabilityPromise = null;
+  };
+
   const resolveUseApi = async (
     probeIfNeeded: boolean = true,
   ): Promise<boolean> => {
+    if (apiAvailability === false) {
+      return false;
+    }
+
     // 配置明确启用 API 时，不再探测
     if (preferApiByConfig) {
       apiAvailability = true;
@@ -215,37 +224,31 @@ export const useSearch = () => {
 
     // 执行实际搜索
     let results: DictionaryEntry[] = [];
+    const wrappedOnResults = options.onResults
+      ? (entries: DictionaryEntry[], isComplete: boolean) => {
+          if (isComplete) {
+            results = entries;
+          }
+          options.onResults!(entries, isComplete);
+        }
+      : undefined;
     const useApiNow = await resolveUseApi();
 
     if (useApiNow) {
-      // 使用 MongoDB API
-      // 包装 onResults 回调,只缓存最终结果
-      const wrappedOnResults = options.onResults
-        ? (entries: DictionaryEntry[], isComplete: boolean) => {
-            if (isComplete) {
-              results = entries;
-            }
-            options.onResults!(entries, isComplete);
-          }
-        : undefined;
-
-      results = await apiSearch.searchBasic(query, {
+      const apiResults = await apiSearch.searchBasicOrNull(query, {
         limit: options.limit,
         mode: options.searchDefinition ? "reverse" : "normal",
         onResults: wrappedOnResults,
       });
-    } else {
-      // 使用静态 JSON
-      // 包装 onResults 回调,只缓存最终结果
-      const wrappedOnResults = options.onResults
-        ? (entries: DictionaryEntry[], isComplete: boolean) => {
-            if (isComplete) {
-              results = entries;
-            }
-            options.onResults!(entries, isComplete);
-          }
-        : undefined;
 
+      if (apiResults !== null) {
+        results = apiResults;
+      } else {
+        markApiUnavailable();
+      }
+    }
+
+    if (!useApiNow || apiAvailability === false) {
       results = await jsonSearch.searchBasic(query, {
         ...options,
         onResults: wrappedOnResults,
@@ -280,13 +283,18 @@ export const useSearch = () => {
       return lightweightSuggestions;
     }
 
+    markApiUnavailable();
+
     const useApiNow = await resolveUseApi();
     if (useApiNow) {
-      // API 模式：使用搜索结果的词头作为建议
-      const results = await apiSearch.search(query, { limit: 10 });
-      return results
-        .map((e) => e.headword.normalized)
-        .filter((v, i, a) => a.indexOf(v) === i);
+      const results = await apiSearch.searchOrNull(query, { limit: 10 });
+      if (results !== null) {
+        return results
+          .map((e) => e.headword.normalized)
+          .filter((v, i, a) => a.indexOf(v) === i);
+      }
+
+      markApiUnavailable();
     }
     return jsonSearch.getSuggestions(query);
   };

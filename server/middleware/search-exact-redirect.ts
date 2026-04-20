@@ -4,6 +4,7 @@ import {
   buildWordRoutePath,
   stripLocalePrefix,
 } from "../../utils/route-paths";
+import { getIsServerApiEnabled } from "../utils/runtime-mode";
 import { resolveSearchLanding } from "../utils/word-resolver";
 
 const getLocalePrefixFromPath = (path: string): string => {
@@ -18,6 +19,11 @@ const getLocalePrefixFromPath = (path: string): string => {
 export default defineEventHandler(async (event) => {
   const method = String(event.method || "").toUpperCase();
   if (method !== "GET" && method !== "HEAD") return;
+
+  // In API mode this redirect depends on a live Mongo lookup, and on Workers
+  // that extra request-path resolution has proven less reliable than letting
+  // the client navigation/search flow handle the fallback directly.
+  if (getIsServerApiEnabled()) return;
 
   const requestUrl = getRequestURL(event);
   if (stripLocalePrefix(requestUrl.pathname) !== "/search") return;

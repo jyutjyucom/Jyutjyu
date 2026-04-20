@@ -1,11 +1,8 @@
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig();
-  const shouldRedirect =
+  const shouldRedirectAllHosts =
     config.enforceCanonicalHostRedirect === true ||
     String(config.enforceCanonicalHostRedirect) === "true";
-
-  // Keep disabled by default to avoid host-level redirect conflicts.
-  if (!shouldRedirect) return;
 
   const rawSiteUrl = String(config.public.siteUrl || "").trim();
   if (!rawSiteUrl) return;
@@ -24,6 +21,14 @@ export default defineEventHandler((event) => {
   if (!requestHost || requestHost === canonicalHost) return;
   if (requestHost.includes("localhost") || requestHost.startsWith("127.0.0.1"))
     return;
+
+  const shouldRedirectCommonWwwAlias =
+    !canonicalHost.startsWith("www.") &&
+    requestHost === `www.${canonicalHost}`;
+
+  // By default, only collapse the common www alias onto the canonical apex
+  // host. The runtime flag expands this to every non-canonical host.
+  if (!shouldRedirectAllHosts && !shouldRedirectCommonWwwAlias) return;
 
   const redirectUrl = new URL(requestUrl.toString());
   redirectUrl.protocol = canonicalUrl.protocol;

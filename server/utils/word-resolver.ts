@@ -27,10 +27,6 @@ let apiCanonicalHeadwordsPromise: Promise<string[]> | null = null;
 
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
 
-const escapeRegex = (value: string): string => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-};
-
 const resolveCandidatesFromApi = async (
   headword: string,
 ): Promise<CandidateResolution | null> => {
@@ -43,22 +39,22 @@ const resolveCandidatesFromApi = async (
   const queryKeys = new Set(
     queryForms.map(toComparableHeadwordKey).filter(Boolean),
   );
+  const exactForms = Array.from(
+    new Set(queryForms.map((form) => normalizeSpace(form)).filter(Boolean)),
+  );
   const collection = await getEntriesCollection();
 
-  const orConditions: any[] = [];
-  for (const form of queryForms) {
-    const safe = escapeRegex(form);
-    const matcher = { $regex: `^${safe}$`, $options: "i" };
-
-    orConditions.push(
-      { "headword.normalized": matcher },
-      { "headword.display": matcher },
-      { "meta.headword_variants": { $elemMatch: matcher } },
-    );
-  }
-
   const entries = await collection
-    .find<DictionaryEntry>({ $or: orConditions }, { projection: { _id: 0 } })
+    .find<DictionaryEntry>(
+      {
+        $or: [
+          { "headword.normalized": { $in: exactForms } },
+          { "headword.display": { $in: exactForms } },
+          { "meta.headword_variants": { $in: exactForms } },
+        ],
+      },
+      { projection: { _id: 0 } },
+    )
     .toArray();
 
   return {
