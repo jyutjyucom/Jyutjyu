@@ -1,0 +1,32 @@
+{
+  "name": "jyutjyu",
+  "account_id": "bee0d87089b3c5c89023aef60639ebeb",
+  "main": ".output/server/index.mjs",
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": true
+    }
+  },
+  "assets": {
+    "directory": ".output/public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/*",
+      "!/_nuxt/*",
+      "!/browse-index/*",
+      "!/favicon.*",
+      "!/*.svg",
+      "!/*.png",
+      "!/*.jpg",
+      "!/*.jpeg",
+      "!/*.webp",
+      "!/*.woff2",
+      "!/*.css",
+      "!/*.js",
+      "!/*.json"
+    ]
+  }
+}

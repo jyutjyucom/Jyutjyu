@@ -81,10 +81,10 @@ export const useDictionaryAPI = () => {
   /**
    * 搜索词条
    */
-  const search = async (
+  const searchOrNull = async (
     query: string,
     options: APISearchOptions = {},
-  ): Promise<DictionaryEntry[]> => {
+  ): Promise<DictionaryEntry[] | null> => {
     const { limit = 50, dict, mode = "normal", onResults } = options;
 
     if (!query || query.trim() === "") {
@@ -107,7 +107,7 @@ export const useDictionaryAPI = () => {
 
       if (!response.success) {
         console.error("搜尋失敗:", response.error);
-        return [];
+        return null;
       }
 
       const results = response.results || [];
@@ -120,8 +120,16 @@ export const useDictionaryAPI = () => {
       return results;
     } catch (error) {
       console.error("API 請求失敗:", error);
-      return [];
+      return null;
     }
+  };
+
+  const search = async (
+    query: string,
+    options: APISearchOptions = {},
+  ): Promise<DictionaryEntry[]> => {
+    const results = await searchOrNull(query, options);
+    return results ?? [];
   };
 
   /**
@@ -219,6 +227,22 @@ export const useDictionaryAPI = () => {
     return search(query, options);
   };
 
+  const searchBasicOrNull = async (
+    query: string,
+    optionsOrLimit: APISearchOptions | number = 100,
+  ): Promise<DictionaryEntry[] | null> => {
+    const options: APISearchOptions =
+      typeof optionsOrLimit === "number"
+        ? { limit: optionsOrLimit }
+        : optionsOrLimit;
+
+    if ((options as any).searchDefinition) {
+      options.mode = "reverse";
+    }
+
+    return searchOrNull(query, options);
+  };
+
   /**
    * 获取推荐词条（随机）
    * 与前端策略一致：只从高质量词典中选取，过滤无效词条
@@ -250,7 +274,9 @@ export const useDictionaryAPI = () => {
     isAPIEnabled,
     ping,
     search,
+    searchOrNull,
     searchBasic,
+    searchBasicOrNull,
     getSuggestions,
     getEntryById,
     getDictionaries,

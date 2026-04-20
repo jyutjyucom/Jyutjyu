@@ -14,8 +14,12 @@ let db: Db | null = null;
 export async function getDatabase(): Promise<Db> {
   const config = useRuntimeConfig();
 
-  const mongodbUri = config.mongodbUri as string | undefined;
-  const mongodbDbName = config.mongodbDbName as string | undefined;
+  const mongodbUri =
+    String(process.env.MONGODB_URI || config.mongodbUri || "").trim() ||
+    undefined;
+  const mongodbDbName =
+    String(process.env.MONGODB_DB_NAME || config.mongodbDbName || "jyutjyu")
+      .trim() || "jyutjyu";
 
   if (!mongodbUri) {
     throw new Error("MONGODB_URI 未配置");
@@ -30,7 +34,7 @@ export async function getDatabase(): Promise<Db> {
     await client.connect();
   }
 
-  db = client.db(mongodbDbName || "jyutjyu");
+  db = client.db(mongodbDbName);
   return db;
 }
 
