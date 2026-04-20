@@ -24,6 +24,8 @@ import { generateKeywords, cleanHeadword } from "../utils/text-processor.js";
  */
 export const DICTIONARY_INFO = {
   id: "ts-english-dict",
+  enable_chunking: true,
+  chunk_output_dir: "ts-english-dict",
   name: {
     "zh-Hans": "台山话英文字典",
     "zh-Hant": "台山話英文字典",
@@ -252,6 +254,48 @@ export function transformAll(rows) {
  */
 export function aggregateEntries(entries) {
   return entries;
+}
+
+/**
+ * 后处理：分片大型词典并删除完整文件，避免静态部署资源超限
+ * @param {Array<Object>} entries
+ * @param {string} outputPath
+ */
+export async function postProcess(entries, outputPath) {
+  const CHUNK_THRESHOLD = 10000;
+
+  if (entries.length < CHUNK_THRESHOLD) {
+    console.log(
+      `ℹ️  词条数量 (${entries.length}) 未超过阈值 (${CHUNK_THRESHOLD})，跳过分片`,
+    );
+    return;
+  }
+
+  const fs = await import("fs");
+  const path = await import("path");
+  const { splitDictionary } = await import("../split-dictionary.cjs");
+
+  const outputDir = path.default.join(
+    "public",
+    "dictionaries",
+    DICTIONARY_INFO.chunk_output_dir,
+  );
+  const fileSize = (fs.default.statSync(outputPath).size / 1024 / 1024).toFixed(
+    2,
+  );
+
+  console.log(`\n🔧 检测到大型词典，启用自动分片...`);
+  console.log(`📊 词条总数: ${entries.length}`);
+  console.log(`📄 完整文件大小: ${fileSize} MB`);
+  console.log(`📁 分片输出目录: ${outputDir}`);
+
+  await splitDictionary(outputPath, outputDir);
+
+  console.log(`✅ 台山话英文字典数据分片完成！`);
+
+  console.log(`\n🗑️  清理完整文件...`);
+  fs.default.unlinkSync(outputPath);
+  console.log(`✅ 已删除完整文件 (节省 ${fileSize} MB 磁盘空间)`);
 }
 
 export const FIELD_NOTES = {

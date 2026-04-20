@@ -32,6 +32,7 @@ let dictionaryIndexPromise: Promise<any | null> | null = null;
 
 const fallbackChunkedDictionaries: Array<{ id: string; chunk_dir: string }> = [
   { id: "hk-cantowords", chunk_dir: "cantowords" },
+  { id: "ts-english-dict", chunk_dir: "ts-english-dict" },
   { id: "wiktionary-cantonese", chunk_dir: "wiktionary" },
 ];
 
