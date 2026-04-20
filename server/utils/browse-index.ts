@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { DictionaryEntry } from "~/types/dictionary";
 import { getEntriesCollection } from "./mongodb";
+import { getIsServerApiEnabled } from "./runtime-mode";
 import bundledDictionaryIndex from "~/content/dictionaries/index.json";
 
 interface DictionaryIndexItem {
@@ -115,13 +116,6 @@ const getCanonicalHeadword = (entry: DictionaryEntry): string => {
     return normalized;
   }
   return normalizeSpace(entry.headword?.display || "");
-};
-
-const getIsApiEnabled = (): boolean => {
-  const config = useRuntimeConfig();
-  return (
-    config.public.useApi === true || String(config.public.useApi) === "true"
-  );
 };
 
 const pickDictionaryLabel = (dict: DictionaryIndexItem): string => {
@@ -508,7 +502,7 @@ const buildBrowseDatasetFromApi = async (): Promise<BrowseDataset> => {
 };
 
 const buildBrowseDataset = async (): Promise<BrowseDataset> => {
-  if (getIsApiEnabled()) {
+  if (getIsServerApiEnabled()) {
     try {
       return await buildBrowseDatasetFromApi();
     } catch (apiError) {
