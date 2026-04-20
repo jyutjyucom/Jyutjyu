@@ -153,10 +153,31 @@ export default defineNuxtConfig({
   // Nitro 配置（服务端）
   nitro: {
     alias: {
-      // Cloudflare Workers does not need the AWS auth helper, but Nitro still
-      // tries to resolve MongoDB's optional dependency during bundling.
+      // Cloudflare Workers does not use these optional MongoDB Node extensions,
+      // but Nitro still tries to resolve them during bundling.
       '@aws-sdk/credential-providers': fileURLToPath(
         new URL('./server/shims/aws-credential-providers.ts', import.meta.url),
+      ),
+      '@mongodb-js/zstd': fileURLToPath(
+        new URL('./server/shims/mongodb-zstd.ts', import.meta.url),
+      ),
+      'gcp-metadata': fileURLToPath(
+        new URL('./server/shims/mongodb-gcp-metadata.ts', import.meta.url),
+      ),
+      kerberos: fileURLToPath(
+        new URL('./server/shims/mongodb-kerberos.ts', import.meta.url),
+      ),
+      'mongodb-client-encryption': fileURLToPath(
+        new URL(
+          './server/shims/mongodb-client-encryption.ts',
+          import.meta.url,
+        ),
+      ),
+      snappy: fileURLToPath(
+        new URL('./server/shims/mongodb-snappy.ts', import.meta.url),
+      ),
+      socks: fileURLToPath(
+        new URL('./server/shims/mongodb-socks.ts', import.meta.url),
       ),
     },
     prerender: {
