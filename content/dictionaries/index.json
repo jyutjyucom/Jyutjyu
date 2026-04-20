@@ -516,6 +516,8 @@
       },
       "dialect": "台山",
       "file": "ts-english-dict.json",
+      "chunked": true,
+      "chunk_dir": "ts-english-dict",
       "entries_count": 42499,
       "author": {
         "zh-Hans": "Gene M. Chin",
