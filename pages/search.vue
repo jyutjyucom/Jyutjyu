@@ -517,27 +517,12 @@ const selectSort = (
   updateDisplayedResults();
 };
 
-// 聚合：将相同词头（display + normalized）的结果合并展示
+// 聚合：将相同词头（display + normalized）的结果合并展示。
+// 不再按粤拼拆分，这样不同词典收录的同一词头会回到同一张卡片。
 const getAggregationKey = (entry: DictionaryEntry): string => {
   const headwordDisplay = entry.headword.display?.trim() || "";
   const headwordNormalized = entry.headword.normalized?.trim() || "";
-  const jyutpingKey = getEntryJyutpingKey(entry);
-  return [headwordDisplay, headwordNormalized, jyutpingKey].join("||");
-};
-
-const getEntryJyutpingKey = (entry: DictionaryEntry): string => {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  const jps = entry.phonetic?.jyutping || [];
-  jps.forEach((jp) => {
-    const value = jp?.trim();
-    if (!value) return;
-    if (!seen.has(value)) {
-      seen.add(value);
-      result.push(value);
-    }
-  });
-  return result.join("; ");
+  return [headwordDisplay, headwordNormalized].join("||");
 };
 
 const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
