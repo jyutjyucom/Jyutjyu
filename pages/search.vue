@@ -401,7 +401,7 @@ const { navigateFromSearchInput } = useSearchNavigation();
 const { t, locale } = useI18n();
 const { getAllVariants, ensureInitialized } = useChineseConverter();
 const warmContentFonts = useWarmContentFonts();
-const { searchPath } = useAppRoutes();
+const { searchPath, wordPath } = useAppRoutes();
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -417,6 +417,7 @@ const loading = ref(false);
 const loadingMore = ref(false);
 const suggestions = ref<string[]>([]);
 const showSuggestions = ref(false);
+const redirectingToExactMatch = ref(false);
 // 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
 const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
 const enableReverseSearch = ref(route.query.reverse === "1"); // 从 URL 读取反查状态
@@ -954,6 +955,55 @@ const hasMore = computed(() => {
 });
 const totalCount = computed(() => aggregatedResults.value.length);
 
+const getExactRedirectHeadword = (
+  entries: DictionaryEntry[],
+  query: string,
+): string | null => {
+  const normalizedQuery = query.trim();
+  if (!normalizedQuery) return null;
+  if (enableReverseSearch.value) return null;
+  if (isJyutpingQuery(normalizedQuery)) return null;
+
+  const exactMatches = aggregateEntries(entries).filter((group) =>
+    isExactMatch(group.primary, normalizedQuery),
+  );
+
+  if (exactMatches.length !== 1) {
+    return null;
+  }
+
+  const primary = exactMatches[0]?.primary;
+  const headword =
+    primary?.headword.normalized?.trim() || primary?.headword.display?.trim();
+
+  return headword || null;
+};
+
+const redirectToExactMatchIfNeeded = async (
+  entries: DictionaryEntry[],
+  query: string,
+): Promise<boolean> => {
+  if (!process.client || redirectingToExactMatch.value) {
+    return false;
+  }
+
+  const headword = getExactRedirectHeadword(entries, query);
+  if (!headword) {
+    return false;
+  }
+
+  redirectingToExactMatch.value = true;
+
+  try {
+    await navigateTo(wordPath(headword), {
+      replace: true,
+    });
+    return true;
+  } finally {
+    redirectingToExactMatch.value = false;
+  }
+};
+
 // 执行搜索
 const performSearch = async (query: string) => {
   if (!query || query.trim() === "") {
@@ -984,7 +1034,7 @@ const performSearch = async (query: string) => {
 
   try {
     // 流式搜索：搜到什么先展示什么
-    await searchBasic(query.trim(), {
+    const results = await searchBasic(query.trim(), {
       limit: 1000,
       searchDefinition: enableReverseSearch.value,
       onResults: (entries, complete) => {
@@ -1006,6 +1056,10 @@ const performSearch = async (query: string) => {
         }
       },
     });
+
+    if (await redirectToExactMatchIfNeeded(results, query.trim())) {
+      return;
+    }
   } catch (error) {
     console.error("搜尋失敗:", error);
     allResults.value = [];

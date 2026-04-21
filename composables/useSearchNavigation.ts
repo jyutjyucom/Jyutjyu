@@ -18,7 +18,10 @@ interface NavigateFromSearchInputOptions {
   knownExactHeadword?: boolean;
 }
 
-const RESOLVE_TIMEOUT_MS = 400;
+// Cold Worker/OpenCC initialization can take a few seconds in production.
+// Keep the timeout long enough for exact-match routing to win on the first
+// request, while still falling back to the search page if the resolver hangs.
+const RESOLVE_TIMEOUT_MS = 5000;
 
 const isAbortError = (error: unknown): boolean => {
   return (
