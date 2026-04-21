@@ -50,6 +50,10 @@ interface SuggestionResponse {
   error?: string;
 }
 
+const API_PING_TIMEOUT_MS = 1200;
+const API_SEARCH_TIMEOUT_MS = 3000;
+const API_SUGGEST_TIMEOUT_MS = 1500;
+
 /**
  * 词典 API 查询
  */
@@ -71,7 +75,9 @@ export const useDictionaryAPI = () => {
    */
   const ping = async (): Promise<boolean> => {
     try {
-      const response = await $fetch<{ success?: boolean }>("/api/dictionaries");
+      const response = await $fetch<{ success?: boolean }>("/api/dictionaries", {
+        timeout: API_PING_TIMEOUT_MS,
+      });
       return response?.success === true;
     } catch {
       return false;
@@ -103,7 +109,9 @@ export const useDictionaryAPI = () => {
         params.set("dict", dict);
       }
 
-      const response = await $fetch<SearchResponse>(`/api/search?${params}`);
+      const response = await $fetch<SearchResponse>(`/api/search?${params}`, {
+        timeout: API_SEARCH_TIMEOUT_MS,
+      });
 
       if (!response.success) {
         console.error("搜尋失敗:", response.error);
@@ -196,9 +204,12 @@ export const useDictionaryAPI = () => {
 
       const response = await $fetch<SuggestionResponse>(
         `/api/suggest?${params}`,
+        {
+          timeout: API_SUGGEST_TIMEOUT_MS,
+        },
       );
       if (!response.success) {
-        return [];
+        return null;
       }
 
       return Array.isArray(response.suggestions) ? response.suggestions : [];

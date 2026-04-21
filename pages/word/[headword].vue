@@ -330,7 +330,7 @@ const router = useRouter();
 const { t, locale } = useI18n();
 const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
-const { searchBasic } = useSearch();
+const jsonDictionary = useDictionary();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
 
@@ -500,7 +500,7 @@ const refreshBackSearchResultCount = async () => {
     let streamedCount = 0;
     let lastAggregated: AggregatedEntry[] = [];
 
-    const results = await searchBasic(query, {
+    const results = await jsonDictionary.searchBasic(query, {
       limit: 1000,
       searchDefinition: false,
       onResults: (entries) => {

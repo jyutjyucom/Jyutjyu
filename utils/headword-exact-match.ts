@@ -4,6 +4,13 @@ import {
   toSimplified,
   toTraditional,
 } from "../server/utils/opencc.ts";
+import {
+  EXACT_MATCH_BUCKET_HASH,
+  EXACT_MATCH_BUCKET_MOD,
+  EXACT_MATCH_BUCKET_WIDTH,
+  getExactMatchBucketId,
+  getExactMatchBucketWidth,
+} from "../server/utils/exact-match-bucket.js";
 import { isJyutpingQuery, normalizeSearchQuery } from "./query-classify.ts";
 
 interface DictionaryIndexItem {
@@ -58,7 +65,7 @@ export interface SearchLandingResolution {
 const DICTIONARY_ASSET_ROOT = "/dictionaries";
 const EXACT_MATCH_ASSET_ROOT = "/exact-match";
 const CHUNK_CACHE_LIMIT = 24;
-const EXACT_MATCH_BUCKET_MOD = 256;
+const DEFAULT_CANONICAL_HEADWORDS_ASSET = "canonical-headwords.json";
 
 interface WorkerAssetsBinding {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
@@ -83,7 +90,18 @@ interface ExactMatchWordsBucket {
 }
 
 interface ExactMatchManifest {
-  canonical_headwords?: string[];
+  schema_version?: string;
+  bucket_hash?: string;
+  bucket_mod?: number;
+  bucket_width?: number;
+  canonical_headwords_asset?: string;
+  canonical_headwords_count?: number;
+}
+
+interface ExactMatchConfig {
+  bucketMod: number;
+  bucketWidth: number;
+  canonicalHeadwordsAsset: string;
 }
 
 let dictionaryIndexCache: DictionaryIndexItem[] | null = null;
@@ -135,6 +153,10 @@ const getWorkerAssetsBinding = (): WorkerAssetsBinding | null => {
 
   const assets = runtimeEnv?.ASSETS;
   return assets && typeof assets.fetch === "function" ? assets : null;
+};
+
+const isWorkerAssetsRuntime = (): boolean => {
+  return Boolean(getWorkerAssetsBinding());
 };
 
 const buildDictionaryAssetPath = (...segments: string[]): string => {
@@ -190,18 +212,6 @@ const isMissingAssetError = (error: unknown): boolean => {
     message.includes("(400)") ||
     message.includes("Cannot find module")
   );
-};
-
-const getExactMatchBucketId = (value: string): string => {
-  const normalized = normalizeSpace(value);
-  const firstChar = Array.from(normalized)[0];
-  const codePoint = firstChar?.codePointAt(0);
-
-  if (!firstChar || typeof codePoint !== "number") {
-    return "misc";
-  }
-
-  return (codePoint % EXACT_MATCH_BUCKET_MOD).toString(16).padStart(2, "0");
 };
 
 const getCanonicalHeadword = (entry: DictionaryEntry): string => {
@@ -280,6 +290,35 @@ const getExactMatchManifest = async (): Promise<ExactMatchManifest | null> => {
   })();
 
   return exactMatchManifestPromise;
+};
+
+const getExactMatchConfig = async (): Promise<ExactMatchConfig | null> => {
+  const manifest = await getExactMatchManifest();
+  if (!manifest) {
+    return null;
+  }
+
+  const bucketHash = String(manifest.bucket_hash || "").trim();
+  if (bucketHash && bucketHash !== EXACT_MATCH_BUCKET_HASH) {
+    throw new Error(`Unsupported exact-match bucket hash: ${bucketHash}`);
+  }
+
+  const bucketMod =
+    Number.isInteger(manifest.bucket_mod) && Number(manifest.bucket_mod) > 0
+      ? Number(manifest.bucket_mod)
+      : EXACT_MATCH_BUCKET_MOD;
+  const bucketWidth =
+    Number.isInteger(manifest.bucket_width) && Number(manifest.bucket_width) > 0
+      ? Number(manifest.bucket_width)
+      : getExactMatchBucketWidth(bucketMod);
+
+  return {
+    bucketMod,
+    bucketWidth,
+    canonicalHeadwordsAsset:
+      String(manifest.canonical_headwords_asset || "").trim() ||
+      DEFAULT_CANONICAL_HEADWORDS_ASSET,
+  };
 };
 
 const getExactMatchFormsBucket = async (
@@ -734,8 +773,8 @@ const findEntriesFromChunkedDictionary = async (
 const resolveCandidatesFromExactMatchIndex = async (
   headword: string,
 ): Promise<CandidateResolution | null> => {
-  const manifest = await getExactMatchManifest();
-  if (!manifest) {
+  const config = await getExactMatchConfig();
+  if (!config) {
     return null;
   }
 
@@ -746,7 +785,7 @@ const resolveCandidatesFromExactMatchIndex = async (
   }
 
   const formsBucket = await getExactMatchFormsBucket(
-    getExactMatchBucketId(originalKey),
+    getExactMatchBucketId(originalKey, config),
   );
   const candidates = formsBucket.forms?.[originalKey] || [];
   if (candidates.length === 0) {
@@ -761,7 +800,7 @@ const resolveCandidatesFromExactMatchIndex = async (
   const entries: DictionaryEntry[] = [];
 
   for (const candidate of candidates) {
-    const bucketId = getExactMatchBucketId(candidate.key);
+    const bucketId = getExactMatchBucketId(candidate.key, config);
     let wordsBucket = wordBuckets.get(bucketId);
     if (!wordsBucket) {
       wordsBucket = await getExactMatchWordsBucket(bucketId);
@@ -827,6 +866,10 @@ const resolveCandidatesFromJson = async (
   const indexedCandidates = await resolveCandidatesFromExactMatchIndex(headword);
   if (indexedCandidates) {
     return indexedCandidates;
+  }
+
+  if (isWorkerAssetsRuntime()) {
+    return null;
   }
 
   return resolveCandidatesFromScannedJson(headword);
@@ -913,10 +956,43 @@ export const getCanonicalHeadwordsFromJson = async (): Promise<string[]> => {
   }
 
   jsonCanonicalHeadwordsPromise = (async () => {
-    const manifest = await getExactMatchManifest();
-    const headwords = Array.isArray(manifest?.canonical_headwords)
-      ? manifest.canonical_headwords
-      : await buildJsonCanonicalHeadwords();
+    const config = await getExactMatchConfig();
+
+    let headwords: string[] | null = null;
+
+    if (config) {
+      try {
+        const raw = await readDictionaryText(
+          buildExactMatchAssetPath(config.canonicalHeadwordsAsset),
+        );
+        const parsed = JSON.parse(raw) as
+          | { canonical_headwords?: string[] }
+          | string[];
+        headwords = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed?.canonical_headwords)
+            ? parsed.canonical_headwords
+            : [];
+      } catch (error) {
+        if (!isMissingAssetError(error)) {
+          throw error;
+        }
+
+        if (isWorkerAssetsRuntime()) {
+          console.error(
+            "Exact-match canonical headwords asset missing in Worker runtime:",
+            error,
+          );
+          headwords = [];
+        }
+      }
+    }
+
+    if (!headwords) {
+      headwords = isWorkerAssetsRuntime()
+        ? []
+        : await buildJsonCanonicalHeadwords();
+    }
 
     jsonCanonicalHeadwordsCache = headwords;
     return headwords;
