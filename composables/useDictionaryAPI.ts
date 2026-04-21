@@ -51,7 +51,7 @@ interface SuggestionResponse {
 }
 
 const API_PING_TIMEOUT_MS = 1200;
-const API_SEARCH_TIMEOUT_MS = 3000;
+const API_SEARCH_TIMEOUT_MS = 4200;
 const API_SUGGEST_TIMEOUT_MS = 1500;
 
 /**

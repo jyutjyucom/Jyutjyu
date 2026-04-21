@@ -109,8 +109,11 @@ class SearchCache {
 
 // 全局缓存实例(在客户端持久化)
 let searchCacheInstance: SearchCache | null = null;
-let apiAvailability: boolean | null = null;
-let apiAvailabilityPromise: Promise<boolean> | null = null;
+let pingAvailability: boolean | null = null;
+let pingAvailabilityPromise: Promise<boolean> | null = null;
+let searchAvailability: boolean | null = null;
+let suggestionAvailability: boolean | null = null;
+let searchFailureStreak = 0;
 
 /**
  * 获取缓存实例
@@ -141,52 +144,69 @@ export const useSearch = () => {
   // 获取缓存实例
   const cache = getSearchCache();
 
-  const markApiUnavailable = () => {
-    apiAvailability = false;
-    apiAvailabilityPromise = null;
+  const recordPingAvailability = (available: boolean) => {
+    pingAvailability = available;
+    pingAvailabilityPromise = null;
+  };
+
+  const recordSearchSuccess = () => {
+    searchAvailability = true;
+    pingAvailability = true;
+    searchFailureStreak = 0;
+  };
+
+  const recordSearchFailure = () => {
+    searchFailureStreak += 1;
+    if (searchFailureStreak >= 2) {
+      searchAvailability = false;
+    }
+  };
+
+  const recordSuggestionSuccess = () => {
+    suggestionAvailability = true;
+  };
+
+  const recordSuggestionFailure = () => {
+    suggestionAvailability = false;
   };
 
   const resolveUseApi = async (
     probeIfNeeded: boolean = true,
   ): Promise<boolean> => {
-    if (apiAvailability === false) {
-      return false;
-    }
-
     // 配置明确启用 API 时，不再探测
     if (preferApiByConfig) {
-      apiAvailability = true;
+      pingAvailability = true;
       return true;
     }
 
     // 服务端保持配置语义，避免 SSR 时额外探测
     if (!process.client || !probeIfNeeded) {
-      return false;
+      return pingAvailability === true;
     }
 
-    if (apiAvailability !== null) {
-      return apiAvailability;
+    if (pingAvailability !== null) {
+      return pingAvailability;
     }
 
-    if (apiAvailabilityPromise) {
-      return apiAvailabilityPromise;
+    if (pingAvailabilityPromise) {
+      return pingAvailabilityPromise;
     }
 
-    apiAvailabilityPromise = (async () => {
+    pingAvailabilityPromise = (async () => {
       try {
         const available = await apiSearch.ping();
-        apiAvailability = available;
+        recordPingAvailability(available);
         if (available) {
           if (import.meta.dev)
             console.log("偵測到 API 可用，自動切換到 API 搜尋模式");
         }
         return available;
       } finally {
-        apiAvailabilityPromise = null;
+        pingAvailabilityPromise = null;
       }
     })();
 
-    return apiAvailabilityPromise;
+    return pingAvailabilityPromise;
   };
 
   /**
@@ -232,9 +252,11 @@ export const useSearch = () => {
           options.onResults!(entries, isComplete);
         }
       : undefined;
-    const useApiNow = await resolveUseApi();
+    let apiRequestFailed = false;
 
-    if (useApiNow) {
+    const shouldTryApi = preferApiByConfig || searchAvailability !== false;
+
+    if (shouldTryApi) {
       const apiResults = await apiSearch.searchBasicOrNull(query, {
         limit: options.limit,
         mode: options.searchDefinition ? "reverse" : "normal",
@@ -242,13 +264,15 @@ export const useSearch = () => {
       });
 
       if (apiResults !== null) {
+        recordSearchSuccess();
         results = apiResults;
       } else {
-        markApiUnavailable();
+        recordSearchFailure();
+        apiRequestFailed = true;
       }
     }
 
-    if (!useApiNow || apiAvailability === false) {
+    if (!shouldTryApi || apiRequestFailed) {
       results = await jsonSearch.searchBasic(query, {
         ...options,
         onResults: wrappedOnResults,
@@ -278,23 +302,27 @@ export const useSearch = () => {
    * 获取搜索建议
    */
   const getSuggestions = async (query: string): Promise<string[]> => {
-    const lightweightSuggestions = await apiSearch.getSuggestions(query);
-    if (lightweightSuggestions !== null) {
-      return lightweightSuggestions;
+    if (suggestionAvailability !== false) {
+      const lightweightSuggestions = await apiSearch.getSuggestions(query);
+      if (lightweightSuggestions !== null) {
+        recordSuggestionSuccess();
+        return lightweightSuggestions;
+      }
+
+      recordSuggestionFailure();
     }
 
-    markApiUnavailable();
-
-    const useApiNow = await resolveUseApi();
-    if (useApiNow) {
+    const shouldTrySearchApi = preferApiByConfig || searchAvailability !== false;
+    if (shouldTrySearchApi) {
       const results = await apiSearch.searchOrNull(query, { limit: 10 });
       if (results !== null) {
+        recordSearchSuccess();
         return results
           .map((e) => e.headword.normalized)
           .filter((v, i, a) => a.indexOf(v) === i);
       }
 
-      markApiUnavailable();
+      recordSearchFailure();
     }
     return jsonSearch.getSuggestions(query);
   };
@@ -317,8 +345,16 @@ export const useSearch = () => {
    * 获取当前使用的模式
    */
   const getMode = () => {
-    if (preferApiByConfig || apiAvailability === true) return "mongodb";
-    if (apiAvailability === false) return "json";
+    if (
+      preferApiByConfig ||
+      searchAvailability === true ||
+      pingAvailability === true
+    ) {
+      return "mongodb";
+    }
+    if (searchAvailability === false && pingAvailability === false) {
+      return "json";
+    }
     return "auto";
   };
 
