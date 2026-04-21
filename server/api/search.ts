@@ -47,6 +47,48 @@ const extractKeywordStrings = (value: unknown): string[] => {
   return [];
 };
 
+const ATLAS_INDEX_PROBE_TIMEOUT_MS = 750;
+const ATLAS_SEARCH_TIMEOUT_MS = 2500;
+const FALLBACK_SEARCH_TIMEOUT_MS = 2500;
+const SEARCH_HANDLER_TIMEOUT_MS = 3500;
+
+let atlasSearchAvailabilityCache: boolean | null = null;
+let atlasSearchAvailabilityPromise: Promise<boolean> | null = null;
+
+class SearchTimeoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SearchTimeoutError";
+  }
+}
+
+const withTimeout = async <T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new SearchTimeoutError(message));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+};
+
+const isSearchTimeoutError = (error: unknown): boolean => {
+  return error instanceof SearchTimeoutError;
+};
+
 export default defineEventHandler(async (event) => {
   const query = getQuery<SearchQuery>(event);
   const { q, limit = "50", dict, mode = "normal" } = query;
@@ -66,36 +108,27 @@ export default defineEventHandler(async (event) => {
   const hasSymbolCharacters = /[\p{P}\p{S}]/u.test(searchQuery);
 
   try {
-    // 初始化 OpenCC（首次调用时）
-    await ensureInitialized();
+    const results = await withTimeout(
+      (async () => {
+        // 初始化 OpenCC（首次调用时）
+        await ensureInitialized();
 
-    const collection = await getEntriesCollection();
+        const collection = await getEntriesCollection();
 
-    // 检查是否有 Atlas Search 索引
-    const hasAtlasSearch = await checkAtlasSearchIndex(collection);
+        // 检查是否有 Atlas Search 索引
+        const hasAtlasSearch = await checkAtlasSearchIndex(collection);
 
-    let results;
+        // 包含较多符号字符（例如 ……餐懵）时，优先走精确回退逻辑，避免全文分词漏匹配
+        if (hasAtlasSearch && !(mode === "normal" && hasSymbolCharacters)) {
+          return atlasSearch(collection, searchQuery, resultLimit, dict, mode);
+        }
 
-    // 包含较多符号字符（例如 ……餐懵）时，优先走精确回退逻辑，避免全文分词漏匹配
-    if (hasAtlasSearch && !(mode === "normal" && hasSymbolCharacters)) {
-      // 使用 Atlas Search（全文搜索）
-      results = await atlasSearch(
-        collection,
-        searchQuery,
-        resultLimit,
-        dict,
-        mode,
-      );
-    } else {
-      // 回退到普通 MongoDB 查询（更精确的匹配逻辑）
-      results = await fallbackSearch(
-        collection,
-        searchQuery,
-        resultLimit,
-        dict,
-        mode,
-      );
-    }
+        // 回退到普通 MongoDB 查询（更精确的匹配逻辑）
+        return fallbackSearch(collection, searchQuery, resultLimit, dict, mode);
+      })(),
+      SEARCH_HANDLER_TIMEOUT_MS,
+      `Search handler timed out after ${SEARCH_HANDLER_TIMEOUT_MS}ms`,
+    );
 
     return {
       success: true,
@@ -105,7 +138,20 @@ export default defineEventHandler(async (event) => {
       results,
     };
   } catch (error: any) {
-    console.error("搜尋失敗:", error);
+    if (isSearchTimeoutError(error)) {
+      console.error("[search-api] timed out", {
+        query: searchQuery,
+        mode,
+        limit: resultLimit,
+      });
+    } else {
+      console.error("[search-api] failed", {
+        query: searchQuery,
+        mode,
+        limit: resultLimit,
+        error: error?.message || String(error),
+      });
+    }
 
     return {
       success: false,
@@ -120,22 +166,45 @@ export default defineEventHandler(async (event) => {
  * 检查是否存在 Atlas Search 索引
  */
 async function checkAtlasSearchIndex(collection: any): Promise<boolean> {
-  try {
-    await collection
-      .aggregate([
-        {
-          $search: {
-            index: "default",
-            text: { query: "test", path: "headword.normalized" },
-          },
-        },
-        { $limit: 1 },
-      ])
-      .toArray();
-    return true;
-  } catch {
-    return false;
+  if (atlasSearchAvailabilityCache !== null) {
+    return atlasSearchAvailabilityCache;
   }
+
+  if (atlasSearchAvailabilityPromise) {
+    return atlasSearchAvailabilityPromise;
+  }
+
+  atlasSearchAvailabilityPromise = (async () => {
+    try {
+      await withTimeout(
+        collection
+          .aggregate(
+            [
+              {
+                $search: {
+                  index: "default",
+                  text: { query: "test", path: "headword.normalized" },
+                },
+              },
+              { $limit: 1 },
+            ],
+            { maxTimeMS: ATLAS_INDEX_PROBE_TIMEOUT_MS },
+          )
+          .toArray(),
+        ATLAS_INDEX_PROBE_TIMEOUT_MS + 250,
+        `Atlas Search probe timed out after ${ATLAS_INDEX_PROBE_TIMEOUT_MS}ms`,
+      );
+      atlasSearchAvailabilityCache = true;
+      return true;
+    } catch {
+      atlasSearchAvailabilityCache = false;
+      return false;
+    } finally {
+      atlasSearchAvailabilityPromise = null;
+    }
+  })();
+
+  return atlasSearchAvailabilityPromise;
 }
 
 /**
@@ -236,7 +305,13 @@ async function atlasSearch(
     },
   );
 
-  return await collection.aggregate(pipeline).toArray();
+  return await withTimeout(
+    collection
+      .aggregate(pipeline, { maxTimeMS: ATLAS_SEARCH_TIMEOUT_MS })
+      .toArray(),
+    ATLAS_SEARCH_TIMEOUT_MS + 250,
+    `Atlas Search timed out after ${ATLAS_SEARCH_TIMEOUT_MS}ms`,
+  );
 }
 
 /**
@@ -464,10 +539,15 @@ async function fallbackSearch(
 
   // 执行查询
   const queryCondition = buildQueryConditions();
-  const candidates = await collection
-    .find(queryCondition)
-    .limit(limit * 3)
-    .toArray();
+  const candidates = await withTimeout(
+    collection
+      .find(queryCondition)
+      .maxTimeMS(FALLBACK_SEARCH_TIMEOUT_MS)
+      .limit(limit * 3)
+      .toArray(),
+    FALLBACK_SEARCH_TIMEOUT_MS + 250,
+    `Fallback search timed out after ${FALLBACK_SEARCH_TIMEOUT_MS}ms`,
+  );
 
   // 处理每个候选词条
   for (const doc of candidates) {

@@ -1,12 +1,21 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import {
+  EXACT_MATCH_BUCKET_HASH,
+  EXACT_MATCH_BUCKET_MOD,
+  EXACT_MATCH_BUCKET_WIDTH,
+  getExactMatchBucketId,
+} from "../server/utils/exact-match-bucket.js";
 
 const DICTIONARY_ROOT = resolve(process.cwd(), "public", "dictionaries");
 const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, "index.json");
 const EXACT_MATCH_ROOT = resolve(process.cwd(), "public", "exact-match");
 const FORM_BUCKET_ROOT = join(EXACT_MATCH_ROOT, "forms");
 const WORD_BUCKET_ROOT = join(EXACT_MATCH_ROOT, "words");
-const EXACT_MATCH_BUCKET_MOD = 256;
+const CANONICAL_HEADWORDS_PATH = join(
+  EXACT_MATCH_ROOT,
+  "canonical-headwords.json",
+);
 
 const normalizeSpace = (value) =>
   String(value || "")
@@ -22,18 +31,6 @@ const readJsonFile = async (filePath) => {
 const readDictionaryEntriesFile = async (filePath) => {
   const parsed = await readJsonFile(filePath);
   return Array.isArray(parsed) ? parsed : [];
-};
-
-const getBucketId = (value) => {
-  const normalized = normalizeSpace(value);
-  const firstChar = Array.from(normalized)[0];
-  const codePoint = firstChar?.codePointAt(0);
-
-  if (!firstChar || typeof codePoint !== "number") {
-    return "misc";
-  }
-
-  return (codePoint % EXACT_MATCH_BUCKET_MOD).toString(16).padStart(2, "0");
 };
 
 const getCanonicalHeadword = (entry) => {
@@ -197,7 +194,10 @@ const main = async () => {
       continue;
     }
 
-    const bucketId = getBucketId(queryKey);
+    const bucketId = getExactMatchBucketId(queryKey, {
+      bucketMod: EXACT_MATCH_BUCKET_MOD,
+      bucketWidth: EXACT_MATCH_BUCKET_WIDTH,
+    });
     let formMap = formBucketMaps.get(bucketId);
     if (!formMap) {
       formMap = new Map();
@@ -214,7 +214,10 @@ const main = async () => {
   const wordBucketMaps = new Map();
 
   for (const [canonicalKey, record] of canonicalBuckets.entries()) {
-    const bucketId = getBucketId(canonicalKey);
+    const bucketId = getExactMatchBucketId(canonicalKey, {
+      bucketMod: EXACT_MATCH_BUCKET_MOD,
+      bucketWidth: EXACT_MATCH_BUCKET_WIDTH,
+    });
     let bucket = wordBucketMaps.get(bucketId);
     if (!bucket) {
       bucket = {};
@@ -272,16 +275,31 @@ const main = async () => {
   );
 
   await writeFile(
+    CANONICAL_HEADWORDS_PATH,
+    JSON.stringify(
+      {
+        canonical_headwords: canonicalHeadwords,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+
+  await writeFile(
     join(EXACT_MATCH_ROOT, "manifest.json"),
     JSON.stringify(
       {
         schema_version: "1.0.0",
+        bucket_hash: EXACT_MATCH_BUCKET_HASH,
         bucket_mod: EXACT_MATCH_BUCKET_MOD,
+        bucket_width: EXACT_MATCH_BUCKET_WIDTH,
         exact_forms: Array.from(formBucketMaps.values()).reduce(
           (total, formMap) => total + formMap.size,
           0,
         ),
-        canonical_headwords: canonicalHeadwords,
+        canonical_headwords_asset: "canonical-headwords.json",
+        canonical_headwords_count: canonicalHeadwords.length,
       },
       null,
       2,
