@@ -2,6 +2,7 @@ import {
   LOCALE_ROUTE_DEFINITIONS,
   applyLocalePrefix,
   buildWordRoutePath,
+  isSearchResultsViewQuery,
   stripLocalePrefix,
 } from "../../utils/route-paths";
 import { getIsServerApiEnabled } from "../utils/runtime-mode";
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event) => {
   const searchQuery = String(query.q || "").trim();
   const reverse = query.reverse === "1";
 
-  if (!searchQuery || reverse) return;
+  if (!searchQuery || reverse || isSearchResultsViewQuery(query)) return;
 
   let resolution;
 
