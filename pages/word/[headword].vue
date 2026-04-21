@@ -173,6 +173,7 @@
               :source-label="source.sourceLabel"
               :entries="source.entries"
               :tab-jyutping-list="activePronunciationGroup.jyutpingList"
+              :always-show-entry-jyutping="pronunciationGroups.length > 1"
               :collapsible="true"
               :expanded="
                 isMobileSourceExpanded(activePronunciationGroup.id, source.id)
@@ -288,6 +289,10 @@
 import "~/styles/chiron-hei-content.css";
 import "~/styles/chiron-sung-content.css";
 import type { DictionaryEntry } from "~/types/dictionary";
+import {
+  groupEntriesByPronunciation,
+  UNANNOTATED_PRONUNCIATION_KEY,
+} from "~/utils/pronunciation-groups";
 
 interface WordResponse {
   success: boolean;
@@ -591,21 +596,14 @@ const getSourcePriority = (sourceBook: string) => {
 };
 
 const pronunciationGroups = computed<PronunciationGroup[]>(() => {
-  const jpMap = new Map<string, DictionaryEntry[]>();
   const entries = wordData.value?.entries || [];
-
-  entries.forEach((entry) => {
-    const jpKey = getEntryJyutpingKey(entry) || "__no_jp__";
-    const list = jpMap.get(jpKey) || [];
-    list.push(entry);
-    jpMap.set(jpKey, list);
-  });
+  const jpMap = groupEntriesByPronunciation(entries, getEntryJyutpingList);
 
   const groups: PronunciationGroup[] = [];
 
   jpMap.forEach((jpEntries, jpKey) => {
-    const firstEntry = jpEntries[0];
-    const jyutpingList = firstEntry ? getEntryJyutpingList(firstEntry) : [];
+    const jyutpingList =
+      jpKey === UNANNOTATED_PRONUNCIATION_KEY ? [] : [jpKey];
     const label =
       jyutpingList.length > 0
         ? jyutpingList.join("; ")

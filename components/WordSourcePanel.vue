@@ -78,7 +78,7 @@
             class="flex-1 h-px bg-archive-green/30 dark:bg-archive-green/20"
           ></div>
         </div>
-        <div class="space-y-6">
+        <div class="space-y-4">
           <!-- Metadata badges + feedback button (top) -->
           <div class="flex items-start gap-3">
             <div class="flex flex-wrap gap-2 items-center flex-1 min-w-0">
@@ -142,16 +142,37 @@
             "
             class="space-y-1 text-sm text-graphite dark:text-stone-200"
           >
-            <p v-if="shouldShowEntryJyutping(entry)">
-              <span class="text-graphite/60 dark:text-stone-300 mr-2"
+            <div
+              v-if="shouldShowEntryJyutping(entry)"
+              class="flex items-start gap-2"
+            >
+              <span
+                class="text-graphite/60 dark:text-stone-300 mr-2 shrink-0"
                 >{{ t("common.jyutpingColumn") }}:</span
               >
-              <span class="text-kapok font-semibold">{{
-                getEntryJyutping(entry)
-              }}</span>
-            </p>
+              <div class="min-w-0 space-y-1">
+                <div
+                  v-for="(row, rowIdx) in getEntryPhoneticRows(entry)"
+                  :key="`${entry.id}:phonetic:${row.jyutping}:${rowIdx}`"
+                  class="flex items-center gap-1.5 flex-wrap"
+                >
+                  <span class="text-kapok font-semibold break-words">{{
+                    row.jyutping
+                  }}</span>
+                  <span
+                    v-if="row.original"
+                    class="text-xs text-graphite/60 dark:text-stone-300 break-words"
+                  >
+                    <span class="text-graphite/40 dark:text-stone-400">{{
+                      t("dictCard.originalPhonetic")
+                    }}</span
+                    >{{ row.original }}
+                  </span>
+                </div>
+              </div>
+            </div>
             <p
-              v-if="shouldShowEntryOriginalPhonetic(entry)"
+              v-if="shouldShowStandaloneOriginalPhonetic(entry)"
               class="break-words"
             >
               <span class="text-graphite/60 dark:text-stone-300 mr-2">{{
@@ -442,12 +463,14 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
+import { getPhoneticDisplayRows } from "~/utils/phonetic-display";
 
 interface Props {
   sourceKey: string;
   sourceLabel: string;
   entries: DictionaryEntry[];
   tabJyutpingList?: string[];
+  alwaysShowEntryJyutping?: boolean;
   expanded?: boolean;
   collapsible?: boolean;
   active?: boolean;
@@ -456,6 +479,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   tabJyutpingList: () => [],
+  alwaysShowEntryJyutping: false,
   expanded: true,
   collapsible: true,
   active: false,
@@ -473,7 +497,6 @@ const {
   isCantoDict,
   formatDefinitionWithLinks,
   getEntryJyutpingList,
-  getEntryJyutping,
   getEntryOriginalPhonetic,
   getEntryOriginalPhoneticList,
   getEntryFeedbackDescription,
@@ -509,6 +532,7 @@ const tabJyutpingSet = computed(() => {
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
   const entryJps = getEntryJyutpingList(entry);
   if (entryJps.length === 0) return false;
+  if (props.alwaysShowEntryJyutping) return true;
   const primarySet = tabJyutpingSet.value;
   if (primarySet.size === 0) return true;
   return entryJps.some((jp) => !primarySet.has(jp));
@@ -521,5 +545,15 @@ const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
   if (primarySet.size === 0) return true;
   if (originalList.length !== primarySet.size) return true;
   return originalList.some((value) => !primarySet.has(value));
+};
+
+const getEntryPhoneticRows = (entry: DictionaryEntry) => {
+  return getPhoneticDisplayRows(entry.phonetic);
+};
+
+const shouldShowStandaloneOriginalPhonetic = (entry: DictionaryEntry) => {
+  if (!shouldShowEntryOriginalPhonetic(entry)) return false;
+  if (!shouldShowEntryJyutping(entry)) return true;
+  return !getEntryPhoneticRows(entry).some((row) => row.original);
 };
 </script>
