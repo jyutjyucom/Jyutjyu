@@ -1,4 +1,22 @@
 import { LOCALE_ROUTE_DEFINITIONS } from "~/utils/route-paths";
+import dictionariesIndexData from "../content/dictionaries/index.json";
+
+interface DictionaryIndexItem {
+  id: string;
+  name?: string | Record<string, string>;
+  description?: string | Record<string, string>;
+  dialect?: string | Record<string, string>;
+  author?: string | Record<string, string>;
+  publisher?: string | Record<string, string>;
+  license?: string | Record<string, string>;
+  usage_restriction?: string | Record<string, string>;
+  attribution?: string | Record<string, string>;
+  entries_count?: number;
+}
+
+interface DictionaryIndexPayload {
+  dictionaries?: DictionaryIndexItem[];
+}
 
 /**
  * 词典本地化工具 Composable
@@ -95,8 +113,9 @@ export function useLocalizedDictionary() {
    * 注意：这里不需要在 composable 内使用 await，直接返回 useAsyncData 结果即可，
    * 由 Nuxt 在调用该 composable 的 setup 中处理异步。
    */
-  const { data: dictionariesData } = useAsyncData("dictionaries-index", () =>
-    queryContent("/dictionaries").findOne(),
+  const { data: dictionariesData } = useAsyncData<DictionaryIndexPayload>(
+    "dictionaries-index",
+    () => Promise.resolve(dictionariesIndexData as DictionaryIndexPayload),
   );
 
   const getLocalizedSourceBookLabel = (
