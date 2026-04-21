@@ -412,6 +412,7 @@
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
+import { getOriginalPhoneticForIndex } from "~/utils/phonetic-display";
 
 const { t } = useI18n();
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
@@ -499,89 +500,8 @@ const formatDefinitionWithLinks = (definition: string): string => {
  * @param idx - 粤拼索引
  * @returns 原书注音字符串或null
  */
-const getOriginalPhonetic = (entry: any, idx: number): string | null => {
-  const original = entry.phonetic.original;
-  const jyutpingArray = entry.phonetic.jyutping || [];
-  const currentJyutping = jyutpingArray[idx];
-
-  if (!original || (Array.isArray(original) && original.length === 0)) {
-    return null;
-  }
-
-  // 如果 original 是数组
-  if (Array.isArray(original)) {
-    // 如果数组只有一个元素，只在第一个粤拼时显示
-    if (original.length === 1) {
-      if (idx === 0) {
-        const singleOriginal = original[0];
-        // 如果原书注音等于当前粤拼，不显示
-        if (singleOriginal === currentJyutping) return null;
-        return singleOriginal;
-      }
-      return null;
-    }
-    // 数组有多个元素时，返回对应索引的值
-    const matchedOriginal = original[idx];
-    if (matchedOriginal && matchedOriginal !== currentJyutping) {
-      return matchedOriginal;
-    }
-    return null;
-  }
-
-  // 如果 original 是单个值，只在第一个粤拼时显示
-  if (idx === 0) {
-    // 如果原书注音等于当前粤拼，不显示
-    if (original === currentJyutping) return null;
-
-    // 检查是否是冒号分隔的多读音格式 (hk-cantowords)
-    if (original.includes(":")) {
-      const originalParts = original.split(":").map((p: string) => p.trim());
-      const jyutpingSet = new Set(jyutpingArray);
-
-      // 如果所有原始读音部分都在 jyutping 数组中，说明已经正确拆分显示，不显示
-      if (originalParts.every((part: string) => jyutpingSet.has(part))) {
-        return null;
-      }
-    }
-
-    // 检查是否是括号变体格式 (gz-practical-classified)
-    // 例如: "baau6 (biu6, beu6)" 或 "dit1 (dik1) gam3 doe1 (do1)"
-    if (original.includes("(") || original.includes("（")) {
-      // 提取所有独立的读音：去掉括号，用空格和逗号分割
-      const cleanedOriginal = original
-        .replace(/[（(]/g, " ")
-        .replace(/[）)]/g, " ")
-        .replace(/[,，]/g, " ");
-      const allSyllables = cleanedOriginal
-        .split(/\s+/)
-        .filter((s: string) => s.trim());
-
-      // 检查 jyutping 数组是否覆盖了所有提取的读音
-      const syllableSet = new Set(allSyllables);
-
-      // 方法1：检查所有独立音节是否都出现在 jyutping 数组中（单字多音情况）
-      const allSyllablesInJyutping = allSyllables.every(
-        (s: string) =>
-          jyutpingArray.includes(s) ||
-          jyutpingArray.some((jp: string) => jp.includes(s)),
-      );
-
-      // 方法2：检查 jyutping 数组中的所有项是否都由原始音节组成
-      const allJyutpingFromSyllables = jyutpingArray.every((jp: string) => {
-        const jpSyllables = jp.split(/\s+/);
-        return jpSyllables.every((s: string) => syllableSet.has(s));
-      });
-
-      if (allSyllablesInJyutping || allJyutpingFromSyllables) {
-        return null;
-      }
-    }
-
-    // 其他情况显示原书注音（如耶鲁拼音等不同的注音系统）
-    return original;
-  }
-
-  return null;
+const getOriginalPhonetic = (entry: DictionaryEntry, idx: number) => {
+  return getOriginalPhoneticForIndex(entry.phonetic, idx);
 };
 </script>
 

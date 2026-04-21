@@ -39,7 +39,7 @@
 
           <div class="mt-2">
             <div
-              v-for="(jp, idx) in primary.phonetic.jyutping"
+              v-for="(jp, idx) in groupJyutpingList"
               :key="idx"
               class="flex items-center gap-1.5 flex-wrap"
             >
@@ -152,17 +152,41 @@
           </div>
         </div>
 
-        <!-- 仅当该词典粤拼与主词条不同才显示 -->
-        <div v-if="shouldShowEntryJyutping(entry)" class="mt-3 text-sm">
-          <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2"
+        <!-- 仅当不同词典的粤拼不一致时，显示该词典收录的读音 -->
+        <div
+          v-if="shouldShowEntryJyutping(entry)"
+          class="mt-3 text-sm flex items-start gap-2"
+        >
+          <span
+            class="text-sm text-graphite/60 dark:text-stone-200 mr-2 shrink-0"
             >{{ t("common.jyutpingColumn") }}:</span
           >
-          <span class="text-kapok font-semibold">{{
-            getEntryJyutping(entry)
-          }}</span>
+          <div class="min-w-0 space-y-1">
+            <div
+              v-for="(row, rowIdx) in getEntryPhoneticRows(entry)"
+              :key="`${entry.id}:phonetic:${row.jyutping}:${rowIdx}`"
+              class="flex items-center gap-1.5 flex-wrap"
+            >
+              <span class="text-kapok font-semibold break-words">{{
+                row.jyutping
+              }}</span>
+              <span
+                v-if="row.original"
+                class="text-xs text-graphite/60 dark:text-stone-300 break-words"
+              >
+                <span class="text-graphite/40 dark:text-stone-400">{{
+                  t("dictCard.originalPhonetic")
+                }}</span
+                >{{ row.original }}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div v-if="shouldShowEntryOriginalPhonetic(entry)" class="mt-2 text-sm">
+        <div
+          v-if="shouldShowStandaloneOriginalPhonetic(entry)"
+          class="mt-2 text-sm"
+        >
           <span class="text-sm text-graphite/60 dark:text-stone-200 mr-2">{{
             t("dictCard.originalPhonetic")
           }}</span>
@@ -418,6 +442,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
+import { getPhoneticDisplayRows } from "~/utils/phonetic-display";
 
 const { t } = useI18n();
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
@@ -427,7 +452,6 @@ const {
   isCantoDict,
   formatDefinitionWithLinks,
   getEntryJyutpingList,
-  getEntryJyutping,
   getEntryOriginalPhonetic,
   getEntryOriginalPhoneticList,
   getEntryFeedbackDescription,
@@ -468,6 +492,25 @@ const primaryWordTo = computed(() => {
   if (!word) return null;
   return wordPath(word);
 });
+
+const normalizeJyutpingList = (values: string[]): string[] => {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  values.forEach((value) => {
+    const normalized = value?.trim();
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    result.push(normalized);
+  });
+
+  return result;
+};
+
+const createJyutpingComparisonKey = (values: string[]): string => {
+  return [...normalizeJyutpingList(values)].sort().join("||");
+};
+
 const dictionaryCount = computed(() => {
   const sources = new Set<string>();
   entries.value.forEach((entry) => {
@@ -476,14 +519,23 @@ const dictionaryCount = computed(() => {
   });
   return sources.size || entries.value.length;
 });
-const primaryJyutpingSet = computed(() => {
-  const set = new Set<string>();
-  const jps = primary.value?.phonetic?.jyutping || [];
-  jps.forEach((jp) => {
-    const value = jp?.trim();
-    if (value) set.add(value);
-  });
-  return set;
+
+const groupJyutpingList = computed(() => {
+  return normalizeJyutpingList(
+    entries.value.flatMap((entry) => getEntryJyutpingList(entry)),
+  );
+});
+
+const hasPronunciationVariation = computed(() => {
+  if (entries.value.length <= 1) return false;
+
+  const pronunciationProfiles = new Set(
+    entries.value
+      .map((entry) => createJyutpingComparisonKey(getEntryJyutpingList(entry)))
+      .filter(Boolean),
+  );
+
+  return pronunciationProfiles.size > 1;
 });
 
 const getEntrySourceBookLabel = (entry: DictionaryEntry) => {
@@ -491,20 +543,28 @@ const getEntrySourceBookLabel = (entry: DictionaryEntry) => {
 };
 
 const shouldShowEntryJyutping = (entry: DictionaryEntry): boolean => {
-  if (!entry || entry.id === primary.value?.id) return false;
-  const entryJps = getEntryJyutpingList(entry);
-  if (entryJps.length === 0) return false;
-  const primarySet = primaryJyutpingSet.value;
-  return entryJps.some((jp) => !primarySet.has(jp));
+  if (!entry || !hasPronunciationVariation.value) return false;
+  return normalizeJyutpingList(getEntryJyutpingList(entry)).length > 0;
 };
 
 const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
-  const originalList = getEntryOriginalPhoneticList(entry);
+  const originalList = normalizeJyutpingList(getEntryOriginalPhoneticList(entry));
   if (originalList.length === 0) return false;
-  const primarySet = primaryJyutpingSet.value;
-  if (primarySet.size === 0) return true;
-  if (originalList.length !== primarySet.size) return true;
-  return originalList.some((value) => !primarySet.has(value));
+  const entryJyutpingList = normalizeJyutpingList(getEntryJyutpingList(entry));
+  if (entryJyutpingList.length === 0) return true;
+  if (originalList.length !== entryJyutpingList.length) return true;
+  const entryJyutpingSet = new Set(entryJyutpingList);
+  return originalList.some((value) => !entryJyutpingSet.has(value));
+};
+
+const getEntryPhoneticRows = (entry: DictionaryEntry) => {
+  return getPhoneticDisplayRows(entry.phonetic);
+};
+
+const shouldShowStandaloneOriginalPhonetic = (entry: DictionaryEntry) => {
+  if (!shouldShowEntryOriginalPhonetic(entry)) return false;
+  if (!shouldShowEntryJyutping(entry)) return true;
+  return !getEntryPhoneticRows(entry).some((row) => row.original);
 };
 </script>
 
