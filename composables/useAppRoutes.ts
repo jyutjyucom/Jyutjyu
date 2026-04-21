@@ -12,6 +12,10 @@ interface BrowsePathOptions {
   defaultSortBy?: string;
 }
 
+interface SearchPathOptions {
+  showResults?: boolean;
+}
+
 type RouteQueryValue = string | number | undefined | null;
 
 export const useAppRoutes = () => {
@@ -62,8 +66,15 @@ export const useAppRoutes = () => {
     });
   };
 
-  const searchPath = (query = "", reverse = false) => {
-    return localizedPath("/search", buildSearchRouteQuery(query, reverse));
+  const searchPath = (
+    query = "",
+    reverse = false,
+    options: SearchPathOptions = {},
+  ) => {
+    return localizedPath(
+      "/search",
+      buildSearchRouteQuery(query, reverse, options),
+    );
   };
 
   const absoluteUrl = (path: string) => {

@@ -3,11 +3,13 @@ import test from "node:test";
 
 import {
   applyLocalePrefix,
+  buildSearchRouteQuery,
   buildSeoAlternateLinkDefinitions,
   buildSeoRoutePath,
   buildBrowseRoutePath,
   buildSitemapUrlEntryXml,
   buildWordRoutePath,
+  isSearchResultsViewQuery,
   withSiteUrl,
   stripLocalePrefix,
 } from "../utils/route-paths.ts";
@@ -45,6 +47,19 @@ test("locale-prefixed route helpers build localized word and browse paths", () =
     buildSeoRoutePath("/word/%E4%BF%82", { jp: "hai6" }, "en"),
     "/en/word/%E4%BF%82",
   );
+});
+
+test("search route query can explicitly stay on the search results page", () => {
+  assert.deepEqual(buildSearchRouteQuery("揾老襯", false), {
+    q: "揾老襯",
+  });
+  assert.deepEqual(buildSearchRouteQuery("揾老襯", false, { showResults: true }), {
+    q: "揾老襯",
+    show: "results",
+  });
+  assert.equal(isSearchResultsViewQuery({ show: "results" }), true);
+  assert.equal(isSearchResultsViewQuery({ show: ["results"] }), true);
+  assert.equal(isSearchResultsViewQuery({ q: "揾老襯" }), false);
 });
 
 test("sitemap XML emits per-locale entries with alternates and x-default", () => {

@@ -20,6 +20,8 @@ export interface SeoAlternateLinkDefinition {
 }
 
 export const DEFAULT_LOCALE_CODE = "yue-Hant";
+export const SEARCH_RESULTS_VIEW_QUERY_KEY = "show";
+export const SEARCH_RESULTS_VIEW_QUERY_VALUE = "results";
 
 export const LOCALE_ROUTE_DEFINITIONS: LocaleRouteDefinition[] = [
   { code: "yue-Hant", name: "粵文", language: "yue-Hant", prefix: "" },
@@ -75,6 +77,7 @@ export const buildBrowseRoutePath = (dictId?: string): string => {
 export const buildSearchRouteQuery = (
   query?: string,
   reverse = false,
+  options: { showResults?: boolean } = {},
 ): Record<string, string> => {
   const trimmed = String(query || "").trim();
   const result: Record<string, string> = {};
@@ -87,7 +90,21 @@ export const buildSearchRouteQuery = (
     result.reverse = "1";
   }
 
+  if (options.showResults) {
+    result[SEARCH_RESULTS_VIEW_QUERY_KEY] = SEARCH_RESULTS_VIEW_QUERY_VALUE;
+  }
+
   return result;
+};
+
+export const isSearchResultsViewQuery = (query: RouteQueryLike): boolean => {
+  const value = query?.[SEARCH_RESULTS_VIEW_QUERY_KEY];
+
+  if (Array.isArray(value)) {
+    return value.includes(SEARCH_RESULTS_VIEW_QUERY_VALUE);
+  }
+
+  return value === SEARCH_RESULTS_VIEW_QUERY_VALUE;
 };
 
 export const applyLocalePrefix = (path: string, prefix: string): string => {

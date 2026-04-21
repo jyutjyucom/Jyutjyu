@@ -367,7 +367,9 @@ const canonicalHeadword = computed(() =>
 const searchHeadword = computed(
   () => canonicalHeadword.value || requestedHeadword.value,
 );
-const searchLink = computed(() => searchPath(searchHeadword.value));
+const searchLink = computed(() =>
+  searchPath(searchHeadword.value, false, { showResults: true }),
+);
 const shouldRedirect = computed(() => {
   if (!wordData.value) return false;
   return (

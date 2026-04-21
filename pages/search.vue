@@ -387,6 +387,7 @@
 import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
 import { isJyutpingQuery } from "~/utils/query-classify";
+import { isSearchResultsViewQuery } from "~/utils/route-paths";
 
 interface AggregatedEntry {
   key: string;
@@ -437,6 +438,9 @@ const showSortDropdown = ref(false); // 排序下拉菜单显示状态
 const optionsExpanded = ref(false); // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0);
 const chineseConverterReady = ref(false);
+const showingSearchResultsView = computed(() =>
+  isSearchResultsViewQuery(route.query),
+);
 
 let chineseConverterInitPromise: Promise<void> | null = null;
 let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -987,6 +991,10 @@ const redirectToExactMatchIfNeeded = async (
     return false;
   }
 
+  if (showingSearchResultsView.value) {
+    return false;
+  }
+
   const headword = getExactRedirectHeadword(entries, query);
   if (!headword) {
     return false;
@@ -1156,7 +1164,11 @@ watch(
 // 监听反查开关变化，更新 URL 并重新搜索
 watch(enableReverseSearch, (newValue) => {
   if (process.client && actualSearchQuery.value) {
-    router.replace(searchPath(actualSearchQuery.value, newValue));
+    router.replace(
+      searchPath(actualSearchQuery.value, newValue, {
+        showResults: showingSearchResultsView.value,
+      }),
+    );
   }
 });
 
