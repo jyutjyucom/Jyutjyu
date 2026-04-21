@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-
 import type { DictionaryEntry } from "../types/dictionary.ts";
 import {
   ensureInitialized,
@@ -58,9 +55,36 @@ export interface SearchLandingResolution {
   canonicalHeadword?: string;
 }
 
-const DICTIONARY_ROOT = resolve(process.cwd(), "public/dictionaries");
-const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, "index.json");
+const DICTIONARY_ASSET_ROOT = "/dictionaries";
+const EXACT_MATCH_ASSET_ROOT = "/exact-match";
 const CHUNK_CACHE_LIMIT = 24;
+const EXACT_MATCH_BUCKET_MOD = 256;
+
+interface WorkerAssetsBinding {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+}
+
+interface ExactMatchCandidateRecord {
+  key: string;
+  canonicalHeadword: string;
+}
+
+interface ExactMatchFormsBucket {
+  forms?: Record<string, ExactMatchCandidateRecord[]>;
+}
+
+interface ExactMatchWordRecord {
+  canonicalHeadword: string;
+  entries: DictionaryEntry[];
+}
+
+interface ExactMatchWordsBucket {
+  words?: Record<string, ExactMatchWordRecord>;
+}
+
+interface ExactMatchManifest {
+  canonical_headwords?: string[];
+}
 
 let dictionaryIndexCache: DictionaryIndexItem[] | null = null;
 let dictionaryIndexPromise: Promise<DictionaryIndexItem[]> | null = null;
@@ -83,10 +107,101 @@ const chunkedDictionaryEntriesPromiseCache = new Map<
 let jsonCanonicalHeadwordsCache: string[] | null = null;
 let jsonCanonicalHeadwordsPromise: Promise<string[]> | null = null;
 
+let exactMatchManifestCache: ExactMatchManifest | null | undefined;
+let exactMatchManifestPromise: Promise<ExactMatchManifest | null> | null = null;
+
+const exactMatchFormsBucketCache = new Map<string, ExactMatchFormsBucket>();
+const exactMatchFormsBucketPromiseCache = new Map<
+  string,
+  Promise<ExactMatchFormsBucket>
+>();
+
+const exactMatchWordsBucketCache = new Map<string, ExactMatchWordsBucket>();
+const exactMatchWordsBucketPromiseCache = new Map<
+  string,
+  Promise<ExactMatchWordsBucket>
+>();
+
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
+
+const getWorkerAssetsBinding = (): WorkerAssetsBinding | null => {
+  const runtimeEnv = (
+    globalThis as typeof globalThis & {
+      __env__?: {
+        ASSETS?: WorkerAssetsBinding;
+      };
+    }
+  ).__env__;
+
+  const assets = runtimeEnv?.ASSETS;
+  return assets && typeof assets.fetch === "function" ? assets : null;
+};
+
+const buildDictionaryAssetPath = (...segments: string[]): string => {
+  const cleaned = segments
+    .map((segment) => String(segment || "").replace(/^\/+|\/+$/g, ""))
+    .filter(Boolean);
+
+  return [DICTIONARY_ASSET_ROOT, ...cleaned].join("/");
+};
+
+const buildExactMatchAssetPath = (...segments: string[]): string => {
+  const cleaned = segments
+    .map((segment) => String(segment || "").replace(/^\/+|\/+$/g, ""))
+    .filter(Boolean);
+
+  return [EXACT_MATCH_ASSET_ROOT, ...cleaned].join("/");
+};
+
+const readDictionaryText = async (assetPath: string): Promise<string> => {
+  const assets = getWorkerAssetsBinding();
+
+  if (assets) {
+    const response = await assets.fetch(
+      new Request(new URL(assetPath, "https://assets.local").toString()),
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to read static dictionary asset: ${assetPath} (${response.status})`,
+      );
+    }
+
+    return await response.text();
+  }
+
+  const [{ readFile }, { resolve }] = await Promise.all([
+    import("node:fs/promises"),
+    import("node:path"),
+  ]);
+  const localPath = resolve(process.cwd(), "public", assetPath.replace(/^\/+/, ""));
+  return readFile(localPath, "utf8");
+};
 
 export const toComparableHeadwordKey = (value: string): string => {
   return normalizeSpace(value).toLowerCase();
+};
+
+const isMissingAssetError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return (
+    message.includes("ENOENT") ||
+    message.includes("(404)") ||
+    message.includes("(400)") ||
+    message.includes("Cannot find module")
+  );
+};
+
+const getExactMatchBucketId = (value: string): string => {
+  const normalized = normalizeSpace(value);
+  const firstChar = Array.from(normalized)[0];
+  const codePoint = firstChar?.codePointAt(0);
+
+  if (!firstChar || typeof codePoint !== "number") {
+    return "misc";
+  }
+
+  return (codePoint % EXACT_MATCH_BUCKET_MOD).toString(16).padStart(2, "0");
 };
 
 const getCanonicalHeadword = (entry: DictionaryEntry): string => {
@@ -137,6 +252,112 @@ const sortEntries = (entries: DictionaryEntry[]): DictionaryEntry[] => {
   return [...entries].sort((a, b) => a.id.localeCompare(b.id));
 };
 
+const getExactMatchManifest = async (): Promise<ExactMatchManifest | null> => {
+  if (exactMatchManifestCache !== undefined) {
+    return exactMatchManifestCache;
+  }
+
+  if (exactMatchManifestPromise) {
+    return exactMatchManifestPromise;
+  }
+
+  exactMatchManifestPromise = (async () => {
+    try {
+      const raw = await readDictionaryText(
+        buildExactMatchAssetPath("manifest.json"),
+      );
+      const parsed = JSON.parse(raw) as ExactMatchManifest;
+      exactMatchManifestCache = parsed;
+      return parsed;
+    } catch (error) {
+      if (isMissingAssetError(error)) {
+        exactMatchManifestCache = null;
+        return null;
+      }
+
+      throw error;
+    }
+  })();
+
+  return exactMatchManifestPromise;
+};
+
+const getExactMatchFormsBucket = async (
+  bucketId: string,
+): Promise<ExactMatchFormsBucket> => {
+  const cached = exactMatchFormsBucketCache.get(bucketId);
+  if (cached) {
+    return cached;
+  }
+
+  const pending = exactMatchFormsBucketPromiseCache.get(bucketId);
+  if (pending) {
+    return pending;
+  }
+
+  const promise = (async () => {
+    try {
+      const raw = await readDictionaryText(
+        buildExactMatchAssetPath("forms", `${bucketId}.json`),
+      );
+      const parsed = JSON.parse(raw) as ExactMatchFormsBucket;
+      exactMatchFormsBucketCache.set(bucketId, parsed);
+      return parsed;
+    } catch (error) {
+      if (isMissingAssetError(error)) {
+        const emptyBucket: ExactMatchFormsBucket = { forms: {} };
+        exactMatchFormsBucketCache.set(bucketId, emptyBucket);
+        return emptyBucket;
+      }
+
+      throw error;
+    }
+  })().finally(() => {
+    exactMatchFormsBucketPromiseCache.delete(bucketId);
+  });
+
+  exactMatchFormsBucketPromiseCache.set(bucketId, promise);
+  return promise;
+};
+
+const getExactMatchWordsBucket = async (
+  bucketId: string,
+): Promise<ExactMatchWordsBucket> => {
+  const cached = exactMatchWordsBucketCache.get(bucketId);
+  if (cached) {
+    return cached;
+  }
+
+  const pending = exactMatchWordsBucketPromiseCache.get(bucketId);
+  if (pending) {
+    return pending;
+  }
+
+  const promise = (async () => {
+    try {
+      const raw = await readDictionaryText(
+        buildExactMatchAssetPath("words", `${bucketId}.json`),
+      );
+      const parsed = JSON.parse(raw) as ExactMatchWordsBucket;
+      exactMatchWordsBucketCache.set(bucketId, parsed);
+      return parsed;
+    } catch (error) {
+      if (isMissingAssetError(error)) {
+        const emptyBucket: ExactMatchWordsBucket = { words: {} };
+        exactMatchWordsBucketCache.set(bucketId, emptyBucket);
+        return emptyBucket;
+      }
+
+      throw error;
+    }
+  })().finally(() => {
+    exactMatchWordsBucketPromiseCache.delete(bucketId);
+  });
+
+  exactMatchWordsBucketPromiseCache.set(bucketId, promise);
+  return promise;
+};
+
 const getDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
   if (dictionaryIndexCache) {
     return dictionaryIndexCache;
@@ -147,7 +368,7 @@ const getDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
   }
 
   dictionaryIndexPromise = (async () => {
-    const raw = await readFile(DICTIONARY_INDEX_PATH, "utf8");
+    const raw = await readDictionaryText(buildDictionaryAssetPath("index.json"));
     const parsed = JSON.parse(raw) as DictionaryIndex;
     const dictionaries = Array.isArray(parsed?.dictionaries)
       ? parsed.dictionaries
@@ -161,9 +382,9 @@ const getDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
 };
 
 const readDictionaryEntriesFile = async (
-  filePath: string,
+  assetPath: string,
 ): Promise<DictionaryEntry[]> => {
-  const raw = await readFile(filePath, "utf8");
+  const raw = await readDictionaryText(assetPath);
   const parsed = JSON.parse(raw);
 
   if (!Array.isArray(parsed)) {
@@ -189,8 +410,9 @@ const getNonChunkedEntries = async (): Promise<DictionaryEntry[]> => {
     for (const dict of dictionaries) {
       if (dict.chunked || !dict.file) continue;
 
-      const filePath = resolve(DICTIONARY_ROOT, dict.file);
-      const chunk = await readDictionaryEntriesFile(filePath);
+      const chunk = await readDictionaryEntriesFile(
+        buildDictionaryAssetPath(dict.file),
+      );
       entries.push(...chunk);
     }
 
@@ -213,8 +435,9 @@ const getChunkManifest = async (chunkDir: string): Promise<ChunkManifest> => {
   }
 
   const manifestPromise = (async () => {
-    const filePath = resolve(DICTIONARY_ROOT, chunkDir, "manifest.json");
-    const raw = await readFile(filePath, "utf8");
+    const raw = await readDictionaryText(
+      buildDictionaryAssetPath(chunkDir, "manifest.json"),
+    );
     const manifest = JSON.parse(raw) as ChunkManifest;
 
     chunkManifestCache.set(chunkDir, manifest);
@@ -256,8 +479,9 @@ const getChunkEntries = async (
   }
 
   const promise = (async () => {
-    const filePath = resolve(DICTIONARY_ROOT, chunkDir, chunkFile);
-    const entries = await readDictionaryEntriesFile(filePath);
+    const entries = await readDictionaryEntriesFile(
+      buildDictionaryAssetPath(chunkDir, chunkFile),
+    );
 
     touchChunkCache(cacheKey, entries);
     return entries;
@@ -507,7 +731,59 @@ const findEntriesFromChunkedDictionary = async (
   );
 };
 
-const resolveCandidatesFromJson = async (
+const resolveCandidatesFromExactMatchIndex = async (
+  headword: string,
+): Promise<CandidateResolution | null> => {
+  const manifest = await getExactMatchManifest();
+  if (!manifest) {
+    return null;
+  }
+
+  const cleaned = normalizeSpace(headword);
+  const originalKey = toComparableHeadwordKey(cleaned);
+  if (!originalKey) {
+    return null;
+  }
+
+  const formsBucket = await getExactMatchFormsBucket(
+    getExactMatchBucketId(originalKey),
+  );
+  const candidates = formsBucket.forms?.[originalKey] || [];
+  if (candidates.length === 0) {
+    return {
+      originalKey,
+      queryKeys: new Set([originalKey]),
+      entries: [],
+    };
+  }
+
+  const wordBuckets = new Map<string, ExactMatchWordsBucket>();
+  const entries: DictionaryEntry[] = [];
+
+  for (const candidate of candidates) {
+    const bucketId = getExactMatchBucketId(candidate.key);
+    let wordsBucket = wordBuckets.get(bucketId);
+    if (!wordsBucket) {
+      wordsBucket = await getExactMatchWordsBucket(bucketId);
+      wordBuckets.set(bucketId, wordsBucket);
+    }
+
+    const record = wordsBucket.words?.[candidate.key];
+    if (!record?.entries?.length) {
+      continue;
+    }
+
+    entries.push(...record.entries);
+  }
+
+  return {
+    originalKey,
+    queryKeys: new Set([originalKey]),
+    entries: dedupeEntriesById(entries),
+  };
+};
+
+const resolveCandidatesFromScannedJson = async (
   headword: string,
 ): Promise<CandidateResolution | null> => {
   const queryForms = await getExactQueryForms(headword);
@@ -543,6 +819,17 @@ const resolveCandidatesFromJson = async (
     queryKeys,
     entries: dedupeEntriesById(candidateEntries),
   };
+};
+
+const resolveCandidatesFromJson = async (
+  headword: string,
+): Promise<CandidateResolution | null> => {
+  const indexedCandidates = await resolveCandidatesFromExactMatchIndex(headword);
+  if (indexedCandidates) {
+    return indexedCandidates;
+  }
+
+  return resolveCandidatesFromScannedJson(headword);
 };
 
 export const resolveWordEntriesFromJson = async (
@@ -625,12 +912,15 @@ export const getCanonicalHeadwordsFromJson = async (): Promise<string[]> => {
     return jsonCanonicalHeadwordsPromise;
   }
 
-  jsonCanonicalHeadwordsPromise = buildJsonCanonicalHeadwords().then(
-    (headwords) => {
-      jsonCanonicalHeadwordsCache = headwords;
-      return headwords;
-    },
-  );
+  jsonCanonicalHeadwordsPromise = (async () => {
+    const manifest = await getExactMatchManifest();
+    const headwords = Array.isArray(manifest?.canonical_headwords)
+      ? manifest.canonical_headwords
+      : await buildJsonCanonicalHeadwords();
+
+    jsonCanonicalHeadwordsCache = headwords;
+    return headwords;
+  })();
 
   return jsonCanonicalHeadwordsPromise;
 };

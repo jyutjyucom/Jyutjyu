@@ -5,6 +5,7 @@ import {
   countExactCanonicalBuckets,
   resolveUniqueCanonicalHeadwordFromEntries,
   resolveSearchLandingFromJson as resolveSearchLanding,
+  resolveWordEntriesFromJson,
 } from "../utils/headword-exact-match.ts";
 import {
   isJyutpingQuery,
@@ -97,6 +98,17 @@ test("exact variant query can resolve to the canonical headword", async () => {
   assert.equal(resolution.type, "word");
   assert.equal(resolution.reason, "exact_unique");
   assert.equal(resolution.canonicalHeadword, "阿SIR");
+});
+
+test("exact word lookup resolves stable bundled entries for problematic words", async () => {
+  const person = await resolveWordEntriesFromJson("一個人");
+  const mason = await resolveWordEntriesFromJson("泥水師傅");
+
+  assert.equal(person?.canonicalHeadword, "一個人");
+  assert.equal(person?.entries.length, 2);
+
+  assert.equal(mason?.canonicalHeadword, "泥水師傅");
+  assert.equal(mason?.entries.length, 1);
 });
 
 test("ambiguous exact matches stay on the search page", async () => {

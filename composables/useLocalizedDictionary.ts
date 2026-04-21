@@ -1,5 +1,4 @@
 import { LOCALE_ROUTE_DEFINITIONS } from "~/utils/route-paths";
-import dictionariesIndexData from "../content/dictionaries/index.json";
 
 interface DictionaryIndexItem {
   id: string;
@@ -16,6 +15,10 @@ interface DictionaryIndexItem {
 
 interface DictionaryIndexPayload {
   dictionaries?: DictionaryIndexItem[];
+}
+
+interface WorkerAssetsBinding {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
 }
 
 /**
@@ -113,9 +116,48 @@ export function useLocalizedDictionary() {
    * 注意：这里不需要在 composable 内使用 await，直接返回 useAsyncData 结果即可，
    * 由 Nuxt 在调用该 composable 的 setup 中处理异步。
    */
+  const loadDictionariesIndex = async (): Promise<DictionaryIndexPayload> => {
+    if (import.meta.server) {
+      const assets = (
+        globalThis as typeof globalThis & {
+          __env__?: {
+            ASSETS?: WorkerAssetsBinding;
+          };
+        }
+      ).__env__?.ASSETS;
+
+      if (assets && typeof assets.fetch === "function") {
+        const response = await assets.fetch(
+          new Request("https://assets.local/dictionaries/index.json"),
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load dictionaries index asset (${response.status})`,
+          );
+        }
+
+        return (await response.json()) as DictionaryIndexPayload;
+      }
+
+      const [{ readFile }, { resolve }] = await Promise.all([
+        import("node:fs/promises"),
+        import("node:path"),
+      ]);
+      const dictionaryIndexPath = resolve(
+        process.cwd(),
+        "public/dictionaries/index.json",
+      );
+      const raw = await readFile(dictionaryIndexPath, "utf8");
+      return JSON.parse(raw) as DictionaryIndexPayload;
+    }
+
+    return $fetch<DictionaryIndexPayload>("/dictionaries/index.json");
+  };
+
   const { data: dictionariesData } = useAsyncData<DictionaryIndexPayload>(
     "dictionaries-index",
-    () => Promise.resolve(dictionariesIndexData as DictionaryIndexPayload),
+    loadDictionariesIndex,
   );
 
   const getLocalizedSourceBookLabel = (

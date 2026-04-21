@@ -23,6 +23,10 @@ node_modules
 coverage
 *.lcov
 .nyc_output
+playwright-report/
+test-results/
+.playwright/
+.playwright-cli/
 
 # Temporary files
 *.tmp
@@ -33,6 +37,7 @@ coverage
 public/search-index.json
 public/browse-index/
 public/recommendations.json
+public/exact-match/
 
 # Vercel (local project metadata / build outputs)
 .vercel/
