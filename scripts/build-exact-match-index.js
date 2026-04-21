@@ -1,8 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
-import { normalizeSearchQuery } from "../utils/query-classify.ts";
-
 const DICTIONARY_ROOT = resolve(process.cwd(), "public", "dictionaries");
 const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, "index.json");
 const EXACT_MATCH_ROOT = resolve(process.cwd(), "public", "exact-match");
@@ -10,7 +8,10 @@ const FORM_BUCKET_ROOT = join(EXACT_MATCH_ROOT, "forms");
 const WORD_BUCKET_ROOT = join(EXACT_MATCH_ROOT, "words");
 const EXACT_MATCH_BUCKET_MOD = 256;
 
-const normalizeSpace = (value) => normalizeSearchQuery(value);
+const normalizeSpace = (value) =>
+  String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
 const toComparableKey = (value) => normalizeSpace(value).toLowerCase();
 
 const readJsonFile = async (filePath) => {
