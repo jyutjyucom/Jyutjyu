@@ -5,7 +5,7 @@
  *
  * 参数:
  *   q     - 搜索查询词（必填）
- *   limit - 返回结果数量限制（默认 50，最大 200）
+ *   limit - 返回结果数量限制（默认 50，最大 100）
  *   dict  - 词典 ID 筛选（可选）
  *   mode  - 搜索模式: normal(正常) | reverse(反查释义)
  *
@@ -300,6 +300,19 @@ export const shouldAttemptAtlasSearch = ({
     !hasSymbolCharacters &&
     atlasAvailabilityState !== "unavailable"
   );
+};
+
+export const normalizeSearchResultLimit = (value: string | number | undefined): number => {
+  const parsed = Number.parseInt(String(value ?? "50"), 10);
+  const safeLimit = Number.isFinite(parsed) ? parsed : 50;
+  return Math.min(Math.max(1, safeLimit), 100);
+};
+
+export const shouldFailFastAfterAtlasDegrade = (event: any): boolean => {
+  const isProduction =
+    String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
+
+  return isProduction && Boolean(event?.context?.cloudflare);
 };
 
 const calculateSecondaryScore = (entry: any, queryLower: string): number => {
@@ -650,7 +663,7 @@ const searchEventHandler = async (event: any) => {
 
   const searchQuery = q.trim();
   const normalizedMode: SearchMode = mode === "reverse" ? "reverse" : "normal";
-  const resultLimit = Math.min(Math.max(1, parseInt(limit) || 50), 200);
+  const resultLimit = normalizeSearchResultLimit(limit);
   const hasSymbolCharacters = /[\p{P}\p{S}]/u.test(searchQuery);
   const metrics: SearchMetrics = {
     queryHash: hashSearchQuery(searchQuery),
@@ -705,6 +718,10 @@ const searchEventHandler = async (event: any) => {
               metrics.degradedReason = "atlas_timeout";
             } else {
               metrics.degradedReason = "atlas_error";
+            }
+
+            if (shouldFailFastAfterAtlasDegrade(event)) {
+              throw error;
             }
           }
         }

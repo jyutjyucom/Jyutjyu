@@ -95,7 +95,7 @@ const messagesZhHant = {
     jyutpingColumn: "粵拼",
     definitionColumn: "釋義",
     sourceColumn: "來源",
-    loadMore: "載入更多 10 條",
+    loadMore: "載入更多",
     loadingMore: "載入中...",
     remainingSuffix: "條",
     entriesCountSuffix: "條",

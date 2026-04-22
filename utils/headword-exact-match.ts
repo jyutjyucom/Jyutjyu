@@ -683,10 +683,39 @@ export const resolveUniqueCanonicalHeadwordFromEntries = (
   return buckets.values().next().value?.canonicalHeadword || null;
 };
 
+export const resolvePreferredSearchLandingHeadwordFromEntries = (
+  entries: DictionaryEntry[],
+  originalQuery: string,
+): string | null => {
+  const dedupedEntries = dedupeEntriesById(entries);
+  const buckets = groupEntriesIntoBuckets(dedupedEntries);
+
+  if (buckets.size === 1) {
+    return buckets.values().next().value?.canonicalHeadword || null;
+  }
+
+  const originalKey = toComparableHeadwordKey(originalQuery);
+  if (!originalKey) {
+    return null;
+  }
+
+  const exactOriginalBuckets = Array.from(buckets.values()).filter(
+    (bucket) => bucket.key === originalKey,
+  );
+
+  if (exactOriginalBuckets.length !== 1) {
+    return null;
+  }
+
+  return exactOriginalBuckets[0]?.canonicalHeadword || null;
+};
+
 export const resolveSearchLandingFromEntries = (
   entries: DictionaryEntry[],
+  originalQuery: string = "",
 ): SearchLandingResolution => {
-  const canonicalHeadword = resolveUniqueCanonicalHeadwordFromEntries(entries);
+  const canonicalHeadword =
+    resolvePreferredSearchLandingHeadwordFromEntries(entries, originalQuery);
 
   if (!canonicalHeadword) {
     return {
@@ -917,7 +946,7 @@ export const resolveSearchLandingFromJson = async (
   }
 
   const candidates = await resolveCandidatesFromJson(cleaned);
-  return resolveSearchLandingFromEntries(candidates?.entries || []);
+  return resolveSearchLandingFromEntries(candidates?.entries || [], cleaned);
 };
 
 const buildJsonCanonicalHeadwords = async (): Promise<string[]> => {

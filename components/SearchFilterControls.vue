@@ -10,10 +10,13 @@
       <button
         class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="
-          selectedDict
+          disabled
+            ? 'bg-surface-low/60 dark:bg-stone-800/60 text-graphite/40 dark:text-stone-300/50 cursor-not-allowed'
+            : selectedDict
             ? 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
+        :disabled="disabled"
         @click="$emit('toggle-dict')"
       >
         <span>{{ selectedDict || t("common.allDictionaries") }}</span>
@@ -60,7 +63,7 @@
         >
           {{ dict }}
           <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1"
-            >({{ getDictCount(dict) }})</span
+            >({{ loading ? "..." : getDictCount(dict) }})</span
           >
         </button>
       </div>
@@ -71,10 +74,13 @@
       <button
         class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="
-          selectedDialect
+          disabled
+            ? 'bg-surface-low/60 dark:bg-stone-800/60 text-graphite/40 dark:text-stone-300/50 cursor-not-allowed'
+            : selectedDialect
             ? 'bg-archive-green/10 dark:bg-archive-green/20 text-archive-green'
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
+        :disabled="disabled"
         @click="$emit('toggle-dialect')"
       >
         <span>{{
@@ -125,7 +131,7 @@
         >
           {{ getDialectLabel(dialect) }}
           <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1"
-            >({{ getDialectCount(dialect) }})</span
+            >({{ loading ? "..." : getDialectCount(dialect) }})</span
           >
         </button>
       </div>
@@ -136,10 +142,13 @@
       <button
         class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="
-          selectedType
+          disabled
+            ? 'bg-surface-low/60 dark:bg-stone-800/60 text-graphite/40 dark:text-stone-300/50 cursor-not-allowed'
+            : selectedType
             ? 'bg-muted-gold/10 dark:bg-muted-gold/20 text-muted-gold'
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
+        :disabled="disabled"
         @click="$emit('toggle-type')"
       >
         <span>{{
@@ -188,7 +197,7 @@
         >
           {{ getTypeName(type) }}
           <span class="text-graphite/40 dark:text-stone-300 text-xs ml-1"
-            >({{ getTypeCount(type) }})</span
+            >({{ loading ? "..." : getTypeCount(type) }})</span
           >
         </button>
       </div>
@@ -214,6 +223,8 @@ defineProps<{
   getTypeCount: (type: string) => number;
   getDialectLabel: (code: string) => string;
   getTypeName: (type: string) => string;
+  disabled?: boolean;
+  loading?: boolean;
 }>();
 
 defineEmits<{

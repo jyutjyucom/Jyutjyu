@@ -1,6 +1,6 @@
 import {
   getBrowsePage,
-  isBrowseScopeSupported,
+  getBrowsePageFromPrecomputed,
 } from "../../utils/browse-index";
 
 interface BrowseQuery {
@@ -17,6 +17,13 @@ const getFirstQueryValue = (value: string | string[] | undefined): string => {
   return value || "";
 };
 
+const shouldRequirePrecomputedBrowseAssets = (event: any): boolean => {
+  const isProduction =
+    String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
+
+  return isProduction && Boolean(event?.context?.cloudflare);
+};
+
 export default defineEventHandler(async (event) => {
   const query = getQuery<BrowseQuery>(event);
   const page = Math.max(
@@ -31,11 +38,27 @@ export default defineEventHandler(async (event) => {
   const sortRaw = getFirstQueryValue(query.sort).trim().toLowerCase();
   const sort = sortRaw === "jyutping" ? "jyutping" : "headword";
 
-  if (!(await isBrowseScopeSupported(dict))) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: `Dictionary scope not found: ${dict}`,
+  if (shouldRequirePrecomputedBrowseAssets(event)) {
+    const precomputed = await getBrowsePageFromPrecomputed({
+      page,
+      scope: dict,
+      pageSize: size,
+      sort,
     });
+
+    if (!precomputed) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: "Missing precomputed browse asset for this request",
+      });
+    }
+
+    setHeader(
+      event,
+      "cache-control",
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    );
+    return precomputed;
   }
 
   const data = await getBrowsePage({

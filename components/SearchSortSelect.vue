@@ -6,7 +6,13 @@
     >
     <div class="relative">
       <button
-        class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700"
+        class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
+        :class="
+          disabled
+            ? 'bg-surface-low/60 dark:bg-stone-800/60 text-graphite/40 dark:text-stone-300/50 cursor-not-allowed'
+            : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
+        "
+        :disabled="disabled"
         @click.stop="$emit('toggle-sort')"
       >
         <span>{{ getSortLabel(sortBy) }}</span>
@@ -58,6 +64,7 @@ withDefaults(
     showSortDropdown: boolean;
     getSortLabel: (sort: string) => string;
     dropdownAlign?: "left" | "right";
+    disabled?: boolean;
   }>(),
   { dropdownAlign: "left" },
 );

@@ -113,7 +113,16 @@ let pingAvailability: boolean | null = null;
 let pingAvailabilityPromise: Promise<boolean> | null = null;
 let searchAvailability: boolean | null = null;
 let suggestionAvailability: boolean | null = null;
-let searchFailureStreak = 0;
+
+const getConfiguredApiMode = (value: unknown): boolean | undefined => {
+  if (value === true || String(value).trim().toLowerCase() === "true") {
+    return true;
+  }
+  if (value === false || String(value).trim().toLowerCase() === "false") {
+    return false;
+  }
+  return undefined;
+};
 
 /**
  * 获取缓存实例
@@ -133,9 +142,9 @@ const getSearchCache = (): SearchCache => {
  */
 export const useSearch = () => {
   const config = useRuntimeConfig();
-  // 环境变量可能是字符串 'true' 或布尔值 true，使用 String() 统一处理
-  const preferApiByConfig =
-    config.public.useApi === true || String(config.public.useApi) === "true";
+  const configuredApiMode = getConfiguredApiMode(config.public.useApi);
+  const preferApiByConfig = configuredApiMode === true;
+  const forceJsonByConfig = configuredApiMode === false;
 
   // 两种实现都保持可用：默认按配置走，客户端可在 auto 模式探测 API 并升级
   const apiSearch = useDictionaryAPI();
@@ -152,14 +161,11 @@ export const useSearch = () => {
   const recordSearchSuccess = () => {
     searchAvailability = true;
     pingAvailability = true;
-    searchFailureStreak = 0;
   };
 
   const recordSearchFailure = () => {
-    searchFailureStreak += 1;
-    if (searchFailureStreak >= 2) {
-      searchAvailability = false;
-    }
+    searchAvailability = false;
+    pingAvailability = false;
   };
 
   const recordSuggestionSuccess = () => {
@@ -177,6 +183,12 @@ export const useSearch = () => {
     if (preferApiByConfig) {
       pingAvailability = true;
       return true;
+    }
+
+    if (forceJsonByConfig) {
+      pingAvailability = false;
+      searchAvailability = false;
+      return false;
     }
 
     // 服务端保持配置语义，避免 SSR 时额外探测
@@ -219,7 +231,7 @@ export const useSearch = () => {
     // 只在客户端使用缓存
     if (!process.client) {
       // 服务器端直接执行搜索
-      if (preferApiByConfig) {
+      if (preferApiByConfig && !forceJsonByConfig) {
         return apiSearch.searchBasic(query, {
           limit: options.limit,
           mode: options.searchDefinition ? "reverse" : "normal",
@@ -254,7 +266,8 @@ export const useSearch = () => {
       : undefined;
     let apiRequestFailed = false;
 
-    const shouldTryApi = preferApiByConfig || searchAvailability !== false;
+    const shouldTryApi =
+      !forceJsonByConfig && (preferApiByConfig || searchAvailability !== false);
 
     if (shouldTryApi) {
       const apiResults = await apiSearch.searchBasicOrNull(query, {
@@ -302,6 +315,14 @@ export const useSearch = () => {
    * 获取搜索建议
    */
   const getSuggestions = async (query: string): Promise<string[]> => {
+    if (query.trim().length < 2) {
+      return [];
+    }
+
+    if (forceJsonByConfig) {
+      return jsonSearch.getSuggestions(query);
+    }
+
     if (suggestionAvailability !== false) {
       const lightweightSuggestions = await apiSearch.getSuggestions(query);
       if (lightweightSuggestions !== null) {
@@ -345,6 +366,9 @@ export const useSearch = () => {
    * 获取当前使用的模式
    */
   const getMode = () => {
+    if (forceJsonByConfig) {
+      return "json";
+    }
     if (
       preferApiByConfig ||
       searchAvailability === true ||
