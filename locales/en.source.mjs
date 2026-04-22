@@ -132,6 +132,8 @@ const messagesEn = {
     topPaginationAria: "Top pagination",
     pronunciationTabsAria: "Pronunciation tabs",
     selectPronunciationAria: "Select pronunciation",
+    playPronunciationAudio: "Play pronunciation {pronunciation}",
+    stopPronunciationAudio: "Stop pronunciation {pronunciation}",
     searchResultsCount: "{count} search results",
     senseCount: "{count} senses",
     unannotatedPronunciation: "(unannotated)",

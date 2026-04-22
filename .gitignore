@@ -18,6 +18,7 @@ node_modules
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea
+.codex/
 
 # Testing
 coverage
@@ -32,12 +33,16 @@ test-results/
 *.tmp
 *.temp
 ~*
+.tts-cache/
 
 # Build outputs
 public/search-index.json
 public/browse-index/
 public/recommendations.json
 public/exact-match/
+public/tts/audio/
+public/tts/manifest.local.json
+data/tts/
 
 # Vercel (local project metadata / build outputs)
 .vercel/

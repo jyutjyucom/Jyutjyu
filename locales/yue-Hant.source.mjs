@@ -130,6 +130,8 @@ const messagesYueHant = {
     topPaginationAria: "頂部分頁",
     pronunciationTabsAria: "粵拼分頁",
     selectPronunciationAria: "選擇讀音",
+    playPronunciationAudio: "播放讀音 {pronunciation}",
+    stopPronunciationAudio: "停止播放讀音 {pronunciation}",
     searchResultsCount: "{count} 條搜尋結果",
     senseCount: "{count} 義項",
     unannotatedPronunciation: "（未標注）",
