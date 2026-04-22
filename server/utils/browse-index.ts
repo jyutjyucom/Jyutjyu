@@ -541,7 +541,7 @@ const getBrowseDataset = async (): Promise<BrowseDataset> => {
   return browseDatasetPromise;
 };
 
-const getBrowsePageFromPrecomputed = async (
+export const getBrowsePageFromPrecomputed = async (
   options: BrowsePageOptions,
 ): Promise<BrowsePageData | null> => {
   const manifest = await getBrowseManifest();

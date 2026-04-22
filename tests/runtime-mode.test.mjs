@@ -6,6 +6,7 @@ import { resolveServerUseApi } from "../server/utils/runtime-mode.ts";
 test.afterEach(() => {
   delete process.env.NUXT_PUBLIC_USE_API;
   delete process.env.MONGODB_URI;
+  delete process.env.NODE_ENV;
 });
 
 test("resolveServerUseApi respects explicit public API mode", () => {
@@ -18,15 +19,29 @@ test("resolveServerUseApi respects explicit public API mode", () => {
   );
 });
 
-test("resolveServerUseApi enables API mode when MongoDB is only available at runtime", () => {
+test("resolveServerUseApi enables API mode from MongoDB only in non-production", () => {
   process.env.MONGODB_URI = "mongodb+srv://runtime.mongodb.net/jyutjyu";
 
   assert.equal(
     resolveServerUseApi({
-      publicUseApi: false,
+      publicUseApi: "auto",
       mongodbUri: "",
+      nodeEnv: "development",
     }),
     true,
+  );
+});
+
+test("resolveServerUseApi stays disabled in production without explicit flag", () => {
+  process.env.MONGODB_URI = "mongodb+srv://runtime.mongodb.net/jyutjyu";
+
+  assert.equal(
+    resolveServerUseApi({
+      publicUseApi: "auto",
+      mongodbUri: "",
+      nodeEnv: "production",
+    }),
+    false,
   );
 });
 

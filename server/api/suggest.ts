@@ -13,10 +13,10 @@ export default defineEventHandler(async (event) => {
     20,
   );
 
-  if (!searchQuery) {
+  if (searchQuery.length < 2) {
     return {
       success: true,
-      query: "",
+      query: searchQuery,
       total: 0,
       suggestions: [],
     };

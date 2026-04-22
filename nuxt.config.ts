@@ -8,19 +8,21 @@ import { resolveTtsPublicRuntimeConfig } from "./utils/tts-runtime";
 
 const DEFAULT_SITE_URL = "https://jyutjyu.com";
 
-const resolveUseApi = (): boolean => {
+const resolveUseApi = (): boolean | "auto" => {
   const explicit = process.env.NUXT_PUBLIC_USE_API;
   if (explicit === "true") return true;
   if (explicit === "false") return false;
-  // Auto mode: if MongoDB is configured, default to API search
-  return Boolean(process.env.MONGODB_URI);
+  if (process.env.NODE_ENV !== "production" && process.env.MONGODB_URI) {
+    return true;
+  }
+  return "auto";
 };
 
 const resolvedUseApi = resolveUseApi();
 const i18nLocales = LOCALE_ROUTE_DEFINITIONS.map(
   ({ prefix: _prefix, ...locale }) => locale,
 );
-const prerenderStaticRoutes = ["/", "/about"];
+const prerenderStaticRoutes = ["/", "/about", "/search", "/browse"];
 const localizedPrerenderRoutes = LOCALE_ROUTE_DEFINITIONS.flatMap(
   ({ prefix }) =>
     prerenderStaticRoutes.map((route) => applyLocalePrefix(route, prefix)),
@@ -31,6 +33,8 @@ const localizedRouteRules = Object.fromEntries(
     [applyLocalePrefix("/browse/**", prefix), { swr: 86400 }],
     [applyLocalePrefix("/", prefix), { prerender: true }],
     [applyLocalePrefix("/about", prefix), { prerender: true }],
+    [applyLocalePrefix("/search", prefix), { prerender: true }],
+    [applyLocalePrefix("/browse", prefix), { prerender: true }],
   ]),
 );
 const hasLocalTtsManifest = existsSync(
@@ -169,8 +173,8 @@ export default defineNuxtConfig({
         "開放粵語詞典聚合平台，多詞典統一搜尋查詢、粵拼搜索，粵語學習同研究者嘅便捷工具。 The Open Platform for Cantonese Dictionaries",
       // 是否使用后端 API
       // - NUXT_PUBLIC_USE_API=true: 强制使用 API
-      // - NUXT_PUBLIC_USE_API=false: 默认静态 JSON（客户端可在探测到 API 可用后自动切换）
-      // - 未设置: 自动模式（检测到 MongoDB 配置时默认使用 API）
+      // - NUXT_PUBLIC_USE_API=false: 强制使用静态 JSON（紧急回退）
+      // - 未设置: 自动模式（生产环境请显式设置）
       useApi: resolvedUseApi,
       ...ttsPublicRuntimeConfig,
     },

@@ -3,10 +3,18 @@ import test from "node:test";
 
 import {
   fallbackSearch,
+  normalizeSearchResultLimit,
   resetSearchApiRuntimeStateForTests,
+  shouldFailFastAfterAtlasDegrade,
   shouldAttemptAtlasSearch,
 } from "../server/api/search.ts";
 import { ensureInitialized } from "../server/utils/opencc.ts";
+
+const originalNodeEnv = process.env.NODE_ENV;
+
+test.afterEach(() => {
+  process.env.NODE_ENV = originalNodeEnv;
+});
 
 const flattenValues = (value) => {
   if (Array.isArray(value)) {
@@ -264,4 +272,23 @@ test("reverse fallback keeps exact definition hits ahead of contains hits", asyn
     results.map((entry) => entry.id),
     ["exact-definition", "contains-definition"],
   );
+});
+
+test("search result limit is clamped to 100", () => {
+  assert.equal(normalizeSearchResultLimit("500"), 100);
+  assert.equal(normalizeSearchResultLimit("100"), 100);
+  assert.equal(normalizeSearchResultLimit("0"), 1);
+  assert.equal(normalizeSearchResultLimit(undefined), 50);
+});
+
+test("workers production request fails fast instead of running fallback search", () => {
+  process.env.NODE_ENV = "production";
+
+  assert.equal(
+    shouldFailFastAfterAtlasDegrade({
+      context: { cloudflare: { env: {} } },
+    }),
+    true,
+  );
+  assert.equal(shouldFailFastAfterAtlasDegrade({ context: {} }), false);
 });

@@ -313,6 +313,10 @@ import {
   getEntryPronunciationDisplayItems,
   joinPronunciationValues,
 } from "~/utils/pronunciation-display";
+import {
+  SEARCH_LOCAL_RESULT_LIMIT,
+  summarizeGroupedSearchCount,
+} from "~/utils/search-result-groups";
 
 interface WordResponse {
   success: boolean;
@@ -499,7 +503,7 @@ const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
   return results;
 };
 
-const backSearchResultCount = ref<number | null>(null);
+const backSearchResultCount = ref<string | null>(null);
 const backSearchAggregated = ref<AggregatedEntry[]>([]);
 const backSearchCountRequestId = ref(0);
 
@@ -517,57 +521,27 @@ const refreshBackSearchResultCount = async () => {
   backSearchResultCount.value = null;
   backSearchAggregated.value = [];
 
-  const fetchCount = async () => {
-    let streamedCount = 0;
-    let lastAggregated: AggregatedEntry[] = [];
-
-    const results = await jsonDictionary.searchBasic(query, {
-      limit: 1000,
+  try {
+    let results = await jsonDictionary.searchBasic(query, {
+      limit: SEARCH_LOCAL_RESULT_LIMIT,
       searchDefinition: false,
-      onResults: (entries) => {
-        const aggregated = aggregateEntries(entries);
-        const count = aggregated.length;
-        if (count > streamedCount) {
-          streamedCount = count;
-          lastAggregated = aggregated;
-        }
-        if (requestId !== backSearchCountRequestId.value) return;
-        if (count > 0) {
-          backSearchResultCount.value = count;
-          backSearchAggregated.value = aggregated;
-        }
-      },
     });
 
-    const finalAggregated = aggregateEntries(results);
-    const finalCount = finalAggregated.length;
-    if (finalCount >= streamedCount) {
-      lastAggregated = finalAggregated;
-    }
-    return {
-      count: Math.max(streamedCount, finalCount),
-      aggregated: lastAggregated,
-    };
-  };
-
-  try {
-    let { count, aggregated } = await fetchCount();
-
     // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
-    if (count === 0) {
+    if (results.length === 0) {
       await new Promise((resolve) => setTimeout(resolve, 150));
-      ({ count, aggregated } = await fetchCount());
-    }
-
-    // 搜索链路暂时不可用时，至少回退到当前词条下可见义项数，避免误显示 0
-    if (count === 0 && wordData.value?.entries?.length) {
-      aggregated = aggregateEntries(wordData.value.entries);
-      count = aggregated.length;
+      results = await jsonDictionary.searchBasic(query, {
+        limit: SEARCH_LOCAL_RESULT_LIMIT,
+        searchDefinition: false,
+      });
     }
 
     if (requestId !== backSearchCountRequestId.value) return;
-    backSearchResultCount.value = count > 0 ? count : null;
-    backSearchAggregated.value = aggregated;
+    backSearchAggregated.value = aggregateEntries(results);
+    backSearchResultCount.value = summarizeGroupedSearchCount(results, {
+      ceiling: SEARCH_LOCAL_RESULT_LIMIT,
+      isOverflow: results.length >= SEARCH_LOCAL_RESULT_LIMIT,
+    }).label;
   } catch {
     if (requestId !== backSearchCountRequestId.value) return;
     backSearchResultCount.value = null;

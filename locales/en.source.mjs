@@ -95,7 +95,7 @@ const messagesEn = {
     jyutpingColumn: "Jyutping",
     definitionColumn: "Definition",
     sourceColumn: "Source",
-    loadMore: "Load 10 more",
+    loadMore: "Load more",
     loadingMore: "Loading...",
     remainingSuffix: "results",
     entriesCountSuffix: "entries",

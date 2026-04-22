@@ -1,10 +1,21 @@
 interface ServerApiModeOptions {
   publicUseApi?: unknown;
   mongodbUri?: unknown;
+  nodeEnv?: unknown;
 }
 
 const isEnabledFlag = (value: unknown): boolean => {
   return value === true || String(value).trim().toLowerCase() === 'true'
+}
+
+const isDisabledFlag = (value: unknown): boolean => {
+  return value === false || String(value).trim().toLowerCase() === 'false'
+}
+
+const isProductionEnv = (value: unknown): boolean => {
+  return String(value || process.env.NODE_ENV || '')
+    .trim()
+    .toLowerCase() === 'production'
 }
 
 const getRuntimeUseApiOverride = (): boolean | undefined => {
@@ -35,16 +46,24 @@ export const resolveServerUseApi = (
     return runtimeUseApi
   }
 
+  if (isEnabledFlag(options.publicUseApi)) {
+    return true
+  }
+
+  if (isDisabledFlag(options.publicUseApi)) {
+    return false
+  }
+
+  if (isProductionEnv(options.nodeEnv)) {
+    return false
+  }
+
   const runtimeMongoUri = getRuntimeMongoUri()
   if (runtimeMongoUri) {
     return true
   }
 
   if (String(options.mongodbUri || '').trim()) {
-    return true
-  }
-
-  if (isEnabledFlag(options.publicUseApi)) {
     return true
   }
 

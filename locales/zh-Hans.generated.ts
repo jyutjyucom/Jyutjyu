@@ -91,7 +91,7 @@ const messagesZhHans = {
     "jyutpingColumn": "粤拼",
     "definitionColumn": "释义",
     "sourceColumn": "来源",
-    "loadMore": "载入更多 10 条",
+    "loadMore": "载入更多",
     "loadingMore": "载入中...",
     "remainingSuffix": "条",
     "entriesCountSuffix": "条",

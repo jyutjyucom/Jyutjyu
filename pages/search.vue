@@ -31,6 +31,8 @@
             :selected-dict="selectedDict"
             :selected-dialect="selectedDialect"
             :selected-type="selectedType"
+            :disabled="!exactResultsReady"
+            :loading="!exactResultsReady"
             :show-dict-dropdown="showDictDropdown"
             :show-dialect-dropdown="showDialectDropdown"
             :show-type-dropdown="showTypeDropdown"
@@ -52,6 +54,7 @@
           <div class="flex flex-wrap items-center gap-3">
             <SearchSortSelect
               :sort-by="sortBy"
+              :disabled="!exactResultsReady"
               :show-sort-dropdown="showSortDropdown"
               :get-sort-label="getSortLabel"
               @toggle-sort="showSortDropdown = !showSortDropdown"
@@ -78,6 +81,8 @@
                 :selected-dict="selectedDict"
                 :selected-dialect="selectedDialect"
                 :selected-type="selectedType"
+                :disabled="!exactResultsReady"
+                :loading="!exactResultsReady"
                 :show-dict-dropdown="showDictDropdown"
                 :show-dialect-dropdown="showDialectDropdown"
                 :show-type-dropdown="showTypeDropdown"
@@ -99,6 +104,7 @@
               <div class="flex items-center gap-3 ml-auto shrink-0">
                 <SearchSortSelect
                   :sort-by="sortBy"
+                  :disabled="!exactResultsReady"
                   :show-sort-dropdown="showSortDropdown"
                   :get-sort-label="getSortLabel"
                   dropdown-align="right"
@@ -147,7 +153,7 @@
             </span>
             <span>
               {{ resultsHeaderLabel }}
-              <span class="font-semibold">{{ totalCount }}</span>
+              <span class="font-semibold">{{ totalCountLabel }}</span>
               {{ t("common.remainingSuffix") }}
             </span>
           </h2>
@@ -303,12 +309,7 @@
                 @click="loadMore"
               >
                 <span v-if="loadingMore">{{ t("common.loadingMore") }}</span>
-                <span v-else
-                  >{{ t("common.loadMore") }} ({{
-                    totalCount - displayedResults.length
-                  }}
-                  {{ t("common.remainingSuffix") }})</span
-                >
+                <span v-else>{{ t("common.loadMore") }}</span>
               </button>
             </div>
           </div>
@@ -332,12 +333,7 @@
                 @click="loadMore"
               >
                 <span v-if="loadingMore">{{ t("common.loadingMore") }}</span>
-                <span v-else
-                  >{{ t("common.loadMore") }} ({{
-                    totalCount - displayedResults.length
-                  }}
-                  {{ t("common.remainingSuffix") }})</span
-                >
+                <span v-else>{{ t("common.loadMore") }}</span>
               </button>
             </div>
           </div>
@@ -386,19 +382,23 @@
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
+import {
+  aggregateSearchEntries,
+  SEARCH_API_FIRST_PAGE_LIMIT,
+  SEARCH_LOCAL_RESULT_LIMIT,
+  SEARCH_PAGE_SIZE,
+  summarizeGroupedSearchCount,
+  type AggregatedSearchEntry,
+} from "~/utils/search-result-groups";
 import { isJyutpingQuery } from "~/utils/query-classify";
 import { isSearchResultsViewQuery } from "~/utils/route-paths";
 import { getAggregatePronunciationDisplayItems } from "~/utils/pronunciation-display";
 
-interface AggregatedEntry {
-  key: string;
-  primary: DictionaryEntry;
-  entries: DictionaryEntry[];
-}
-
 const route = useRoute();
 const router = useRouter();
-const { searchBasic, getSuggestions, getMode } = useSearch();
+const apiSearch = useDictionaryAPI();
+const jsonSearch = useDictionary();
+const { getSuggestions, getMode } = useSearch();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { t, locale } = useI18n();
 const { getAllVariants, ensureInitialized } = useChineseConverter();
@@ -413,17 +413,24 @@ if (process.dev) {
 // 状态
 const searchQuery = ref((route.query.q as string) || ""); // 输入框中的查询词
 const actualSearchQuery = ref((route.query.q as string) || ""); // 实际已搜索的查询词
-const allResults = ref<DictionaryEntry[]>([]); // 所有搜索结果
-const displayedResults = ref<AggregatedEntry[]>([]); // 当前显示的结果（聚合后）
+const apiFirstPageResults = ref<DictionaryEntry[]>([]);
+const exactResults = ref<DictionaryEntry[]>([]);
+const displayedResults = ref<AggregatedSearchEntry[]>([]);
 const loading = ref(false);
 const loadingMore = ref(false);
 const suggestions = ref<string[]>([]);
 const showSuggestions = ref(false);
 const redirectingToExactMatch = ref(false);
+const exactResultsReady = ref(false);
+const exactResultsLoading = ref(false);
+const exactResultsOverflow = ref(false);
 // 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
 const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
 const enableReverseSearch = ref(route.query.reverse === "1"); // 从 URL 读取反查状态
 const isSearchComplete = ref(true); // 搜索是否完成（流式搜索中用）
+const allResults = computed(() =>
+  exactResultsReady.value ? exactResults.value : apiFirstPageResults.value,
+);
 
 // 筛选相关状态
 const selectedDict = ref<string | null>(null); // 选中的词典
@@ -481,14 +488,16 @@ const scheduleChineseConverterWarmup = () => {
 };
 
 // 分页配置
-const PAGE_SIZE = 10; // 每页显示10条
+const PAGE_SIZE = SEARCH_PAGE_SIZE;
 const currentPage = ref(1);
+let activeSearchRequestId = 0;
 
 // 示例搜索
 const exampleSearches = ["我哋", "你哋", "佢", "dei6", "ngo5 dei6"];
 
 // 筛选函数
 const selectDict = (dict: string | null) => {
+  if (!exactResultsReady.value) return;
   selectedDict.value = dict;
   showDictDropdown.value = false;
   currentPage.value = 1;
@@ -496,6 +505,7 @@ const selectDict = (dict: string | null) => {
 };
 
 const selectDialect = (dialect: string | null) => {
+  if (!exactResultsReady.value) return;
   selectedDialect.value = dialect;
   showDialectDropdown.value = false;
   currentPage.value = 1;
@@ -503,6 +513,7 @@ const selectDialect = (dialect: string | null) => {
 };
 
 const selectType = (type: string | null) => {
+  if (!exactResultsReady.value) return;
   selectedType.value = type;
   showTypeDropdown.value = false;
   currentPage.value = 1;
@@ -512,54 +523,14 @@ const selectType = (type: string | null) => {
 const selectSort = (
   sort: "relevance" | "jyutping" | "headword" | "dictionary",
 ) => {
+  if (!exactResultsReady.value) return;
   sortBy.value = sort;
   showSortDropdown.value = false;
   currentPage.value = 1;
   updateDisplayedResults();
 };
 
-// 聚合：将相同词头（display + normalized）的结果合并展示。
-// 不再按粤拼拆分，这样不同词典收录的同一词头会回到同一张卡片。
-const getAggregationKey = (entry: DictionaryEntry): string => {
-  const headwordDisplay = entry.headword.display?.trim() || "";
-  const headwordNormalized = entry.headword.normalized?.trim() || "";
-  return [headwordDisplay, headwordNormalized].join("||");
-};
-
-const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
-  const keyInfo = new Map<string, DictionaryEntry[]>();
-
-  for (const entry of entries) {
-    const key = getAggregationKey(entry);
-    const list = keyInfo.get(key) || [];
-    list.push(entry);
-    keyInfo.set(key, list);
-  }
-
-  const results: AggregatedEntry[] = [];
-  const seenKeys = new Set<string>();
-
-  for (const entry of entries) {
-    const key = getAggregationKey(entry);
-    const grouped = keyInfo.get(key);
-    if (!grouped || grouped.length === 0) continue;
-    if (!seenKeys.has(key)) {
-      seenKeys.add(key);
-      const primaryEntry = grouped[0];
-      if (primaryEntry) {
-        results.push({
-          key,
-          primary: primaryEntry,
-          entries: grouped,
-        });
-      }
-    }
-  }
-
-  return results;
-};
-
-const getGroupSources = (group: AggregatedEntry): string[] => {
+const getGroupSources = (group: AggregatedSearchEntry): string[] => {
   const sources = new Set<string>();
   group.entries.forEach((entry) => {
     if (entry.source_book) sources.add(entry.source_book);
@@ -567,11 +538,11 @@ const getGroupSources = (group: AggregatedEntry): string[] => {
   return Array.from(sources);
 };
 
-const getGroupPronunciationItems = (group: AggregatedEntry) => {
+const getGroupPronunciationItems = (group: AggregatedSearchEntry) => {
   return getAggregatePronunciationDisplayItems(group.entries);
 };
 
-const getGroupDefinitions = (group: AggregatedEntry): string => {
+const getGroupDefinitions = (group: AggregatedSearchEntry): string => {
   const seen = new Set<string>();
   const result: string[] = [];
   group.entries.forEach((entry) => {
@@ -676,6 +647,10 @@ const getSortLabel = (sort: string) => {
 
 // 筛选后的原始结果（未聚合）
 const filteredEntries = computed(() => {
+  if (!exactResultsReady.value) {
+    return allResults.value;
+  }
+
   let results = allResults.value;
   if (selectedDict.value) {
     results = results.filter((e) => e.source_book === selectedDict.value);
@@ -695,8 +670,7 @@ const filteredEntries = computed(() => {
 const sortedEntries = computed(() => {
   const results = [...filteredEntries.value];
 
-  if (sortBy.value === "relevance") {
-    // 保持原样 (allResults 已经是按相关度排序的)
+  if (!exactResultsReady.value || sortBy.value === "relevance") {
     return results;
   }
 
@@ -724,7 +698,9 @@ const sortedEntries = computed(() => {
 });
 
 // 聚合后的结果（用于展示）
-const aggregatedResults = computed(() => aggregateEntries(sortedEntries.value));
+const aggregatedResults = computed(() =>
+  aggregateSearchEntries(sortedEntries.value),
+);
 
 const resultsHeaderLabel = computed(() => {
   const label = enableReverseSearch.value
@@ -791,13 +767,13 @@ const groupedResults = computed(() => {
   // 反查、粤拼搜索、非默认排序或没有查询词时，不分组
   if (!isTextSearch.value || sortBy.value !== "relevance") {
     return {
-      exactMatches: [] as AggregatedEntry[],
+      exactMatches: [] as AggregatedSearchEntry[],
       otherResults: aggregatedResults.value,
     };
   }
 
-  const exactMatches: AggregatedEntry[] = [];
-  const otherResults: AggregatedEntry[] = [];
+  const exactMatches: AggregatedSearchEntry[] = [];
+  const otherResults: AggregatedSearchEntry[] = [];
 
   // 按照后端返回的顺序遍历，保持顺序
   for (const group of aggregatedResults.value) {
@@ -850,7 +826,7 @@ const displayedGroupedResults = computed(() => {
   if (allExactDisplayed.length >= targetDisplayCount) {
     return {
       exactMatches: allExactDisplayed.slice(0, targetDisplayCount),
-      otherResults: [] as AggregatedEntry[],
+      otherResults: [] as AggregatedSearchEntry[],
       hasMoreExact: allExactDisplayed.length > targetDisplayCount,
       hasMoreOther: otherResults.length > 0,
     };
@@ -925,12 +901,25 @@ const getTypeCount = (type: string): number => {
 
 // 基于筛选结果的分页
 const hasMore = computed(() => {
+  if (!exactResultsReady.value) {
+    return false;
+  }
+
   const totalDisplayed =
     displayedGroupedResults.value.exactMatches.length +
     displayedGroupedResults.value.otherResults.length;
   return totalDisplayed < aggregatedResults.value.length;
 });
-const totalCount = computed(() => aggregatedResults.value.length);
+const totalCountLabel = computed(() => {
+  if (exactResultsLoading.value && !exactResultsReady.value) {
+    return "...";
+  }
+
+  return summarizeGroupedSearchCount(exactResults.value, {
+    ceiling: SEARCH_LOCAL_RESULT_LIMIT,
+    isOverflow: exactResultsOverflow.value,
+  }).label;
+});
 
 const getExactRedirectHeadword = (
   entries: DictionaryEntry[],
@@ -941,7 +930,7 @@ const getExactRedirectHeadword = (
   if (enableReverseSearch.value) return null;
   if (isJyutpingQuery(normalizedQuery)) return null;
 
-  const exactMatches = aggregateEntries(entries).filter((group) =>
+  const exactMatches = aggregateSearchEntries(entries).filter((group) =>
     isExactMatch(group.primary, normalizedQuery),
   );
 
@@ -987,12 +976,18 @@ const redirectToExactMatchIfNeeded = async (
 
 // 执行搜索
 const performSearch = async (query: string) => {
+  const requestId = ++activeSearchRequestId;
+
   if (!query || query.trim() === "") {
-    allResults.value = [];
+    apiFirstPageResults.value = [];
+    exactResults.value = [];
     displayedResults.value = [];
     actualSearchQuery.value = "";
     currentPage.value = 1;
     isSearchComplete.value = true;
+    exactResultsReady.value = false;
+    exactResultsLoading.value = false;
+    exactResultsOverflow.value = false;
     loading.value = false;
     return;
   }
@@ -1001,9 +996,13 @@ const performSearch = async (query: string) => {
   loading.value = true;
   warmContentFonts();
   isSearchComplete.value = false;
-  allResults.value = [];
+  apiFirstPageResults.value = [];
+  exactResults.value = [];
   displayedResults.value = [];
   currentPage.value = 1;
+  exactResultsReady.value = false;
+  exactResultsLoading.value = true;
+  exactResultsOverflow.value = false;
 
   // 更新实际搜索的查询词
   actualSearchQuery.value = query.trim();
@@ -1012,42 +1011,97 @@ const performSearch = async (query: string) => {
   selectedDict.value = null;
   selectedDialect.value = null;
   selectedType.value = null;
+  showDictDropdown.value = false;
+  showDialectDropdown.value = false;
+  showTypeDropdown.value = false;
+  showSortDropdown.value = false;
 
   try {
-    // 流式搜索：搜到什么先展示什么
-    const results = await searchBasic(query.trim(), {
-      limit: 1000,
+    const normalizedQuery = query.trim();
+    const shouldRequestApiFirstPage = getMode() !== "json";
+    let apiFailed = !shouldRequestApiFirstPage;
+    let apiSettled = !shouldRequestApiFirstPage;
+
+    const apiTask = shouldRequestApiFirstPage
+      ? apiSearch.searchBasicOrNull(normalizedQuery, {
+          limit: SEARCH_API_FIRST_PAGE_LIMIT,
+          mode: enableReverseSearch.value ? "reverse" : "normal",
+        })
+      : Promise.resolve<DictionaryEntry[] | null>(null);
+
+    const jsonTask = jsonSearch.searchBasic(normalizedQuery, {
+      limit: SEARCH_LOCAL_RESULT_LIMIT,
       searchDefinition: enableReverseSearch.value,
-      onResults: (entries, complete) => {
-        // 更新结果
-        allResults.value = entries;
-        // 重新计算显示的结果（保持当前页数，使用筛选后的结果）
-        // 新搜索时筛选已重置，所以 filteredEntries 等于 allResults
-        updateDisplayedResults();
-
-        // 首次收到结果时关闭 loading
-        if (loading.value && entries.length > 0) {
-          loading.value = false;
-        }
-
-        // 更新搜索耗时
-        if (complete) {
-          isSearchComplete.value = true;
-          loading.value = false;
-        }
-      },
     });
 
-    if (await redirectToExactMatchIfNeeded(results, query.trim())) {
-      return;
-    }
+    const apiPromise = (async () => {
+      const apiResults = await apiTask;
+      if (requestId !== activeSearchRequestId) {
+        return apiResults;
+      }
+
+      apiSettled = true;
+      apiFailed = apiResults === null;
+
+      if (apiResults !== null) {
+        apiFirstPageResults.value = apiResults;
+        if (loading.value && (apiResults.length > 0 || exactResultsReady.value)) {
+          loading.value = false;
+        }
+
+        if (await redirectToExactMatchIfNeeded(apiResults, normalizedQuery)) {
+          return apiResults;
+        }
+      } else if (exactResultsReady.value) {
+        loading.value = false;
+      }
+
+      return apiResults;
+    })();
+
+    const jsonPromise = (async () => {
+      const results = await jsonTask;
+      if (requestId !== activeSearchRequestId) {
+        return results;
+      }
+
+      exactResults.value = results;
+      exactResultsOverflow.value = results.length >= SEARCH_LOCAL_RESULT_LIMIT;
+      exactResultsReady.value = true;
+      exactResultsLoading.value = false;
+      isSearchComplete.value = true;
+
+      if (!shouldRequestApiFirstPage || apiFailed || (apiSettled && apiFirstPageResults.value.length === 0)) {
+        loading.value = false;
+      }
+
+      const shouldTryJsonExactRedirect =
+        !shouldRequestApiFirstPage ||
+        apiFailed ||
+        !getExactRedirectHeadword(apiFirstPageResults.value, normalizedQuery);
+
+      if (
+        shouldTryJsonExactRedirect &&
+        (await redirectToExactMatchIfNeeded(results, normalizedQuery))
+      ) {
+        return results;
+      }
+
+      return results;
+    })();
+
+    await Promise.all([apiPromise, jsonPromise]);
   } catch (error) {
     console.error("搜尋失敗:", error);
-    allResults.value = [];
+    apiFirstPageResults.value = [];
+    exactResults.value = [];
     displayedResults.value = [];
   } finally {
-    loading.value = false;
-    isSearchComplete.value = true;
+    if (requestId === activeSearchRequestId) {
+      exactResultsLoading.value = false;
+      isSearchComplete.value = true;
+      loading.value = false;
+    }
   }
 };
 
@@ -1087,7 +1141,7 @@ const handleInput = () => {
   }
 
   suggestionTimeout = setTimeout(async () => {
-    if (searchQuery.value.length >= 1) {
+    if (searchQuery.value.length >= 2) {
       warmContentFonts();
       suggestions.value = await getSuggestions(searchQuery.value);
       showSuggestions.value = suggestions.value.length > 0;
@@ -1126,8 +1180,14 @@ watch(
       if (newQuery) {
         performSearch(newQuery as string);
       } else {
-        allResults.value = [];
+        apiFirstPageResults.value = [];
+        exactResults.value = [];
         displayedResults.value = [];
+        actualSearchQuery.value = "";
+        exactResultsReady.value = false;
+        exactResultsLoading.value = false;
+        exactResultsOverflow.value = false;
+        isSearchComplete.value = true;
       }
     }
   },
