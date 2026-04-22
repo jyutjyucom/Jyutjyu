@@ -45,12 +45,7 @@
           class="flex-1 text-left text-sm font-medium flex items-center justify-between"
           @click="accordionOpen = !accordionOpen"
         >
-          <span>
-            <span class="font-semibold text-kapok">{{ activeLabel }}</span>
-            <span class="ml-2 text-sm text-graphite/60 dark:text-stone-200">{{
-              t("dictCard.collectedBy", { count: activeDictionaryCount })
-            }}</span>
-          </span>
+          <span class="font-semibold text-kapok">{{ activeLabel }}</span>
           <svg
             class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
             :class="accordionOpen ? 'rotate-180' : ''"
@@ -74,7 +69,7 @@
         <div
           v-for="tab in tabs"
           :key="`mobile:${tab.id}`"
-          class="w-full px-3 py-2 text-sm transition-colors"
+          class="w-full text-sm transition-colors"
           :class="
             tab.id === modelValue
               ? 'text-kapok font-semibold bg-kapok/5'
@@ -83,10 +78,17 @@
         >
           <button
             type="button"
-            class="w-full text-left"
+            class="w-full px-3 py-2 text-left"
             @click="selectTab(tab.id)"
           >
-            <span>{{ tab.label }}</span>
+            <span class="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span>{{ tab.label }}</span>
+              <span
+                class="text-xs font-normal text-graphite/60 dark:text-stone-400"
+              >
+                {{ t("dictCard.collectedBy", { count: tab.dictionaryCount }) }}
+              </span>
+            </span>
           </button>
         </div>
       </div>
@@ -122,15 +124,12 @@ const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
 
-const accordionOpen = ref(false);
+const accordionOpen = ref(true);
 
 const activeTab = computed(
   () => props.tabs.find((tab) => tab.id === props.modelValue) || props.tabs[0],
 );
 const activeLabel = computed(() => activeTab.value?.label || "");
-const activeDictionaryCount = computed(
-  () => activeTab.value?.dictionaryCount || 0,
-);
 const resolvedAriaLabel = computed(
   () => props.ariaLabel || t("common.pronunciationTabsAria"),
 );

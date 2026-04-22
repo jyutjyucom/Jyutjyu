@@ -144,7 +144,7 @@
           >
             <div
               v-if="shouldShowEntryJyutping(entry)"
-              class="flex items-start gap-2"
+              class="flex items-center gap-2"
             >
               <span class="text-graphite/60 dark:text-stone-300 mr-2 shrink-0"
                 >{{ t("common.jyutpingColumn") }}:</span
@@ -157,6 +157,7 @@
                   <PronunciationWithTts
                     :item="item"
                     :original="item.original"
+                    wrapper-class="flex items-center gap-1.5 flex-wrap"
                   />
                 </div>
               </div>

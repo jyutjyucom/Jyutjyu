@@ -151,7 +151,10 @@
         <!-- 仅当不同词典的粤拼不一致时，显示该词典收录的读音 -->
         <div
           v-if="shouldShowEntryJyutping(entry)"
-          class="mt-3 text-sm flex items-start gap-2"
+          class="mt-3 text-sm flex gap-2"
+          :class="
+            getEntryPhoneticRows(entry).length > 1 ? 'items-start' : 'items-center'
+          "
         >
           <span
             class="text-sm text-graphite/60 dark:text-stone-200 mr-2 shrink-0"

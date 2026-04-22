@@ -17,6 +17,18 @@ test("local dev auto-enables TTS when a smoke manifest exists", () => {
   assert.equal(resolved.ttsVoiceVersion, "v1");
 });
 
+test("local dev prefers the shipped manifest when both manifests exist", () => {
+  const resolved = resolveTtsPublicRuntimeConfig({
+    env: {},
+    isDev: true,
+    hasLocalManifest: true,
+    hasProductionManifest: true,
+  });
+
+  assert.equal(resolved.ttsEnabled, true);
+  assert.equal(resolved.ttsManifestPath, "/tts/manifest.v1.json");
+});
+
 test("explicit TTS env keeps local dev defaults from overriding production paths", () => {
   const resolved = resolveTtsPublicRuntimeConfig({
     env: {

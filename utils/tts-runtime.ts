@@ -12,8 +12,9 @@ export const resolveTtsPublicRuntimeConfig = ({
   hasProductionManifest = false,
 }: TtsRuntimeOptions = {}) => {
   const explicitEnabled = env.NUXT_PUBLIC_TTS_ENABLED;
-  const autoUseLocalManifest = isDev && hasLocalManifest;
-  const autoUseProductionManifest = !isDev && hasProductionManifest;
+  const autoUseProductionManifest = hasProductionManifest;
+  const autoUseLocalManifest =
+    isDev && hasLocalManifest && !hasProductionManifest;
 
   return {
     ttsEnabled:
