@@ -794,6 +794,19 @@ const pickRandomEntries = <T>(entries: T[], count: number): T[] => {
 
 const fetchRandomEntries = async (): Promise<DictionaryEntry[]> => {
   try {
+    const response = await $fetch<{
+      success?: boolean;
+      results?: DictionaryEntry[];
+    }>("/api/random?count=4");
+
+    if (response?.success && Array.isArray(response.results)) {
+      return response.results;
+    }
+  } catch (error) {
+    console.error("加載隨機詞條 API 失敗，改用靜態推薦池:", error);
+  }
+
+  try {
     if (recommendationPool.value.length === 0) {
       const response = await $fetch<RecommendationPayload | DictionaryEntry[]>(
         "/recommendations.json",
@@ -803,8 +816,8 @@ const fetchRandomEntries = async (): Promise<DictionaryEntry[]> => {
     }
 
     return pickRandomEntries(recommendationPool.value, 4);
-  } catch (error) {
-    console.error("加載隨機詞條失敗:", error);
+  } catch (fallbackError) {
+    console.error("加載靜態推薦池失敗:", fallbackError);
     return [];
   }
 };
