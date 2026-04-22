@@ -10,16 +10,14 @@
         role="tablist"
         :aria-label="resolvedAriaLabel"
       >
-        <div class="flex flex-nowrap items-center gap-1 min-w-max">
-          <div
-            v-for="(tab, index) in tabs"
-            :key="tab.id"
-            class="inline-flex items-center bg-surface-low dark:bg-stone-900 p-1"
-          >
+        <div
+          class="inline-flex flex-nowrap items-center gap-1 min-w-max bg-surface-low dark:bg-stone-900 p-1"
+        >
+          <div v-for="(tab, index) in tabs" :key="tab.id" class="inline-flex">
             <button
               type="button"
               role="tab"
-              class="inline-flex items-center gap-2 px-4 py-1.5 text-base transition-all whitespace-nowrap"
+              class="inline-flex items-center px-4 py-1.5 text-base transition-all whitespace-nowrap"
               :class="
                 tab.id === modelValue
                   ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
@@ -30,16 +28,6 @@
               @keydown="onTabKeydown($event, index)"
             >
               <span class="font-semibold">{{ tab.label }}</span>
-              <span
-                class="text-xs px-1.5 py-0.5 rounded-full"
-                :class="
-                  tab.id === modelValue
-                    ? 'bg-white/20 text-white'
-                    : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
-                "
-              >
-                {{ tab.dictionaryCount }}
-              </span>
             </button>
           </div>
         </div>
@@ -95,13 +83,10 @@
         >
           <button
             type="button"
-            class="flex-1 flex items-center justify-between text-left"
+            class="w-full text-left"
             @click="selectTab(tab.id)"
           >
             <span>{{ tab.label }}</span>
-            <span class="text-xs text-graphite/60 dark:text-stone-200">{{
-              tab.dictionaryCount
-            }}</span>
           </button>
         </div>
       </div>
@@ -152,7 +137,6 @@ const resolvedAriaLabel = computed(
 
 const selectTab = (tabId: string) => {
   emit("update:modelValue", tabId);
-  accordionOpen.value = false;
 };
 
 const stickyStyle = computed(() => ({
