@@ -95,7 +95,7 @@ npm run build:data:hkcw   # 粵典
 npm run build:data:gzpc   # 分類詞典
 ```
 
-更多資料：[Wiktionary 指南](./docs/WIKTIONARY_GUIDE.md) | [CSV 規範](./docs/CSV_GUIDE.md)
+更多資料：[Wiktionary 指南](./docs/WIKTIONARY_GUIDE.md) | [CSV 規範](./docs/CSV_GUIDE.md) | [預生成 Jyutping TTS 維護指南](./docs/TTS_IMPLEMENTATION.md)
 
 ## 參與貢獻
 
