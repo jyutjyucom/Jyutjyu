@@ -384,6 +384,7 @@ import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
 import {
   aggregateSearchEntries,
+  pickRicherSearchEntries,
   SEARCH_API_FIRST_PAGE_LIMIT,
   SEARCH_LOCAL_RESULT_LIMIT,
   SEARCH_PAGE_SIZE,
@@ -428,9 +429,17 @@ const exactResultsOverflow = ref(false);
 const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
 const enableReverseSearch = ref(route.query.reverse === "1"); // 从 URL 读取反查状态
 const isSearchComplete = ref(true); // 搜索是否完成（流式搜索中用）
-const allResults = computed(() =>
-  exactResultsReady.value ? exactResults.value : apiFirstPageResults.value,
-);
+const preferredResultsSelection = computed(() => {
+  if (!exactResultsReady.value) {
+    return {
+      entries: apiFirstPageResults.value,
+      source: "primary" as const,
+    };
+  }
+
+  return pickRicherSearchEntries(apiFirstPageResults.value, exactResults.value);
+});
+const allResults = computed(() => preferredResultsSelection.value.entries);
 
 // 筛选相关状态
 const selectedDict = ref<string | null>(null); // 选中的词典
@@ -915,9 +924,14 @@ const totalCountLabel = computed(() => {
     return "...";
   }
 
-  return summarizeGroupedSearchCount(exactResults.value, {
-    ceiling: SEARCH_LOCAL_RESULT_LIMIT,
-    isOverflow: exactResultsOverflow.value,
+  const isUsingLocalResultUniverse =
+    preferredResultsSelection.value.source === "candidate";
+
+  return summarizeGroupedSearchCount(allResults.value, {
+    ceiling: isUsingLocalResultUniverse
+      ? SEARCH_LOCAL_RESULT_LIMIT
+      : SEARCH_API_FIRST_PAGE_LIMIT,
+    isOverflow: isUsingLocalResultUniverse && exactResultsOverflow.value,
   }).label;
 });
 

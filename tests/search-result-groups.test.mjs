@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   aggregateSearchEntries,
+  pickRicherSearchEntries,
   SEARCH_PAGE_SIZE,
   summarizeGroupedSearchCount,
 } from "../utils/search-result-groups.ts";
@@ -75,5 +76,43 @@ test("summarizeGroupedSearchCount keeps exact grouped count when not capped", ()
     count: 2,
     label: "2",
     isOverflow: false,
+  });
+});
+
+test("pickRicherSearchEntries keeps the API result universe when it has more grouped matches", () => {
+  const apiEntries = [
+    createEntry({ id: "1", display: "馬死落地行", source: "詞典A" }),
+    createEntry({ id: "2", display: "落地", source: "詞典A" }),
+    createEntry({ id: "3", display: "踩落地", source: "詞典A" }),
+  ];
+  const localEntries = [
+    createEntry({ id: "4", display: "馬死落地行", source: "詞典A" }),
+    createEntry({ id: "5", display: "馬死落地行", source: "詞典B" }),
+  ];
+
+  assert.deepEqual(pickRicherSearchEntries(apiEntries, localEntries), {
+    entries: apiEntries,
+    source: "primary",
+    primaryGroupedCount: 3,
+    candidateGroupedCount: 1,
+  });
+});
+
+test("pickRicherSearchEntries prefers the local result universe when grouped coverage is at least as rich", () => {
+  const apiEntries = [
+    createEntry({ id: "1", display: "馬死落地行", source: "詞典A" }),
+    createEntry({ id: "2", display: "落地", source: "詞典A" }),
+  ];
+  const localEntries = [
+    createEntry({ id: "3", display: "馬死落地行", source: "詞典A" }),
+    createEntry({ id: "4", display: "落地", source: "詞典A" }),
+    createEntry({ id: "5", display: "落地", source: "詞典B" }),
+  ];
+
+  assert.deepEqual(pickRicherSearchEntries(apiEntries, localEntries), {
+    entries: localEntries,
+    source: "candidate",
+    primaryGroupedCount: 2,
+    candidateGroupedCount: 2,
   });
 });

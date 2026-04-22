@@ -314,6 +314,8 @@ import {
   joinPronunciationValues,
 } from "~/utils/pronunciation-display";
 import {
+  pickRicherSearchEntries,
+  SEARCH_API_FIRST_PAGE_LIMIT,
   SEARCH_LOCAL_RESULT_LIMIT,
   summarizeGroupedSearchCount,
 } from "~/utils/search-result-groups";
@@ -355,6 +357,7 @@ const router = useRouter();
 const { t, locale } = useI18n();
 const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
+const apiDictionary = useDictionaryAPI();
 const jsonDictionary = useDictionary();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
@@ -522,10 +525,21 @@ const refreshBackSearchResultCount = async () => {
   backSearchAggregated.value = [];
 
   try {
-    let results = await jsonDictionary.searchBasic(query, {
+    const shouldRequestApi = apiDictionary.isAPIEnabled();
+    const apiTask = shouldRequestApi
+      ? apiDictionary.searchBasicOrNull(query, {
+          limit: SEARCH_API_FIRST_PAGE_LIMIT,
+          mode: "normal",
+        })
+      : Promise.resolve<DictionaryEntry[] | null>(null);
+    const jsonTask = jsonDictionary.searchBasic(query, {
       limit: SEARCH_LOCAL_RESULT_LIMIT,
       searchDefinition: false,
     });
+
+    const [apiResultsRaw, jsonResultsRaw] = await Promise.all([apiTask, jsonTask]);
+
+    let results = jsonResultsRaw;
 
     // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
     if (results.length === 0) {
@@ -537,10 +551,22 @@ const refreshBackSearchResultCount = async () => {
     }
 
     if (requestId !== backSearchCountRequestId.value) return;
-    backSearchAggregated.value = aggregateEntries(results);
-    backSearchResultCount.value = summarizeGroupedSearchCount(results, {
-      ceiling: SEARCH_LOCAL_RESULT_LIMIT,
-      isOverflow: results.length >= SEARCH_LOCAL_RESULT_LIMIT,
+    const preferredResults = pickRicherSearchEntries(
+      apiResultsRaw || [],
+      results,
+    );
+    const isUsingLocalResultUniverse =
+      preferredResults.source === "candidate";
+    const selectedResults = preferredResults.entries;
+
+    backSearchAggregated.value = aggregateEntries(selectedResults);
+    backSearchResultCount.value = summarizeGroupedSearchCount(selectedResults, {
+      ceiling: isUsingLocalResultUniverse
+        ? SEARCH_LOCAL_RESULT_LIMIT
+        : SEARCH_API_FIRST_PAGE_LIMIT,
+      isOverflow:
+        isUsingLocalResultUniverse &&
+        results.length >= SEARCH_LOCAL_RESULT_LIMIT,
     }).label;
   } catch {
     if (requestId !== backSearchCountRequestId.value) return;

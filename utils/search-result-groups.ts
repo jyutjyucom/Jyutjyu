@@ -12,6 +12,13 @@ export interface GroupedSearchCountSummary {
   isOverflow: boolean;
 }
 
+export interface PreferredSearchEntriesSelection {
+  entries: DictionaryEntry[];
+  source: "primary" | "candidate";
+  primaryGroupedCount: number;
+  candidateGroupedCount: number;
+}
+
 export const SEARCH_API_FIRST_PAGE_LIMIT = 100;
 export const SEARCH_PAGE_SIZE = 100;
 export const SEARCH_LOCAL_RESULT_LIMIT = 1000;
@@ -67,6 +74,54 @@ export const aggregateSearchEntries = (
   return aggregated;
 };
 
+export const countAggregatedSearchEntries = (
+  entries: DictionaryEntry[],
+): number => {
+  return aggregateSearchEntries(entries).length;
+};
+
+export const pickRicherSearchEntries = (
+  primaryEntries: DictionaryEntry[],
+  candidateEntries: DictionaryEntry[],
+): PreferredSearchEntriesSelection => {
+  const primaryGroupedCount = countAggregatedSearchEntries(primaryEntries);
+  const candidateGroupedCount = countAggregatedSearchEntries(candidateEntries);
+
+  if (candidateGroupedCount > primaryGroupedCount) {
+    return {
+      entries: candidateEntries,
+      source: "candidate",
+      primaryGroupedCount,
+      candidateGroupedCount,
+    };
+  }
+
+  if (candidateGroupedCount < primaryGroupedCount) {
+    return {
+      entries: primaryEntries,
+      source: "primary",
+      primaryGroupedCount,
+      candidateGroupedCount,
+    };
+  }
+
+  if (candidateEntries.length >= primaryEntries.length) {
+    return {
+      entries: candidateEntries,
+      source: "candidate",
+      primaryGroupedCount,
+      candidateGroupedCount,
+    };
+  }
+
+  return {
+    entries: primaryEntries,
+    source: "primary",
+    primaryGroupedCount,
+    candidateGroupedCount,
+  };
+};
+
 export const summarizeGroupedSearchCount = (
   entries: DictionaryEntry[],
   options: {
@@ -80,7 +135,7 @@ export const summarizeGroupedSearchCount = (
       ? Number(options.ceiling)
       : SEARCH_LOCAL_RESULT_LIMIT,
   );
-  const count = aggregateSearchEntries(entries).length;
+  const count = countAggregatedSearchEntries(entries);
   const isOverflow = options.isOverflow === true;
 
   return {
