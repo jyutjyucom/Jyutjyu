@@ -4,6 +4,7 @@ import type { DictionaryEntry } from "~/types/dictionary";
 import { getEntriesCollection } from "./mongodb";
 import { getIsServerApiEnabled } from "./runtime-mode";
 import bundledDictionaryIndex from "~/content/dictionaries/index.json";
+import { fetchAssetJson } from "~/utils/asset-json";
 
 interface DictionaryIndexItem {
   id: string;
@@ -90,8 +91,6 @@ const DEFAULT_SORT: BrowseSort = "headword";
 const ALLOWED_SORTS = new Set<BrowseSort>(["headword", "jyutping"]);
 const DICTIONARY_ROOT = resolve(process.cwd(), "public/dictionaries");
 const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, "index.json");
-const BROWSE_INDEX_ROOT = resolve(process.cwd(), "public/browse-index");
-const BROWSE_MANIFEST_PATH = resolve(BROWSE_INDEX_ROOT, "manifest.json");
 
 const bundledDictionaries = Array.isArray(
   (bundledDictionaryIndex as DictionaryIndex)?.dictionaries,
@@ -232,8 +231,8 @@ const loadDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
 
 const loadBrowseManifest = async (): Promise<BrowseIndexManifest | null> => {
   try {
-    const raw = await readFile(BROWSE_MANIFEST_PATH, "utf8");
-    const parsed = JSON.parse(raw) as BrowseIndexManifest;
+    const parsed =
+      await fetchAssetJson<BrowseIndexManifest>("/browse-index/manifest.json");
     if (!parsed || typeof parsed !== "object") return null;
     return parsed;
   } catch {
@@ -560,18 +559,17 @@ const getBrowsePageFromPrecomputed = async (
       ? Number(scopeInfo.total_pages_by_size?.[String(safePageSize)])
       : Math.max(1, Math.ceil(total / safePageSize));
   const safePage = Math.max(1, Math.min(options.page, totalPages));
-  const pagePath = resolve(
-    BROWSE_INDEX_ROOT,
+  const assetPath = [
+    "/browse-index",
     safeScope,
     safeSort,
     `size-${safePageSize}`,
     `page-${safePage}.json`,
-  );
+  ].join("/");
 
   let headwords: string[] = [];
   try {
-    const raw = await readFile(pagePath, "utf8");
-    const parsed = JSON.parse(raw) as { headwords?: string[] };
+    const parsed = await fetchAssetJson<{ headwords?: string[] }>(assetPath);
     if (Array.isArray(parsed?.headwords)) {
       headwords = parsed.headwords;
     }

@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import { fetchAssetJson } from "~/utils/asset-json";
 
 type BrowseSort = "headword" | "jyutping";
 
@@ -119,7 +120,7 @@ const loadStaticBrowsePage = async (
   const pagePath = `/browse-index/${encodeURIComponent(scope)}/${sortBy}/size-${pageSize}/page-${safePage}.json`;
 
   try {
-    const parsed = await $fetch<{ headwords?: string[] }>(pagePath);
+    const parsed = await fetchAssetJson<{ headwords?: string[] }>(pagePath);
     if (!Array.isArray(parsed?.headwords)) return null;
 
     const allTotalRaw = scopes.all?.total;
@@ -157,9 +158,8 @@ export const useBrowsePageData = (params: BrowsePageParams) => {
     }
 
     try {
-      const manifest = await $fetch<BrowseManifest>(
-        "/browse-index/manifest.json",
-      );
+      const manifest =
+        await fetchAssetJson<BrowseManifest>("/browse-index/manifest.json");
       if (!manifest?.scopes || typeof manifest.scopes !== "object") {
         return null;
       }
