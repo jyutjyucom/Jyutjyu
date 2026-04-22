@@ -191,7 +191,20 @@
           </p>
         </div>
 
-        <div v-if="randomEntries.length > 0" class="relative">
+        <div
+          v-else-if="
+            randomEntriesLoadCompleted &&
+            !loadingRandomEntries &&
+            randomEntries.length === 0
+          "
+          class="text-center py-16"
+        >
+          <p class="text-graphite dark:text-stone-200 text-sm">
+            {{ t("common.recommendedEntriesUnavailable") }}
+          </p>
+        </div>
+
+        <div v-else-if="randomEntries.length > 0" class="relative">
           <div
             class="random-batch-stage"
             :class="{ 'is-hidden': !randomEntriesVisible }"
@@ -424,19 +437,6 @@
           </Transition>
         </div>
 
-        <!-- Initial loading -->
-        <div
-          v-if="randomEntries.length === 0 && !loadingRandomEntries"
-          class="text-center py-16"
-        >
-          <div
-            class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full mx-auto mb-3"
-          ></div>
-          <p class="text-graphite/60 dark:text-stone-200 text-sm">
-            {{ t("common.loading") }}
-          </p>
-        </div>
-
         <!-- Browse all link -->
         <div class="mt-12 text-center">
           <NuxtLink
@@ -660,7 +660,12 @@ const randomEntries = useState<DictionaryEntry[]>(
   () => [],
 );
 const mobileIndex = useState<number>("home-mobile-index", () => 0);
+const recommendationPool = useState<DictionaryEntry[]>(
+  "home-recommendation-pool",
+  () => [],
+);
 const loadingRandomEntries = ref(false);
+const randomEntriesLoadCompleted = ref(false);
 const navigatingToId = ref<string | null>(null);
 
 // Featured entry (first) and secondary entries (rest) for asymmetric layout
@@ -755,16 +760,49 @@ const clearRandomEntriesSpinnerTimeout = () => {
   }
 };
 
+interface RecommendationPayload {
+  entries?: DictionaryEntry[];
+}
+
+const parseRecommendationEntries = (
+  payload: RecommendationPayload | DictionaryEntry[] | null,
+): DictionaryEntry[] => {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.entries)) {
+    return payload.entries;
+  }
+
+  return [];
+};
+
+const pickRandomEntries = <T>(entries: T[], count: number): T[] => {
+  if (entries.length <= count) {
+    return [...entries];
+  }
+
+  const shuffled = [...entries];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
+  }
+
+  return shuffled.slice(0, count);
+};
+
 const fetchRandomEntries = async (): Promise<DictionaryEntry[]> => {
   try {
-    const response = await $fetch<{
-      success?: boolean;
-      results?: DictionaryEntry[];
-    }>("/api/random?count=4");
+    if (recommendationPool.value.length === 0) {
+      const response = await $fetch<RecommendationPayload | DictionaryEntry[]>(
+        "/recommendations.json",
+      );
 
-    return response?.success && Array.isArray(response.results)
-      ? response.results
-      : [];
+      recommendationPool.value = parseRecommendationEntries(response);
+    }
+
+    return pickRandomEntries(recommendationPool.value, 4);
   } catch (error) {
     console.error("加載隨機詞條失敗:", error);
     return [];
@@ -786,6 +824,7 @@ const refreshRandomEntries = async () => {
   if (loadingRandomEntries.value) return;
 
   loadingRandomEntries.value = true;
+  randomEntriesLoadCompleted.value = false;
   const hasExistingEntries = randomEntries.value.length > 0;
 
   if (hasExistingEntries) {
@@ -813,6 +852,7 @@ const refreshRandomEntries = async () => {
   } finally {
     clearRandomEntriesSpinnerTimeout();
     showRandomEntriesSpinner.value = false;
+    randomEntriesLoadCompleted.value = true;
 
     if (randomEntries.value.length > 0) {
       await revealRandomEntries();

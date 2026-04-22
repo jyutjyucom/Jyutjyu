@@ -12,11 +12,12 @@
  *   3. 真正随机选取
  *
  * 回退策略:
- *   - MongoDB 不可用时，回退到预生成的 recommendations.json
+ *   - MongoDB 超时或不可用时，回退到预生成的 recommendations.json
  */
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import bundledRecommendations from "~/public/recommendations.json";
 import { getEntriesCollection } from "../utils/mongodb";
 
 // 高质量词典列表（与前端一致）
@@ -27,6 +28,8 @@ const RECOMMENDATION_FILE_CANDIDATES = [
   resolve(process.cwd(), ".output/public/recommendations.json"),
   resolve(process.cwd(), "recommendations.json"),
 ];
+
+const RANDOM_QUERY_TIMEOUT_MS = 2500;
 
 let cachedFallbackEntries: any[] | null = null;
 
@@ -46,6 +49,12 @@ const parseFallbackEntries = (payload: unknown): any[] => {
 const loadFallbackEntries = (): any[] => {
   if (cachedFallbackEntries) {
     return cachedFallbackEntries;
+  }
+
+  const bundledEntries = parseFallbackEntries(bundledRecommendations);
+  if (bundledEntries.length > 0) {
+    cachedFallbackEntries = bundledEntries;
+    return bundledEntries;
   }
 
   for (const filePath of RECOMMENDATION_FILE_CANDIDATES) {
@@ -80,57 +89,95 @@ const pickRandomEntries = <T>(entries: T[], count: number): T[] => {
   return shuffled.slice(0, count);
 };
 
+class RandomQueryTimeoutError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "RandomQueryTimeoutError";
+  }
+}
+
+const withTimeout = async <T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new RandomQueryTimeoutError(message));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+};
+
+const fetchRandomEntriesFromMongo = async (count: number) => {
+  const collection = await getEntriesCollection();
+
+  // 使用 MongoDB 聚合管道获取随机词条
+  const pipeline = [
+    // 1. 只从高质量词典中选取
+    {
+      $match: {
+        source_book: { $in: QUALITY_DICTIONARIES },
+      },
+    },
+    // 2. 过滤无效词条
+    {
+      $match: {
+        "senses.0.definition": {
+          $exists: true,
+          $ne: "",
+          $not: /NO DATA/i,
+        },
+      },
+    },
+    // 3. 过滤释义太短的词条（少于3个字符）
+    {
+      $match: {
+        $expr: {
+          $gte: [
+            {
+              $strLenCP: {
+                $ifNull: [{ $arrayElemAt: ["$senses.definition", 0] }, ""],
+              },
+            },
+            3,
+          ],
+        },
+      },
+    },
+    // 4. 随机采样
+    {
+      $sample: { size: count },
+    },
+    // 5. 排除 _id
+    {
+      $project: { _id: 0 },
+    },
+  ];
+
+  return await collection.aggregate(pipeline).toArray();
+};
+
 export default defineEventHandler(async (event) => {
   const query = getQuery<RandomQuery>(event);
   const count = Math.min(Math.max(1, parseInt(query.count || "3") || 3), 20);
 
   try {
-    const collection = await getEntriesCollection();
-
-    // 使用 MongoDB 聚合管道获取随机词条
-    const pipeline = [
-      // 1. 只从高质量词典中选取
-      {
-        $match: {
-          source_book: { $in: QUALITY_DICTIONARIES },
-        },
-      },
-      // 2. 过滤无效词条
-      {
-        $match: {
-          "senses.0.definition": {
-            $exists: true,
-            $ne: "",
-            $not: /NO DATA/i,
-          },
-        },
-      },
-      // 3. 过滤释义太短的词条（少于3个字符）
-      {
-        $match: {
-          $expr: {
-            $gte: [
-              {
-                $strLenCP: {
-                  $ifNull: [{ $arrayElemAt: ["$senses.definition", 0] }, ""],
-                },
-              },
-              3,
-            ],
-          },
-        },
-      },
-      // 4. 随机采样
-      {
-        $sample: { size: count },
-      },
-      // 5. 排除 _id
-      {
-        $project: { _id: 0 },
-      },
-    ];
-
-    const results = await collection.aggregate(pipeline).toArray();
+    const results = await withTimeout(
+      fetchRandomEntriesFromMongo(count),
+      RANDOM_QUERY_TIMEOUT_MS,
+      `Random entry query timed out after ${RANDOM_QUERY_TIMEOUT_MS}ms`,
+    );
 
     return {
       success: true,

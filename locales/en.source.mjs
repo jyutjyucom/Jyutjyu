@@ -44,6 +44,7 @@ const messagesEn = {
     changeBatch: "Another batch",
     next: "Next",
     recommendedEntries: "Featured entries",
+    recommendedEntriesUnavailable: "Unable to load featured entries right now",
     includedDictionaries: "Included dictionaries",
     totalEntriesPrefix: "Including",
     totalEntriesSuffix: "entries",
