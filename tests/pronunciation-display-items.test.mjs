@@ -97,7 +97,7 @@ test("TTS normalization collapses whitespace and lowercases pronunciation keys",
   assert.equal(normalizeTtsJyutping(" Jyut6   Ping3 "), "jyut6 ping3");
 });
 
-test("TTS phoneme generation uses the tone after a star override marker", () => {
+test("TTS phoneme generation uses the tone after star and hyphen override markers", () => {
   assert.equal(
     getTtsPhonemeJyutping("tong4 ci1 dau6*2"),
     "tong4 ci1 dau2",
@@ -105,6 +105,14 @@ test("TTS phoneme generation uses the tone after a star override marker", () => 
   assert.equal(
     getTtsPhonemeJyutping("tung4 faa1 seon6*2"),
     "tung4 faa1 seon2",
+  );
+  assert.equal(
+    getTtsPhonemeJyutping("hai6 gam2 ji3-2"),
+    "hai6 gam2 ji2",
+  );
+  assert.equal(
+    getTtsPhonemeJyutping("maau1 ji1 sai2 min6 hai6 gam2 ji3-2"),
+    "maau1 ji1 sai2 min6 hai6 gam2 ji2",
   );
   assert.equal(getTtsPhonemeJyutping("jyut6 ping3"), "jyut6 ping3");
 });

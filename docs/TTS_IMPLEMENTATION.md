@@ -69,9 +69,9 @@ Example:
 - display: `Jyut6   Ping3`
 - normalized key: `jyut6 ping3`
 
-### 3. `*` tone overrides are spoken with the tone after the star
+### 3. Tone override markers are spoken with the trailing tone digit
 
-Some sources encode alternate tone output like `dau6*2`.
+Some sources encode alternate tone output like `dau6*2` or `ji3-2`.
 
 For TTS synthesis only, the spoken phoneme becomes `dau2`. The visible label stays unchanged.
 
@@ -79,6 +79,7 @@ Examples:
 
 - `tong4 ci1 dau6*2` -> phoneme `tong4 ci1 dau2`
 - `tung4 faa1 seon6*2` -> phoneme `tung4 faa1 seon2`
+- `hai6 gam2 ji3-2` -> phoneme `hai6 gam2 ji2`
 
 This rule is implemented in [`utils/pronunciation-display.ts`](/Users/laufei/Documents/GitHub/Jyutjyu/utils/pronunciation-display.ts) and reused by the batch scripts through [`scripts/tts-shared.mjs`](/Users/laufei/Documents/GitHub/Jyutjyu/scripts/tts-shared.mjs).
 
@@ -267,7 +268,7 @@ Typical same-key-but-changed-audio cases:
 
 - changed voice
 - changed phoneme normalization
-- changed `*` tone-override behavior
+- changed `*` / `-` tone-override behavior
 - changed representative text in a way that should affect synthesis
 
 ## Storage And Hosting
@@ -417,9 +418,9 @@ Separate the steady-state serving path from the backfill path:
 
 If a large TTS backfill was done through a Worker-backed upload endpoint, that is the first thing to suspect.
 
-### A starred pronunciation sounds wrong
+### A tone-override pronunciation sounds wrong
 
-If the visible label contains `*`, confirm the synthesized phoneme uses the tone after the star. If older audio was already generated before the rule change, rerun sync with `--force`.
+If the visible label contains `*` or `-` as a tone override marker, confirm the synthesized phoneme uses the trailing tone digit. If older audio was already generated before the rule change, rerun sync with `--force`.
 
 ### Local dev has fewer buttons than production
 
@@ -440,7 +441,7 @@ These cover:
 - source-based eligibility
 - split-row pronunciation item generation
 - normalization
-- `*` tone override phoneme behavior
+- `*` / `-` tone override phoneme behavior
 - local vs production manifest resolution rules
 
 ## Future Changes: What To Preserve
