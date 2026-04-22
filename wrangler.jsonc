@@ -15,19 +15,32 @@
     "directory": ".output/public",
     "binding": "ASSETS",
     "run_worker_first": [
-      "/*",
-      "!/_nuxt/*",
-      "!/browse-index/*",
-      "!/favicon.*",
-      "!/*.svg",
-      "!/*.png",
-      "!/*.jpg",
-      "!/*.jpeg",
-      "!/*.webp",
-      "!/*.woff2",
-      "!/*.css",
-      "!/*.js",
-      "!/*.json"
+      // Keep prerendered routes asset-first so Cloudflare can serve the built
+      // HTML directly instead of paying a Worker invocation for every request.
+      "/api/*",
+      "/browse",
+      "/browse/*",
+      "/search",
+      "/word/*",
+      "/en/browse",
+      "/en/browse/*",
+      "/en/search",
+      "/en/word/*",
+      "/yue-Hans/browse",
+      "/yue-Hans/browse/*",
+      "/yue-Hans/search",
+      "/yue-Hans/word/*",
+      "/zh-Hant/browse",
+      "/zh-Hant/browse/*",
+      "/zh-Hant/search",
+      "/zh-Hant/word/*",
+      "/zh-Hans/browse",
+      "/zh-Hans/browse/*",
+      "/zh-Hans/search",
+      "/zh-Hans/word/*",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/sitemaps/*"
     ]
   }
 }
