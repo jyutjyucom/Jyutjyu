@@ -76,20 +76,31 @@
               : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'
           "
         >
-          <button
-            type="button"
-            class="w-full px-3 py-2 text-left"
+          <div
+            role="button"
+            tabindex="0"
+            class="w-full px-3 py-2 text-left flex items-center gap-1.5"
             @click="selectTab(tab.id)"
+            @keydown.enter.prevent="selectTab(tab.id)"
+            @keydown.space.prevent="selectTab(tab.id)"
           >
-            <span class="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span>{{ tab.label }}</span>
+            <span class="min-w-0 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              <span class="font-semibold">{{ tab.label }}</span>
+              <TtsSpeakerButton
+                v-if="tab.pronunciation"
+                :label="tab.pronunciation.label"
+                :normalized="tab.pronunciation.normalized"
+                :tts-eligible="tab.pronunciation.ttsEligible"
+                button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
+                icon-class="w-3.5 h-3.5"
+              />
               <span
                 class="text-xs font-normal text-graphite/60 dark:text-stone-400"
               >
                 {{ t("dictCard.collectedBy", { count: tab.dictionaryCount }) }}
               </span>
             </span>
-          </button>
+          </div>
         </div>
       </div>
     </div>
