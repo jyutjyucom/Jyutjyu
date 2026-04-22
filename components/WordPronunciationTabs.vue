@@ -10,100 +10,113 @@
         role="tablist"
         :aria-label="resolvedAriaLabel"
       >
-        <div
-          class="flex flex-nowrap items-center gap-1 min-w-max bg-surface-low dark:bg-stone-900 p-1 w-fit"
-        >
-          <button
+        <div class="flex flex-nowrap items-center gap-1 min-w-max">
+          <div
             v-for="(tab, index) in tabs"
             :key="tab.id"
-            type="button"
-            role="tab"
-            class="inline-flex items-center gap-2 px-4 py-1.5 text-base transition-all whitespace-nowrap"
-            :class="
-              tab.id === modelValue
-                ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
-                : 'text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 font-medium'
-            "
-            :aria-selected="tab.id === modelValue"
-            @click="$emit('update:modelValue', tab.id)"
-            @keydown="onTabKeydown($event, index)"
+            class="inline-flex items-center bg-surface-low dark:bg-stone-900 p-1"
           >
-            <span class="font-semibold">{{ tab.label }}</span>
-            <span
-              class="text-xs px-1.5 py-0.5 rounded-full"
+            <button
+              type="button"
+              role="tab"
+              class="inline-flex items-center gap-2 px-4 py-1.5 text-base transition-all whitespace-nowrap"
               :class="
                 tab.id === modelValue
-                  ? 'bg-white/20 text-white'
-                  : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
+                  ? 'bg-kapok text-white font-bold shadow-lg shadow-kapok/20'
+                  : 'text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 font-medium'
               "
+              :aria-selected="tab.id === modelValue"
+              @click="$emit('update:modelValue', tab.id)"
+              @keydown="onTabKeydown($event, index)"
             >
-              {{ tab.dictionaryCount }}
-            </span>
-          </button>
+              <span class="font-semibold">{{ tab.label }}</span>
+              <span
+                class="text-xs px-1.5 py-0.5 rounded-full"
+                :class="
+                  tab.id === modelValue
+                    ? 'bg-white/20 text-white'
+                    : 'bg-kapok/10 dark:bg-kapok/20 text-kapok'
+                "
+              >
+                {{ tab.dictionaryCount }}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Mobile: accordion -->
     <div class="sm:hidden">
-      <button
-        :aria-label="t('common.selectPronunciationAria')"
-        :aria-expanded="accordionOpen"
-        class="w-full px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-sm font-medium flex items-center justify-between"
-        @click="accordionOpen = !accordionOpen"
+      <div
+        class="flex items-center gap-2 px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100"
       >
-        <span>
-          <span class="font-semibold text-kapok">{{ activeLabel }}</span>
-          <span class="ml-2 text-sm text-graphite/60 dark:text-stone-200">{{
-            t("dictCard.collectedBy", { count: activeDictionaryCount })
-          }}</span>
-        </span>
-        <svg
-          class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
-          :class="accordionOpen ? 'rotate-180' : ''"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <button
+          :aria-label="t('common.selectPronunciationAria')"
+          :aria-expanded="accordionOpen"
+          class="flex-1 text-left text-sm font-medium flex items-center justify-between"
+          @click="accordionOpen = !accordionOpen"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </button>
+          <span>
+            <span class="font-semibold text-kapok">{{ activeLabel }}</span>
+            <span class="ml-2 text-sm text-graphite/60 dark:text-stone-200">{{
+              t("dictCard.collectedBy", { count: activeDictionaryCount })
+            }}</span>
+          </span>
+          <svg
+            class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
+            :class="accordionOpen ? 'rotate-180' : ''"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      </div>
       <div
         v-show="accordionOpen"
         class="bg-surface-low dark:bg-stone-900 border-t border-outline-soft/20 dark:border-stone-800"
       >
-        <button
+        <div
           v-for="tab in tabs"
           :key="`mobile:${tab.id}`"
-          type="button"
-          class="w-full flex items-center justify-between px-3 py-2 text-sm transition-colors"
+          class="w-full px-3 py-2 text-sm transition-colors"
           :class="
             tab.id === modelValue
               ? 'text-kapok font-semibold bg-kapok/5'
               : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'
           "
-          @click="selectTab(tab.id)"
         >
-          <span>{{ tab.label }}</span>
-          <span class="text-xs text-graphite/60 dark:text-stone-200">{{
-            tab.dictionaryCount
-          }}</span>
-        </button>
+          <button
+            type="button"
+            class="flex-1 flex items-center justify-between text-left"
+            @click="selectTab(tab.id)"
+          >
+            <span>{{ tab.label }}</span>
+            <span class="text-xs text-graphite/60 dark:text-stone-200">{{
+              tab.dictionaryCount
+            }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { PronunciationDisplayItem } from "~/types/tts";
+
 interface PronunciationTab {
   id: string;
   label: string;
   dictionaryCount: number;
+  pronunciation?: PronunciationDisplayItem | null;
 }
 
 interface Props {

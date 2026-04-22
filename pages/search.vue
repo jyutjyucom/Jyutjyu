@@ -320,7 +320,7 @@
               :sort-by="sortBy"
               :displayed-grouped-results="displayedGroupedResults"
               :grouped-results="groupedResults"
-              :get-group-jyutping="getGroupJyutping"
+              :get-group-pronunciation-items="getGroupPronunciationItems"
               :get-group-definitions="getGroupDefinitions"
               :get-group-sources="getGroupSources"
             />
@@ -388,6 +388,7 @@ import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
 import { isJyutpingQuery } from "~/utils/query-classify";
 import { isSearchResultsViewQuery } from "~/utils/route-paths";
+import { getAggregatePronunciationDisplayItems } from "~/utils/pronunciation-display";
 
 interface AggregatedEntry {
   key: string;
@@ -566,21 +567,8 @@ const getGroupSources = (group: AggregatedEntry): string[] => {
   return Array.from(sources);
 };
 
-const getGroupJyutping = (group: AggregatedEntry): string => {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  group.entries.forEach((entry) => {
-    const jps = entry.phonetic?.jyutping || [];
-    jps.forEach((jp) => {
-      const value = jp?.trim();
-      if (!value) return;
-      if (!seen.has(value)) {
-        seen.add(value);
-        result.push(value);
-      }
-    });
-  });
-  return result.join("; ");
+const getGroupPronunciationItems = (group: AggregatedEntry) => {
+  return getAggregatePronunciationDisplayItems(group.entries);
 };
 
 const getGroupDefinitions = (group: AggregatedEntry): string => {

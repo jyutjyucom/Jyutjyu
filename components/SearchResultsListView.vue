@@ -47,9 +47,17 @@
               class="text-lg font-sung-content font-semibold text-ink dark:text-parchment"
               >{{ group.primary.headword.display }}</span
             >
-            <span class="text-sm font-semibold text-kapok">{{
-              getGroupJyutping(group)
-            }}</span>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              <PronunciationWithTts
+                v-for="item in getGroupPronunciationItems(group)"
+                :key="`${group.key}:${item.normalized}`"
+                :item="item"
+                wrapper-class="flex items-center gap-1"
+                label-class="text-sm font-semibold text-kapok"
+                button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
+                icon-class="w-3.5 h-3.5"
+              />
+            </div>
           </div>
           <p class="text-sm text-ink/70 dark:text-stone-400 line-clamp-1">
             {{ getGroupDefinitions(group) }}
@@ -115,9 +123,21 @@
                     >{{ group.primary.headword.display }}</NuxtLink
                   >
                 </td>
-                <td class="px-3 whitespace-nowrap py-2">
-                  <div class="text-lg font-semibold text-kapok">
-                    {{ getGroupJyutping(group) || "-" }}
+                <td class="px-3 py-2">
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <PronunciationWithTts
+                      v-for="item in getGroupPronunciationItems(group)"
+                      :key="`${group.key}:${item.normalized}`"
+                      :item="item"
+                      wrapper-class="flex items-center gap-1"
+                      label-class="text-lg font-semibold text-kapok"
+                    />
+                    <span
+                      v-if="getGroupPronunciationItems(group).length === 0"
+                      class="text-lg font-semibold text-kapok"
+                    >
+                      -
+                    </span>
                   </div>
                 </td>
                 <td class="px-3 py-2">
@@ -208,9 +228,17 @@
               class="text-lg font-sung-content font-semibold text-ink dark:text-parchment"
               >{{ group.primary.headword.display }}</span
             >
-            <span class="text-sm font-semibold text-kapok">{{
-              getGroupJyutping(group)
-            }}</span>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              <PronunciationWithTts
+                v-for="item in getGroupPronunciationItems(group)"
+                :key="`${group.key}:${item.normalized}`"
+                :item="item"
+                wrapper-class="flex items-center gap-1"
+                label-class="text-sm font-semibold text-kapok"
+                button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
+                icon-class="w-3.5 h-3.5"
+              />
+            </div>
           </div>
           <p class="text-sm text-ink/70 dark:text-stone-400 line-clamp-1">
             {{ getGroupDefinitions(group) }}
@@ -278,9 +306,21 @@
                     >{{ group.primary.headword.display }}</NuxtLink
                   >
                 </td>
-                <td class="px-3 whitespace-nowrap py-2">
-                  <div class="text-base font-semibold text-kapok">
-                    {{ getGroupJyutping(group) || "-" }}
+                <td class="px-3 py-2">
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <PronunciationWithTts
+                      v-for="item in getGroupPronunciationItems(group)"
+                      :key="`${group.key}:${item.normalized}`"
+                      :item="item"
+                      wrapper-class="flex items-center gap-1"
+                      label-class="text-base font-semibold text-kapok"
+                    />
+                    <span
+                      v-if="getGroupPronunciationItems(group).length === 0"
+                      class="text-base font-semibold text-kapok"
+                    >
+                      -
+                    </span>
                   </div>
                 </td>
                 <td class="px-3 py-2">
@@ -311,6 +351,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
+import type { PronunciationDisplayItem } from "~/types/tts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -332,7 +373,9 @@ interface Props {
   sortBy: string;
   groupedResults: GroupedResults;
   displayedGroupedResults: GroupedResults;
-  getGroupJyutping: (group: AggregatedEntryGroup) => string;
+  getGroupPronunciationItems: (
+    group: AggregatedEntryGroup,
+  ) => PronunciationDisplayItem[];
   getGroupDefinitions: (group: AggregatedEntryGroup) => string;
   getGroupSources: (group: AggregatedEntryGroup) => string[];
 }

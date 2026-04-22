@@ -1,5 +1,6 @@
 import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
+import { joinPronunciationValues } from "~/utils/pronunciation-display";
 
 const CANTO_DICT_SOURCES = ["粵典 (words.hk)", "粵典"];
 
@@ -53,7 +54,7 @@ export const useDictionaryEntry = () => {
   };
 
   const getEntryJyutping = (entry: DictionaryEntry): string => {
-    return getEntryJyutpingList(entry).join("; ");
+    return joinPronunciationValues(getEntryJyutpingList(entry));
   };
 
   const getEntryOriginalPhoneticList = (entry: DictionaryEntry): string[] => {
@@ -106,7 +107,7 @@ export const useDictionaryEntry = () => {
       | null;
     if (!original) return "";
     if (Array.isArray(original)) {
-      return getEntryOriginalPhoneticList(entry).join("; ");
+      return joinPronunciationValues(getEntryOriginalPhoneticList(entry));
     }
     return original.trim();
   };

@@ -146,28 +146,18 @@
               v-if="shouldShowEntryJyutping(entry)"
               class="flex items-start gap-2"
             >
-              <span
-                class="text-graphite/60 dark:text-stone-300 mr-2 shrink-0"
+              <span class="text-graphite/60 dark:text-stone-300 mr-2 shrink-0"
                 >{{ t("common.jyutpingColumn") }}:</span
               >
               <div class="min-w-0 space-y-1">
                 <div
-                  v-for="(row, rowIdx) in getEntryPhoneticRows(entry)"
-                  :key="`${entry.id}:phonetic:${row.jyutping}:${rowIdx}`"
-                  class="flex items-center gap-1.5 flex-wrap"
+                  v-for="item in getEntryPhoneticRows(entry)"
+                  :key="`${entry.id}:phonetic:${item.normalized}`"
                 >
-                  <span class="text-kapok font-semibold break-words">{{
-                    row.jyutping
-                  }}</span>
-                  <span
-                    v-if="row.original"
-                    class="text-xs text-graphite/60 dark:text-stone-300 break-words"
-                  >
-                    <span class="text-graphite/40 dark:text-stone-400">{{
-                      t("dictCard.originalPhonetic")
-                    }}</span
-                    >{{ row.original }}
-                  </span>
+                  <PronunciationWithTts
+                    :item="item"
+                    :original="item.original"
+                  />
                 </div>
               </div>
             </div>
@@ -463,7 +453,7 @@
 
 <script setup lang="ts">
 import type { DictionaryEntry } from "~/types/dictionary";
-import { getPhoneticDisplayRows } from "~/utils/phonetic-display";
+import { getEntryPronunciationDisplayItems } from "~/utils/pronunciation-display";
 
 interface Props {
   sourceKey: string;
@@ -548,7 +538,7 @@ const shouldShowEntryOriginalPhonetic = (entry: DictionaryEntry): boolean => {
 };
 
 const getEntryPhoneticRows = (entry: DictionaryEntry) => {
-  return getPhoneticDisplayRows(entry.phonetic);
+  return getEntryPronunciationDisplayItems(entry);
 };
 
 const shouldShowStandaloneOriginalPhonetic = (entry: DictionaryEntry) => {

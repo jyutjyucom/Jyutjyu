@@ -1,4 +1,4 @@
-import type { Phonetic } from "~/types/dictionary";
+import type { Phonetic } from "../types/dictionary.ts";
 
 export interface PhoneticDisplayRow {
   jyutping: string;
@@ -35,7 +35,11 @@ export const getOriginalPhoneticForIndex = (
   }
 
   const normalizedOriginal = original.trim();
-  if (idx !== 0 || !normalizedOriginal || normalizedOriginal === currentJyutping) {
+  if (
+    idx !== 0 ||
+    !normalizedOriginal ||
+    normalizedOriginal === currentJyutping
+  ) {
     return null;
   }
 
@@ -44,7 +48,9 @@ export const getOriginalPhoneticForIndex = (
       .split(":")
       .map((part) => part.trim())
       .filter(Boolean);
-    const jyutpingSet = new Set(jyutpingArray.map((jp) => jp.trim()).filter(Boolean));
+    const jyutpingSet = new Set(
+      jyutpingArray.map((jp) => jp.trim()).filter(Boolean),
+    );
     if (originalParts.every((part) => jyutpingSet.has(part))) {
       return null;
     }

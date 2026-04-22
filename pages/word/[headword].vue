@@ -90,10 +90,17 @@
         </div>
 
         <div v-if="activePronunciationGroup">
-          <p
-            class="hidden sm:block text-base text-graphite dark:text-stone-200 mb-8"
+          <div
+            class="hidden sm:flex sm:items-center sm:gap-2 text-base text-graphite dark:text-stone-200 mb-8"
           >
+            <PronunciationWithTts
+              v-if="activePronunciationGroup.pronunciation"
+              :item="activePronunciationGroup.pronunciation"
+              wrapper-class="flex items-center gap-2 flex-wrap"
+              label-class="font-semibold text-lg sm:text-xl md:text-2xl text-kapok"
+            />
             <span
+              v-else
               class="font-semibold text-lg sm:text-xl md:text-2xl text-kapok"
             >
               {{ activePronunciationGroup.label }}
@@ -104,7 +111,7 @@
                 count: activePronunciationGroup.dictionaryCount,
               })
             }}
-          </p>
+          </div>
 
           <div class="hidden lg:grid lg:grid-cols-12 gap-8">
             <aside class="lg:col-span-4 xl:col-span-3">
@@ -231,34 +238,41 @@
                         group.primary.headword.normalized
                       }}
                     </p>
-                    <p class="text-sm text-graphite dark:text-stone-200 mt-2">
-                      <span
-                        v-if="getEntryJyutpingKey(group.primary)"
-                        class="text-kapok font-semibold"
-                        >{{ getEntryJyutpingKey(group.primary) }}</span
-                      >
-                      <template
-                        v-if="
-                          getEntryJyutpingKey(group.primary) &&
-                          group.primary.senses?.[0]?.definition
-                        "
-                      >
+                    <div class="mt-2 text-sm text-graphite dark:text-stone-200">
+                      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <PronunciationWithTts
+                          v-for="item in getRelatedPronunciationItems(
+                            group.primary,
+                          )"
+                          :key="`${group.key}:${item.normalized}`"
+                          :item="item"
+                          wrapper-class="flex items-center gap-1"
+                          label-class="text-kapok font-semibold"
+                          button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
+                          icon-class="w-3.5 h-3.5"
+                        />
                         <span
-                          class="mx-1.5 text-graphite/30 dark:text-stone-400"
-                          >·</span
+                          v-if="
+                            getRelatedPronunciationItems(group.primary).length >
+                              0 && group.primary.senses?.[0]?.definition
+                          "
+                          class="text-graphite/30 dark:text-stone-400"
                         >
-                      </template>
-                      <span
-                        v-if="group.primary.senses?.[0]?.definition"
-                        class="text-graphite/60 dark:text-stone-200"
-                        >{{ group.primary.senses[0].definition.slice(0, 40)
-                        }}{{
-                          group.primary.senses[0].definition.length > 40
-                            ? "…"
-                            : ""
-                        }}</span
-                      >
-                    </p>
+                          ·
+                        </span>
+                        <span
+                          v-if="group.primary.senses?.[0]?.definition"
+                          class="text-graphite/60 dark:text-stone-200"
+                        >
+                          {{ group.primary.senses[0].definition.slice(0, 40)
+                          }}{{
+                            group.primary.senses[0].definition.length > 40
+                              ? "…"
+                              : ""
+                          }}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   <svg
                     class="w-5 h-5 text-graphite/20 dark:text-stone-700 group-hover:text-kapok transition-colors flex-shrink-0 mt-1"
@@ -289,10 +303,16 @@
 import "~/styles/chiron-hei-content.css";
 import "~/styles/chiron-sung-content.css";
 import type { DictionaryEntry } from "~/types/dictionary";
+import type { PronunciationDisplayItem } from "~/types/tts";
 import {
   groupEntriesByPronunciation,
   UNANNOTATED_PRONUNCIATION_KEY,
 } from "~/utils/pronunciation-groups";
+import {
+  getAggregatePronunciationDisplayItems,
+  getEntryPronunciationDisplayItems,
+  joinPronunciationValues,
+} from "~/utils/pronunciation-display";
 
 interface WordResponse {
   success: boolean;
@@ -320,6 +340,7 @@ interface PronunciationGroup {
   id: string;
   label: string;
   jyutpingList: string[];
+  pronunciation: PronunciationDisplayItem | null;
   sources: SourceGroup[];
   dictionaryCount: number;
   sourcePriority: number;
@@ -436,7 +457,7 @@ const getEntryJyutpingList = (entry: DictionaryEntry): string[] => {
 };
 
 const getEntryJyutpingKey = (entry: DictionaryEntry): string => {
-  return getEntryJyutpingList(entry).join("; ");
+  return joinPronunciationValues(getEntryJyutpingList(entry));
 };
 
 const getAggregationKey = (entry: DictionaryEntry): string => {
@@ -569,6 +590,10 @@ const relatedWords = computed(() => {
   });
 });
 
+const getRelatedPronunciationItems = (entry: DictionaryEntry) => {
+  return getEntryPronunciationDisplayItems(entry);
+};
+
 const getSourcePriorityMap = computed(() => {
   const map = new Map<string, number>();
   const dictionaries = dictionariesData.value?.dictionaries || [];
@@ -602,12 +627,15 @@ const pronunciationGroups = computed<PronunciationGroup[]>(() => {
   const groups: PronunciationGroup[] = [];
 
   jpMap.forEach((jpEntries, jpKey) => {
-    const jyutpingList =
-      jpKey === UNANNOTATED_PRONUNCIATION_KEY ? [] : [jpKey];
+    const jyutpingList = jpKey === UNANNOTATED_PRONUNCIATION_KEY ? [] : [jpKey];
     const label =
       jyutpingList.length > 0
-        ? jyutpingList.join("; ")
+        ? joinPronunciationValues(jyutpingList)
         : t("common.unannotatedPronunciation");
+    const pronunciation =
+      jyutpingList.length > 0
+        ? getAggregatePronunciationDisplayItems(jpEntries)[0] || null
+        : null;
 
     const sourceMap = new Map<string, DictionaryEntry[]>();
     jpEntries.forEach((entry) => {
@@ -641,6 +669,7 @@ const pronunciationGroups = computed<PronunciationGroup[]>(() => {
       id: jpKey,
       label,
       jyutpingList,
+      pronunciation,
       sources,
       dictionaryCount: sources.length,
       sourcePriority: sources[0]?.sourcePriority ?? Number.MAX_SAFE_INTEGER,
@@ -663,6 +692,7 @@ const pronunciationTabs = computed(() =>
     id: group.id,
     label: group.label,
     dictionaryCount: group.dictionaryCount,
+    pronunciation: group.pronunciation,
   })),
 );
 

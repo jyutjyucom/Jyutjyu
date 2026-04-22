@@ -128,6 +128,8 @@ const messagesYueHans = {
     "topPaginationAria": "顶部分页",
     "pronunciationTabsAria": "粤拼分页",
     "selectPronunciationAria": "选择读音",
+    "playPronunciationAudio": "播放读音 {pronunciation}",
+    "stopPronunciationAudio": "停止播放读音 {pronunciation}",
     "searchResultsCount": "{count} 条搜寻结果",
     "senseCount": "{count} 义项",
     "unannotatedPronunciation": "（未标注）"
