@@ -44,6 +44,7 @@ const messagesYueHant = {
     changeBatch: "換一批",
     next: "下一個",
     recommendedEntries: "睇下詞條",
+    recommendedEntriesUnavailable: "暫時未能載入詞條推薦",
     includedDictionaries: "收錄詞典",
     totalEntriesPrefix: "一共收錄咗",
     totalEntriesSuffix: "條詞條",

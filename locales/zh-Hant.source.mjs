@@ -46,6 +46,7 @@ const messagesZhHant = {
     changeBatch: "換一批",
     next: "下一個",
     recommendedEntries: "隨機詞條",
+    recommendedEntriesUnavailable: "暫時無法載入詞條推薦",
     includedDictionaries: "收錄詞典",
     totalEntriesPrefix: "共收錄了",
     totalEntriesSuffix: "條詞條",

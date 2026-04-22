@@ -44,6 +44,7 @@ const messagesZhHans = {
     "changeBatch": "换一批",
     "next": "下一个",
     "recommendedEntries": "随机词条",
+    "recommendedEntriesUnavailable": "暂时无法载入词条推荐",
     "includedDictionaries": "收录词典",
     "totalEntriesPrefix": "共收录了",
     "totalEntriesSuffix": "条词条",

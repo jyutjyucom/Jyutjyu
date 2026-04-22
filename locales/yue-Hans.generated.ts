@@ -44,6 +44,7 @@ const messagesYueHans = {
     "changeBatch": "换一批",
     "next": "下一个",
     "recommendedEntries": "睇下词条",
+    "recommendedEntriesUnavailable": "暂时未能载入词条推荐",
     "includedDictionaries": "收录词典",
     "totalEntriesPrefix": "一共收录咗",
     "totalEntriesSuffix": "条词条",
