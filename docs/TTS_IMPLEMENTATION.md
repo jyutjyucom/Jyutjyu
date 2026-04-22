@@ -220,6 +220,8 @@ TTS_BASE_URL=https://tts.jyutping.org \
 npm run tts:sync
 ```
 
+For full backfills, prefer the direct R2 path above. Do not default to `TTS_UPLOAD_ENDPOINT` on a Workers Free account.
+
 Local smoke test only:
 
 ```bash
@@ -242,6 +244,32 @@ Useful flags:
 
 Use `--force` whenever synthesis rules change in a way that makes existing MP3s stale, for example after changing phoneme normalization or tone-override handling.
 
+### Incremental sync behavior
+
+Normal `tts:sync` runs are incremental.
+
+What the script does automatically:
+
+- if a pronunciation produces a new normalized key, it gets a new relative audio path and only that new file is synthesized/uploaded
+- if you bump `TTS_VOICE_VERSION`, all objects move into a new namespace, which gives you a clean full refresh
+
+What the script does **not** do automatically:
+
+- it does not diff audio content for an existing key/path
+- if the normalized key stays the same, the script assumes the existing uploaded object is still valid
+
+So if audio should change while the key/path stays the same, you must do one of these explicitly:
+
+- rerun sync with `--force`
+- bump `TTS_VOICE_VERSION`
+
+Typical same-key-but-changed-audio cases:
+
+- changed voice
+- changed phoneme normalization
+- changed `*` tone-override behavior
+- changed representative text in a way that should affect synthesis
+
 ## Storage And Hosting
 
 ### Current production shape
@@ -257,6 +285,12 @@ The runtime does not care whether that host is:
 - another CDN/object-storage origin
 
 It only cares that the manifest `baseUrl` and relative object paths resolve.
+
+Important distinction:
+
+- normal audio playback from an R2 custom domain is an R2/public-bucket serving path
+- that steady-state path is not the same as invoking a Worker for each playback request
+- a one-off upload endpoint can still be Worker-backed and consume Workers/Pages request quota during backfill
 
 ### Cross-account R2 support
 
@@ -274,6 +308,24 @@ This design keeps future migration easy:
 - update `baseUrl` through the manifest or env
 
 No runtime code change is required.
+
+### Upload endpoint warning
+
+`TTS_UPLOAD_ENDPOINT` exists as an escape hatch for custom upload flows, but it should be treated as operationally expensive unless you know the endpoint is not Worker-backed.
+
+If the endpoint is implemented with Cloudflare Workers or Pages Functions, a large sync can generate roughly one Worker request per uploaded audio object. A full Jyutjyu TTS backfill is large enough to exceed the Workers Free daily request quota.
+
+Use cases where `TTS_UPLOAD_ENDPOINT` is acceptable:
+
+- a very small smoke subset
+- targeted retries
+- a paid Workers account
+- a non-Workers upload service
+
+For the normal production path, prefer direct R2 upload with:
+
+- `TTS_R2_BUCKET`
+- `TTS_R2_ACCOUNT_ID`
 
 ## Environment Variables
 
@@ -301,6 +353,12 @@ The documented env surface lives in [`env.example`](/Users/laufei/Documents/GitH
 
 Google auth is normally taken from `gcloud auth application-default print-access-token` or `gcloud auth print-access-token`.
 
+Operational note:
+
+- `TTS_UPLOAD_ENDPOINT` is not the preferred default for large jobs
+- when the endpoint is Worker-backed, it consumes Workers/Pages request quota
+- `TTS_R2_BUCKET` + `TTS_R2_ACCOUNT_ID` is the safer default for full backfills
+
 ## Current Operational Workflow
 
 When dictionary data changes and production TTS should stay complete:
@@ -310,6 +368,11 @@ When dictionary data changes and production TTS should stay complete:
 3. run `npm run tts:sync`
 4. run `npm run tts:verify`
 5. deploy the app so the new `manifest.v1.json` ships
+
+For large syncs on a free Workers account:
+
+- do not use `TTS_UPLOAD_ENDPOINT`
+- use direct R2 upload instead
 
 If the change only affects audio hosting:
 
@@ -344,6 +407,15 @@ Likely causes:
 - the key was marked unavailable after a failed fetch in the current session
 
 Reloading the page clears the session-level unavailable cache.
+
+### Cloudflare emails about Workers/Pages daily request limits after a TTS sync
+
+Separate the steady-state serving path from the backfill path:
+
+- serving audio from an R2 custom domain is not itself proof that Workers quota is involved
+- but a sync that uses `TTS_UPLOAD_ENDPOINT` may still send one Worker/Pages request per uploaded object
+
+If a large TTS backfill was done through a Worker-backed upload endpoint, that is the first thing to suspect.
 
 ### A starred pronunciation sounds wrong
 
@@ -381,4 +453,3 @@ These are the invariants that matter most:
 4. preserve the distinction between visible label and spoken phoneme form
 5. do not show speaker buttons on excluded-dictionary-only pronunciations
 6. do not put the button back inside the word-page pronunciation selector UI unless the product decision changes
-
