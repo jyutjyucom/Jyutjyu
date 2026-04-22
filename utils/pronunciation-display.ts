@@ -17,7 +17,7 @@ export const normalizeTtsJyutping = (value: string): string => {
 export const getTtsPhonemeJyutping = (value: string): string => {
   return collapseInternalWhitespace(value)
     .split(" ")
-    .map((token) => token.replace(/([1-9])\*([1-9])$/u, "$2"))
+    .map((token) => token.replace(/([1-9])(?:\*|-)([1-9])$/u, "$2"))
     .join(" ");
 };
 
