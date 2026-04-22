@@ -934,11 +934,22 @@ const getExactRedirectHeadword = (
     isExactMatch(group.primary, normalizedQuery),
   );
 
-  if (exactMatches.length !== 1) {
+  const exactQueryLower = normalizedQuery.toLowerCase();
+  const exactOriginalMatches = exactMatches.filter((group) => {
+    const display = group.primary.headword.display?.trim().toLowerCase() || "";
+    const normalized =
+      group.primary.headword.normalized?.trim().toLowerCase() || "";
+    return display === exactQueryLower || normalized === exactQueryLower;
+  });
+
+  const preferredMatches =
+    exactOriginalMatches.length === 1 ? exactOriginalMatches : exactMatches;
+
+  if (preferredMatches.length !== 1) {
     return null;
   }
 
-  const primary = exactMatches[0]?.primary;
+  const primary = preferredMatches[0]?.primary;
   const headword =
     primary?.headword.normalized?.trim() || primary?.headword.display?.trim();
 

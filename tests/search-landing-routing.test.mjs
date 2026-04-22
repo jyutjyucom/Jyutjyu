@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   countExactCanonicalBuckets,
+  resolvePreferredSearchLandingHeadwordFromEntries,
   resolveUniqueCanonicalHeadwordFromEntries,
   resolveSearchLandingFromJson as resolveSearchLanding,
   resolveWordEntriesFromJson,
@@ -111,11 +112,43 @@ test("exact word lookup resolves stable bundled entries for problematic words", 
   assert.equal(mason?.entries.length, 1);
 });
 
-test("ambiguous exact matches stay on the search page", async () => {
-  const resolution = await resolveSearchLanding("過鐘");
+test("traditional exact match prefers the exact typed script over a script-equivalent duplicate", async () => {
+  const resolution = await resolveSearchLanding("馬死落地行");
+
+  assert.equal(resolution.type, "word");
+  assert.equal(resolution.reason, "exact_unique");
+  assert.equal(resolution.canonicalHeadword, "馬死落地行");
+});
+
+test("variant-only ambiguous exact matches stay on the search page", () => {
+  const entries = [
+    createEntry({
+      id: "entry-1",
+      display: "阿甲",
+      normalized: "阿甲",
+      variants: ["甲"],
+    }),
+    createEntry({
+      id: "entry-2",
+      display: "阿乙",
+      normalized: "阿乙",
+      variants: ["甲"],
+    }),
+  ];
+
+  const preferred = resolvePreferredSearchLandingHeadwordFromEntries(
+    entries,
+    "甲",
+  );
+
+  assert.equal(preferred, null);
+});
+
+test("no original-script winner keeps the search landing on the results page", async () => {
+  const resolution = await resolveSearchLanding("過鐘食飯");
 
   assert.equal(resolution.type, "search");
-  assert.equal(resolution.reason, "ambiguous_exact_match");
+  assert.equal(resolution.reason, "no_exact_match");
 });
 
 test("reverse search never resolves directly to a word page", async () => {

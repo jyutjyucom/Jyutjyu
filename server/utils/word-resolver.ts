@@ -222,7 +222,7 @@ export const resolveSearchLanding = async (
   if (getIsServerApiEnabled()) {
     try {
       const candidates = await resolveCandidatesFromApi(cleaned);
-      return resolveSearchLandingFromEntries(candidates?.entries || []);
+      return resolveSearchLandingFromEntries(candidates?.entries || [], cleaned);
     } catch (error) {
       console.error(
         "Search landing resolve (API fallback) failed, fallback to search result:",
