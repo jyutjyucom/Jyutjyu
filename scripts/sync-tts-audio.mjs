@@ -206,6 +206,9 @@ if (bucket) {
 }
 if (uploadEndpoint) {
   console.log(`Upload endpoint: ${uploadEndpoint}`);
+  console.warn(
+    "Warning: TTS_UPLOAD_ENDPOINT is usually a Worker/Pages-backed path. Large backfills can consume roughly one Workers request per uploaded object. Prefer TTS_R2_BUCKET/TTS_R2_ACCOUNT_ID for full syncs on free Workers accounts.",
+  );
 }
 console.log(`Synthesis RPM target: ${synthRpm}`);
 console.log(`Worker concurrency: ${concurrency}`);
