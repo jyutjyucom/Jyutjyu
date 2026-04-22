@@ -359,6 +359,7 @@ const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
 const apiDictionary = useDictionaryAPI();
 const jsonDictionary = useDictionary();
+const { getMode } = useSearch();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
 
@@ -525,7 +526,7 @@ const refreshBackSearchResultCount = async () => {
   backSearchAggregated.value = [];
 
   try {
-    const shouldRequestApi = apiDictionary.isAPIEnabled();
+    const shouldRequestApi = getMode() !== "json";
     const apiTask = shouldRequestApi
       ? apiDictionary.searchBasicOrNull(query, {
           limit: SEARCH_API_FIRST_PAGE_LIMIT,
