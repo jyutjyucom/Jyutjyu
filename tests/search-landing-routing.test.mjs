@@ -112,6 +112,19 @@ test("exact word lookup resolves stable bundled entries for problematic words", 
   assert.equal(mason?.entries.length, 1);
 });
 
+test("word resolution trace records strategy and exact bucket counts", async () => {
+  const trace = {
+    phaseMs: {},
+    counts: {},
+  };
+
+  const result = await resolveWordEntriesFromJson("一個人", trace);
+
+  assert.equal(result?.canonicalHeadword, "一個人");
+  assert.equal(trace.strategy, "exact_index");
+  assert.ok((trace.counts["exact.words_bucket_count"] ?? 0) >= 1);
+});
+
 test("traditional exact match prefers the exact typed script over a script-equivalent duplicate", async () => {
   const resolution = await resolveSearchLanding("馬死落地行");
 

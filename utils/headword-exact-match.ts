@@ -45,6 +45,17 @@ interface CandidateResolution {
   entries: DictionaryEntry[];
 }
 
+export type WordResolveStrategy =
+  | "exact_index"
+  | "scanned_json"
+  | "api_fallback";
+
+export interface WordResolveTrace {
+  phaseMs: Record<string, number>;
+  counts: Record<string, number>;
+  strategy?: WordResolveStrategy;
+}
+
 export interface ResolvedWordResult {
   canonicalHeadword: string;
   entries: DictionaryEntry[];
@@ -141,6 +152,52 @@ const exactMatchWordsBucketPromiseCache = new Map<
 >();
 
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
+
+const measureTraceAsync = async <T>(
+  trace: WordResolveTrace | undefined,
+  key: string,
+  fn: () => Promise<T>,
+): Promise<T> => {
+  if (!trace) {
+    return await fn();
+  }
+
+  const startedAt = Date.now();
+  try {
+    return await fn();
+  } finally {
+    trace.phaseMs[key] = (trace.phaseMs[key] || 0) + (Date.now() - startedAt);
+  }
+};
+
+const measureTraceSync = <T>(
+  trace: WordResolveTrace | undefined,
+  key: string,
+  fn: () => T,
+): T => {
+  if (!trace) {
+    return fn();
+  }
+
+  const startedAt = Date.now();
+  try {
+    return fn();
+  } finally {
+    trace.phaseMs[key] = (trace.phaseMs[key] || 0) + (Date.now() - startedAt);
+  }
+};
+
+const setTraceCount = (
+  trace: WordResolveTrace | undefined,
+  key: string,
+  value: number,
+) => {
+  if (!trace) {
+    return;
+  }
+
+  trace.counts[key] = value;
+};
 
 const getWorkerAssetsBinding = (): WorkerAssetsBinding | null => {
   const runtimeEnv = (
@@ -323,6 +380,7 @@ const getExactMatchConfig = async (): Promise<ExactMatchConfig | null> => {
 
 const getExactMatchFormsBucket = async (
   bucketId: string,
+  trace?: WordResolveTrace,
 ): Promise<ExactMatchFormsBucket> => {
   const cached = exactMatchFormsBucketCache.get(bucketId);
   if (cached) {
@@ -336,10 +394,12 @@ const getExactMatchFormsBucket = async (
 
   const promise = (async () => {
     try {
-      const raw = await readDictionaryText(
-        buildExactMatchAssetPath("forms", `${bucketId}.json`),
+      const raw = await measureTraceAsync(trace, "exact.forms_fetch", () =>
+        readDictionaryText(buildExactMatchAssetPath("forms", `${bucketId}.json`)),
       );
-      const parsed = JSON.parse(raw) as ExactMatchFormsBucket;
+      const parsed = measureTraceSync(trace, "exact.forms_parse", () =>
+        JSON.parse(raw) as ExactMatchFormsBucket,
+      );
       exactMatchFormsBucketCache.set(bucketId, parsed);
       return parsed;
     } catch (error) {
@@ -361,6 +421,7 @@ const getExactMatchFormsBucket = async (
 
 const getExactMatchWordsBucket = async (
   bucketId: string,
+  trace?: WordResolveTrace,
 ): Promise<ExactMatchWordsBucket> => {
   const cached = exactMatchWordsBucketCache.get(bucketId);
   if (cached) {
@@ -374,10 +435,12 @@ const getExactMatchWordsBucket = async (
 
   const promise = (async () => {
     try {
-      const raw = await readDictionaryText(
-        buildExactMatchAssetPath("words", `${bucketId}.json`),
+      const raw = await measureTraceAsync(trace, "exact.words_fetch", () =>
+        readDictionaryText(buildExactMatchAssetPath("words", `${bucketId}.json`)),
       );
-      const parsed = JSON.parse(raw) as ExactMatchWordsBucket;
+      const parsed = measureTraceSync(trace, "exact.words_parse", () =>
+        JSON.parse(raw) as ExactMatchWordsBucket,
+      );
       exactMatchWordsBucketCache.set(bucketId, parsed);
       return parsed;
     } catch (error) {
@@ -801,6 +864,7 @@ const findEntriesFromChunkedDictionary = async (
 
 const resolveCandidatesFromExactMatchIndex = async (
   headword: string,
+  trace?: WordResolveTrace,
 ): Promise<CandidateResolution | null> => {
   const config = await getExactMatchConfig();
   if (!config) {
@@ -813,11 +877,17 @@ const resolveCandidatesFromExactMatchIndex = async (
     return null;
   }
 
+  if (trace) {
+    trace.strategy = "exact_index";
+  }
+
   const formsBucket = await getExactMatchFormsBucket(
     getExactMatchBucketId(originalKey, config),
+    trace,
   );
   const candidates = formsBucket.forms?.[originalKey] || [];
   if (candidates.length === 0) {
+    setTraceCount(trace, "exact.words_bucket_count", 0);
     return {
       originalKey,
       queryKeys: new Set([originalKey]),
@@ -826,13 +896,15 @@ const resolveCandidatesFromExactMatchIndex = async (
   }
 
   const wordBuckets = new Map<string, ExactMatchWordsBucket>();
+  const wordBucketIds = new Set<string>();
   const entries: DictionaryEntry[] = [];
 
   for (const candidate of candidates) {
     const bucketId = getExactMatchBucketId(candidate.key, config);
+    wordBucketIds.add(bucketId);
     let wordsBucket = wordBuckets.get(bucketId);
     if (!wordsBucket) {
-      wordsBucket = await getExactMatchWordsBucket(bucketId);
+      wordsBucket = await getExactMatchWordsBucket(bucketId, trace);
       wordBuckets.set(bucketId, wordsBucket);
     }
 
@@ -844,6 +916,8 @@ const resolveCandidatesFromExactMatchIndex = async (
     entries.push(...record.entries);
   }
 
+  setTraceCount(trace, "exact.words_bucket_count", wordBucketIds.size);
+
   return {
     originalKey,
     queryKeys: new Set([originalKey]),
@@ -853,7 +927,12 @@ const resolveCandidatesFromExactMatchIndex = async (
 
 const resolveCandidatesFromScannedJson = async (
   headword: string,
+  trace?: WordResolveTrace,
 ): Promise<CandidateResolution | null> => {
+  if (trace) {
+    trace.strategy = "scanned_json";
+  }
+
   const queryForms = await getExactQueryForms(headword);
   if (queryForms.length === 0) {
     return null;
@@ -891,8 +970,12 @@ const resolveCandidatesFromScannedJson = async (
 
 const resolveCandidatesFromJson = async (
   headword: string,
+  trace?: WordResolveTrace,
 ): Promise<CandidateResolution | null> => {
-  const indexedCandidates = await resolveCandidatesFromExactMatchIndex(headword);
+  const indexedCandidates = await resolveCandidatesFromExactMatchIndex(
+    headword,
+    trace,
+  );
   if (indexedCandidates) {
     return indexedCandidates;
   }
@@ -901,13 +984,14 @@ const resolveCandidatesFromJson = async (
     return null;
   }
 
-  return resolveCandidatesFromScannedJson(headword);
+  return resolveCandidatesFromScannedJson(headword, trace);
 };
 
 export const resolveWordEntriesFromJson = async (
   headword: string,
+  trace?: WordResolveTrace,
 ): Promise<ResolvedWordResult | null> => {
-  const candidates = await resolveCandidatesFromJson(headword);
+  const candidates = await resolveCandidatesFromJson(headword, trace);
   if (!candidates) {
     return null;
   }

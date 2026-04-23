@@ -10,6 +10,7 @@ import {
   toComparableHeadwordKey,
   type ResolvedWordResult,
   type SearchLandingResolution,
+  type WordResolveTrace,
 } from "~/utils/headword-exact-match";
 import { isJyutpingQuery, normalizeSearchQuery } from "~/utils/query-classify";
 
@@ -26,6 +27,23 @@ let apiCanonicalHeadwordsCache: string[] | null = null;
 let apiCanonicalHeadwordsPromise: Promise<string[]> | null = null;
 
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
+
+const measureTraceAsync = async <T>(
+  trace: WordResolveTrace | undefined,
+  key: string,
+  fn: () => Promise<T>,
+): Promise<T> => {
+  if (!trace) {
+    return await fn();
+  }
+
+  const startedAt = Date.now();
+  try {
+    return await fn();
+  } finally {
+    trace.phaseMs[key] = (trace.phaseMs[key] || 0) + (Date.now() - startedAt);
+  }
+};
 
 const resolveCandidatesFromApi = async (
   headword: string,
@@ -155,33 +173,40 @@ const getCanonicalHeadwordsFromApi = async (): Promise<string[]> => {
 
 export const resolveWordEntries = async (
   headword: string,
+  trace?: WordResolveTrace,
 ): Promise<ResolvedWordResult | null> => {
-  const cleaned = normalizeSpace(headword);
-  if (!cleaned) {
-    return null;
-  }
-
-  // Exact word resolution is performance-sensitive on Workers and the bundled
-  // static exact-match assets are more reliable there than a live Mongo lookup.
-  try {
-    return await resolveWordEntriesFromJson(cleaned);
-  } catch (error) {
-    console.error(
-      "Word resolve (JSON mode) failed, fallback to API mode:",
-      error,
-    );
-  }
-
-  if (getIsServerApiEnabled()) {
-    try {
-      return await resolveFromApi(cleaned);
-    } catch (error) {
-      console.error("Word resolve (API fallback) failed:", error);
+  return await measureTraceAsync(trace, "resolve.total", async () => {
+    const cleaned = normalizeSpace(headword);
+    if (!cleaned) {
       return null;
     }
-  }
 
-  return null;
+    // Exact word resolution is performance-sensitive on Workers and the bundled
+    // static exact-match assets are more reliable there than a live Mongo lookup.
+    try {
+      return await resolveWordEntriesFromJson(cleaned, trace);
+    } catch (error) {
+      console.error(
+        "Word resolve (JSON mode) failed, fallback to API mode:",
+        error,
+      );
+    }
+
+    if (getIsServerApiEnabled()) {
+      if (trace) {
+        trace.strategy = "api_fallback";
+      }
+
+      try {
+        return await resolveFromApi(cleaned);
+      } catch (error) {
+        console.error("Word resolve (API fallback) failed:", error);
+        return null;
+      }
+    }
+
+    return null;
+  });
 };
 
 export const resolveSearchLanding = async (
