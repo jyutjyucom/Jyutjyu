@@ -3,6 +3,8 @@
  * 使用 OpenCC (opencc-js) 实现完整的简繁体转换
  */
 
+import traditionalVariantMapData from "../generated/trad-variant-map.json" with { type: "json" };
+
 // 定义转换器函数类型
 type ConverterFunction = (text: string) => string;
 
@@ -11,12 +13,14 @@ let toSimplifiedConverter: ConverterFunction | null = null;
 let toTraditionalConverter: ConverterFunction | null = null;
 let isInitialized = false;
 let initPromise: Promise<void> | null = null;
-let simplifiedToTraditionalMap: Map<string, string[]> | null = null;
+const simplifiedToTraditionalMap = traditionalVariantMapData as Record<
+  string,
+  string[]
+>;
 
-const CJK_UNIFIED_START = 0x3400;
-const CJK_UNIFIED_END = 0x9fff;
-const MAX_AMBIGUOUS_VARIANTS = 128;
-const MAX_OPTIONS_PER_CHAR = 6;
+const HAN_SCRIPT_PATTERN = /\p{Script=Han}/u;
+const MAX_AMBIGUOUS_VARIANTS = 16;
+const MAX_OPTIONS_PER_CHAR = 3;
 
 const trimEdgePunctuation = (value: string): string => {
   return value.replace(/^[\p{P}\p{S}\s]+|[\p{P}\p{S}\s]+$/gu, "").trim();
@@ -26,47 +30,18 @@ const stripAllPunctuation = (value: string): string => {
   return value.replace(/[\p{P}\p{S}\s]+/gu, "");
 };
 
-const buildSimplifiedToTraditionalMap = (): Map<string, string[]> => {
-  if (simplifiedToTraditionalMap) {
-    return simplifiedToTraditionalMap;
-  }
-
-  const tempMap = new Map<string, Set<string>>();
-
-  for (
-    let codePoint = CJK_UNIFIED_START;
-    codePoint <= CJK_UNIFIED_END;
-    codePoint++
-  ) {
-    const char = String.fromCodePoint(codePoint);
-    const simplified = toSimplifiedSync(char).toLowerCase();
-
-    if (Array.from(simplified).length !== 1) continue;
-
-    const options = tempMap.get(simplified) ?? new Set<string>([simplified]);
-    options.add(char.toLowerCase());
-    tempMap.set(simplified, options);
-  }
-
-  simplifiedToTraditionalMap = new Map<string, string[]>(
-    Array.from(tempMap.entries()).map(([key, values]) => [
-      key,
-      Array.from(values),
-    ]),
-  );
-
-  return simplifiedToTraditionalMap;
+const containsCjkCharacters = (value: string): boolean => {
+  return HAN_SCRIPT_PATTERN.test(value);
 };
 
 const expandTraditionalAmbiguity = (text: string): string[] => {
   if (!text) return [];
 
-  const ambiguityMap = buildSimplifiedToTraditionalMap();
   const chars = Array.from(text);
   let combinations: string[] = [""];
 
   for (const char of chars) {
-    const options = (ambiguityMap.get(char) ?? [char]).slice(
+    const options = (simplifiedToTraditionalMap[char] ?? [char]).slice(
       0,
       MAX_OPTIONS_PER_CHAR,
     );
@@ -150,8 +125,6 @@ export async function toTraditional(text: string): Promise<string> {
 export async function getQueryVariants(query: string): Promise<string[]> {
   if (!query) return [];
 
-  await initConverters();
-
   const lower = query.toLowerCase();
   const variants = new Set<string>();
   const querySeeds = new Set<string>();
@@ -170,6 +143,12 @@ export async function getQueryVariants(query: string): Promise<string[]> {
 
   querySeeds.forEach((seed) => variants.add(seed));
 
+  if (!containsCjkCharacters(lower)) {
+    return Array.from(variants);
+  }
+
+  await initConverters();
+
   try {
     querySeeds.forEach((seed) => {
       const simplified = toSimplifiedConverter!(seed);
@@ -185,17 +164,14 @@ export async function getQueryVariants(query: string): Promise<string[]> {
         expandTraditionalAmbiguity(simplified);
 
       expandedTraditionalVariants.forEach((expandedVariant) => {
-        const normalized = expandedVariant.toLowerCase();
-        variants.add(normalized);
-        variants.add(toSimplifiedConverter!(normalized).toLowerCase());
-        variants.add(toTraditionalConverter!(normalized).toLowerCase());
+        variants.add(expandedVariant.toLowerCase());
       });
     });
   } catch (error) {
     console.warn("讀取查詢變體失敗:", error);
   }
 
-  return Array.from(variants);
+  return Array.from(variants).slice(0, MAX_AMBIGUOUS_VARIANTS);
 }
 
 /**

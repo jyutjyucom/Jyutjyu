@@ -15,9 +15,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import bundledRecommendations from "~/public/recommendations.json";
 import { getEntriesCollection } from "../utils/mongodb";
+import {
+  isProductionWorkerRandomRuntime,
+  resolveRandomEntries,
+} from "../utils/random-entries";
 
 const QUALITY_DICTIONARIES = ["广州话俗语词典", "实用广州话分类词典"];
-const RANDOM_QUERY_TIMEOUT_MS = 1200;
+const DEFAULT_RANDOM_QUERY_TIMEOUT_MS = 1200;
 
 const RECOMMENDATION_FILE_CANDIDATES = [
   resolve(process.cwd(), "public/recommendations.json"),
@@ -40,7 +44,11 @@ const parseFallbackEntries = (payload: unknown): any[] => {
   return [];
 };
 
-const loadFallbackEntries = (): any[] => {
+const loadFallbackEntries = ({
+  preferBundledOnly = false,
+}: {
+  preferBundledOnly?: boolean;
+} = {}): any[] => {
   if (cachedFallbackEntries) {
     return cachedFallbackEntries;
   }
@@ -49,6 +57,11 @@ const loadFallbackEntries = (): any[] => {
   if (bundledEntries.length > 0) {
     cachedFallbackEntries = bundledEntries;
     return bundledEntries;
+  }
+
+  if (preferBundledOnly) {
+    cachedFallbackEntries = [];
+    return cachedFallbackEntries;
   }
 
   for (const filePath of RECOMMENDATION_FILE_CANDIDATES) {
@@ -69,51 +82,7 @@ const loadFallbackEntries = (): any[] => {
   return cachedFallbackEntries;
 };
 
-const pickRandomEntries = <T>(entries: T[], count: number): T[] => {
-  if (entries.length <= count) {
-    return [...entries];
-  }
-
-  const shuffled = [...entries];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
-  }
-
-  return shuffled.slice(0, count);
-};
-
-class RandomQueryTimeoutError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "RandomQueryTimeoutError";
-  }
-}
-
-const withTimeout = async <T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  message: string,
-): Promise<T> => {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject(new RandomQueryTimeoutError(message));
-        }, timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-  }
-};
-
-const fetchRandomEntriesFromMongo = async (count: number) => {
+const fetchRandomEntriesFromMongo = async (count: number, timeoutMs: number) => {
   const collection = await getEntriesCollection();
 
   const pipeline = [
@@ -154,44 +123,23 @@ const fetchRandomEntriesFromMongo = async (count: number) => {
   ];
 
   return await collection
-    .aggregate(pipeline, { maxTimeMS: RANDOM_QUERY_TIMEOUT_MS })
+    .aggregate(pipeline, { maxTimeMS: timeoutMs })
     .toArray();
 };
 
 export default defineEventHandler(async (event) => {
   const query = getQuery<RandomQuery>(event);
   const count = Math.min(Math.max(1, parseInt(query.count || "3") || 3), 20);
+  const preferBundledOnly = isProductionWorkerRandomRuntime(event);
+  const fallbackEntries = loadFallbackEntries({ preferBundledOnly });
 
-  try {
-    const results = await withTimeout(
-      fetchRandomEntriesFromMongo(count),
-      RANDOM_QUERY_TIMEOUT_MS,
-      `Random entry query timed out after ${RANDOM_QUERY_TIMEOUT_MS}ms`,
-    );
-
-    return {
-      success: true,
-      count: results.length,
-      results,
-    };
-  } catch (error) {
-    console.error("MongoDB 隨機詞條失敗，改用靜態推薦回退:", error);
-  }
-
-  const recommendationEntries = loadFallbackEntries();
-  if (recommendationEntries.length > 0) {
-    const results = pickRandomEntries(recommendationEntries, count);
-
-    return {
-      success: true,
-      count: results.length,
-      results,
-    };
-  }
-
-  return {
-    success: false,
-    error: "推荐词条暂时不可用",
-    results: [],
-  };
+  return resolveRandomEntries({
+    count,
+    event,
+    fallbackEntries,
+    fetchFromMongo: fetchRandomEntriesFromMongo,
+    onError: (error) => {
+      console.error("MongoDB 隨機詞條失敗，改用靜態推薦回退:", error);
+    },
+  });
 });
