@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const DEFAULT_LIMIT = 1500;
+const DEFAULT_LIMIT = 500;
 const DEFAULT_INPUT_PATH = "tmp/cloudflare-word-hot-paths.json";
 const DEFAULT_CANONICAL_HEADWORDS_PATH =
   "public/exact-match/canonical-headwords.json";
