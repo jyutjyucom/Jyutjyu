@@ -243,14 +243,35 @@ export const buildSitemapUrlEntryXml = (
   siteUrl: string,
   lastmod: string,
 ): string => {
-  const defaultLocaleHref = withSiteUrl(siteUrl, applyLocalePrefix(path, ""));
+  const normalizedPath = stripLocalePrefix(path);
+  const defaultLocaleHref = withSiteUrl(
+    siteUrl,
+    applyLocalePrefix(normalizedPath, ""),
+  );
   const alternates = LOCALE_ROUTE_DEFINITIONS.map((locale) => {
-    const href = withSiteUrl(siteUrl, applyLocalePrefix(path, locale.prefix));
+    const href = withSiteUrl(
+      siteUrl,
+      applyLocalePrefix(normalizedPath, locale.prefix),
+    );
     return `    <xhtml:link rel="alternate" hreflang="${locale.language}" href="${href}" />`;
   }).join("\n");
 
+  if (normalizedPath.startsWith("/word/")) {
+    return [
+      "  <url>",
+      `    <loc>${defaultLocaleHref}</loc>`,
+      `    <lastmod>${lastmod}</lastmod>`,
+      alternates,
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultLocaleHref}" />`,
+      "  </url>",
+    ].join("\n");
+  }
+
   return LOCALE_ROUTE_DEFINITIONS.map((locale) => {
-    const href = withSiteUrl(siteUrl, applyLocalePrefix(path, locale.prefix));
+    const href = withSiteUrl(
+      siteUrl,
+      applyLocalePrefix(normalizedPath, locale.prefix),
+    );
     return [
       "  <url>",
       `    <loc>${href}</loc>`,

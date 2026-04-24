@@ -27,6 +27,33 @@ const localizedPrerenderRoutes = LOCALE_ROUTE_DEFINITIONS.flatMap(
   ({ prefix }) =>
     prerenderStaticRoutes.map((route) => applyLocalePrefix(route, prefix)),
 );
+const readHotWordPrerenderRoutes = (): string[] => {
+  const hotRoutesPath = fileURLToPath(
+    new URL(
+      "./server/generated/hot-word-prerender-routes.json",
+      import.meta.url,
+    ),
+  );
+
+  if (!existsSync(hotRoutesPath)) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(hotRoutesPath, "utf8"));
+    const routes = Array.isArray(parsed) ? parsed : parsed?.routes;
+    return Array.isArray(routes)
+      ? routes.filter(
+          (route): route is string =>
+            typeof route === "string" && route.startsWith("/word/"),
+        )
+      : [];
+  } catch (error) {
+    console.warn("Failed to read hot word prerender routes:", error);
+    return [];
+  }
+};
+const hotWordPrerenderRoutes = readHotWordPrerenderRoutes();
 const localizedRouteRules = Object.fromEntries(
   LOCALE_ROUTE_DEFINITIONS.flatMap(({ prefix }) => [
     [applyLocalePrefix("/word/**", prefix), { swr: 86400 }],
@@ -211,7 +238,7 @@ export default defineNuxtConfig({
     },
     prerender: {
       crawlLinks: false,
-      routes: localizedPrerenderRoutes,
+      routes: [...localizedPrerenderRoutes, ...hotWordPrerenderRoutes],
     },
   },
 

@@ -53,23 +53,27 @@ test("search route query can explicitly stay on the search results page", () => 
   assert.deepEqual(buildSearchRouteQuery("揾老襯", false), {
     q: "揾老襯",
   });
-  assert.deepEqual(buildSearchRouteQuery("揾老襯", false, { showResults: true }), {
-    q: "揾老襯",
-    show: "results",
-  });
+  assert.deepEqual(
+    buildSearchRouteQuery("揾老襯", false, { showResults: true }),
+    {
+      q: "揾老襯",
+      show: "results",
+    },
+  );
   assert.equal(isSearchResultsViewQuery({ show: "results" }), true);
   assert.equal(isSearchResultsViewQuery({ show: ["results"] }), true);
   assert.equal(isSearchResultsViewQuery({ q: "揾老襯" }), false);
 });
 
-test("sitemap XML emits per-locale entries with alternates and x-default", () => {
+test("word sitemap XML emits one canonical entry with alternates and x-default", () => {
   const xml = buildSitemapUrlEntryXml(
     "/word/%E4%BF%82",
     "https://jyutjyu.com",
     "2026-03-23T00:00:00.000Z",
   );
 
-  assert.equal((xml.match(/<loc>/g) || []).length, 5);
+  assert.equal((xml.match(/<loc>/g) || []).length, 1);
+  assert.match(xml, /<loc>https:\/\/jyutjyu\.com\/word\/%E4%BF%82<\/loc>/);
   assert.match(xml, /hreflang="yue-Hant"/);
   assert.match(xml, /hreflang="yue-Hans"/);
   assert.match(xml, /hreflang="zh-Hant"/);
@@ -79,6 +83,17 @@ test("sitemap XML emits per-locale entries with alternates and x-default", () =>
     xml,
     /hreflang="x-default" href="https:\/\/jyutjyu\.com\/word\/%E4%BF%82"/,
   );
+
+  const localizedXml = buildSitemapUrlEntryXml(
+    "/zh-Hans/word/%E4%BF%82",
+    "https://jyutjyu.com",
+    "2026-03-23T00:00:00.000Z",
+  );
+  assert.match(
+    localizedXml,
+    /<loc>https:\/\/jyutjyu\.com\/word\/%E4%BF%82<\/loc>/,
+  );
+  assert.doesNotMatch(localizedXml, /\/zh-Hans\/zh-Hans\/word/);
 });
 
 test("SEO alternate links keep browse pagination but drop word-page source params", () => {

@@ -40,6 +40,7 @@ public/search-index.json
 public/browse-index/
 public/recommendations.json
 public/exact-match/
+public/search-suggestions/
 public/tts/audio/
 public/tts/manifest.local.json
 data/tts/
