@@ -55,11 +55,7 @@
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          {{
-            t("common.searchResultsCount", {
-              count: backSearchResultCount ?? "...",
-            })
-          }}
+          {{ searchBackLinkLabel }}
         </NuxtLink>
 
         <div class="mb-4 sm:mb-8">
@@ -319,6 +315,7 @@ import {
   SEARCH_LOCAL_RESULT_LIMIT,
   summarizeGroupedSearchCount,
 } from "~/utils/search-result-groups";
+import { isLikelyCrawlerUserAgent } from "~/utils/crawler-detection";
 
 interface WordResponse {
   success: boolean;
@@ -362,6 +359,14 @@ const jsonDictionary = useDictionary();
 const { getMode } = useSearch();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
+const serverUserAgent = process.server
+  ? useRequestHeaders(["user-agent"])["user-agent"] || ""
+  : "";
+const isCrawlerRequest = computed(() =>
+  isLikelyCrawlerUserAgent(
+    process.client ? navigator.userAgent : serverUserAgent,
+  ),
+);
 
 const normalizeComparable = (value: string) =>
   value.replace(/\s+/g, " ").trim().toLowerCase();
@@ -510,11 +515,23 @@ const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
 const backSearchResultCount = ref<string | null>(null);
 const backSearchAggregated = ref<AggregatedEntry[]>([]);
 const backSearchCountRequestId = ref(0);
+const searchBackLinkLabel = computed(() => {
+  if (isCrawlerRequest.value) {
+    return t("common.searchHeader");
+  }
+
+  return t("common.searchResultsCount", {
+    count: backSearchResultCount.value ?? "...",
+  });
+});
 
 const refreshBackSearchResultCount = async () => {
   if (!process.client) return;
 
   const requestId = ++backSearchCountRequestId.value;
+  backSearchResultCount.value = null;
+  backSearchAggregated.value = [];
+
   const query = searchHeadword.value.trim();
   if (!query) {
     backSearchResultCount.value = null;
@@ -522,10 +539,28 @@ const refreshBackSearchResultCount = async () => {
     return;
   }
 
-  backSearchResultCount.value = null;
-  backSearchAggregated.value = [];
-
   try {
+    const loadJsonResults = () =>
+      jsonDictionary.searchBasic(query, {
+        limit: SEARCH_LOCAL_RESULT_LIMIT,
+        searchDefinition: false,
+      });
+    const retryJsonResultsIfEmpty = async (results: DictionaryEntry[]) => {
+      // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
+      if (results.length > 0) return results;
+
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      return loadJsonResults();
+    };
+
+    if (isCrawlerRequest.value) {
+      const results = await retryJsonResultsIfEmpty(await loadJsonResults());
+      if (requestId !== backSearchCountRequestId.value) return;
+
+      backSearchAggregated.value = aggregateEntries(results);
+      return;
+    }
+
     const shouldRequestApi = getMode() !== "json";
     const apiTask = shouldRequestApi
       ? apiDictionary.searchBasicOrNull(query, {
@@ -533,23 +568,13 @@ const refreshBackSearchResultCount = async () => {
           mode: "normal",
         })
       : Promise.resolve<DictionaryEntry[] | null>(null);
-    const jsonTask = jsonDictionary.searchBasic(query, {
-      limit: SEARCH_LOCAL_RESULT_LIMIT,
-      searchDefinition: false,
-    });
+    const jsonTask = loadJsonResults();
+    const [apiResultsRaw, jsonResultsRaw] = await Promise.all([
+      apiTask,
+      jsonTask,
+    ]);
 
-    const [apiResultsRaw, jsonResultsRaw] = await Promise.all([apiTask, jsonTask]);
-
-    let results = jsonResultsRaw;
-
-    // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
-    if (results.length === 0) {
-      await new Promise((resolve) => setTimeout(resolve, 150));
-      results = await jsonDictionary.searchBasic(query, {
-        limit: SEARCH_LOCAL_RESULT_LIMIT,
-        searchDefinition: false,
-      });
-    }
+    const results = await retryJsonResultsIfEmpty(jsonResultsRaw);
 
     if (requestId !== backSearchCountRequestId.value) return;
     const preferredResults = pickRicherSearchEntries(
