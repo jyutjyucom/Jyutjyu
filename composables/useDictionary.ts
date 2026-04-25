@@ -8,6 +8,10 @@ import type {
   SearchOptions,
   SearchResult,
 } from "~/types/dictionary";
+import {
+  getCjkChunkProbeCharacters,
+  getCjkSearchSubstringSeeds,
+} from "~/utils/search-query-expansion";
 
 // 全局缓存，在客户端持久化词典数据
 let cachedEntries: DictionaryEntry[] | null = null;
@@ -197,9 +201,8 @@ export const useDictionary = () => {
     if (!normalizedQuery) return [];
 
     const queryChars = Array.from(normalizedQuery);
-    const firstChineseChar = queryChars.find((char) =>
-      /[\u3400-\u9fff]/.test(char),
-    );
+    const chineseProbeChars = getCjkChunkProbeCharacters(normalizedQuery);
+    const firstChineseChar = chineseProbeChars[0];
     const firstChar = firstChineseChar || queryChars[0];
 
     // 检查首字符是否为汉字
@@ -211,17 +214,15 @@ export const useDictionary = () => {
 
     if (isChineseFirstChar) {
       // 汉字查询：使用 headwordIndex 查找对应的分片
-      // 同时考虑简繁体变体以支持跨简繁体搜索
+      // 同时考虑查询中多个汉字及其简繁体变体，避免 API 超时后本地搜索只覆盖首字分片。
       const { toSimplified, toTraditional } = useChineseConverter();
 
-      const firstCharVariants = [
-        firstChar,
-        toSimplified(firstChar),
-        toTraditional(firstChar),
-      ].filter((v, i, arr) => arr.indexOf(v) === i); // 去重
+      const charVariants = chineseProbeChars
+        .flatMap((char) => [char, toSimplified(char), toTraditional(char)])
+        .filter((v, i, arr) => arr.indexOf(v) === i); // 去重
 
       if (manifest.headwordIndex) {
-        firstCharVariants.forEach((variant) => {
+        charVariants.forEach((variant) => {
           const index = manifest.headwordIndex?.[variant];
           if (index) {
             index.forEach((initial: string) => {
@@ -527,6 +528,12 @@ export const useDictionary = () => {
     const stripped = stripAllPunctuation(normalizedQuery);
     if (stripped) {
       querySeeds.add(stripped);
+    }
+
+    if (!searchDefinition && hasChineseChars) {
+      getCjkSearchSubstringSeeds(stripped || normalizedQuery).forEach((seed) =>
+        querySeeds.add(seed),
+      );
     }
 
     const queryVariants = Array.from(querySeeds)

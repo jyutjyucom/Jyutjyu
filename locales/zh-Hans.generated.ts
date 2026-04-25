@@ -136,7 +136,7 @@ const messagesZhHans = {
     "unannotatedPronunciation": "（未标注）"
   },
   "wordPage": {
-    "metaTitleSuffix": "粤语解释",
+    "metaTitleSuffix": "释义",
     "metaDictionaryDefinition": "{dictionary}词义",
     "metaFallbackDefinition": "粤语词义",
     "metaCoverage": "收录于 {count} 本词典"

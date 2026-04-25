@@ -138,7 +138,7 @@ const messagesYueHant = {
     unannotatedPronunciation: "（未標注）",
   },
   wordPage: {
-    metaTitleSuffix: "粵語解釋",
+    metaTitleSuffix: "釋義",
     metaDictionaryDefinition: "{dictionary}詞義",
     metaFallbackDefinition: "粵語詞義",
     metaCoverage: "收錄於 {count} 本詞典",

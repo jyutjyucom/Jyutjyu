@@ -1088,9 +1088,22 @@ const performSearch = async (query: string) => {
     })();
 
     const jsonPromise = (async () => {
-      const results = await jsonTask;
+      let results = await jsonTask;
       if (requestId !== activeSearchRequestId) {
         return results;
+      }
+
+      // Static assets can occasionally race first hydration; avoid briefly
+      // collapsing an API timeout into a false "no results" state.
+      if (results.length === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        results = await jsonSearch.searchBasic(normalizedQuery, {
+          limit: SEARCH_LOCAL_RESULT_LIMIT,
+          searchDefinition: enableReverseSearch.value,
+        });
+        if (requestId !== activeSearchRequestId) {
+          return results;
+        }
       }
 
       exactResults.value = results;
