@@ -125,7 +125,7 @@
     <!-- Main Content -->
     <main
       id="main-content"
-      class="max-w-7xl mx-auto px-6 md:px-8 py-8 min-h-[60vh] font-cjk-ui"
+      class="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 min-h-[60vh] font-cjk-ui"
     >
       <ClientOnly>
         <!-- Loading State -->
@@ -202,10 +202,10 @@
               "
             >
               <div
-                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green dark:border-archive-green/50 flex items-center gap-2"
+                class="mb-6 p-3 border-l-4 bg-archive-green/10 dark:bg-archive-green/20 border-archive-green dark:border-archive-green/50 flex items-center gap-2"
               >
                 <svg
-                  class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-archive-green dark:text-archive-green-light shrink-0"
+                  class="w-4 h-4 text-archive-green dark:text-archive-green-light shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -218,7 +218,7 @@
                   />
                 </svg>
                 <span
-                  class="text-archive-green dark:text-archive-green-light text-xs sm:text-sm font-semibold"
+                  class="text-archive-green dark:text-archive-green-light text-sm font-semibold"
                 >
                   {{ t("common.exactMatchLabel") }}
                   {{ groupedResults.exactMatches.length }}
@@ -244,15 +244,15 @@
             <!-- 其他相关结果 -->
             <template v-if="displayedGroupedResults.otherResults.length > 0">
               <div
-                class="mb-4 sm:mb-6 p-2 sm:p-3 border-l-4 bg-muted-gold/10 dark:bg-amber-900/30 border-muted-gold dark:border-amber-500/50 flex items-center gap-2"
+                class="mb-6 p-3 border-l-4 bg-muted-gold/10 dark:bg-amber-900/30 border-muted-gold dark:border-amber-500/50 flex items-center gap-2"
                 :class="{
-                  'mt-8 sm:mt-12':
+                  'mt-12':
                     isTextSearch &&
                     displayedGroupedResults.exactMatches.length > 0,
                 }"
               >
                 <svg
-                  class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-muted-gold dark:text-amber-300 shrink-0"
+                  class="w-4 h-4 text-muted-gold dark:text-amber-300 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -266,7 +266,7 @@
                 </svg>
                 <span
                   v-if="isTextSearch && sortBy === 'relevance'"
-                  class="text-muted-gold dark:text-amber-300 text-xs sm:text-sm font-semibold"
+                  class="text-muted-gold dark:text-amber-300 text-sm font-semibold"
                 >
                   {{ t("common.otherResultsLabel") }}
                   {{ groupedResults.otherResults.length }}
@@ -278,7 +278,7 @@
                 </span>
                 <span
                   v-else
-                  class="text-muted-gold dark:text-amber-300 text-xs sm:text-sm font-semibold"
+                  class="text-muted-gold dark:text-amber-300 text-sm font-semibold"
                 >
                   {{ t("common.searchHeader") }}
                   {{ groupedResults.otherResults.length }}
@@ -452,7 +452,7 @@ const showDictDropdown = ref(false); // 词典下拉菜单显示状态
 const showDialectDropdown = ref(false); // 方言下拉菜单显示状态
 const showTypeDropdown = ref(false); // 类型下拉菜单显示状态
 const showSortDropdown = ref(false); // 排序下拉菜单显示状态
-const optionsExpanded = ref(false); // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
+const optionsExpanded = ref(true); // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0);
 const chineseConverterReady = ref(false);
 const showingSearchResultsView = computed(() =>
@@ -1070,7 +1070,10 @@ const performSearch = async (query: string) => {
 
       if (apiResults !== null) {
         apiFirstPageResults.value = apiResults;
-        if (loading.value && (apiResults.length > 0 || exactResultsReady.value)) {
+        if (
+          loading.value &&
+          (apiResults.length > 0 || exactResultsReady.value)
+        ) {
           loading.value = false;
         }
 
@@ -1096,7 +1099,11 @@ const performSearch = async (query: string) => {
       exactResultsLoading.value = false;
       isSearchComplete.value = true;
 
-      if (!shouldRequestApiFirstPage || apiFailed || (apiSettled && apiFirstPageResults.value.length === 0)) {
+      if (
+        !shouldRequestApiFirstPage ||
+        apiFailed ||
+        (apiSettled && apiFirstPageResults.value.length === 0)
+      ) {
         loading.value = false;
       }
 
