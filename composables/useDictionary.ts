@@ -12,6 +12,11 @@ import {
   getCjkChunkProbeCharacters,
   getCjkSearchSubstringSeeds,
 } from "~/utils/search-query-expansion";
+import {
+  filterRestrictedEntryIds,
+  isRestrictedEntry,
+  loadPublicRestrictedEntryFilterIds,
+} from "~/utils/restricted-entry-filter";
 
 // 全局缓存，在客户端持久化词典数据
 let cachedEntries: DictionaryEntry[] | null = null;
@@ -33,6 +38,7 @@ const chunkManifests: ManifestCache = {};
 let chunkedDictionaries: Array<{ id: string; chunk_dir: string }> | null = null;
 let cachedDictionaryIndex: any | null = null;
 let dictionaryIndexPromise: Promise<any | null> | null = null;
+let publicRestrictedEntryIds = new Set<string>();
 
 const fallbackChunkedDictionaries: Array<{ id: string; chunk_dir: string }> = [
   { id: "hk-cantowords", chunk_dir: "cantowords" },
@@ -287,6 +293,8 @@ export const useDictionary = () => {
           return [];
         }
         const dictionaries = indexData.dictionaries || [];
+        const restrictedEntryIds = await loadPublicRestrictedEntryFilterIds();
+        publicRestrictedEntryIds = restrictedEntryIds;
 
         if (dictionaries.length === 0) {
           console.warn("詞典索引為空");
@@ -312,7 +320,9 @@ export const useDictionary = () => {
               if (response.ok) {
                 const data = await response.json();
                 if (Array.isArray(data)) {
-                  allEntries.push(...data);
+                  allEntries.push(
+                    ...filterRestrictedEntryIds(data, restrictedEntryIds),
+                  );
                 }
               } else {
                 console.warn(`載入詞典失敗: ${dict.file}`);
@@ -359,6 +369,8 @@ export const useDictionary = () => {
     const { toSimplified, toTraditional } = useChineseConverter();
 
     for (const entry of entries) {
+      if (isRestrictedEntry(entry, publicRestrictedEntryIds)) continue;
+
       // 跳过已索引的
       if (searchIndex.entryMap.has(entry.id)) continue;
 
@@ -500,6 +512,8 @@ export const useDictionary = () => {
     }
 
     const normalizedQuery = query.trim().toLowerCase();
+    const restrictedEntryIds = await loadPublicRestrictedEntryFilterIds();
+    publicRestrictedEntryIds = restrictedEntryIds;
     const queryChars = Array.from(normalizedQuery);
     const firstVisibleChar = queryChars.find((char) => !/\s/.test(char)) || "";
     const hasChineseChars = queryChars.some((char) =>
@@ -562,6 +576,7 @@ export const useDictionary = () => {
       entry: DictionaryEntry,
     ): { priority: number; secondaryScore: number } | null => {
       if (seenIds.has(entry.id)) return null;
+      if (isRestrictedEntry(entry, restrictedEntryIds)) return null;
 
       let priority = 0;
 
@@ -753,10 +768,13 @@ export const useDictionary = () => {
                 if (response.ok) {
                   const data = await response.json();
                   if (Array.isArray(data)) {
-                    chunkCache[chunkKey] = data;
-                    chunkEntries = data;
+                    chunkEntries = filterRestrictedEntryIds(
+                      data,
+                      restrictedEntryIds,
+                    );
+                    chunkCache[chunkKey] = chunkEntries;
                     // 构建索引
-                    buildSearchIndex(data);
+                    buildSearchIndex(chunkEntries);
                   }
                 }
               } catch (error) {

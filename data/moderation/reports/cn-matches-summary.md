@@ -1,17 +1,17 @@
 # Mainland China Moderation Match Summary
 
-Generated at: 2026-04-27T15:42:52.562Z
+Generated at: 2026-04-27T16:21:17.843Z
 
-Effective terms: 29500
+Effective terms: 29572
 Scanned entries: 161214
-Restricted entries: 1569
+Restricted entries: 1625
 
 ## Dictionaries
 
 | Dictionary | Scanned | Restricted |
 | --- | ---: | ---: |
-| hk-cantowords | 59019 | 807 |
-| wiktionary-cantonese | 102195 | 762 |
+| hk-cantowords | 59019 | 832 |
+| wiktionary-cantonese | 102195 | 793 |
 
 ## Top Matched Terms
 
@@ -53,6 +53,7 @@ Restricted entries: 1569
 | 鴉片 | 10 | GFW补充词库.txt, 暴恐词库.txt | 大碌藕 (hk-cantowords_101803); 煙友 (hk-cantowords_107420); 美沙酮 (hk-cantowords_080538) |
 | 吾爾 | 9 | 反动词库.txt | 突厥 (hk-cantowords_120047); 維吾爾 (hk-cantowords_115921); 維吾爾 (wiktionary-cantonese_00048764) |
 | 屠殺 | 9 | GFW补充词库.txt | 高登 (hk-cantowords_096937); 掠奪 (hk-cantowords_079659); 生口 (hk-cantowords_109942) |
+| 港獨 | 9 | cn-extra-terms.txt | 搶包山 (hk-cantowords_101494); 獨創 (hk-cantowords_070457); 短片 (hk-cantowords_111400) |
 | 維吾 | 9 | 反动词库.txt | 突厥 (hk-cantowords_120047); 維吾爾 (hk-cantowords_115921); 維吾爾 (wiktionary-cantonese_00048764) |
 | 維吾爾 | 9 | GFW补充词库.txt | 突厥 (hk-cantowords_120047); 維吾爾 (hk-cantowords_115921); 維吾爾 (wiktionary-cantonese_00048764) |
 | 販毒 | 9 | GFW补充词库.txt | 緝毒 (hk-cantowords_067470); 大茶飯 (hk-cantowords_090364); 毒梟 (hk-cantowords_109813) |
@@ -70,6 +71,7 @@ Restricted entries: 1569
 | 動亂 | 6 | GFW补充词库.txt | 動亂 (hk-cantowords_070560); 傾頹 (hk-cantowords_111683); 內亂 (hk-cantowords_081905) |
 | 原子彈 | 6 | GFW补充词库.txt | 比基尼島 (hk-cantowords_097475); 原子 (hk-cantowords_078183); 原子彈 (hk-cantowords_078185) |
 | 呻吟 | 6 | GFW补充词库.txt | 叫牀 (hk-cantowords_092841); 叫春 (hk-cantowords_092840); 無病呻吟 (hk-cantowords_107001) |
+| 國安法 | 6 | cn-extra-terms.txt | 國安 (hk-cantowords_113816); 國安法 (hk-cantowords_113817); 國安法 (wiktionary-cantonese_00101274) |
 | 安眠藥 | 6 | 补充词库.txt | 白瓜子 (hk-cantowords_091416); 藍瓜子 (hk-cantowords_093682); 藍精靈 (hk-cantowords_093683) |
 | 弓箭 | 6 | GFW补充词库.txt | 冷兵器 (hk-cantowords_102329); 弓箭手 (wiktionary-cantonese_00028427); 行人 (wiktionary-cantonese_00032704) |
 | 恐怖分子 | 6 | GFW补充词库.txt, 反动词库.txt | 槍殺 (hk-cantowords_068421); 揚言 (hk-cantowords_077690); 密謀 (hk-cantowords_080445) |
@@ -83,6 +85,7 @@ Restricted entries: 1569
 | 調情 | 6 | GFW补充词库.txt | 打情罵俏 (hk-cantowords_069023); 放生電 (hk-cantowords_092549); flirt (hk-cantowords_113787) |
 | 請願 | 6 | 反动词库.txt, 补充词库.txt | 請願 (hk-cantowords_068195); 請願信 (hk-cantowords_100299); 租務管制 (hk-cantowords_102648) |
 | 雙飛 | 6 | GFW补充词库.txt | 起雙飛 (hk-cantowords_090955); 雙飛 (hk-cantowords_095204); 比翼雙飛 (wiktionary-cantonese_00108080) |
+| 64 | 5 | cn-extra-terms.txt | 國際象棋 (hk-cantowords_074386); 西洋棋 (hk-cantowords_119799); 八佾 (wiktionary-cantonese_00076802) |
 | cosplay | 5 | GFW补充词库.txt | cosplay (hk-cantowords_102246); 骷髏骨 (hk-cantowords_109541); 角色扮演 (wiktionary-cantonese_00065193) |
 | 三級片 | 5 | GFW补充词库.txt, 补充词库.txt | 四仔 (hk-cantowords_090638); 三級片 (hk-cantowords_103830); 脱星 (hk-cantowords_103594) |
 | 內射 | 5 | GFW补充词库.txt, 补充词库.txt | 口爆 (hk-cantowords_091008); 內射 (hk-cantowords_117699); 射精 (hk-cantowords_083737) |
@@ -114,7 +117,4 @@ Restricted entries: 1569
 | 香港賽馬會 | 5 | GFW补充词库.txt | 賭馬 (hk-cantowords_070335); 六合彩 (hk-cantowords_079923); 馬票 (hk-cantowords_101474) |
 | 騷亂 | 5 | GFW补充词库.txt | 催淚煙 (hk-cantowords_112039); 騷亂 (hk-cantowords_085219); 水馬 (hk-cantowords_099779) |
 | 鬧事 | 5 | GFW补充词库.txt | 鬧事 (hk-cantowords_081327); 扑濕 (wiktionary-cantonese_00117602); 草率收兵 (wiktionary-cantonese_00096084) |
-| av女 | 4 | GFW补充词库.txt | AV女優 (hk-cantowords_092404); 女優 (hk-cantowords_081402); 素人 (hk-cantowords_091022) |
-| dalai | 4 | 反动词库.txt | 布達拉宮 (wiktionary-cantonese_00061653); 達賴 (wiktionary-cantonese_00056311); 金瓶掣籤 (wiktionary-cantonese_00106212) |
-| mdma | 4 | 暴恐词库.txt | E仔 (hk-cantowords_093294); 衣服 (wiktionary-cantonese_00019248); 搖頭丸 (wiktionary-cantonese_00028367) |
 

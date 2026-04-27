@@ -1,7 +1,7 @@
 {
   "region": "CN",
   "policy": "cn-sensitive-lexicon-v1",
-  "generated_at": "2026-04-27T15:42:52.562Z",
+  "generated_at": "2026-04-27T16:21:17.843Z",
   "target_dictionaries": [
     "hk-cantowords",
     "wiktionary-cantonese"
@@ -18,19 +18,19 @@
     "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/非法网址.txt",
     "data/moderation/vendor/konsheng-sensitive-lexicon/Organized/政治类型.txt"
   ],
-  "effective_term_count": 29500,
+  "effective_term_count": 29572,
   "scanned_entries": 161214,
-  "restricted_entry_count": 1569,
+  "restricted_entry_count": 1625,
   "dictionaries": [
     {
       "dictionary_id": "hk-cantowords",
       "scanned_entries": 59019,
-      "restricted_entries": 807
+      "restricted_entries": 832
     },
     {
       "dictionary_id": "wiktionary-cantonese",
       "scanned_entries": 102195,
-      "restricted_entries": 762
+      "restricted_entries": 793
     }
   ],
   "terms": [
@@ -1959,7 +1959,7 @@
           "entry_id": "wiktionary-cantonese_00101121",
           "dictionary_id": "wiktionary-cantonese",
           "headword": "紫旗",
-          "sample": "中共於5月28日在不經香港「一國兩制」自主立法機制下，強行通過「港版國安法」的決議，香港警方並於日後的示威遊行中，以紫旗警告示威者可能觸犯《港區國安法》。"
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
         }
       ]
     },
@@ -2069,7 +2069,7 @@
           "entry_id": "wiktionary-cantonese_00101121",
           "dictionary_id": "wiktionary-cantonese",
           "headword": "紫旗",
-          "sample": "中共於5月28日在不經香港「一國兩制」自主立法機制下，強行通過「港版國安法」的決議，香港警方並於日後的示威遊行中，以紫旗警告示威者可能觸犯《港區國安法》。"
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
         }
       ]
     },
@@ -2869,7 +2869,7 @@
           "entry_id": "hk-cantowords_099785",
           "dictionary_id": "hk-cantowords",
           "headword": "狗官",
-          "sample": "腐敗、無能 #官員 嘅貶稱 (a derogatory term for corrupt, incompetent, or morally reprehensible officials)"
+          "sample": "狗官"
         },
         {
           "entry_id": "hk-cantowords_093251",
@@ -3741,6 +3741,73 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "屠殺場",
           "sample": "屠殺場"
+        }
+      ]
+    },
+    {
+      "term": "港獨",
+      "count": 9,
+      "dictionaries": {
+        "hk-cantowords": 5,
+        "wiktionary-cantonese": 4
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_101494",
+          "dictionary_id": "hk-cantowords",
+          "headword": "搶包山",
+          "sample": "尤其指長洲#太平清醮 夜晚嘅搶包山比賽，喺香港獨特嘅#搶孤 活動。嗰晚有三個包山，市民要報名先可以參加。 (cheung chau bun scrambling competition)"
+        },
+        {
+          "entry_id": "hk-cantowords_070457",
+          "dictionary_id": "hk-cantowords",
+          "headword": "獨創",
+          "sample": "全港獨創"
+        },
+        {
+          "entry_id": "hk-cantowords_111400",
+          "dictionary_id": "hk-cantowords",
+          "headword": "短片",
+          "sample": "原來香港獨立短片及錄像比賽今年已經係30週年。"
+        },
+        {
+          "entry_id": "hk-cantowords_110860",
+          "dictionary_id": "hk-cantowords",
+          "headword": "港獨",
+          "sample": "港獨"
+        },
+        {
+          "entry_id": "hk-cantowords_005284",
+          "dictionary_id": "hk-cantowords",
+          "headword": "洋紫荊",
+          "sample": "一種蘇木科羊蹄甲屬#植物；#香港 嘅市花，係香港獨有嘅品種；啲花係紫紅色嘅，有五塊花瓣。 (hong kong orchid; bauhinia; bauhinia × blakeana; the representative flower of hong kong)"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00117319",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "大中華膠",
+          "sample": "倘最終由李卓人出選，由於他是香港「支聯會」主席，被「港獨」分子定性為「大中華膠」，很可能只取得傳統反對派的基本票。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00074762",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "港獨",
+          "sample": "港獨"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00117424",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "批鬥座",
+          "sample": "關愛座變「批鬥座」的情況並非香港獨有。南韓曾出現長者腳踢關愛座上年輕男子、66歲老人攻擊關愛座上25歲女子而被捕等案例。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101121",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "紫旗",
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
         }
       ]
     },
@@ -4742,6 +4809,55 @@
       ]
     },
     {
+      "term": "國安法",
+      "count": 6,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 4
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_113816",
+          "dictionary_id": "hk-cantowords",
+          "headword": "國安",
+          "sample": "#國安法"
+        },
+        {
+          "entry_id": "hk-cantowords_113817",
+          "dictionary_id": "hk-cantowords",
+          "headword": "國安法",
+          "sample": "國安法"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101274",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "國安法",
+          "sample": "國安法"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00108671",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "港區國安法",
+          "sample": "港區國安法"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00108672",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "港區",
+          "sample": "港區國安法"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101121",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "紫旗",
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
+        }
+      ]
+    },
+    {
       "term": "安眠藥",
       "count": 6,
       "dictionaries": {
@@ -5377,6 +5493,49 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "雙宿雙飛",
           "sample": "雙宿雙飛"
+        }
+      ]
+    },
+    {
+      "term": "64",
+      "count": 5,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 3
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_074386",
+          "dictionary_id": "hk-cantowords",
+          "headword": "國際象棋",
+          "sample": "棋類遊戲，兩個人玩，棋盤有黑白相間嘅 64 格，一方用白棋另一方用黑棋，各自有 16 隻棋，一人行一步棋，首先令對方嘅國王冇棋行為之贏 (international chess; western chess)"
+        },
+        {
+          "entry_id": "hk-cantowords_119799",
+          "dictionary_id": "hk-cantowords",
+          "headword": "西洋棋",
+          "sample": "棋類遊戲，兩個人玩，棋盤有黑白相間嘅 64 格，一方用白棋另一方用黑棋，各自有 16 隻棋，一人行一步棋，首先令對方嘅國王冇棋行為之贏 (international chess; western chess)"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00076802",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "八佾",
+          "sample": "(historical, dance) an ancient dance performed by 64 people (8 × 8) during sacrificial rites"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00095000",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "青壯年",
+          "sample": "young age and “prime age”; prime time of one's life; age defined variously as between 15 and 64, between 15 and 60, or between 30 and 40"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00079986",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "六十四",
+          "sample": "sixty-four; 64"
         }
       ]
     },
@@ -7126,6 +7285,43 @@
       ]
     },
     {
+      "term": "反修例",
+      "count": 4,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_114510",
+          "dictionary_id": "hk-cantowords",
+          "headword": "藍店",
+          "sample": "喺反修例運動入面支持政府同撐警嘅零售商同食肆（量詞：間） (pro-government shop, restaurant, or retailer; shop supporting government and police in the anti-extradition bill movement; literally: blue shop)"
+        },
+        {
+          "entry_id": "hk-cantowords_114509",
+          "dictionary_id": "hk-cantowords",
+          "headword": "黃店",
+          "sample": "支持反修例運動；支持五大訴求嘅食肆同零售商 (pro-democracy shop, restaurant or retailer; shop that support protestors in the anti-extradition bill movement; literally: yellow shop)"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00105994",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "反修例",
+          "sample": "反修例"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00084944",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "左膠",
+          "sample": "你哋被香港啲左膠傳媒洗腦多年，淨係聽過李光耀啲欺壓人哋嘅嘢，不過歷年來，佢不斷重複當年日本仔喺二戰時差啲殺咗佢嘅故事。"
+        }
+      ]
+    },
+    {
       "term": "命根",
       "count": 4,
       "dictionaries": {
@@ -7807,7 +8003,7 @@
           "entry_id": "hk-cantowords_099785",
           "dictionary_id": "hk-cantowords",
           "headword": "狗官",
-          "sample": "腐敗、無能 #官員 嘅貶稱 (a derogatory term for corrupt, incompetent, or morally reprehensible officials)"
+          "sample": "狗官"
         },
         {
           "entry_id": "hk-cantowords_077475",
@@ -9265,6 +9461,37 @@
       ]
     },
     {
+      "term": "攬炒",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_110332",
+          "dictionary_id": "hk-cantowords",
+          "headword": "玉石俱焚",
+          "sample": "#同歸於盡，#攬炒 (to defeat with self-sacrifice; literally: to burn both jade and stone)"
+        },
+        {
+          "entry_id": "hk-cantowords_096477",
+          "dictionary_id": "hk-cantowords",
+          "headword": "攬炒",
+          "sample": "攬炒"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00096592",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "攬炒",
+          "sample": "攬炒"
+        }
+      ]
+    },
+    {
       "term": "春宵",
       "count": 3,
       "dictionaries": {
@@ -9474,7 +9701,7 @@
           "entry_id": "wiktionary-cantonese_00116742",
           "dictionary_id": "wiktionary-cantonese",
           "headword": "支聯會",
-          "sample": "short for 香港市民支援愛國民主運動聯合會／香港市民支援爱国民主运动联合会 (xiānggǎng shìmín zhīyuán àiguó mínzhǔ yùndòng liánhéhuì, “hong kong alliance in support of patriotic democratic movements of china; disso"
+          "sample": "支聯會"
         }
       ]
     },
@@ -9538,6 +9765,37 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "鐵氰化鉀",
           "sample": "鐵氰化鉀"
+        }
+      ]
+    },
+    {
+      "term": "流亡政府",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_079143",
+          "dictionary_id": "hk-cantowords",
+          "headword": "流亡",
+          "sample": "流亡政府"
+        },
+        {
+          "entry_id": "hk-cantowords_079144",
+          "dictionary_id": "hk-cantowords",
+          "headword": "流亡政府",
+          "sample": "流亡政府"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00106985",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "流亡政府",
+          "sample": "流亡政府"
         }
       ]
     },
@@ -9849,6 +10107,37 @@
       ]
     },
     {
+      "term": "缺一不可",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_104074",
+          "dictionary_id": "hk-cantowords",
+          "headword": "缺一不可",
+          "sample": "缺一不可"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00100363",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "缺一不可",
+          "sample": "缺一不可"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00049697",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "訴求",
+          "sample": "五大訴求，缺一不可！"
+        }
+      ]
+    },
+    {
       "term": "老毛",
       "count": 3,
       "dictionaries": {
@@ -9937,6 +10226,67 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "玩火自焚",
           "sample": "玩火自焚"
+        }
+      ]
+    },
+    {
+      "term": "臺獨",
+      "count": 3,
+      "dictionaries": {
+        "wiktionary-cantonese": 3
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00054285",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "史觀",
+          "sample": "臺獨史觀"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00045802",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "臺獨",
+          "sample": "臺獨"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00098851",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "臺毒",
+          "sample": "alternative form of 臺獨 /台独 (táidú, “taiwanese separatism or separatist”)"
+        }
+      ]
+    },
+    {
+      "term": "藍絲",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_096119",
+          "dictionary_id": "hk-cantowords",
+          "headword": "藍絲",
+          "sample": "藍絲"
+        },
+        {
+          "entry_id": "hk-cantowords_111834",
+          "dictionary_id": "hk-cantowords",
+          "headword": "藍屍",
+          "sample": "對#藍絲 嘅蔑稱 (derogatory homophone for \"#藍絲\")"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00098767",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "藍絲",
+          "sample": "藍絲"
         }
       ]
     },
@@ -10374,6 +10724,85 @@
       ]
     },
     {
+      "term": "黃絲",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_096119",
+          "dictionary_id": "hk-cantowords",
+          "headword": "藍絲",
+          "sample": "藍絲"
+        },
+        {
+          "entry_id": "hk-cantowords_113989",
+          "dictionary_id": "hk-cantowords",
+          "headword": "黃屍",
+          "sample": "對#黃絲 嘅蔑稱 (derogatory homophone for \"#黃絲\")"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00109401",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "黃屍",
+          "sample": "alternative form of 黃絲 /黄丝 (huángsī)"
+        }
+      ]
+    },
+    {
+      "term": "liberate hong kong",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00116958",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "光復香港、時代革命",
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101121",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "紫旗",
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
+        }
+      ]
+    },
+    {
+      "term": "lihkg",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_091706",
+          "dictionary_id": "hk-cantowords",
+          "headword": "炒車",
+          "sample": "叫咗你唔好信連登上面嘅小道消息啦，你睇，炒晒車喇。"
+        },
+        {
+          "entry_id": "hk-cantowords_120331",
+          "dictionary_id": "hk-cantowords",
+          "headword": "連登",
+          "sample": "連登"
+        }
+      ]
+    },
+    {
       "term": "qingzhen",
       "count": 2,
       "dictionaries": {
@@ -10598,6 +11027,31 @@
       ]
     },
     {
+      "term": "五大訴求",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_114509",
+          "dictionary_id": "hk-cantowords",
+          "headword": "黃店",
+          "sample": "支持反修例運動；支持五大訴求嘅食肆同零售商 (pro-democracy shop, restaurant or retailer; shop that support protestors in the anti-extradition bill movement; literally: yellow shop)"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00049697",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "訴求",
+          "sample": "五大訴求，缺一不可！"
+        }
+      ]
+    },
+    {
       "term": "代辦",
       "count": 2,
       "dictionaries": {
@@ -10771,6 +11225,55 @@
       ]
     },
     {
+      "term": "光復香港",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00116958",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "光復香港、時代革命",
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101121",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "紫旗",
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
+        }
+      ]
+    },
+    {
+      "term": "光時",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_109588",
+          "dictionary_id": "hk-cantowords",
+          "headword": "色弱",
+          "sample": "一種疾病，睇嘢分辨#顏色 能力低，尤其喺淡色、唔夠光時，會以為唔同顏色係一樣；嚴重病況即係#色盲 (anomalous trichromacy, some types of colour blindness)"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00083430",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "高光",
+          "sample": "高光時刻"
+        }
+      ]
+    },
+    {
       "term": "公開信",
       "count": 2,
       "dictionaries": {
@@ -10866,6 +11369,31 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "俄國",
           "sample": "四年以來俄國策動東歐各國的共黨"
+        }
+      ]
+    },
+    {
+      "term": "再教育營",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_115795",
+          "dictionary_id": "hk-cantowords",
+          "headword": "再教育",
+          "sample": "再教育營"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00086565",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "再教育",
+          "sample": "新疆再教育營"
         }
       ]
     },
@@ -10987,6 +11515,30 @@
           "dictionary_id": "hk-cantowords",
           "headword": "南越",
           "sample": "國家名；全名越南共和國，係1955年至1975年間，統治#越南 南部嘅國家；喺#越戰 期間得到美國為首嘅反共產主義國家支持，但係停戰之後再被#北越 入侵，喺1976年覆亡，由北越統一越南，成立越南社會主義共和國 (south vietnam; republic of vietnam)"
+        }
+      ]
+    },
+    {
+      "term": "反送中",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00104647",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "反送中",
+          "sample": "反送中"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00108532",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "鐵欄",
+          "sample": "反送中罷課癱瘓街頭！學生拆鐵欄擋警"
         }
       ]
     },
@@ -11755,6 +12307,30 @@
       ]
     },
     {
+      "term": "支聯會",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00117319",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "大中華膠",
+          "sample": "倘最終由李卓人出選，由於他是香港「支聯會」主席，被「港獨」分子定性為「大中華膠」，很可能只取得傳統反對派的基本票。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00116742",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "支聯會",
+          "sample": "支聯會"
+        }
+      ]
+    },
+    {
       "term": "春藥",
       "count": 2,
       "dictionaries": {
@@ -11776,6 +12352,30 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "春藥",
           "sample": "春藥"
+        }
+      ]
+    },
+    {
+      "term": "時代革命",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00116958",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "光復香港、時代革命",
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101121",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "紫旗",
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
         }
       ]
     },
@@ -11896,7 +12496,7 @@
           "entry_id": "wiktionary-cantonese_00116742",
           "dictionary_id": "wiktionary-cantonese",
           "headword": "支聯會",
-          "sample": "short for 香港市民支援愛國民主運動聯合會／香港市民支援爱国民主运动联合会 (xiānggǎng shìmín zhīyuán àiguó mínzhǔ yùndòng liánhéhuì, “hong kong alliance in support of patriotic democratic movements of china; disso"
+          "sample": "支聯會"
         }
       ]
     },
@@ -12124,6 +12724,31 @@
       ]
     },
     {
+      "term": "狗官",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_099785",
+          "dictionary_id": "hk-cantowords",
+          "headword": "狗官",
+          "sample": "狗官"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00098775",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "狗官",
+          "sample": "狗官"
+        }
+      ]
+    },
+    {
       "term": "猛男",
       "count": 2,
       "dictionaries": {
@@ -12270,6 +12895,31 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "社會民主黨",
           "sample": "社會民主黨"
+        }
+      ]
+    },
+    {
+      "term": "種族滅絕",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_113786",
+          "dictionary_id": "hk-cantowords",
+          "headword": "滅絕",
+          "sample": "種族滅絕"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00020366",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "種族滅絕",
+          "sample": "種族滅絕"
         }
       ]
     },
@@ -12619,6 +13269,30 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "直仔",
           "sample": "當初因愛而決意中途轉基，有著隨時肛交或被肛交的準備，豈料又要拗回做直仔？"
+        }
+      ]
+    },
+    {
+      "term": "臺灣國",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00113367",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "飛踢",
+          "sample": "瞄準中國大陸公安警車，抬腿飛踢，隨馬英九訪問中國大陸的臺灣國立政治大學法律系副教授廖元豪在上海浦東機場外的這一腳，使他名揚社交媒體。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00120015",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "臺灣國語",
+          "sample": "臺灣國語"
         }
       ]
     },
@@ -13020,6 +13694,30 @@
       ]
     },
     {
+      "term": "連登",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_091706",
+          "dictionary_id": "hk-cantowords",
+          "headword": "炒車",
+          "sample": "叫咗你唔好信連登上面嘅小道消息啦，你睇，炒晒車喇。"
+        },
+        {
+          "entry_id": "hk-cantowords_120331",
+          "dictionary_id": "hk-cantowords",
+          "headword": "連登",
+          "sample": "連登"
+        }
+      ]
+    },
+    {
       "term": "達賴",
       "count": 2,
       "dictionaries": {
@@ -13240,6 +13938,30 @@
       ]
     },
     {
+      "term": "香港獨立",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_111400",
+          "dictionary_id": "hk-cantowords",
+          "headword": "短片",
+          "sample": "原來香港獨立短片及錄像比賽今年已經係30週年。"
+        },
+        {
+          "entry_id": "hk-cantowords_110860",
+          "dictionary_id": "hk-cantowords",
+          "headword": "港獨",
+          "sample": "港獨"
+        }
+      ]
+    },
+    {
       "term": "高利貸",
       "count": 2,
       "dictionaries": {
@@ -13338,6 +14060,55 @@
       ]
     },
     {
+      "term": "黃之鋒",
+      "count": 2,
+      "dictionaries": {
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00105777",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "顛覆國家政權",
+          "sample": "當局指控47名民主人士串謀顛覆國家政權，其中包括前法學教授戴耀廷，以及抗議活動領袖、一個學生團體的創始人黃之鋒。其中31名被告已經認罪。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00107269",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "孖葉",
+          "sample": "網民紛紛恥笑，黃之鋒是扮被扣孖葉，以營造其「英雄」形象，但就「扮得好唔專業」，更證明他由衝擊到被捕，只不過是「扮（嘢）」。"
+        }
+      ]
+    },
+    {
+      "term": "黑警",
+      "count": 2,
+      "dictionaries": {
+        "hk-cantowords": 1,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_096111",
+          "dictionary_id": "hk-cantowords",
+          "headword": "黑警",
+          "sample": "黑警"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00086250",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "黑警",
+          "sample": "黑警"
+        }
+      ]
+    },
+    {
       "term": "黑車",
       "count": 2,
       "dictionaries": {
@@ -13413,6 +14184,24 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "中共病毒",
           "sample": "中共病毒"
+        }
+      ]
+    },
+    {
+      "term": "demosisto",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00070146",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "中箭",
+          "sample": "demosisto, or its member"
         }
       ]
     },
@@ -14387,6 +15176,7 @@
         "wiktionary-cantonese": 1
       },
       "sources": [
+        "data/moderation/cn-extra-terms.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/反动词库.txt"
       ],
       "samples": [
@@ -14405,6 +15195,7 @@
         "wiktionary-cantonese": 1
       },
       "sources": [
+        "data/moderation/cn-extra-terms.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/GFW补充词库.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/反动词库.txt"
       ],
@@ -14432,6 +15223,24 @@
           "dictionary_id": "hk-cantowords",
           "headword": "混雙",
           "sample": "混合#雙打 嘅簡稱，指比賽中各隊由兩名成員組成，男女各一 (mixed doubles; short form of 混合雙打)"
+        }
+      ]
+    },
+    {
+      "term": "周庭",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00030152",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "昆仲",
+          "sample": "昔者周公旦殺管叔，流霍叔，曰：「犯禁者也。」天下眾皆曰：「親昆仲有過不違，而況疏遠乎？」故天下知用刀鋸於周庭，而海內治。"
         }
       ]
     },
@@ -15649,6 +16458,24 @@
       ]
     },
     {
+      "term": "本土民主前線",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00114111",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "順超",
+          "sample": "「本土民主前線」發言人「獨琦」（梁天琦），被選舉主任裁定立法會選舉提名無效，竟指定由「青年新政」召集人梁頌恆出選「plan b」而唔益「熱普城」，「熱普城」支持者早已唔順超。"
+        }
+      ]
+    },
+    {
       "term": "東伊運",
       "count": 1,
       "dictionaries": {
@@ -15699,6 +16526,24 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "核蛋白",
           "sample": "核蛋白"
+        }
+      ]
+    },
+    {
+      "term": "梁天琦",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00114111",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "順超",
+          "sample": "「本土民主前線」發言人「獨琦」（梁天琦），被選舉主任裁定立法會選舉提名無效，竟指定由「青年新政」召集人梁頌恆出選「plan b」而唔益「熱普城」，「熱普城」支持者早已唔順超。"
         }
       ]
     },
@@ -15902,6 +16747,24 @@
       ]
     },
     {
+      "term": "民族自決",
+      "count": 1,
+      "dictionaries": {
+        "hk-cantowords": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_098495",
+          "dictionary_id": "hk-cantowords",
+          "headword": "自決",
+          "sample": "民族自決"
+        }
+      ]
+    },
+    {
       "term": "民進黨",
       "count": 1,
       "dictionaries": {
@@ -15934,6 +16797,42 @@
           "dictionary_id": "hk-cantowords",
           "headword": "民運",
           "sample": "民運"
+        }
+      ]
+    },
+    {
+      "term": "民阵",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00083322",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "國陣",
+          "sample": "short for 國民陣線／国民阵线 (guómín zhènxiàn, “barisan nasional (malaysian party)”)"
+        }
+      ]
+    },
+    {
+      "term": "民陣",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00083322",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "國陣",
+          "sample": "short for 國民陣線／国民阵线 (guómín zhènxiàn, “barisan nasional (malaysian party)”)"
         }
       ]
     },
@@ -16544,6 +17443,7 @@
         "wiktionary-cantonese": 1
       },
       "sources": [
+        "data/moderation/cn-extra-terms.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/GFW补充词库.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/反动词库.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/补充词库.txt"
@@ -16590,6 +17490,24 @@
           "dictionary_id": "hk-cantowords",
           "headword": "白小姐",
           "sample": "白小姐"
+        }
+      ]
+    },
+    {
+      "term": "白衣人",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00086095",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "白衣人",
+          "sample": "白衣人"
         }
       ]
     },
@@ -17199,6 +18117,7 @@
         "wiktionary-cantonese": 1
       },
       "sources": [
+        "data/moderation/cn-extra-terms.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/GFW补充词库.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/反动词库.txt",
         "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/补充词库.txt"
@@ -18389,6 +19308,24 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "黃片",
           "sample": "黃片"
+        }
+      ]
+    },
+    {
+      "term": "黄丝",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00109401",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "黃屍",
+          "sample": "alternative form of 黃絲 /黄丝 (huángsī)"
         }
       ]
     },
@@ -19899,6 +20836,52 @@
             "抽插"
           ],
           "sample": "抽插"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_091706",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "炒車",
+      "file": "public/dictionaries/cantowords/c.json",
+      "matched_terms": [
+        "lihkg",
+        "連登"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.1.examples.0.text",
+          "terms": [
+            "連登"
+          ],
+          "sample": "叫咗你唔好信連登上面嘅小道消息啦，你睇，炒晒車喇。"
+        },
+        {
+          "field": "senses.1.examples.0.translation",
+          "terms": [
+            "lihkg"
+          ],
+          "sample": "i told you already not to trust rumours from lihkg. see? you got it all wrong."
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_101494",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "搶包山",
+      "file": "public/dictionaries/cantowords/c.json",
+      "matched_terms": [
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "尤其指長洲#太平清醮 夜晚嘅搶包山比賽，喺香港獨特嘅#搶孤 活動。嗰晚有三個包山，市民要報名先可以參加。 (cheung chau bun scrambling competition)"
         }
       ]
     },
@@ -22204,6 +23187,25 @@
       ]
     },
     {
+      "id": "hk-cantowords_070457",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "獨創",
+      "file": "public/dictionaries/cantowords/d.json",
+      "matched_terms": [
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "全港獨創"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_069240",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -22257,6 +23259,27 @@
             "榴彈"
           ],
           "sample": "一種進攻式#手榴彈；入面裝嘅唔係金屬殼，而係橡膠，爆炸嗰時會射出大量橡膠粒；有啲甚至附加催淚氣體或者胡椒噴霧 (sting grenade)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_111400",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "短片",
+      "file": "public/dictionaries/cantowords/d.json",
+      "matched_terms": [
+        "港獨",
+        "香港獨立"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "香港獨立",
+            "港獨"
+          ],
+          "sample": "原來香港獨立短片及錄像比賽今年已經係30週年。"
         }
       ]
     },
@@ -23723,9 +24746,31 @@
       "file": "public/dictionaries/cantowords/g.json",
       "matched_terms": [
         "濫用職權",
+        "狗官",
         "腐敗"
       ],
       "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        },
         {
           "field": "senses.0.definition",
           "terms": [
@@ -23736,6 +24781,7 @@
         {
           "field": "senses.0.examples.0.text",
           "terms": [
+            "狗官",
             "濫用職權"
           ],
           "sample": "呢班狗官成日都喺度濫用職權，真係好乞人憎。"
@@ -23864,6 +24910,48 @@
             "黑社會"
           ],
           "sample": "#黑社會 入面嘅規則同懲罰 (rules and corresponding punishment in a triad)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_110860",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "港獨",
+      "file": "public/dictionaries/cantowords/g.json",
+      "matched_terms": [
+        "港獨",
+        "香港獨立"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "香港獨立",
+            "港獨"
+          ],
+          "sample": "香港獨立運動或主張嘅簡稱 (independence of hong kong)"
         }
       ]
     },
@@ -24112,6 +25200,25 @@
             "賣國"
           ],
           "sample": "呢間公司專賣國產貨品。"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_074386",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "國際象棋",
+      "file": "public/dictionaries/cantowords/g.json",
+      "matched_terms": [
+        "64"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "64"
+          ],
+          "sample": "棋類遊戲，兩個人玩，棋盤有黑白相間嘅 64 格，一方用白棋另一方用黑棋，各自有 16 隻棋，一人行一步棋，首先令對方嘅國王冇棋行為之贏 (international chess; western chess)"
         }
       ]
     },
@@ -24385,6 +25492,58 @@
             "老虎機"
           ],
           "sample": "拉老虎機"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_113816",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "國安",
+      "file": "public/dictionaries/cantowords/g.json",
+      "matched_terms": [
+        "國安法"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "#國安法"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_113817",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "國安法",
+      "file": "public/dictionaries/cantowords/g.json",
+      "matched_terms": [
+        "國安法"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
         }
       ]
     },
@@ -25585,9 +26744,31 @@
       "headword": "黑警",
       "file": "public/dictionaries/cantowords/h.json",
       "matched_terms": [
-        "黑社會"
+        "黑社會",
+        "黑警"
       ],
       "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
         {
           "field": "senses.0.definition",
           "terms": [
@@ -27277,6 +28458,25 @@
       ]
     },
     {
+      "id": "hk-cantowords_110332",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "玉石俱焚",
+      "file": "public/dictionaries/cantowords/j.json",
+      "matched_terms": [
+        "攬炒"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "#同歸於盡，#攬炒 (to defeat with self-sacrifice; literally: to burn both jade and stone)"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_112775",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -28191,6 +29391,25 @@
       ]
     },
     {
+      "id": "hk-cantowords_005284",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "洋紫荊",
+      "file": "public/dictionaries/cantowords/j.json",
+      "matched_terms": [
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "一種蘇木科羊蹄甲屬#植物；#香港 嘅市花，係香港獨有嘅品種；啲花係紫紅色嘅，有五塊花瓣。 (hong kong orchid; bauhinia; bauhinia × blakeana; the representative flower of hong kong)"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_077003",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -28713,6 +29932,46 @@
       ]
     },
     {
+      "id": "hk-cantowords_104074",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "缺一不可",
+      "file": "public/dictionaries/cantowords/k.json",
+      "matched_terms": [
+        "缺一不可"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
+        },
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "要通情達理，理性同感性缺一不可。"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_078567",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -28756,6 +30015,25 @@
             "步槍"
           ],
           "sample": "m16係步槍，m4短啲輕便啲就係卡賓槍"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_079143",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "流亡",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "流亡政府"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
         }
       ]
     },
@@ -29190,6 +30468,89 @@
       ]
     },
     {
+      "id": "hk-cantowords_120331",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "連登",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "lihkg",
+        "連登"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "連登"
+          ],
+          "sample": "連登"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "連登"
+          ],
+          "sample": "連登"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "連登"
+          ],
+          "sample": "連登"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "lihkg"
+          ],
+          "sample": "香港網絡討論區lihkg嘅俗稱 (colloquial address for lihkg, a hong kong-based online forum)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_096119",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "藍絲",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "藍絲",
+        "黃絲"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "藍絲",
+            "黃絲"
+          ],
+          "sample": "持親政府立場嘅香港人，係陣營象徵「藍絲帶」嘅簡稱；同#黃絲 相對（量詞：個） ((hong kong) supporter of the government; literally: blue ribbon)"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_115809",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -29256,6 +30617,46 @@
             "安眠藥"
           ],
           "sample": "三唑侖，一隻成癮性極強嘅安眠藥，因為顏色同形狀而得名 (triazolam; literally: blue melon seed)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_096477",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "攬炒",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "攬炒"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "你舖頭啲貨賣到咁平，即係寧願蝕錢都要同我間舖一齊攬炒啫！"
         }
       ]
     },
@@ -29479,6 +30880,58 @@
       ]
     },
     {
+      "id": "hk-cantowords_114510",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "藍店",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "反修例"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "反修例"
+          ],
+          "sample": "喺反修例運動入面支持政府同撐警嘅零售商同食肆（量詞：間） (pro-government shop, restaurant, or retailer; shop supporting government and police in the anti-extradition bill movement; literally: blue shop)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_079144",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "流亡政府",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "流亡政府"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_079437",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -29589,6 +31042,25 @@
             "屠殺"
           ],
           "sample": "呢班海盜透過掠奪同屠殺去擴大自己嘅勢力。"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_111834",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "藍屍",
+      "file": "public/dictionaries/cantowords/l.json",
+      "matched_terms": [
+        "藍絲"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "對#藍絲 嘅蔑稱 (derogatory homophone for \"#藍絲\")"
         }
       ]
     },
@@ -30277,6 +31749,25 @@
             "穆罕默德"
           ],
           "sample": "穆罕默德"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_113786",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "滅絕",
+      "file": "public/dictionaries/cantowords/m.json",
+      "matched_terms": [
+        "種族滅絕"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "種族滅絕"
+          ],
+          "sample": "種族滅絕"
         }
       ]
     },
@@ -33138,6 +34629,25 @@
       ]
     },
     {
+      "id": "hk-cantowords_109588",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "色弱",
+      "file": "public/dictionaries/cantowords/s.json",
+      "matched_terms": [
+        "光時"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "光時"
+          ],
+          "sample": "一種疾病，睇嘢分辨#顏色 能力低，尤其喺淡色、唔夠光時，會以為唔同顏色係一樣；嚴重病況即係#色盲 (anomalous trichromacy, some types of colour blindness)"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_102094",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -33797,6 +35307,25 @@
             "六合彩"
           ],
           "sample": "阿玲中咗六合彩呢件事俾人大肆宣揚。"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_119799",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "西洋棋",
+      "file": "public/dictionaries/cantowords/s.json",
+      "matched_terms": [
+        "64"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "64"
+          ],
+          "sample": "棋類遊戲，兩個人玩，棋盤有黑白相間嘅 64 格，一方用白棋另一方用黑棋，各自有 16 隻棋，一人行一步棋，首先令對方嘅國王冇棋行為之贏 (international chess; western chess)"
         }
       ]
     },
@@ -36652,6 +38181,27 @@
       ]
     },
     {
+      "id": "hk-cantowords_114509",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "黃店",
+      "file": "public/dictionaries/cantowords/w.json",
+      "matched_terms": [
+        "五大訴求",
+        "反修例"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "反修例",
+            "五大訴求"
+          ],
+          "sample": "支持反修例運動；支持五大訴求嘅食肆同零售商 (pro-democracy shop, restaurant or retailer; shop that support protestors in the anti-extradition bill movement; literally: yellow shop)"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_086797",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -36686,6 +38236,25 @@
             "發功"
           ],
           "sample": "氣功大師話運氣發功可以醫病。"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_113989",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "黃屍",
+      "file": "public/dictionaries/cantowords/w.json",
+      "matched_terms": [
+        "黃絲"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "黃絲"
+          ],
+          "sample": "對#黃絲 嘅蔑稱 (derogatory homophone for \"#黃絲\")"
         }
       ]
     },
@@ -37782,6 +39351,25 @@
       ]
     },
     {
+      "id": "hk-cantowords_115795",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "再教育",
+      "file": "public/dictionaries/cantowords/z.json",
+      "matched_terms": [
+        "再教育營"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "再教育營"
+          ],
+          "sample": "再教育營"
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_010985",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -38091,6 +39679,25 @@
             "專制"
           ],
           "sample": "一個人獨攬大權，控制晒，有貶抑人#蠻橫、#專制 嘅意味 ((derogatory) to possess great power alone; to be in control of something by oneself; literally: to cover the sky with a lone hand)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_098495",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "自決",
+      "file": "public/dictionaries/cantowords/z.json",
+      "matched_terms": [
+        "民族自決"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.1.examples.0.text",
+          "terms": [
+            "民族自決"
+          ],
+          "sample": "民族自決"
         }
       ]
     },
@@ -39084,6 +40691,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00076802",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "八佾",
+      "file": "public/dictionaries/wiktionary/b.json",
+      "matched_terms": [
+        "64"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "64"
+          ],
+          "sample": "(historical, dance) an ancient dance performed by 64 people (8 × 8) during sacrificial rites"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00077618",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -39203,6 +40829,39 @@
             "國民黨"
           ],
           "sample": "吳伯鰲為必珠卜中國國民黨分部正部長[…]"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00086095",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "白衣人",
+      "file": "public/dictionaries/wiktionary/b.json",
+      "matched_terms": [
+        "白衣人"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "白衣人"
+          ],
+          "sample": "白衣人"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "白衣人"
+          ],
+          "sample": "白衣人"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "白衣人"
+          ],
+          "sample": "白衣人"
         }
       ]
     },
@@ -40691,6 +42350,25 @@
             "氰化鈉"
           ],
           "sample": "氰化鈉"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00095000",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "青壯年",
+      "file": "public/dictionaries/wiktionary/c.json",
+      "matched_terms": [
+        "64"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "64"
+          ],
+          "sample": "young age and “prime age”; prime time of one's life; age defined variously as between 15 and 64, between 15 and 60, or between 30 and 40"
         }
       ]
     },
@@ -42380,13 +44058,15 @@
       "headword": "顛覆國家政權",
       "file": "public/dictionaries/wiktionary/d.json",
       "matched_terms": [
-        "抗議"
+        "抗議",
+        "黃之鋒"
       ],
       "field_matches": [
         {
           "field": "senses.0.examples.0.text",
           "terms": [
-            "抗議"
+            "抗議",
+            "黃之鋒"
           ],
           "sample": "當局指控47名民主人士串謀顛覆國家政權，其中包括前法學教授戴耀廷，以及抗議活動領袖、一個學生團體的創始人黃之鋒。其中31名被告已經認罪。"
         }
@@ -42649,6 +44329,27 @@
             "隆胸"
           ],
           "sample": "而論到身材，capri上圍斤両雖然唔多夠，但係勝在抵得住頸，冇學埋其他脫星一樣去隆胸，所以依然保持到身材嘅自然美。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00117319",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "大中華膠",
+      "file": "public/dictionaries/wiktionary/d.json",
+      "matched_terms": [
+        "支聯會",
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.2.text",
+          "terms": [
+            "支聯會",
+            "港獨"
+          ],
+          "sample": "倘最終由李卓人出選，由於他是香港「支聯會」主席，被「港獨」分子定性為「大中華膠」，很可能只取得傳統反對派的基本票。"
         }
       ]
     },
@@ -43622,6 +45323,39 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00104647",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "反送中",
+      "file": "public/dictionaries/wiktionary/f.json",
+      "matched_terms": [
+        "反送中"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "反送中"
+          ],
+          "sample": "反送中"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "反送中"
+          ],
+          "sample": "反送中"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "反送中"
+          ],
+          "sample": "反送中"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00105780",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -43639,6 +45373,46 @@
             "共产党"
           ],
           "sample": "short for 法國共產黨／法国共产党 (fǎguó gòngchǎndǎng, “french communist party”)"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00105994",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "反修例",
+      "file": "public/dictionaries/wiktionary/f.json",
+      "matched_terms": [
+        "反修例"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "反修例"
+          ],
+          "sample": "反修例"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "反修例"
+          ],
+          "sample": "反修例"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "反修例"
+          ],
+          "sample": "反修例"
+        },
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "反修例"
+          ],
+          "sample": "自2019年反修例事件以來，教育局收到不少關於教師涉嫌違反專業操守的投訴，本文件旨在向委員會匯報教育局處理這些個案的進展，以及進一步維護教師專業的建議。"
         }
       ]
     },
@@ -43715,6 +45489,7 @@
       "file": "public/dictionaries/wiktionary/f.json",
       "matched_terms": [
         "公安",
+        "臺灣國",
         "馬英九"
       ],
       "field_matches": [
@@ -43722,7 +45497,8 @@
           "field": "senses.0.examples.0.text",
           "terms": [
             "公安",
-            "馬英九"
+            "馬英九",
+            "臺灣國"
           ],
           "sample": "瞄準中國大陸公安警車，抬腿飛踢，隨馬英九訪問中國大陸的臺灣國立政治大學法律系副教授廖元豪在上海浦東機場外的這一腳，使他名揚社交媒體。"
         }
@@ -44874,6 +46650,39 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00074762",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "港獨",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "港獨"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00077321",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -45077,6 +46886,46 @@
             "奶子"
           ],
           "sample": "上託著主子的洪福，下託著你老子娘，也是公子哥兒似的讀書認字，也是丫頭老婆奶子捧鳳凰似的長了這麼大。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00083322",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "國陣",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "民阵",
+        "民陣"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "民陣",
+            "民阵"
+          ],
+          "sample": "short for 國民陣線／国民阵线 (guómín zhènxiàn, “barisan nasional (malaysian party)”)"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00083430",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "高光",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "光時"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.4.examples.0.text",
+          "terms": [
+            "光時"
+          ],
+          "sample": "高光時刻"
         }
       ]
     },
@@ -45369,6 +47218,39 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00098775",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "狗官",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "狗官"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "狗官"
+          ],
+          "sample": "狗官"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00099503",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -45417,6 +47299,39 @@
             "中共"
           ],
           "sample": "short for 中共中央港澳工作辦公室／中共中央港澳工作办公室 (zhōnggòng zhōngyāng gǎng-ào gōngzuò bàngōngshì, “hong kong and macau work office”)"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00101274",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "國安法",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "國安法"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "國安法"
         }
       ]
     },
@@ -45551,6 +47466,58 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00108671",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "港區國安法",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "國安法"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "港區國安法"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "港區國安法"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "港區國安法"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00108672",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "港區",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "國安法"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.1.examples.1.text",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "港區國安法"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00109264",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -45620,6 +47587,51 @@
             "家庭教會"
           ],
           "sample": "家庭教會"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00116958",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "光復香港、時代革命",
+      "file": "public/dictionaries/wiktionary/g.json",
+      "matched_terms": [
+        "liberate hong kong",
+        "光復香港",
+        "時代革命"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "光復香港",
+            "時代革命"
+          ],
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "光復香港",
+            "時代革命"
+          ],
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "光復香港",
+            "時代革命"
+          ],
+          "sample": "光復香港、時代革命"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "liberate hong kong"
+          ],
+          "sample": "liberate hong kong, revolution of our times, a slogan calling for support for the 2019 hong kong protests"
         }
       ]
     },
@@ -46455,6 +48467,53 @@
             "鴨子"
           ],
           "sample": "旱鴨子"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00086250",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "黑警",
+      "file": "public/dictionaries/wiktionary/h.json",
+      "matched_terms": [
+        "黑警"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "黑警"
+        },
+        {
+          "field": "senses.1.examples.0.text",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "以#saraheverard之名的審判：封城中倫敦黑警的綁架性侵殺女案"
+        },
+        {
+          "field": "senses.2.examples.0.text",
+          "terms": [
+            "黑警"
+          ],
+          "sample": "林鄭殺港，黑警冷血"
         }
       ]
     },
@@ -48738,6 +50797,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00030152",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "昆仲",
+      "file": "public/dictionaries/wiktionary/k.json",
+      "matched_terms": [
+        "周庭"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "周庭"
+          ],
+          "sample": "昔者周公旦殺管叔，流霍叔，曰：「犯禁者也。」天下眾皆曰：「親昆仲有過不違，而況疏遠乎？」故天下知用刀鋸於周庭，而海內治。"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00031510",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -48924,6 +51002,39 @@
             "共產黨"
           ],
           "sample": "這就增加了共產黨批評同盟者、揭破假革命、爭取領導權的責任。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00100363",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "缺一不可",
+      "file": "public/dictionaries/wiktionary/k.json",
+      "matched_terms": [
+        "缺一不可"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "缺一不可"
+          ],
+          "sample": "缺一不可"
         }
       ]
     },
@@ -49688,6 +51799,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00079986",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "六十四",
+      "file": "public/dictionaries/wiktionary/l.json",
+      "matched_terms": [
+        "64"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "64"
+          ],
+          "sample": "sixty-four; 64"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00083935",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -49921,6 +52051,79 @@
             "輪大"
           ],
           "sample": "輪大米"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00096592",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "攬炒",
+      "file": "public/dictionaries/wiktionary/l.json",
+      "matched_terms": [
+        "攬炒"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "攬炒"
+        },
+        {
+          "field": "senses.1.examples.0.text",
+          "terms": [
+            "攬炒"
+          ],
+          "sample": "在「黑暴」和「攬炒」令「一國兩制」面臨脫軌危險之時，香港人心思安、渴望穩定，從國家層面建立健全香港特別行政區維護國家安全的法律制度和執行機制，為香港凝聚民心、繼續前行注入強大力量。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00098767",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "藍絲",
+      "file": "public/dictionaries/wiktionary/l.json",
+      "matched_terms": [
+        "藍絲"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "藍絲"
+          ],
+          "sample": "藍絲"
         }
       ]
     },
@@ -50170,6 +52373,53 @@
             "拉薩"
           ],
           "sample": "拉薩話"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00106985",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "流亡政府",
+      "file": "public/dictionaries/wiktionary/l.json",
+      "matched_terms": [
+        "流亡政府"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "流亡政府"
+        },
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "波蘭流亡政府"
+        },
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "流亡政府"
+          ],
+          "sample": "在納粹德國的鐵蹄之下，眾多歐洲國家被征服；而英吉利海峽對岸的英國則成為了流亡政府的根據地。"
         }
       ]
     },
@@ -51841,6 +54091,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00107269",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "孖葉",
+      "file": "public/dictionaries/wiktionary/m.json",
+      "matched_terms": [
+        "黃之鋒"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "黃之鋒"
+          ],
+          "sample": "網民紛紛恥笑，黃之鋒是扮被扣孖葉，以營造其「英雄」形象，但就「扮得好唔專業」，更證明他由衝擊到被捕，只不過是「扮（嘢）」。"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00108447",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -53446,6 +55715,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00117424",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "批鬥座",
+      "file": "public/dictionaries/wiktionary/p.json",
+      "matched_terms": [
+        "港獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "港獨"
+          ],
+          "sample": "關愛座變「批鬥座」的情況並非香港獨有。南韓曾出現長者腳踢關愛座上年輕男子、66歲老人攻擊關愛座上25歲女子而被捕等案例。"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00117882",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -54442,6 +56730,27 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00049697",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "訴求",
+      "file": "public/dictionaries/wiktionary/s.json",
+      "matched_terms": [
+        "五大訴求",
+        "缺一不可"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.1.examples.0.text",
+          "terms": [
+            "五大訴求",
+            "缺一不可"
+          ],
+          "sample": "五大訴求，缺一不可！"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00051523",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -54556,6 +56865,25 @@
             "笑貧不笑娼"
           ],
           "sample": "笑貧不笑娼"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00054285",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "史觀",
+      "file": "public/dictionaries/wiktionary/s.json",
+      "matched_terms": [
+        "臺獨"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "臺獨"
+          ],
+          "sample": "臺獨史觀"
         }
       ]
     },
@@ -56226,6 +58554,27 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00114111",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "順超",
+      "file": "public/dictionaries/wiktionary/s.json",
+      "matched_terms": [
+        "本土民主前線",
+        "梁天琦"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "本土民主前線",
+            "梁天琦"
+          ],
+          "sample": "「本土民主前線」發言人「獨琦」（梁天琦），被選舉主任裁定立法會選舉提名無效，竟指定由「青年新政」召集人梁頌恆出選「plan b」而唔益「熱普城」，「熱普城」支持者早已唔順超。"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00115112",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -56594,6 +58943,39 @@
             "免責條款"
           ],
           "sample": "免責條款"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00045802",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "臺獨",
+      "file": "public/dictionaries/wiktionary/t.json",
+      "matched_terms": [
+        "臺獨"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "臺獨"
+          ],
+          "sample": "臺獨"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "臺獨"
+          ],
+          "sample": "臺獨"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "臺獨"
+          ],
+          "sample": "臺獨"
         }
       ]
     },
@@ -57035,12 +59417,14 @@
       "headword": "臺毒",
       "file": "public/dictionaries/wiktionary/t.json",
       "matched_terms": [
-        "台独"
+        "台独",
+        "臺獨"
       ],
       "field_matches": [
         {
           "field": "senses.0.definition",
           "terms": [
+            "臺獨",
             "台独"
           ],
           "sample": "alternative form of 臺獨 /台独 (táidú, “taiwanese separatism or separatist”)"
@@ -57240,12 +59624,14 @@
       "headword": "鐵欄",
       "file": "public/dictionaries/wiktionary/t.json",
       "matched_terms": [
+        "反送中",
         "罷課"
       ],
       "field_matches": [
         {
           "field": "senses.0.examples.0.text",
           "terms": [
+            "反送中",
             "罷課"
           ],
           "sample": "反送中罷課癱瘓街頭！學生拆鐵欄擋警"
@@ -57317,6 +59703,39 @@
             "抗議"
           ],
           "sample": "國家語言發展會議，27台北舉辦第一場的「臺灣台語北區論壇」。早起佇咧會議進前，有濟濟客家鄉親到外口，抗議會議無客語、原住民-語專場，也批評教育部共臺灣閩南語、改做臺灣台語。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00120015",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "臺灣國語",
+      "file": "public/dictionaries/wiktionary/t.json",
+      "matched_terms": [
+        "臺灣國"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "臺灣國"
+          ],
+          "sample": "臺灣國語"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "臺灣國"
+          ],
+          "sample": "臺灣國語"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "臺灣國"
+          ],
+          "sample": "臺灣國語"
         }
       ]
     },
@@ -58480,6 +60899,27 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00109401",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "黃屍",
+      "file": "public/dictionaries/wiktionary/w.json",
+      "matched_terms": [
+        "黃絲",
+        "黄丝"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "黃絲",
+            "黄丝"
+          ],
+          "sample": "alternative form of 黃絲 /黄丝 (huángsī)"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00110170",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -58613,6 +61053,39 @@
             "春宵"
           ],
           "sample": "春宵苦短日高起，從此君王不早朝。"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00020366",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "種族滅絕",
+      "file": "public/dictionaries/wiktionary/z.json",
+      "matched_terms": [
+        "種族滅絕"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "種族滅絕"
+          ],
+          "sample": "種族滅絕"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "種族滅絕"
+          ],
+          "sample": "種族滅絕"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "種族滅絕"
+          ],
+          "sample": "種族滅絕"
         }
       ]
     },
@@ -59368,6 +61841,25 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00070146",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "中箭",
+      "file": "public/dictionaries/wiktionary/z.json",
+      "matched_terms": [
+        "demosisto"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "demosisto"
+          ],
+          "sample": "demosisto, or its member"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00076121",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -59543,6 +62035,7 @@
       "headword": "左膠",
       "file": "public/dictionaries/wiktionary/z.json",
       "matched_terms": [
+        "反修例",
         "洗腦",
         "示威",
         "遊行"
@@ -59558,6 +62051,7 @@
         {
           "field": "senses.0.examples.1.text",
           "terms": [
+            "反修例",
             "遊行",
             "示威"
           ],
@@ -59572,13 +62066,15 @@
       "headword": "再教育",
       "file": "public/dictionaries/wiktionary/z.json",
       "matched_terms": [
+        "再教育營",
         "新疆"
       ],
       "field_matches": [
         {
           "field": "senses.0.examples.1.text",
           "terms": [
-            "新疆"
+            "新疆",
+            "再教育營"
           ],
           "sample": "新疆再教育營"
         }
@@ -59859,15 +62355,36 @@
       "headword": "紫旗",
       "file": "public/dictionaries/wiktionary/z.json",
       "matched_terms": [
+        "liberate hong kong",
         "中共",
+        "光復香港",
+        "國安法",
+        "時代革命",
+        "港獨",
         "示威",
         "遊行"
       ],
       "field_matches": [
         {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "國安法"
+          ],
+          "sample": "涉港國安法通過後，香港警方昨日舉起新的警告紫旗，旗上共有70個字，與過往的簡練警告語不同。"
+        },
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "港獨",
+            "國安法"
+          ],
+          "sample": "另在山東街有人高叫「港獨」口號，警員一度舉起紫旗警告在場者涉嫌違反香港國安法。"
+        },
+        {
           "field": "senses.0.examples.2.text",
           "terms": [
             "中共",
+            "國安法",
             "示威",
             "遊行"
           ],
@@ -59876,9 +62393,19 @@
         {
           "field": "senses.0.examples.3.text",
           "terms": [
-            "示威"
+            "示威",
+            "光復香港",
+            "時代革命",
+            "國安法"
           ],
           "sample": "警方表示，下午約3時，記利佐治街附近有大批示威者聚集，部分人高叫「光復香港 時代革命」口號，涉嫌觸犯香港國安法下煽動或敎唆他人分裂國家等罪行，警方舉紫旗驅散，截停大批人士。"
+        },
+        {
+          "field": "senses.0.examples.3.translation",
+          "terms": [
+            "liberate hong kong"
+          ],
+          "sample": "the police said large amount of protesters gathered near great george street at approximately 3 pm. some chanted \"liberate hong kong, revolution of our times\", and may violate the "
         }
       ]
     },
@@ -60234,10 +62761,32 @@
       "headword": "支聯會",
       "file": "public/dictionaries/wiktionary/z.json",
       "matched_terms": [
+        "支聯會",
         "民主运动",
         "民主運動"
       ],
       "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "支聯會"
+          ],
+          "sample": "支聯會"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "支聯會"
+          ],
+          "sample": "支聯會"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "支聯會"
+          ],
+          "sample": "支聯會"
+        },
         {
           "field": "senses.0.definition",
           "terms": [

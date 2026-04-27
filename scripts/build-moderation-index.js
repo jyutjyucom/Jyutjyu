@@ -27,7 +27,12 @@ const VENDOR_VOCABULARY_DIR = join(VENDOR_DIR, "Vocabulary");
 const VENDOR_ORGANIZED_DIR = join(VENDOR_DIR, "Organized");
 const REPORT_DIR = join(MODERATION_DIR, "reports");
 const RUNTIME_DIR = join(ROOT_DIR, "server", "assets", "moderation");
+const PUBLIC_RUNTIME_DIR = join(ROOT_DIR, "public", "moderation");
 const RESTRICTED_IDS_PATH = join(RUNTIME_DIR, "cn-restricted-entry-ids.json");
+const PUBLIC_RESTRICTED_IDS_PATH = join(
+  PUBLIC_RUNTIME_DIR,
+  "cn-restricted-entry-ids.json",
+);
 const RESTRICTED_TERMS_PATH = join(RUNTIME_DIR, "cn-restricted-terms.json");
 const MATCH_REPORT_PATH = join(REPORT_DIR, "cn-matches.json");
 const SUMMARY_REPORT_PATH = join(REPORT_DIR, "cn-matches-summary.md");
@@ -540,6 +545,7 @@ const writeReports = ({
 }) => {
   mkdirSync(REPORT_DIR, { recursive: true });
   mkdirSync(RUNTIME_DIR, { recursive: true });
+  mkdirSync(PUBLIC_RUNTIME_DIR, { recursive: true });
 
   const generatedAt = new Date().toISOString();
   const entryIds = Array.from(
@@ -595,6 +601,10 @@ const writeReports = ({
   writeFileSync(MATCH_REPORT_PATH, `${JSON.stringify(matchReport, null, 2)}\n`);
   writeFileSync(
     RESTRICTED_IDS_PATH,
+    `${JSON.stringify(runtimeArtifact, null, 2)}\n`,
+  );
+  writeFileSync(
+    PUBLIC_RESTRICTED_IDS_PATH,
     `${JSON.stringify(runtimeArtifact, null, 2)}\n`,
   );
   writeFileSync(
@@ -668,6 +678,9 @@ const main = () => {
   console.log(`Report: ${relative(ROOT_DIR, MATCH_REPORT_PATH)}`);
   console.log(`Summary: ${relative(ROOT_DIR, SUMMARY_REPORT_PATH)}`);
   console.log(`Runtime artifact: ${relative(ROOT_DIR, RESTRICTED_IDS_PATH)}`);
+  console.log(
+    `Public runtime artifact: ${relative(ROOT_DIR, PUBLIC_RESTRICTED_IDS_PATH)}`,
+  );
   console.log(`Runtime terms: ${relative(ROOT_DIR, RESTRICTED_TERMS_PATH)}`);
 };
 
