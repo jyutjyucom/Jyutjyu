@@ -19,8 +19,8 @@ const simplifiedToTraditionalMap = traditionalVariantMapData as Record<
 >;
 
 const HAN_SCRIPT_PATTERN = /\p{Script=Han}/u;
-const MAX_AMBIGUOUS_VARIANTS = 16;
-const MAX_OPTIONS_PER_CHAR = 3;
+const MAX_AMBIGUOUS_VARIANTS = 32;
+const MAX_OPTIONS_PER_CHAR = 4;
 
 const trimEdgePunctuation = (value: string): string => {
   return value.replace(/^[\p{P}\p{S}\s]+|[\p{P}\p{S}\s]+$/gu, "").trim();

@@ -285,7 +285,7 @@ export const useSearch = () => {
       }
     }
 
-    if (!shouldTryApi || apiRequestFailed) {
+    if (!shouldTryApi || (apiRequestFailed && !preferApiByConfig)) {
       results = await jsonSearch.searchBasic(query, {
         ...options,
         onResults: wrappedOnResults,

@@ -309,13 +309,10 @@ import {
   getEntryPronunciationDisplayItems,
   joinPronunciationValues,
 } from "~/utils/pronunciation-display";
-import {
-  pickRicherSearchEntries,
-  SEARCH_API_FIRST_PAGE_LIMIT,
-  SEARCH_LOCAL_RESULT_LIMIT,
-  summarizeGroupedSearchCount,
+import type {
+  AggregatedSearchEntry,
+  GroupedSearchResponse,
 } from "~/utils/search-result-groups";
-import { isLikelyCrawlerUserAgent } from "~/utils/crawler-detection";
 
 interface WordResponse {
   success: boolean;
@@ -323,12 +320,6 @@ interface WordResponse {
   total: number;
   entries: DictionaryEntry[];
   error?: string;
-}
-
-interface AggregatedEntry {
-  key: string;
-  primary: DictionaryEntry;
-  entries: DictionaryEntry[];
 }
 
 interface SourceGroup {
@@ -354,19 +345,9 @@ const router = useRouter();
 const { t, locale } = useI18n();
 const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
-const apiDictionary = useDictionaryAPI();
-const jsonDictionary = useDictionary();
-const { getMode } = useSearch();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
-const serverUserAgent = process.server
-  ? useRequestHeaders(["user-agent"])["user-agent"] || ""
-  : "";
-const isCrawlerRequest = computed(() =>
-  isLikelyCrawlerUserAgent(
-    process.client ? navigator.userAgent : serverUserAgent,
-  ),
-);
+const requestFetch = process.server ? useRequestFetch() : $fetch;
 
 const normalizeComparable = (value: string) =>
   value.replace(/\s+/g, " ").trim().toLowerCase();
@@ -469,137 +450,64 @@ const getEntryJyutpingList = (entry: DictionaryEntry): string[] => {
   return result;
 };
 
-const getEntryJyutpingKey = (entry: DictionaryEntry): string => {
-  return joinPronunciationValues(getEntryJyutpingList(entry));
-};
+const fetchRelatedSearchData = () =>
+  useAsyncData<GroupedSearchResponse | null>(
+    () => `word-related-search:${searchHeadword.value}`,
+    async () => {
+      const query = searchHeadword.value.trim();
+      if (!query || !wordData.value) return null;
 
-const getAggregationKey = (entry: DictionaryEntry): string => {
-  const headwordDisplay = entry.headword.display?.trim() || "";
-  const headwordNormalized = entry.headword.normalized?.trim() || "";
-  const jyutpingKey = getEntryJyutpingKey(entry);
-  return [headwordDisplay, headwordNormalized, jyutpingKey].join("||");
-};
+      try {
+        return await requestFetch<GroupedSearchResponse>("/api/search", {
+          query: {
+            q: query,
+            limit: 12,
+            offset: 0,
+            mode: "normal",
+          },
+          timeout: 5000,
+        });
+      } catch (error) {
+        console.warn("Related search fetch failed:", error);
+        return null;
+      }
+    },
+    {
+      server: true,
+      lazy: process.client,
+      watch: [searchHeadword],
+    },
+  );
 
-const aggregateEntries = (entries: DictionaryEntry[]): AggregatedEntry[] => {
-  const keyInfo = new Map<string, DictionaryEntry[]>();
+const relatedSearchAsyncData = process.server
+  ? await fetchRelatedSearchData()
+  : fetchRelatedSearchData();
+const { data: relatedSearchData } = relatedSearchAsyncData;
 
-  for (const entry of entries) {
-    const key = getAggregationKey(entry);
-    const list = keyInfo.get(key) || [];
-    list.push(entry);
-    keyInfo.set(key, list);
-  }
+const relatedSearchResponse = computed(() => {
+  if (!relatedSearchData.value?.success) return null;
+  return relatedSearchData.value;
+});
 
-  const results: AggregatedEntry[] = [];
-  const seenKeys = new Set<string>();
+const backSearchResultCount = computed(() => {
+  const total = relatedSearchResponse.value?.total;
+  if (!total) return null;
+  return total.exact ? String(total.grouped) : `${total.grouped}+`;
+});
 
-  for (const entry of entries) {
-    const key = getAggregationKey(entry);
-    const grouped = keyInfo.get(key);
-    if (!grouped || grouped.length === 0 || seenKeys.has(key)) continue;
+const backSearchAggregated = computed<AggregatedSearchEntry[]>(
+  () => relatedSearchResponse.value?.groups || [],
+);
 
-    seenKeys.add(key);
-    const primary = grouped[0];
-    if (!primary) continue;
-
-    results.push({
-      key,
-      primary,
-      entries: grouped,
-    });
-  }
-
-  return results;
-};
-
-const backSearchResultCount = ref<string | null>(null);
-const backSearchAggregated = ref<AggregatedEntry[]>([]);
-const backSearchCountRequestId = ref(0);
 const searchBackLinkLabel = computed(() => {
-  if (isCrawlerRequest.value) {
+  if (!backSearchResultCount.value) {
     return t("common.searchHeader");
   }
 
   return t("common.searchResultsCount", {
-    count: backSearchResultCount.value ?? "...",
+    count: backSearchResultCount.value,
   });
 });
-
-const refreshBackSearchResultCount = async () => {
-  if (!process.client) return;
-
-  const requestId = ++backSearchCountRequestId.value;
-  backSearchResultCount.value = null;
-  backSearchAggregated.value = [];
-
-  const query = searchHeadword.value.trim();
-  if (!query) {
-    backSearchResultCount.value = null;
-    backSearchAggregated.value = [];
-    return;
-  }
-
-  try {
-    const loadJsonResults = () =>
-      jsonDictionary.searchBasic(query, {
-        limit: SEARCH_LOCAL_RESULT_LIMIT,
-        searchDefinition: false,
-      });
-    const retryJsonResultsIfEmpty = async (results: DictionaryEntry[]) => {
-      // 首次水合或缓存未就绪时，偶尔会先返回 0，补一次重试避免误显示
-      if (results.length > 0) return results;
-
-      await new Promise((resolve) => setTimeout(resolve, 150));
-      return loadJsonResults();
-    };
-
-    if (isCrawlerRequest.value) {
-      const results = await retryJsonResultsIfEmpty(await loadJsonResults());
-      if (requestId !== backSearchCountRequestId.value) return;
-
-      backSearchAggregated.value = aggregateEntries(results);
-      return;
-    }
-
-    const shouldRequestApi = getMode() !== "json";
-    const apiTask = shouldRequestApi
-      ? apiDictionary.searchBasicOrNull(query, {
-          limit: SEARCH_API_FIRST_PAGE_LIMIT,
-          mode: "normal",
-        })
-      : Promise.resolve<DictionaryEntry[] | null>(null);
-    const jsonTask = loadJsonResults();
-    const [apiResultsRaw, jsonResultsRaw] = await Promise.all([
-      apiTask,
-      jsonTask,
-    ]);
-
-    const results = await retryJsonResultsIfEmpty(jsonResultsRaw);
-
-    if (requestId !== backSearchCountRequestId.value) return;
-    const preferredResults = pickRicherSearchEntries(
-      apiResultsRaw || [],
-      results,
-    );
-    const isUsingLocalResultUniverse =
-      preferredResults.source === "candidate";
-    const selectedResults = preferredResults.entries;
-
-    backSearchAggregated.value = aggregateEntries(selectedResults);
-    backSearchResultCount.value = summarizeGroupedSearchCount(selectedResults, {
-      ceiling: isUsingLocalResultUniverse
-        ? SEARCH_LOCAL_RESULT_LIMIT
-        : SEARCH_API_FIRST_PAGE_LIMIT,
-      isOverflow:
-        isUsingLocalResultUniverse &&
-        results.length >= SEARCH_LOCAL_RESULT_LIMIT,
-    }).label;
-  } catch {
-    if (requestId !== backSearchCountRequestId.value) return;
-    backSearchResultCount.value = null;
-    backSearchAggregated.value = [];
-  }
-};
 
 const relatedWords = computed(() => {
   const currentHeadword = normalizeComparable(
@@ -916,14 +824,6 @@ const handleSearch = () => {
 watch(requestedHeadword, (headword) => {
   searchQuery.value = headword;
 });
-
-watch(
-  searchHeadword,
-  () => {
-    void refreshBackSearchResultCount();
-  },
-  { immediate: true },
-);
 
 watch(
   pronunciationGroups,

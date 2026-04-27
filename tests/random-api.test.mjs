@@ -13,7 +13,7 @@ test.afterEach(() => {
   process.env.NODE_ENV = originalNodeEnv;
 });
 
-test("production Worker random queries use the fast Mongo timeout budget", async () => {
+test("production Worker random queries use the paid-plan Mongo timeout budget", async () => {
   process.env.NODE_ENV = "production";
 
   let observedTimeoutMs = 0;

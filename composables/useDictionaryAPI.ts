@@ -4,26 +4,32 @@
  */
 
 import type { DictionaryEntry } from "~/types/dictionary";
+import type { EntryType } from "~/types/dictionary";
+import type {
+  GroupedSearchResponse,
+  SearchSortOption,
+} from "~/utils/search-result-groups";
 
 export interface APISearchOptions {
   /** 返回结果数量限制 */
   limit?: number;
+  /** 分组结果分页偏移量 */
+  offset?: number;
   /** 词典 ID 筛选 */
   dict?: string;
+  /** 方言点筛选 */
+  dialect?: string;
+  /** 词条类型筛选 */
+  type?: EntryType;
+  /** 排序方式 */
+  sort?: SearchSortOption;
   /** 搜索模式: normal(正常) | reverse(反查释义) */
   mode?: "normal" | "reverse";
   /** 流式结果回调 */
   onResults?: (entries: DictionaryEntry[], isComplete: boolean) => void;
 }
 
-interface SearchResponse {
-  success: boolean;
-  query?: string;
-  mode?: string;
-  total: number;
-  results: DictionaryEntry[];
-  error?: string;
-}
+type SearchResponse = GroupedSearchResponse;
 
 interface DictionariesResponse {
   success: boolean;
@@ -51,7 +57,7 @@ interface SuggestionResponse {
 }
 
 const API_PING_TIMEOUT_MS = 1200;
-const API_SEARCH_TIMEOUT_MS = 4200;
+const API_SEARCH_TIMEOUT_MS = 13000;
 const API_SUGGEST_TIMEOUT_MS = 1500;
 
 /**
@@ -91,10 +97,40 @@ export const useDictionaryAPI = () => {
     query: string,
     options: APISearchOptions = {},
   ): Promise<DictionaryEntry[] | null> => {
-    const { limit = 50, dict, mode = "normal", onResults } = options;
-
     if (!query || query.trim() === "") {
       return [];
+    }
+
+    const response = await searchDetailedOrNull(query, options);
+    if (!response) {
+      return null;
+    }
+
+    const results = response.results || [];
+
+    if (options.onResults) {
+      options.onResults(results, true);
+    }
+
+    return results;
+  };
+
+  const searchDetailedOrNull = async (
+    query: string,
+    options: APISearchOptions = {},
+  ): Promise<SearchResponse | null> => {
+    const {
+      limit = 100,
+      offset = 0,
+      dict,
+      dialect,
+      type,
+      sort = "relevance",
+      mode = "normal",
+    } = options;
+
+    if (!query || query.trim() === "") {
+      return null;
     }
 
     try {
@@ -102,11 +138,19 @@ export const useDictionaryAPI = () => {
       const params = new URLSearchParams({
         q: query.trim(),
         limit: String(limit),
+        offset: String(offset),
         mode,
+        sort,
       });
 
       if (dict) {
         params.set("dict", dict);
+      }
+      if (dialect) {
+        params.set("dialect", dialect);
+      }
+      if (type) {
+        params.set("type", type);
       }
 
       const response = await $fetch<SearchResponse>(`/api/search?${params}`, {
@@ -118,14 +162,7 @@ export const useDictionaryAPI = () => {
         return null;
       }
 
-      const results = response.results || [];
-
-      // 调用结果回调
-      if (onResults) {
-        onResults(results, true);
-      }
-
-      return results;
+      return response;
     } catch (error) {
       console.error("API 請求失敗:", error);
       return null;
@@ -286,6 +323,7 @@ export const useDictionaryAPI = () => {
     ping,
     search,
     searchOrNull,
+    searchDetailedOrNull,
     searchBasic,
     searchBasicOrNull,
     getSuggestions,

@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  fallbackGroupedSearch,
   fallbackSearch,
+  normalizeSearchResultOffset,
   normalizeSearchResultLimit,
   resetSearchApiRuntimeStateForTests,
   shouldFailFastAfterAtlasDegrade,
@@ -11,9 +13,15 @@ import {
 import { ensureInitialized } from "../server/utils/opencc.ts";
 
 const originalNodeEnv = process.env.NODE_ENV;
+const originalSearchFailFast = process.env.SEARCH_FAIL_FAST_ON_ATLAS_DEGRADE;
 
 test.afterEach(() => {
   process.env.NODE_ENV = originalNodeEnv;
+  if (originalSearchFailFast === undefined) {
+    delete process.env.SEARCH_FAIL_FAST_ON_ATLAS_DEGRADE;
+  } else {
+    process.env.SEARCH_FAIL_FAST_ON_ATLAS_DEGRADE = originalSearchFailFast;
+  }
 });
 
 const flattenValues = (value) => {
@@ -274,15 +282,30 @@ test("reverse fallback keeps exact definition hits ahead of contains hits", asyn
   );
 });
 
-test("search result limit is clamped to 100", () => {
-  assert.equal(normalizeSearchResultLimit("500"), 100);
-  assert.equal(normalizeSearchResultLimit("100"), 100);
+test("search result limit is clamped to 200", () => {
+  assert.equal(normalizeSearchResultLimit("500"), 200);
+  assert.equal(normalizeSearchResultLimit("200"), 200);
   assert.equal(normalizeSearchResultLimit("0"), 1);
-  assert.equal(normalizeSearchResultLimit(undefined), 50);
+  assert.equal(normalizeSearchResultLimit(undefined), 100);
 });
 
-test("workers production request fails fast instead of running fallback search", () => {
+test("search result offset is clamped to a non-negative grouped offset", () => {
+  assert.equal(normalizeSearchResultOffset("500"), 500);
+  assert.equal(normalizeSearchResultOffset("-10"), 0);
+  assert.equal(normalizeSearchResultOffset(undefined), 0);
+});
+
+test("workers production request only fails fast behind the emergency env flag", () => {
   process.env.NODE_ENV = "production";
+
+  assert.equal(
+    shouldFailFastAfterAtlasDegrade({
+      context: { cloudflare: { env: {} } },
+    }),
+    false,
+  );
+
+  process.env.SEARCH_FAIL_FAST_ON_ATLAS_DEGRADE = "true";
 
   assert.equal(
     shouldFailFastAfterAtlasDegrade({
@@ -291,4 +314,123 @@ test("workers production request fails fast instead of running fallback search",
     true,
   );
   assert.equal(shouldFailFastAfterAtlasDegrade({ context: {} }), false);
+});
+
+test("grouped fallback search returns grouped pagination metadata and facets", async () => {
+  resetSearchApiRuntimeStateForTests();
+  await ensureInitialized();
+
+  const entries = [
+    {
+      id: "a",
+      headword: { display: "我哋", normalized: "我哋" },
+      phonetic: { jyutping: ["ngo5 dei6"] },
+      keywords: [],
+      senses: [{ definition: "we" }],
+      source_book: "詞典A",
+      dialect: { region_code: "HK" },
+      entry_type: "word",
+    },
+    {
+      id: "b",
+      headword: { display: "我哋", normalized: "我哋" },
+      phonetic: { jyutping: ["ngo5 dei6"] },
+      keywords: [],
+      senses: [{ definition: "we" }],
+      source_book: "詞典B",
+      dialect: { region_code: "HK" },
+      entry_type: "word",
+    },
+    {
+      id: "c",
+      headword: { display: "你哋", normalized: "你哋" },
+      phonetic: { jyutping: ["nei5 dei6"] },
+      keywords: [],
+      senses: [{ definition: "you plural" }],
+      source_book: "詞典A",
+      dialect: { region_code: "GZ" },
+      entry_type: "word",
+    },
+  ];
+
+  const response = await fallbackGroupedSearch(
+    createMockCollection(entries),
+    "哋",
+    {
+      limit: 1,
+      offset: 0,
+      mode: "normal",
+    },
+  );
+
+  assert.equal(response.success, true);
+  assert.equal(response.groups.length, 1);
+  assert.equal(response.total.grouped, 2);
+  assert.equal(response.total.entries, 3);
+  assert.equal(response.page.hasMore, true);
+  assert.equal(response.page.nextOffset, 1);
+  assert.deepEqual(response.facets.dialects, [
+    { value: "GZ", count: 1 },
+    { value: "HK", count: 1 },
+  ]);
+});
+
+test("grouped fallback search applies filters and non-relevance sorting", async () => {
+  resetSearchApiRuntimeStateForTests();
+  await ensureInitialized();
+
+  const entries = [
+    {
+      id: "b",
+      headword: { display: "banana哋", normalized: "banana哋" },
+      phonetic: { jyutping: ["jyut6 dei6"] },
+      keywords: [],
+      senses: [{ definition: "second" }],
+      source_book: "詞典A",
+      dialect: { region_code: "HK" },
+      entry_type: "word",
+    },
+    {
+      id: "a",
+      headword: { display: "apple哋", normalized: "apple哋" },
+      phonetic: { jyutping: ["gaap3 dei6"] },
+      keywords: [],
+      senses: [{ definition: "first" }],
+      source_book: "詞典A",
+      dialect: { region_code: "HK" },
+      entry_type: "word",
+    },
+    {
+      id: "c",
+      headword: { display: "cherry哋", normalized: "cherry哋" },
+      phonetic: { jyutping: ["bing2 dei6"] },
+      keywords: [],
+      senses: [{ definition: "filtered" }],
+      source_book: "詞典A",
+      dialect: { region_code: "GZ" },
+      entry_type: "phrase",
+    },
+  ];
+
+  const response = await fallbackGroupedSearch(
+    createMockCollection(entries),
+    "哋",
+    {
+      limit: 10,
+      offset: 0,
+      mode: "normal",
+      sort: "headword",
+      filters: {
+        dialect: "HK",
+        type: "word",
+      },
+    },
+  );
+
+  assert.deepEqual(
+    response.groups.map((group) => group.primary.id),
+    ["a", "b"],
+  );
+  assert.equal(response.total.grouped, 2);
+  assert.deepEqual(response.facets.types, [{ value: "word", count: 2 }]);
 });

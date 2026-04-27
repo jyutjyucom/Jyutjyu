@@ -31,8 +31,8 @@
             :selected-dict="selectedDict"
             :selected-dialect="selectedDialect"
             :selected-type="selectedType"
-            :disabled="!exactResultsReady"
-            :loading="!exactResultsReady"
+            :disabled="loading || loadingMore"
+            :loading="loading || loadingMore"
             :show-dict-dropdown="showDictDropdown"
             :show-dialect-dropdown="showDialectDropdown"
             :show-type-dropdown="showTypeDropdown"
@@ -54,7 +54,7 @@
           <div class="flex flex-wrap items-center gap-3">
             <SearchSortSelect
               :sort-by="sortBy"
-              :disabled="!exactResultsReady"
+              :disabled="loading || loadingMore"
               :show-sort-dropdown="showSortDropdown"
               :get-sort-label="getSortLabel"
               @toggle-sort="showSortDropdown = !showSortDropdown"
@@ -81,8 +81,8 @@
                 :selected-dict="selectedDict"
                 :selected-dialect="selectedDialect"
                 :selected-type="selectedType"
-                :disabled="!exactResultsReady"
-                :loading="!exactResultsReady"
+                :disabled="loading || loadingMore"
+                :loading="loading || loadingMore"
                 :show-dict-dropdown="showDictDropdown"
                 :show-dialect-dropdown="showDialectDropdown"
                 :show-type-dropdown="showTypeDropdown"
@@ -104,7 +104,7 @@
               <div class="flex items-center gap-3 ml-auto shrink-0">
                 <SearchSortSelect
                   :sort-by="sortBy"
-                  :disabled="!exactResultsReady"
+                  :disabled="loading || loadingMore"
                   :show-sort-dropdown="showSortDropdown"
                   :get-sort-label="getSortLabel"
                   dropdown-align="right"
@@ -384,12 +384,16 @@ import type { DictionaryEntry } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
 import {
   aggregateSearchEntries,
-  pickRicherSearchEntries,
-  SEARCH_API_FIRST_PAGE_LIMIT,
+  countSearchGroupFacets,
+  createEmptySearchFacetCounts,
+  flattenSearchGroups,
   SEARCH_LOCAL_RESULT_LIMIT,
   SEARCH_PAGE_SIZE,
-  summarizeGroupedSearchCount,
   type AggregatedSearchEntry,
+  type GroupedSearchResponse,
+  type SearchFacetCounts,
+  type SearchSortOption,
+  type SearchTotalMeta,
 } from "~/utils/search-result-groups";
 import { isJyutpingQuery } from "~/utils/query-classify";
 import { isSearchResultsViewQuery } from "~/utils/route-paths";
@@ -401,7 +405,7 @@ const apiSearch = useDictionaryAPI();
 const jsonSearch = useDictionary();
 const { getSuggestions, getMode } = useSearch();
 const { navigateFromSearchInput } = useSearchNavigation();
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const { getAllVariants, ensureInitialized } = useChineseConverter();
 const warmContentFonts = useWarmContentFonts();
 const { searchPath, wordPath } = useAppRoutes();
@@ -414,8 +418,8 @@ if (process.dev) {
 // 状态
 const searchQuery = ref((route.query.q as string) || ""); // 输入框中的查询词
 const actualSearchQuery = ref((route.query.q as string) || ""); // 实际已搜索的查询词
-const apiFirstPageResults = ref<DictionaryEntry[]>([]);
-const exactResults = ref<DictionaryEntry[]>([]);
+const searchGroups = ref<AggregatedSearchEntry[]>([]);
+const jsonResultGroups = ref<AggregatedSearchEntry[]>([]);
 const displayedResults = ref<AggregatedSearchEntry[]>([]);
 const loading = ref(false);
 const loadingMore = ref(false);
@@ -423,31 +427,24 @@ const suggestions = ref<string[]>([]);
 const showSuggestions = ref(false);
 const redirectingToExactMatch = ref(false);
 const exactResultsReady = ref(false);
-const exactResultsLoading = ref(false);
-const exactResultsOverflow = ref(false);
+const searchTotal = ref<SearchTotalMeta>({
+  grouped: 0,
+  entries: 0,
+  exact: true,
+});
+const searchFacets = ref<SearchFacetCounts>(createEmptySearchFacetCounts());
+const nextSearchOffset = ref<number | null>(null);
 // 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
 const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
 const enableReverseSearch = ref(route.query.reverse === "1"); // 从 URL 读取反查状态
 const isSearchComplete = ref(true); // 搜索是否完成（流式搜索中用）
-const preferredResultsSelection = computed(() => {
-  if (!exactResultsReady.value) {
-    return {
-      entries: apiFirstPageResults.value,
-      source: "primary" as const,
-    };
-  }
-
-  return pickRicherSearchEntries(apiFirstPageResults.value, exactResults.value);
-});
-const allResults = computed(() => preferredResultsSelection.value.entries);
+const allResults = computed(() => flattenSearchGroups(searchGroups.value));
 
 // 筛选相关状态
 const selectedDict = ref<string | null>(null); // 选中的词典
 const selectedDialect = ref<string | null>(null); // 选中的方言点
 const selectedType = ref<string | null>(null); // 选中的类型 (character|word|phrase)
-const sortBy = ref<"relevance" | "jyutping" | "headword" | "dictionary">(
-  "relevance",
-); // 排序方式
+const sortBy = ref<SearchSortOption>("relevance"); // 排序方式
 const showDictDropdown = ref(false); // 词典下拉菜单显示状态
 const showDialectDropdown = ref(false); // 方言下拉菜单显示状态
 const showTypeDropdown = ref(false); // 类型下拉菜单显示状态
@@ -506,37 +503,31 @@ const exampleSearches = ["我哋", "你哋", "佢", "dei6", "ngo5 dei6"];
 
 // 筛选函数
 const selectDict = (dict: string | null) => {
-  if (!exactResultsReady.value) return;
   selectedDict.value = dict;
   showDictDropdown.value = false;
   currentPage.value = 1;
-  updateDisplayedResults();
+  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const selectDialect = (dialect: string | null) => {
-  if (!exactResultsReady.value) return;
   selectedDialect.value = dialect;
   showDialectDropdown.value = false;
   currentPage.value = 1;
-  updateDisplayedResults();
+  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const selectType = (type: string | null) => {
-  if (!exactResultsReady.value) return;
   selectedType.value = type;
   showTypeDropdown.value = false;
   currentPage.value = 1;
-  updateDisplayedResults();
+  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
-const selectSort = (
-  sort: "relevance" | "jyutping" | "headword" | "dictionary",
-) => {
-  if (!exactResultsReady.value) return;
+const selectSort = (sort: SearchSortOption) => {
   sortBy.value = sort;
   showSortDropdown.value = false;
   currentPage.value = 1;
-  updateDisplayedResults();
+  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const getGroupSources = (group: AggregatedSearchEntry): string[] => {
@@ -577,22 +568,16 @@ const updateDisplayedResults = () => {
 
 // 计算属性：从搜索结果中提取可用的词典和方言点
 const availableDicts = computed(() => {
-  const dicts = new Set<string>();
-  allResults.value.forEach((entry) => {
-    if (entry.source_book) dicts.add(entry.source_book);
-  });
-  return Array.from(dicts).sort();
+  return searchFacets.value.dictionaries.map((bucket) => bucket.value);
 });
 
 const availableDialects = computed(() => {
-  const dialects = new Set<string>();
-  allResults.value.forEach((entry) => {
-    const code = entry.dialect?.region_code?.toUpperCase();
-    if (code) dialects.add(code);
-  });
+  const dialects = searchFacets.value.dialects.map((bucket) =>
+    bucket.value.toUpperCase(),
+  );
   // 优先固定顺序，剩余按字母排序
   const preferredOrder = ["YUE", "HK", "GZ"];
-  return Array.from(dialects).sort((a, b) => {
+  return Array.from(new Set(dialects)).sort((a, b) => {
     const ai = preferredOrder.indexOf(a);
     const bi = preferredOrder.indexOf(b);
     if (ai !== -1 || bi !== -1) {
@@ -612,11 +597,8 @@ const getDialectLabel = (code: string) => {
 };
 
 const availableTypes = computed(() => {
-  const types = new Set<string>();
-  allResults.value.forEach((entry) => {
-    if (entry.entry_type) types.add(entry.entry_type);
-  });
-  return Array.from(types).sort((a, b) => {
+  const types = searchFacets.value.types.map((bucket) => bucket.value);
+  return Array.from(new Set(types)).sort((a, b) => {
     // 排序: 字, 词, 短语
     const order = { character: 1, word: 2, phrase: 3 } as Record<
       string,
@@ -654,62 +636,8 @@ const getSortLabel = (sort: string) => {
   }
 };
 
-// 筛选后的原始结果（未聚合）
-const filteredEntries = computed(() => {
-  if (!exactResultsReady.value) {
-    return allResults.value;
-  }
-
-  let results = allResults.value;
-  if (selectedDict.value) {
-    results = results.filter((e) => e.source_book === selectedDict.value);
-  }
-  if (selectedDialect.value) {
-    results = results.filter(
-      (e) => e.dialect?.region_code?.toUpperCase() === selectedDialect.value,
-    );
-  }
-  if (selectedType.value) {
-    results = results.filter((e) => e.entry_type === selectedType.value);
-  }
-  return results;
-});
-
-// 排序后的原始结果
-const sortedEntries = computed(() => {
-  const results = [...filteredEntries.value];
-
-  if (!exactResultsReady.value || sortBy.value === "relevance") {
-    return results;
-  }
-
-  return results.sort((a, b) => {
-    switch (sortBy.value) {
-      case "jyutping": {
-        const ja = a.phonetic.jyutping[0] || "";
-        const jb = b.phonetic.jyutping[0] || "";
-        return ja.localeCompare(jb);
-      }
-      case "headword": {
-        const ha = a.headword.normalized || a.headword.display || "";
-        const hb = b.headword.normalized || b.headword.display || "";
-        return ha.localeCompare(hb, locale.value || undefined);
-      }
-      case "dictionary": {
-        const da = a.source_book || "";
-        const db = b.source_book || "";
-        return da.localeCompare(db, locale.value || undefined);
-      }
-      default:
-        return 0;
-    }
-  });
-});
-
-// 聚合后的结果（用于展示）
-const aggregatedResults = computed(() =>
-  aggregateSearchEntries(sortedEntries.value),
-);
+// API 已返回分组和排序后的结果；JSON 应急模式也会预先聚合。
+const aggregatedResults = computed(() => searchGroups.value);
 
 const resultsHeaderLabel = computed(() => {
   const label = enableReverseSearch.value
@@ -825,31 +753,11 @@ const otherResultsDictionaryCount = computed(() => {
 const displayedGroupedResults = computed(() => {
   const { exactMatches, otherResults } = groupedResults.value;
 
-  // 先显示所有完全匹配的结果
-  const allExactDisplayed = exactMatches;
-
-  // 计算当前页应该显示的其他结果数量
-  const targetDisplayCount = currentPage.value * PAGE_SIZE;
-
-  // 如果完全匹配的结果已经超过当前页限制，只显示部分完全匹配
-  if (allExactDisplayed.length >= targetDisplayCount) {
-    return {
-      exactMatches: allExactDisplayed.slice(0, targetDisplayCount),
-      otherResults: [] as AggregatedSearchEntry[],
-      hasMoreExact: allExactDisplayed.length > targetDisplayCount,
-      hasMoreOther: otherResults.length > 0,
-    };
-  }
-
-  // 否则显示所有完全匹配，再加上部分其他结果
-  const remainingSlots = targetDisplayCount - allExactDisplayed.length;
-  const otherDisplayed = otherResults.slice(0, remainingSlots);
-
   return {
-    exactMatches: allExactDisplayed,
-    otherResults: otherDisplayed,
+    exactMatches,
+    otherResults,
     hasMoreExact: false,
-    hasMoreOther: otherResults.length > otherDisplayed.length,
+    hasMoreOther: nextSearchOffset.value !== null,
   };
 });
 
@@ -873,66 +781,35 @@ watch(
 
 // 计算各筛选项的数量
 const getDictCount = (dict: string): number => {
-  let results = allResults.value;
-  if (selectedDialect.value) {
-    results = results.filter(
-      (e) => e.dialect?.region_code?.toUpperCase() === selectedDialect.value,
-    );
-  }
-  return results.filter((e) => e.source_book === dict).length;
+  return (
+    searchFacets.value.dictionaries.find((bucket) => bucket.value === dict)
+      ?.count || 0
+  );
 };
 
 const getDialectCount = (dialect: string): number => {
-  let results = allResults.value;
-  if (selectedDict.value) {
-    results = results.filter((e) => e.source_book === selectedDict.value);
-  }
-  if (selectedType.value) {
-    results = results.filter((e) => e.entry_type === selectedType.value);
-  }
   const code = dialect?.toUpperCase();
-  return results.filter((e) => e.dialect?.region_code?.toUpperCase() === code)
-    .length;
+  return (
+    searchFacets.value.dialects.find(
+      (bucket) => bucket.value.toUpperCase() === code,
+    )?.count || 0
+  );
 };
 
 const getTypeCount = (type: string): number => {
-  let results = allResults.value;
-  if (selectedDict.value) {
-    results = results.filter((e) => e.source_book === selectedDict.value);
-  }
-  if (selectedDialect.value) {
-    results = results.filter(
-      (e) => e.dialect?.region_code?.toUpperCase() === selectedDialect.value,
-    );
-  }
-  return results.filter((e) => e.entry_type === type).length;
+  return (
+    searchFacets.value.types.find((bucket) => bucket.value === type)?.count || 0
+  );
 };
 
 // 基于筛选结果的分页
 const hasMore = computed(() => {
-  if (!exactResultsReady.value) {
-    return false;
-  }
-
-  const totalDisplayed =
-    displayedGroupedResults.value.exactMatches.length +
-    displayedGroupedResults.value.otherResults.length;
-  return totalDisplayed < aggregatedResults.value.length;
+  return nextSearchOffset.value !== null;
 });
 const totalCountLabel = computed(() => {
-  if (exactResultsLoading.value && !exactResultsReady.value) {
-    return "...";
-  }
-
-  const isUsingLocalResultUniverse =
-    preferredResultsSelection.value.source === "candidate";
-
-  return summarizeGroupedSearchCount(allResults.value, {
-    ceiling: isUsingLocalResultUniverse
-      ? SEARCH_LOCAL_RESULT_LIMIT
-      : SEARCH_API_FIRST_PAGE_LIMIT,
-    isOverflow: isUsingLocalResultUniverse && exactResultsOverflow.value,
-  }).label;
+  return searchTotal.value.exact
+    ? String(searchTotal.value.grouped)
+    : `${searchTotal.value.grouped}+`;
 });
 
 const getExactRedirectHeadword = (
@@ -999,20 +876,77 @@ const redirectToExactMatchIfNeeded = async (
   }
 };
 
+interface PerformSearchOptions {
+  resetFilters?: boolean;
+}
+
+const resetSearchState = () => {
+  searchGroups.value = [];
+  jsonResultGroups.value = [];
+  displayedResults.value = [];
+  searchFacets.value = createEmptySearchFacetCounts();
+  searchTotal.value = {
+    grouped: 0,
+    entries: 0,
+    exact: true,
+  };
+  nextSearchOffset.value = null;
+  exactResultsReady.value = false;
+};
+
+const applySearchResponse = (
+  response: GroupedSearchResponse,
+  { append = false }: { append?: boolean } = {},
+) => {
+  searchGroups.value = append
+    ? [...searchGroups.value, ...response.groups]
+    : response.groups;
+  searchTotal.value = response.total;
+  searchFacets.value = response.facets;
+  nextSearchOffset.value = response.page.nextOffset;
+  exactResultsReady.value = true;
+  isSearchComplete.value = true;
+  updateDisplayedResults();
+};
+
+const performJsonEmergencySearch = async (query: string, requestId: number) => {
+  const results = await jsonSearch.searchBasic(query, {
+    limit: SEARCH_LOCAL_RESULT_LIMIT,
+    searchDefinition: enableReverseSearch.value,
+  });
+  if (requestId !== activeSearchRequestId) return;
+
+  jsonResultGroups.value = aggregateSearchEntries(results);
+  const pageGroups = jsonResultGroups.value.slice(0, PAGE_SIZE);
+  searchGroups.value = pageGroups;
+  searchTotal.value = {
+    grouped: jsonResultGroups.value.length,
+    entries: results.length,
+    exact: results.length < SEARCH_LOCAL_RESULT_LIMIT,
+  };
+  searchFacets.value = countSearchGroupFacets(jsonResultGroups.value);
+  nextSearchOffset.value =
+    jsonResultGroups.value.length > pageGroups.length ? pageGroups.length : null;
+  exactResultsReady.value = true;
+  isSearchComplete.value = true;
+  updateDisplayedResults();
+
+  await redirectToExactMatchIfNeeded(results, query);
+};
+
 // 执行搜索
-const performSearch = async (query: string) => {
+const performSearch = async (
+  query: string,
+  options: PerformSearchOptions = {},
+) => {
   const requestId = ++activeSearchRequestId;
+  const { resetFilters = true } = options;
 
   if (!query || query.trim() === "") {
-    apiFirstPageResults.value = [];
-    exactResults.value = [];
-    displayedResults.value = [];
+    resetSearchState();
     actualSearchQuery.value = "";
     currentPage.value = 1;
     isSearchComplete.value = true;
-    exactResultsReady.value = false;
-    exactResultsLoading.value = false;
-    exactResultsOverflow.value = false;
     loading.value = false;
     return;
   }
@@ -1021,21 +955,19 @@ const performSearch = async (query: string) => {
   loading.value = true;
   warmContentFonts();
   isSearchComplete.value = false;
-  apiFirstPageResults.value = [];
-  exactResults.value = [];
-  displayedResults.value = [];
+  resetSearchState();
   currentPage.value = 1;
-  exactResultsReady.value = false;
-  exactResultsLoading.value = true;
-  exactResultsOverflow.value = false;
 
   // 更新实际搜索的查询词
   actualSearchQuery.value = query.trim();
 
   // 重置筛选状态
-  selectedDict.value = null;
-  selectedDialect.value = null;
-  selectedType.value = null;
+  if (resetFilters) {
+    selectedDict.value = null;
+    selectedDialect.value = null;
+    selectedType.value = null;
+    sortBy.value = "relevance";
+  }
   showDictDropdown.value = false;
   showDialectDropdown.value = false;
   showTypeDropdown.value = false;
@@ -1043,107 +975,38 @@ const performSearch = async (query: string) => {
 
   try {
     const normalizedQuery = query.trim();
-    const shouldRequestApiFirstPage = getMode() !== "json";
-    let apiFailed = !shouldRequestApiFirstPage;
-    let apiSettled = !shouldRequestApiFirstPage;
+    if (getMode() === "json") {
+      await performJsonEmergencySearch(normalizedQuery, requestId);
+      return;
+    }
 
-    const apiTask = shouldRequestApiFirstPage
-      ? apiSearch.searchBasicOrNull(normalizedQuery, {
-          limit: SEARCH_API_FIRST_PAGE_LIMIT,
-          mode: enableReverseSearch.value ? "reverse" : "normal",
-        })
-      : Promise.resolve<DictionaryEntry[] | null>(null);
-
-    const jsonTask = jsonSearch.searchBasic(normalizedQuery, {
-      limit: SEARCH_LOCAL_RESULT_LIMIT,
-      searchDefinition: enableReverseSearch.value,
+    const response = await apiSearch.searchDetailedOrNull(normalizedQuery, {
+      limit: PAGE_SIZE,
+      offset: 0,
+      mode: enableReverseSearch.value ? "reverse" : "normal",
+      dict: selectedDict.value || undefined,
+      dialect: selectedDialect.value || undefined,
+      type: selectedType.value || undefined,
+      sort: sortBy.value,
     });
 
-    const apiPromise = (async () => {
-      const apiResults = await apiTask;
-      if (requestId !== activeSearchRequestId) {
-        return apiResults;
-      }
+    if (requestId !== activeSearchRequestId) {
+      return;
+    }
 
-      apiSettled = true;
-      apiFailed = apiResults === null;
-
-      if (apiResults !== null) {
-        apiFirstPageResults.value = apiResults;
-        if (
-          loading.value &&
-          (apiResults.length > 0 || exactResultsReady.value)
-        ) {
-          loading.value = false;
-        }
-
-        if (await redirectToExactMatchIfNeeded(apiResults, normalizedQuery)) {
-          return apiResults;
-        }
-      } else if (exactResultsReady.value) {
-        loading.value = false;
-      }
-
-      return apiResults;
-    })();
-
-    const jsonPromise = (async () => {
-      let results = await jsonTask;
-      if (requestId !== activeSearchRequestId) {
-        return results;
-      }
-
-      // Static assets can occasionally race first hydration; avoid briefly
-      // collapsing an API timeout into a false "no results" state.
-      if (results.length === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 150));
-        results = await jsonSearch.searchBasic(normalizedQuery, {
-          limit: SEARCH_LOCAL_RESULT_LIMIT,
-          searchDefinition: enableReverseSearch.value,
-        });
-        if (requestId !== activeSearchRequestId) {
-          return results;
-        }
-      }
-
-      exactResults.value = results;
-      exactResultsOverflow.value = results.length >= SEARCH_LOCAL_RESULT_LIMIT;
-      exactResultsReady.value = true;
-      exactResultsLoading.value = false;
+    if (!response) {
+      resetSearchState();
       isSearchComplete.value = true;
+      return;
+    }
 
-      if (
-        !shouldRequestApiFirstPage ||
-        apiFailed ||
-        (apiSettled && apiFirstPageResults.value.length === 0)
-      ) {
-        loading.value = false;
-      }
-
-      const shouldTryJsonExactRedirect =
-        !shouldRequestApiFirstPage ||
-        apiFailed ||
-        !getExactRedirectHeadword(apiFirstPageResults.value, normalizedQuery);
-
-      if (
-        shouldTryJsonExactRedirect &&
-        (await redirectToExactMatchIfNeeded(results, normalizedQuery))
-      ) {
-        return results;
-      }
-
-      return results;
-    })();
-
-    await Promise.all([apiPromise, jsonPromise]);
+    applySearchResponse(response);
+    await redirectToExactMatchIfNeeded(response.results, normalizedQuery);
   } catch (error) {
     console.error("搜尋失敗:", error);
-    apiFirstPageResults.value = [];
-    exactResults.value = [];
-    displayedResults.value = [];
+    resetSearchState();
   } finally {
     if (requestId === activeSearchRequestId) {
-      exactResultsLoading.value = false;
       isSearchComplete.value = true;
       loading.value = false;
     }
@@ -1151,18 +1014,51 @@ const performSearch = async (query: string) => {
 };
 
 // 加载更多结果
-const loadMore = () => {
+const loadMore = async () => {
   if (!hasMore.value || loadingMore.value) {
     return;
   }
 
   loadingMore.value = true;
 
-  setTimeout(() => {
-    currentPage.value++;
-    updateDisplayedResults();
+  try {
+    const offset = nextSearchOffset.value;
+    if (offset === null) {
+      return;
+    }
+
+    if (getMode() === "json") {
+      const nextGroups = jsonResultGroups.value.slice(offset, offset + PAGE_SIZE);
+      searchGroups.value = [...searchGroups.value, ...nextGroups];
+      nextSearchOffset.value =
+        jsonResultGroups.value.length > offset + nextGroups.length
+          ? offset + nextGroups.length
+          : null;
+      currentPage.value++;
+      updateDisplayedResults();
+      return;
+    }
+
+    const response = await apiSearch.searchDetailedOrNull(
+      actualSearchQuery.value,
+      {
+        limit: PAGE_SIZE,
+        offset,
+        mode: enableReverseSearch.value ? "reverse" : "normal",
+        dict: selectedDict.value || undefined,
+        dialect: selectedDialect.value || undefined,
+        type: selectedType.value || undefined,
+        sort: sortBy.value,
+      },
+    );
+
+    if (response) {
+      applySearchResponse(response, { append: true });
+      currentPage.value++;
+    }
+  } finally {
     loadingMore.value = false;
-  }, 100); // 小延迟以显示加载状态
+  }
 };
 
 // 处理搜索
@@ -1225,13 +1121,8 @@ watch(
       if (newQuery) {
         performSearch(newQuery as string);
       } else {
-        apiFirstPageResults.value = [];
-        exactResults.value = [];
-        displayedResults.value = [];
+        resetSearchState();
         actualSearchQuery.value = "";
-        exactResultsReady.value = false;
-        exactResultsLoading.value = false;
-        exactResultsOverflow.value = false;
         isSearchComplete.value = true;
       }
     }

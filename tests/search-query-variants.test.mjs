@@ -31,7 +31,7 @@ test("variant expansion stays within the configured ambiguity budget", async () 
 
   assert.ok(variants.includes("发干后面台钟曲"));
   assert.ok(variants.includes("發乾後面枱鐘曲"));
-  assert.ok(variants.length <= 16);
+  assert.ok(variants.length <= 32);
 });
 
 test("non-CJK queries keep only normalized seed variants", async () => {
