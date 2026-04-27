@@ -1,0 +1,20 @@
+[
+  {
+    "id": "konsheng-sensitive-lexicon",
+    "name": "Sensitive-lexicon",
+    "url": "https://github.com/konsheng/Sensitive-lexicon",
+    "license": "MIT",
+    "local_path": "data/moderation/vendor/konsheng-sensitive-lexicon",
+    "imported_at": "2026-04-27",
+    "usage": "seed-filtered"
+  },
+  {
+    "id": "jyutjyu-manual-overrides",
+    "name": "Jyutjyu moderation overrides",
+    "license": "project-maintained",
+    "local_path": "data/moderation",
+    "imported_at": "2026-04-27",
+    "usage": "enabled"
+  }
+]
+

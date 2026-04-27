@@ -2,6 +2,11 @@ import {
   getBrowsePage,
   getBrowsePageFromPrecomputed,
 } from "../../utils/browse-index";
+import {
+  queryTouchesRestrictedTerm,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../../utils/moderation";
 
 interface BrowseQuery {
   page?: string | string[];
@@ -37,8 +42,9 @@ export default defineEventHandler(async (event) => {
   const dict = getFirstQueryValue(query.dict).trim() || "all";
   const sortRaw = getFirstQueryValue(query.sort).trim().toLowerCase();
   const sort = sortRaw === "jyutping" ? "jyutping" : "headword";
+  const mainlandModeration = shouldApplyMainlandModeration(event);
 
-  if (shouldRequirePrecomputedBrowseAssets(event)) {
+  if (shouldRequirePrecomputedBrowseAssets(event) && !mainlandModeration) {
     const precomputed = await getBrowsePageFromPrecomputed({
       page,
       scope: dict,
@@ -67,6 +73,18 @@ export default defineEventHandler(async (event) => {
     pageSize: size,
     sort,
   });
+
+  if (mainlandModeration) {
+    setModerationCacheHeaders(event);
+    const headwords = data.headwords.filter(
+      (headword) => !queryTouchesRestrictedTerm(headword),
+    );
+    return {
+      ...data,
+      headwords,
+      total: Math.max(0, data.total - (data.headwords.length - headwords.length)),
+    };
+  }
 
   setHeader(
     event,

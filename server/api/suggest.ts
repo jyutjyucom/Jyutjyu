@@ -1,4 +1,9 @@
 import { getHeadwordSuggestions } from "../utils/headword-suggestions";
+import {
+  queryTouchesRestrictedTerm,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../utils/moderation";
 
 interface SuggestQuery {
   q?: string;
@@ -23,7 +28,26 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const suggestions = await getHeadwordSuggestions(searchQuery, limit);
+    const mainlandModeration = shouldApplyMainlandModeration(event);
+    if (mainlandModeration) {
+      setModerationCacheHeaders(event);
+    }
+
+    if (mainlandModeration && queryTouchesRestrictedTerm(searchQuery)) {
+      return {
+        success: true,
+        query: searchQuery,
+        total: 0,
+        suggestions: [],
+      };
+    }
+
+    const rawSuggestions = await getHeadwordSuggestions(searchQuery, limit);
+    const suggestions = mainlandModeration
+      ? rawSuggestions.filter(
+          (suggestion) => !queryTouchesRestrictedTerm(suggestion),
+        )
+      : rawSuggestions;
     return {
       success: true,
       query: searchQuery,

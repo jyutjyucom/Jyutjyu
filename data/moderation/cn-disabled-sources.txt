@@ -1,0 +1,12 @@
+# Upstream lexicon files disabled after review because they are too broad for
+# dictionary-entry moderation.
+# Use repository-relative paths or file basenames.
+
+网易前端过滤敏感词库.txt
+零时-Tencent.txt
+COVID-19词库.txt
+其他词库.txt
+广告类型.txt
+民生词库.txt
+色情类型.txt
+色情词库.txt

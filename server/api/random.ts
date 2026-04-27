@@ -16,6 +16,12 @@ import { resolve } from "node:path";
 import bundledRecommendations from "~/public/recommendations.json";
 import { getEntriesCollection } from "../utils/mongodb";
 import {
+  filterRestrictedEntries,
+  getModerationMongoFilter,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../utils/moderation";
+import {
   isProductionWorkerRandomRuntime,
   resolveRandomEntries,
 } from "../utils/random-entries";
@@ -82,13 +88,18 @@ const loadFallbackEntries = ({
   return cachedFallbackEntries;
 };
 
-const fetchRandomEntriesFromMongo = async (count: number, timeoutMs: number) => {
+const fetchRandomEntriesFromMongo = async (
+  count: number,
+  timeoutMs: number,
+  event?: any,
+) => {
   const collection = await getEntriesCollection();
 
   const pipeline = [
     {
       $match: {
         source_book: { $in: QUALITY_DICTIONARIES },
+        ...getModerationMongoFilter(event),
       },
     },
     {
@@ -131,13 +142,20 @@ export default defineEventHandler(async (event) => {
   const query = getQuery<RandomQuery>(event);
   const count = Math.min(Math.max(1, parseInt(query.count || "3") || 3), 20);
   const preferBundledOnly = isProductionWorkerRandomRuntime(event);
-  const fallbackEntries = loadFallbackEntries({ preferBundledOnly });
+  const fallbackEntries = filterRestrictedEntries(
+    event,
+    loadFallbackEntries({ preferBundledOnly }),
+  );
+  if (shouldApplyMainlandModeration(event)) {
+    setModerationCacheHeaders(event);
+  }
 
   return resolveRandomEntries({
     count,
     event,
     fallbackEntries,
-    fetchFromMongo: fetchRandomEntriesFromMongo,
+    fetchFromMongo: (requestedCount, timeoutMs) =>
+      fetchRandomEntriesFromMongo(requestedCount, timeoutMs, event),
     onError: (error) => {
       console.error("MongoDB 隨機詞條失敗，改用靜態推薦回退:", error);
     },

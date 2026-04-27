@@ -7,6 +7,11 @@
 
 import type { WordResolveTrace } from "~/utils/headword-exact-match";
 
+import {
+  filterRestrictedEntries,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../../utils/moderation";
 import { resolveWordEntries } from "../../utils/word-resolver";
 
 const WORD_RESOLVE_WARN_TOTAL_MS = 200;
@@ -79,11 +84,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const trace = createWordResolveTrace();
+  const mainlandModeration = shouldApplyMainlandModeration(event);
+  if (mainlandModeration) {
+    setModerationCacheHeaders(event);
+  }
 
   try {
     const resolved = await resolveWordEntries(headword, trace);
+    const visibleEntries = resolved
+      ? filterRestrictedEntries(event, resolved.entries)
+      : [];
 
-    if (!resolved || resolved.entries.length === 0) {
+    if (!resolved || visibleEntries.length === 0) {
       if (shouldLogSlowWordResolve(trace)) {
         console.warn(
           "[word-api] slow",
@@ -109,7 +121,7 @@ export default defineEventHandler(async (event) => {
         "[word-api] slow",
         getWordResolveLogPayload(headword, trace, {
           status: 200,
-          resultCount: resolved.entries.length,
+          resultCount: visibleEntries.length,
           canonicalHeadword: resolved.canonicalHeadword,
         }),
       );
@@ -118,8 +130,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       canonical_headword: resolved.canonicalHeadword,
-      total: resolved.entries.length,
-      entries: resolved.entries,
+      total: visibleEntries.length,
+      entries: visibleEntries,
     };
   } catch (error: any) {
     console.error(

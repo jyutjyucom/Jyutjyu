@@ -1,3 +1,8 @@
+import {
+  queryTouchesRestrictedTerm,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../../utils/moderation";
 import { resolveSearchLanding } from "../../utils/word-resolver";
 
 interface SearchResolveQuery {
@@ -11,6 +16,23 @@ export default defineEventHandler(async (event) => {
   const reverse = query.reverse === "1";
 
   try {
+    const mainlandModeration = shouldApplyMainlandModeration(event);
+    if (mainlandModeration) {
+      setModerationCacheHeaders(event);
+    }
+
+    if (mainlandModeration && queryTouchesRestrictedTerm(searchQuery)) {
+      return {
+        success: true,
+        query: searchQuery,
+        reverse,
+        resolution: {
+          type: "search",
+          reason: "moderated_query",
+        },
+      };
+    }
+
     const resolution = await resolveSearchLanding(searchQuery, { reverse });
     return {
       success: true,

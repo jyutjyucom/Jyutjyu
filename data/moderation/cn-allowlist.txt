@@ -1,0 +1,9 @@
+# Context-specific allowlist for mainland China moderation false positives.
+#
+# Supported formats:
+#   entry:<entry_id>
+#   <entry_id>\t<term>
+#
+# The entry form allows the entire entry. The tab-separated form only allows a
+# specific term for a specific entry.
+

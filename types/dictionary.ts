@@ -176,6 +176,18 @@ export interface DictionaryMeta {
 }
 
 /**
+ * 运行时内容展示限制元数据
+ */
+export interface EntryModeration {
+  /** 受限地区，使用 ISO 3166-1 alpha-2 国家/地区码 */
+  restricted_regions?: string[];
+  /** 触发限制的词表策略 */
+  policy?: string;
+  /** 审计用命中词；不应在公开 API 中展示给用户 */
+  matched_terms?: string[];
+}
+
+/**
  * 词典条目（核心数据结构）
  */
 export interface DictionaryEntry {
@@ -216,6 +228,10 @@ export interface DictionaryEntry {
   // --- 词典特有字段 ---
   /** 元数据 */
   meta: DictionaryMeta;
+
+  // --- 展示限制 ---
+  /** 内容展示限制元数据（导入 MongoDB 时生成） */
+  moderation?: EntryModeration;
 
   // --- 元数据 ---
   /** 创建时间（ISO 8601） */

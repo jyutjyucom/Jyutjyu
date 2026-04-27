@@ -6,6 +6,12 @@
  */
 
 import { getEntriesCollection } from "../../utils/mongodb";
+import {
+  getModerationMongoFilter,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+  stripModerationMetadata,
+} from "../../utils/moderation";
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
@@ -20,8 +26,17 @@ export default defineEventHandler(async (event) => {
 
   try {
     const collection = await getEntriesCollection();
+    if (shouldApplyMainlandModeration(event)) {
+      setModerationCacheHeaders(event);
+    }
 
-    const entry = await collection.findOne({ id }, { projection: { _id: 0 } });
+    const entry = await collection.findOne(
+      {
+        id,
+        ...getModerationMongoFilter(event),
+      },
+      { projection: { _id: 0 } },
+    );
 
     if (!entry) {
       return {
@@ -33,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      entry,
+      entry: stripModerationMetadata(entry),
     };
   } catch (error: any) {
     console.error("讀取詞條失敗:", error);

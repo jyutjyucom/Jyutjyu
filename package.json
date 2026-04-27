@@ -17,6 +17,7 @@
     "build:i18n": "npm run build:i18n-hans && npm run build:i18n-zh-hans",
     "build:i18n-hans": "node scripts/generate-yue-hans.js",
     "build:i18n-zh-hans": "node scripts/generate-zh-hans.js",
+    "build:moderation-index": "node scripts/build-moderation-index.js",
     "build:font-ui": "npm run build:font-ui:hei && npm run build:font-ui:sung",
     "build:font-ui:hei": "node scripts/build-chiron-hei-ui-subset.mjs",
     "build:font-ui:sung": "node scripts/build-chiron-sung-ui-subset.mjs",

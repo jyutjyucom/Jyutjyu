@@ -1,0 +1,30 @@
+name: 自动测试压缩
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Tag 和文件名
+        id: release_info
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${{ github.event.inputs.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF##*/}"
+          fi
+          FILE_NAME="Sensitive-lexicon-${TAG_NAME}.zip"
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "file_name=${FILE_NAME}" >> $GITHUB_OUTPUT
+
+      - name: 压缩项目
+        run: |
+          zip -r ${{ steps.release_info.outputs.file_name }} . -x '*.git*'

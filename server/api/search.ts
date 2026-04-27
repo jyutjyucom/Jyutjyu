@@ -24,6 +24,13 @@
 
 import { getEntriesCollection } from "../utils/mongodb.ts";
 import {
+  filterRestrictedEntries,
+  getModerationMongoFilter,
+  queryTouchesRestrictedTerm,
+  setModerationCacheHeaders,
+  shouldApplyMainlandModeration,
+} from "../utils/moderation.ts";
+import {
   ensureInitialized,
   getQueryVariants,
 } from "../utils/opencc.ts";
@@ -69,6 +76,7 @@ interface SearchStage {
 interface FallbackSearchOptions {
   queryVariants?: string[];
   stageTimings?: Record<string, number>;
+  mongoFilter?: Record<string, unknown>;
 }
 
 interface ScoredEntry {
@@ -479,7 +487,8 @@ export async function atlasSearch(
   dict?: string,
   mode: SearchMode = "normal",
   queryVariants?: string[],
-) {
+  mongoFilter: Record<string, unknown> = {},
+): Promise<any[]> {
   const resolvedVariants = queryVariants ?? (await getCachedQueryVariants(query));
 
   const searchStage: any = {
@@ -539,9 +548,14 @@ export async function atlasSearch(
   }
 
   const pipeline: any[] = [{ $search: searchStage }];
+  const matchStage: Record<string, unknown> = { ...mongoFilter };
 
   if (dict) {
-    pipeline.push({ $match: { source_book: dict } });
+    matchStage.source_book = dict;
+  }
+
+  if (Object.keys(matchStage).length > 0) {
+    pipeline.push({ $match: matchStage });
   }
 
   pipeline.push(
@@ -581,7 +595,9 @@ export async function fallbackSearch(
   const stageTimings = options.stageTimings || {};
   const stages = buildFallbackStages(queryVariants, queryLower, mode);
 
-  const baseFilter: Record<string, unknown> = {};
+  const baseFilter: Record<string, unknown> = {
+    ...(options.mongoFilter || {}),
+  };
   if (dict) {
     baseFilter.source_book = dict;
   }
@@ -614,7 +630,7 @@ export async function fallbackSearch(
       queryCondition.id = { $nin: Array.from(seenIds) };
     }
 
-    const candidates = await measureAsync(stageTimings, stage.name, () =>
+    const candidates = await measureAsync<any[]>(stageTimings, stage.name, () =>
       withTimeout(
         collection
           .find(queryCondition)
@@ -675,6 +691,20 @@ const searchEventHandler = async (event: any) => {
     stageMs: {},
   };
   const requestStartedAt = Date.now();
+  const mainlandModeration = shouldApplyMainlandModeration(event);
+
+  if (mainlandModeration) {
+    setModerationCacheHeaders(event);
+    if (queryTouchesRestrictedTerm(searchQuery)) {
+      return {
+        success: true,
+        query: searchQuery,
+        mode: normalizedMode,
+        total: 0,
+        results: [],
+      };
+    }
+  }
 
   try {
     const results = await withTimeout(
@@ -688,6 +718,7 @@ const searchEventHandler = async (event: any) => {
         const collection = await measureAsync(metrics.phaseMs, "collection", () =>
           getEntriesCollection(),
         );
+        const moderationMongoFilter = getModerationMongoFilter(event);
 
         if (
           shouldAttemptAtlasSearch({
@@ -706,10 +737,11 @@ const searchEventHandler = async (event: any) => {
                 dict,
                 normalizedMode,
                 queryVariants,
+                moderationMongoFilter,
               ),
             );
             markAtlasSearchAvailable();
-            return atlasResults;
+            return filterRestrictedEntries(event, atlasResults);
           } catch (error) {
             if (isAtlasUnsupportedError(error)) {
               markAtlasSearchUnavailable();
@@ -731,6 +763,7 @@ const searchEventHandler = async (event: any) => {
           fallbackSearch(collection, searchQuery, resultLimit, dict, normalizedMode, {
             queryVariants,
             stageTimings: metrics.stageMs,
+            mongoFilter: moderationMongoFilter,
           }),
         );
       })(),
@@ -738,7 +771,8 @@ const searchEventHandler = async (event: any) => {
       `Search handler timed out after ${SEARCH_HANDLER_TIMEOUT_MS}ms`,
     );
 
-    metrics.resultCount = results.length;
+    const visibleResults = filterRestrictedEntries(event, results);
+    metrics.resultCount = visibleResults.length;
     metrics.totalMs = Date.now() - requestStartedAt;
 
     if (metrics.degradedReason || metrics.totalMs >= SLOW_SEARCH_THRESHOLD_MS) {
@@ -751,8 +785,8 @@ const searchEventHandler = async (event: any) => {
       success: true,
       query: searchQuery,
       mode: normalizedMode,
-      total: results.length,
-      results,
+      total: visibleResults.length,
+      results: visibleResults,
     };
   } catch (error: any) {
     metrics.totalMs = Date.now() - requestStartedAt;

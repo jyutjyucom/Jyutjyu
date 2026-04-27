@@ -31,6 +31,20 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, "..");
 const DICTIONARIES_DIR = join(ROOT_DIR, "public", "dictionaries");
+const MODERATION_REPORT_PATH = join(
+  ROOT_DIR,
+  "data",
+  "moderation",
+  "reports",
+  "cn-matches.json",
+);
+const MODERATION_RESTRICTED_IDS_PATH = join(
+  ROOT_DIR,
+  "server",
+  "assets",
+  "moderation",
+  "cn-restricted-entry-ids.json",
+);
 
 // 解析命令行参数
 const args = process.argv.slice(2);
@@ -153,6 +167,68 @@ function loadChunkedDictionary(chunkDir) {
 }
 
 /**
+ * 加载中国大陆展示限制索引
+ */
+function loadModerationIndex() {
+  const byEntryId = new Map();
+
+  if (existsSync(MODERATION_REPORT_PATH)) {
+    try {
+      const report = JSON.parse(readFileSync(MODERATION_REPORT_PATH, "utf-8"));
+      const policy = report.policy || "cn-sensitive-lexicon-v1";
+      for (const entry of report.entries || []) {
+        if (!entry?.id) continue;
+        byEntryId.set(entry.id, {
+          restricted_regions: ["CN"],
+          policy,
+          matched_terms: Array.isArray(entry.matched_terms)
+            ? entry.matched_terms
+            : [],
+        });
+      }
+      return byEntryId;
+    } catch (error) {
+      console.warn("⚠️  读取 moderation report 失败，尝试 runtime artifact:", error);
+    }
+  }
+
+  if (existsSync(MODERATION_RESTRICTED_IDS_PATH)) {
+    try {
+      const artifact = JSON.parse(
+        readFileSync(MODERATION_RESTRICTED_IDS_PATH, "utf-8"),
+      );
+      const policy = artifact.policy || "cn-sensitive-lexicon-v1";
+      for (const entryId of artifact.entry_ids || []) {
+        byEntryId.set(entryId, {
+          restricted_regions: ["CN"],
+          policy,
+          matched_terms: [],
+        });
+      }
+    } catch (error) {
+      console.warn("⚠️  读取 moderation runtime artifact 失败:", error);
+    }
+  }
+
+  return byEntryId;
+}
+
+function applyModerationMetadata(entries, moderationIndex) {
+  return entries.map((entry) => {
+    const moderation = moderationIndex.get(entry.id);
+    if (!moderation) {
+      const { moderation: _moderation, ...cleanEntry } = entry;
+      return cleanEntry;
+    }
+
+    return {
+      ...entry,
+      moderation,
+    };
+  });
+}
+
+/**
  * 批量 upsert（增量更新）
  */
 async function batchUpsert(collection, entries, batchSize = 500) {
@@ -162,13 +238,20 @@ async function batchUpsert(collection, entries, batchSize = 500) {
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
 
-    const bulkOps = batch.map((entry) => ({
-      updateOne: {
-        filter: { id: entry.id },
-        update: { $set: entry },
-        upsert: true,
-      },
-    }));
+    const bulkOps = batch.map((entry) => {
+      const update = { $set: entry };
+      if (!entry.moderation) {
+        update.$unset = { moderation: "" };
+      }
+
+      return {
+        updateOne: {
+          filter: { id: entry.id },
+          update,
+          upsert: true,
+        },
+      };
+    });
 
     const result = await collection.bulkWrite(bulkOps, { ordered: false });
     updated += result.modifiedCount;
@@ -217,6 +300,12 @@ async function main() {
 
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
+    const moderationIndex = loadModerationIndex();
+    if (moderationIndex.size > 0) {
+      console.log(`🛡️  已加载大陆展示限制: ${moderationIndex.size} 条\n`);
+    } else {
+      console.log("ℹ️  未找到大陆展示限制索引，导入时不会写入 moderation 标记\n");
+    }
 
     // 读取词典索引
     const index = loadDictionaryIndex();
@@ -286,6 +375,8 @@ async function main() {
       }
 
       if (entries.length > 0) {
+        entries = applyModerationMetadata(entries, moderationIndex);
+
         if (options.mode === "upsert") {
           // 增量更新模式
           const { updated, inserted } = await batchUpsert(collection, entries);
@@ -323,6 +414,7 @@ async function main() {
     await collection.createIndex({ source_book: 1 });
     await collection.createIndex({ "dialect.name": 1 });
     await collection.createIndex({ entry_type: 1 });
+    await collection.createIndex({ "moderation.restricted_regions": 1 });
     await collection.createIndex({
       "headword.normalized": 1,
       source_book: 1,
