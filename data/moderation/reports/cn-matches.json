@@ -1,7 +1,7 @@
 {
   "region": "CN",
   "policy": "cn-sensitive-lexicon-v1",
-  "generated_at": "2026-04-27T14:41:19.180Z",
+  "generated_at": "2026-04-27T15:42:52.562Z",
   "target_dictionaries": [
     "hk-cantowords",
     "wiktionary-cantonese"
@@ -18,19 +18,19 @@
     "data/moderation/vendor/konsheng-sensitive-lexicon/Vocabulary/非法网址.txt",
     "data/moderation/vendor/konsheng-sensitive-lexicon/Organized/政治类型.txt"
   ],
-  "effective_term_count": 29474,
+  "effective_term_count": 29500,
   "scanned_entries": 161214,
-  "restricted_entry_count": 1564,
+  "restricted_entry_count": 1569,
   "dictionaries": [
     {
       "dictionary_id": "hk-cantowords",
       "scanned_entries": 59019,
-      "restricted_entries": 804
+      "restricted_entries": 807
     },
     {
       "dictionary_id": "wiktionary-cantonese",
       "scanned_entries": 102195,
-      "restricted_entries": 760
+      "restricted_entries": 762
     }
   ],
   "terms": [
@@ -7756,6 +7756,43 @@
       ]
     },
     {
+      "term": "武漢肺炎",
+      "count": 4,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 2
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_118350",
+          "dictionary_id": "hk-cantowords",
+          "headword": "武肺",
+          "sample": "武肺"
+        },
+        {
+          "entry_id": "hk-cantowords_118349",
+          "dictionary_id": "hk-cantowords",
+          "headword": "武漢肺炎",
+          "sample": "武漢肺炎"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00098596",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "武漢肺炎",
+          "sample": "武漢肺炎"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101845",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "武肺",
+          "sample": "武肺"
+        }
+      ]
+    },
+    {
       "term": "濫用職權",
       "count": 4,
       "dictionaries": {
@@ -9316,6 +9353,37 @@
           "dictionary_id": "wiktionary-cantonese",
           "headword": "東伊運",
           "sample": "東伊運"
+        }
+      ]
+    },
+    {
+      "term": "武肺",
+      "count": 3,
+      "dictionaries": {
+        "hk-cantowords": 2,
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_118350",
+          "dictionary_id": "hk-cantowords",
+          "headword": "武肺",
+          "sample": "武肺"
+        },
+        {
+          "entry_id": "hk-cantowords_119518",
+          "dictionary_id": "hk-cantowords",
+          "headword": "⋯事小⋯事大",
+          "sample": "中#武肺 事小，入隔離營事大。"
+        },
+        {
+          "entry_id": "wiktionary-cantonese_00101845",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "武肺",
+          "sample": "武肺"
         }
       ]
     },
@@ -13331,6 +13399,24 @@
       ]
     },
     {
+      "term": "ccp virus",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00099439",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "中共病毒",
+          "sample": "中共病毒"
+        }
+      ]
+    },
+    {
       "term": "erythropoietin",
       "count": 1,
       "dictionaries": {
@@ -15668,6 +15754,42 @@
           "dictionary_id": "hk-cantowords",
           "headword": "金石",
           "sample": "各種青銅器同石刻碑板，意指古代用嚟歌功頌德嘅文字；亦指各種篆刻 (scriptures, engravement; literally: gold and stone)"
+        }
+      ]
+    },
+    {
+      "term": "武汉肺炎",
+      "count": 1,
+      "dictionaries": {
+        "wiktionary-cantonese": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "wiktionary-cantonese_00101845",
+          "dictionary_id": "wiktionary-cantonese",
+          "headword": "武肺",
+          "sample": "武肺"
+        }
+      ]
+    },
+    {
+      "term": "武漢不明肺炎",
+      "count": 1,
+      "dictionaries": {
+        "hk-cantowords": 1
+      },
+      "sources": [
+        "data/moderation/cn-extra-terms.txt"
+      ],
+      "samples": [
+        {
+          "entry_id": "hk-cantowords_118349",
+          "dictionary_id": "hk-cantowords",
+          "headword": "武漢肺炎",
+          "sample": "武漢肺炎"
         }
       ]
     },
@@ -30249,6 +30371,88 @@
       ]
     },
     {
+      "id": "hk-cantowords_118350",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "武肺",
+      "file": "public/dictionaries/cantowords/m.json",
+      "matched_terms": [
+        "武漢肺炎",
+        "武肺"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "#武漢肺炎 嘅簡稱，指#新冠肺炎（有意見認為呢種標示地點嘅命名方式係污名化） (shorthand for #武漢肺炎 \"wuhan pneumonia\", an informal address to covid-19 which may be considered stigma toward the city where the virus was fi"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_118349",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "武漢肺炎",
+      "file": "public/dictionaries/cantowords/m.json",
+      "matched_terms": [
+        "武漢不明肺炎",
+        "武漢肺炎"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "武漢不明肺炎"
+          ],
+          "sample": "#新冠肺炎 嘅俗稱；喺「新冠肺炎」命名前曾經被稱為「武漢不明肺炎」嘅時候嘅簡稱，命名源於當地最先發現病毒並爆發疫情，但係有意見認為標示地點構成污名化 (\"wuhan pneumonia\", an informal address to covid-19 which may be considered stigma toward the city where "
+        }
+      ]
+    },
+    {
       "id": "hk-cantowords_121827",
       "dictionary_id": "hk-cantowords",
       "source_book": "粵典 (words.hk)",
@@ -33258,6 +33462,25 @@
             "咖啡因"
           ],
           "sample": "溝埋#好立克 同#阿華田 嘅飲品；相對#鴛鴦（飲品），細路仔鴛鴦冇#咖啡因 (a drink mixing ovatine and horlicks, containing no caffeine, literally: children's yinyeung)"
+        }
+      ]
+    },
+    {
+      "id": "hk-cantowords_119518",
+      "dictionary_id": "hk-cantowords",
+      "source_book": "粵典 (words.hk)",
+      "headword": "⋯事小⋯事大",
+      "file": "public/dictionaries/cantowords/s.json",
+      "matched_terms": [
+        "武肺"
+      ],
+      "field_matches": [
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "中#武肺 事小，入隔離營事大。"
         }
       ]
     },
@@ -51382,6 +51605,60 @@
       ]
     },
     {
+      "id": "wiktionary-cantonese_00098596",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "武漢肺炎",
+      "file": "public/dictionaries/wiktionary/m.json",
+      "matched_terms": [
+        "武漢肺炎"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎"
+        },
+        {
+          "field": "senses.0.examples.0.text",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "截止中午十二時，本港共有106宗武漢肺炎懷疑個案。"
+        },
+        {
+          "field": "senses.0.examples.1.text",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "武漢肺炎疫情讓不少人憂心忡忡，深怕爆發大規模傳染，也有不少謠言隨之起舞，最近網上還有傳言，世界衛生組織who表示，引發武漢肺炎疫情的2019新型冠狀病毒極可能「有限度人傳人」，主要是親近者或家人間小規模群聚感染，但疫情也可能擴大蔓延，引發民眾憂慮。"
+        },
+        {
+          "field": "senses.0.examples.2.text",
+          "terms": [
+            "武漢肺炎"
+          ],
+          "sample": "web2.0科技進步，促使社群網絡間人際互動頻繁、聯準會因應武漢肺炎影響，刺激經濟，不斷降息，熱錢效應往市場投資，大盤從9000點漲至16000點，散戶投資於證卷市場中也越來越多。"
+        }
+      ]
+    },
+    {
       "id": "wiktionary-cantonese_00101149",
       "dictionary_id": "wiktionary-cantonese",
       "source_book": "維基辭典",
@@ -51399,6 +51676,49 @@
             "香港赛马会"
           ],
           "sample": "short for 香港賽馬會／香港赛马会 (hoeng1 gong2 coi3 maa5 wui6-2, “hong kong jockey club”)"
+        }
+      ]
+    },
+    {
+      "id": "wiktionary-cantonese_00101845",
+      "dictionary_id": "wiktionary-cantonese",
+      "source_book": "維基辭典",
+      "headword": "武肺",
+      "file": "public/dictionaries/wiktionary/m.json",
+      "matched_terms": [
+        "武汉肺炎",
+        "武漢肺炎",
+        "武肺"
+      ],
+      "field_matches": [
+        {
+          "field": "headword.display",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "headword.normalized",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "headword.search",
+          "terms": [
+            "武肺"
+          ],
+          "sample": "武肺"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "武漢肺炎",
+            "武汉肺炎"
+          ],
+          "sample": "short for 武漢肺炎／武汉肺炎 (wǔhàn fèiyán, “wuhan pneumonia; covid-19”)"
         }
       ]
     },
@@ -59432,6 +59752,7 @@
       "headword": "中共病毒",
       "file": "public/dictionaries/wiktionary/z.json",
       "matched_terms": [
+        "ccp virus",
         "中共"
       ],
       "field_matches": [
@@ -59455,6 +59776,13 @@
             "中共"
           ],
           "sample": "中共病毒"
+        },
+        {
+          "field": "senses.0.definition",
+          "terms": [
+            "ccp virus"
+          ],
+          "sample": "ccp virus, i.e. covid-19"
         }
       ]
     },

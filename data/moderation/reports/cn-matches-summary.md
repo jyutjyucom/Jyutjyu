@@ -1,17 +1,17 @@
 # Mainland China Moderation Match Summary
 
-Generated at: 2026-04-27T14:41:19.180Z
+Generated at: 2026-04-27T15:42:52.562Z
 
-Effective terms: 29474
+Effective terms: 29500
 Scanned entries: 161214
-Restricted entries: 1564
+Restricted entries: 1569
 
 ## Dictionaries
 
 | Dictionary | Scanned | Restricted |
 | --- | ---: | ---: |
-| hk-cantowords | 59019 | 804 |
-| wiktionary-cantonese | 102195 | 760 |
+| hk-cantowords | 59019 | 807 |
+| wiktionary-cantonese | 102195 | 762 |
 
 ## Top Matched Terms
 

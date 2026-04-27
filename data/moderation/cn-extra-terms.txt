@@ -1,3 +1,28 @@
 # Project-specific mainland China moderation terms.
 # One term per line. Blank lines and lines starting with # are ignored.
 
+武肺
+武漢肺炎
+武汉肺炎
+武汉不明肺炎
+武漢不明肺炎
+武汉流行肺炎
+武漢流行肺炎
+武汉病毒所
+武漢病毒所
+武汉海鲜市场
+武漢海鮮市場
+武汉卫生委员会
+武漢衛生委員會
+习近平到武汉
+習近平到武漢
+武漢肺炎疫情失控
+武汉肺炎疫情失控
+毒城武漢
+毒城武汉
+李文亮
+p4病毒实验室
+P4病毒实验室
+ccp virus
+ccp-virus
+ccpvirus

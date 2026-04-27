@@ -31,6 +31,7 @@ const RESTRICTED_IDS_PATH = join(RUNTIME_DIR, "cn-restricted-entry-ids.json");
 const RESTRICTED_TERMS_PATH = join(RUNTIME_DIR, "cn-restricted-terms.json");
 const MATCH_REPORT_PATH = join(REPORT_DIR, "cn-matches.json");
 const SUMMARY_REPORT_PATH = join(REPORT_DIR, "cn-matches-summary.md");
+const EXTRA_TERMS_SOURCE = "data/moderation/cn-extra-terms.txt";
 
 const TARGET_DICTIONARIES = new Set([
   "hk-cantowords",
@@ -264,7 +265,7 @@ const buildEffectiveTerms = () => {
   }
 
   for (const term of readLines(join(MODERATION_DIR, "cn-extra-terms.txt"))) {
-    addTermVariants(terms, term, "data/moderation/cn-extra-terms.txt");
+    addTermVariants(terms, term, EXTRA_TERMS_SOURCE);
   }
 
   for (const disabled of readLines(join(MODERATION_DIR, "cn-disabled-terms.txt"))) {
@@ -533,6 +534,7 @@ const scanEntries = (trie, termMetadata, allowlist) => {
 
 const writeReports = ({
   effectiveTerms,
+  termMetadata,
   vendorFiles,
   scanResult,
 }) => {
@@ -543,8 +545,15 @@ const writeReports = ({
   const entryIds = Array.from(
     new Set(scanResult.restrictedEntries.map((entry) => entry.id)),
   ).sort();
-  const runtimeTerms = scanResult.termReports
-    .map((termReport) => termReport.term)
+  const runtimeTermSet = new Set(
+    scanResult.termReports.map((termReport) => termReport.term),
+  );
+  for (const [term, metadata] of termMetadata.entries()) {
+    if (metadata.sources.has(EXTRA_TERMS_SOURCE)) {
+      runtimeTermSet.add(term);
+    }
+  }
+  const runtimeTerms = Array.from(runtimeTermSet)
     .sort((a, b) => {
       const lengthDiff = Array.from(b).length - Array.from(a).length;
       if (lengthDiff !== 0) return lengthDiff;
@@ -649,6 +658,7 @@ const main = () => {
   const scanResult = scanEntries(trie, metadata, allowlist);
   const { entryIds } = writeReports({
     effectiveTerms: terms,
+    termMetadata: metadata,
     vendorFiles,
     scanResult,
   });

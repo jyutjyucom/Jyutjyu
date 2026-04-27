@@ -32,6 +32,8 @@ test("mainland moderation detects Cloudflare country headers", () => {
 
 test("restricted query terms are detected without flagging ordinary entries", () => {
   assert.equal(queryTouchesRestrictedTerm("中共病毒"), true);
+  assert.equal(queryTouchesRestrictedTerm("武肺"), true);
+  assert.equal(queryTouchesRestrictedTerm("ccp virus"), true);
   assert.equal(queryTouchesRestrictedTerm("阿二"), false);
   assert.equal(queryTouchesRestrictedTerm("性交"), false);
   assert.equal(queryTouchesRestrictedTerm("閪窿"), false);
