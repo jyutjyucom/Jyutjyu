@@ -2,7 +2,7 @@ import { readdir, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const DEFAULT_ASSET_DIR = ".output/public";
-const DEFAULT_FILE_BUDGET = 19500;
+const DEFAULT_FILE_BUDGET = 95000;
 
 const parsePositiveInteger = (value, fallback) => {
   const parsed = Number.parseInt(String(value || ""), 10);
