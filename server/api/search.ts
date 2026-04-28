@@ -652,6 +652,18 @@ const buildExactAssetSearchResponse = async ({
   });
 };
 
+const shouldUseExactAssetAfterAtlasDegrade = ({
+  query,
+  mode,
+  offset,
+}: {
+  query: string;
+  mode: SearchMode;
+  offset: number;
+}): boolean => {
+  return mode === "normal" && offset === 0 && Array.from(query).length >= 2;
+};
+
 const getPublicFilters = (
   filters: SearchFilterOptions,
 ): SearchResponseFilters => ({
@@ -1157,6 +1169,34 @@ const searchEventHandler = async (event: any) => {
 
             if (shouldFailFastAfterAtlasDegrade(event)) {
               throw error;
+            }
+
+            if (
+              shouldUseExactAssetAfterAtlasDegrade({
+                query: searchQuery,
+                mode: normalizedMode,
+                offset: resultOffset,
+              })
+            ) {
+              const exactAssetResponse = await measureAsync(
+                metrics.phaseMs,
+                "exactAsset",
+                () =>
+                  buildExactAssetSearchResponse({
+                    query: searchQuery,
+                    mode: normalizedMode,
+                    sort: normalizedSort,
+                    filters,
+                    offset: resultOffset,
+                    limit: resultLimit,
+                  }),
+              );
+
+              if (exactAssetResponse) {
+                metrics.degradedReason =
+                  metrics.degradedReason || "atlas_exact_asset";
+                return exactAssetResponse;
+              }
             }
           }
         }
