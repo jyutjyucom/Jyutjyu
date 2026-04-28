@@ -327,7 +327,7 @@ test("fallback stages use the paid-plan budget instead of the old 900ms cap", as
   assert.ok(maxTimeValues[0] > 900);
 });
 
-test("Atlas grouped search bounds the candidate window before grouping", async () => {
+test("Atlas grouped search uses a bounded candidate window without Mongo grouping", async () => {
   resetSearchApiRuntimeStateForTests();
   await ensureInitialized();
 
@@ -339,11 +339,14 @@ test("Atlas grouped search bounds the candidate window before grouping", async (
         async toArray() {
           return [
             {
-              groups: [],
-              total: [{ grouped: 501, entries: 501 }],
-              dictionaries: [],
-              dialects: [],
-              types: [],
+              id: "one",
+              source_book: "mock",
+              entry_type: "word",
+              headword: { display: "女", normalized: "女" },
+              phonetic: { jyutping: ["neoi5"] },
+              senses: [{ definition: "female" }],
+              dialect: { region_code: "GZ" },
+              keywords: ["女"],
             },
           ];
         },
@@ -356,14 +359,15 @@ test("Atlas grouped search bounds the candidate window before grouping", async (
     offset: 0,
   });
   const limitIndex = capturedPipeline.findIndex((stage) => "$limit" in stage);
-  const sortIndex = capturedPipeline.findIndex((stage) => "$sort" in stage);
   const groupIndex = capturedPipeline.findIndex((stage) => "$group" in stage);
+  const facetIndex = capturedPipeline.findIndex((stage) => "$facet" in stage);
 
   assert.ok(limitIndex > 0);
-  assert.ok(sortIndex > limitIndex);
-  assert.ok(groupIndex > limitIndex);
+  assert.equal(groupIndex, -1);
+  assert.equal(facetIndex, -1);
   assert.equal(capturedPipeline[limitIndex].$limit, 501);
-  assert.equal(response.total.exact, false);
+  assert.equal(response.total.grouped, 1);
+  assert.equal(response.total.exact, true);
 });
 
 test("workers production request only fails fast behind the emergency env flag", () => {

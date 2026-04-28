@@ -47,7 +47,6 @@ import {
   SEARCH_API_PAGE_SIZE,
   type AggregatedSearchEntry,
   type GroupedSearchResponse,
-  type SearchFacetCounts,
   type SearchResponseFilters,
   type SearchSortOption,
 } from "../../utils/search-result-groups.ts";
@@ -702,92 +701,6 @@ const buildAtlasSearchStage = (
   return searchStage;
 };
 
-const getAtlasGroupSortStage = (sort: SearchSortOption): Record<string, 1 | -1> => {
-  switch (sort) {
-    case "jyutping":
-      return { jyutpingSort: 1, headwordSort: 1, primaryIdSort: 1 };
-    case "headword":
-      return { headwordSort: 1, primaryIdSort: 1 };
-    case "dictionary":
-      return { dictionarySort: 1, headwordSort: 1, primaryIdSort: 1 };
-    default:
-      return { maxScore: -1, primaryIdSort: 1 };
-  }
-};
-
-const parseAtlasFacetBuckets = (value: unknown): Array<{ value: string; count: number }> => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map((item: any) => ({
-      value: String(item?.value || "").trim(),
-      count: Number.isFinite(Number(item?.count)) ? Number(item.count) : 0,
-    }))
-    .filter((item) => item.value && item.count > 0);
-};
-
-const parseAtlasSearchResponse = ({
-  query,
-  mode,
-  sort,
-  filters,
-  offset,
-  limit,
-  raw,
-  exact = true,
-}: {
-  query: string;
-  mode: SearchMode;
-  sort: SearchSortOption;
-  filters: SearchResponseFilters;
-  offset: number;
-  limit: number;
-  raw: any[];
-  exact?: boolean;
-}): GroupedSearchResponse => {
-  const first = raw?.[0] || {};
-  const groups = Array.isArray(first.groups)
-    ? (first.groups as AggregatedSearchEntry[])
-    : [];
-  const totalRow = first.total?.[0] || {};
-  const groupedTotal = Number.isFinite(Number(totalRow.grouped))
-    ? Number(totalRow.grouped)
-    : groups.length;
-  const entryTotal = Number.isFinite(Number(totalRow.entries))
-    ? Number(totalRow.entries)
-    : flattenSearchGroups(groups).length;
-  const facets: SearchFacetCounts = {
-    dictionaries: parseAtlasFacetBuckets(first.dictionaries),
-    dialects: parseAtlasFacetBuckets(first.dialects),
-    types: parseAtlasFacetBuckets(first.types),
-  };
-
-  return {
-    success: true,
-    query,
-    mode,
-    sort,
-    filters,
-    groups,
-    results: flattenSearchGroups(groups),
-    total: {
-      grouped: groupedTotal,
-      entries: entryTotal,
-      exact,
-    },
-    totalGrouped: groupedTotal,
-    page: buildSearchPageMeta({
-      totalGrouped: groupedTotal,
-      offset,
-      limit,
-      returned: groups.length,
-    }),
-    facets,
-  };
-};
-
 export async function atlasSearch(
   collection: any,
   query: string,
@@ -855,9 +768,6 @@ export async function atlasGroupedSearch(
     mongoFilter?: Record<string, unknown>;
   },
 ): Promise<GroupedSearchResponse> {
-  const resolvedVariants = queryVariants ?? (await getCachedQueryVariants(query));
-  const searchStage = buildAtlasSearchStage(query, mode, resolvedVariants);
-  const matchStage = buildSearchMongoFilter(filters, mongoFilter);
   const candidateLimit = Math.min(
     ATLAS_GROUPED_CANDIDATE_MAX_LIMIT,
     Math.max(
@@ -865,193 +775,26 @@ export async function atlasGroupedSearch(
       getFallbackGroupedFetchLimit(offset, limit),
     ),
   );
-  const pipeline: any[] = [
-    { $search: searchStage },
-    {
-      $addFields: {
-        _score: { $meta: "searchScore" },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-      },
-    },
-  ];
-
-  if (Object.keys(matchStage).length > 0) {
-    pipeline.push({ $match: matchStage });
-  }
-
-  pipeline.push(
-    // Atlas Search already returns results in relevance order. Limit that
-    // stream before any explicit sort/group work, otherwise Mongo must
-    // materialize and sort the full search result set.
-    { $limit: candidateLimit + 1 },
-    {
-      $sort: {
-        _score: -1,
-        id: 1,
-      },
-    },
-    {
-      $group: {
-        _id: {
-          display: { $ifNull: ["$headword.display", ""] },
-          normalized: { $ifNull: ["$headword.normalized", ""] },
-        },
-        primary: { $first: "$$ROOT" },
-        entries: { $push: "$$ROOT" },
-        maxScore: { $max: "$_score" },
-        entryCount: { $sum: 1 },
-        headwordSort: {
-          $min: {
-            $toLower: {
-              $ifNull: ["$headword.normalized", "$headword.display"],
-            },
-          },
-        },
-        jyutpingSort: {
-          $min: {
-            $toLower: {
-              $ifNull: [{ $arrayElemAt: ["$phonetic.jyutping", 0] }, ""],
-            },
-          },
-        },
-        dictionarySort: {
-          $min: {
-            $toLower: { $ifNull: ["$source_book", ""] },
-          },
-        },
-        primaryIdSort: { $first: "$id" },
-      },
-    },
-    {
-      $addFields: {
-        key: {
-          $concat: [
-            { $ifNull: ["$_id.display", ""] },
-            "||",
-            { $ifNull: ["$_id.normalized", ""] },
-          ],
-        },
-      },
-    },
-    { $sort: getAtlasGroupSortStage(sort) },
-    {
-      $facet: {
-        groups: [
-          { $skip: offset },
-          { $limit: limit },
-          {
-            $project: {
-              _id: 0,
-              key: 1,
-              primary: 1,
-              entries: 1,
-            },
-          },
-        ],
-        total: [
-          {
-            $group: {
-              _id: null,
-              grouped: { $sum: 1 },
-              entries: { $sum: "$entryCount" },
-            },
-          },
-          { $project: { _id: 0, grouped: 1, entries: 1 } },
-        ],
-        dictionaries: [
-          { $unwind: "$entries" },
-          {
-            $group: {
-              _id: {
-                value: "$entries.source_book",
-                groupKey: "$key",
-              },
-            },
-          },
-          {
-            $group: {
-              _id: "$_id.value",
-              count: { $sum: 1 },
-            },
-          },
-          { $match: { _id: { $ne: "" } } },
-          { $project: { _id: 0, value: "$_id", count: 1 } },
-          { $sort: { count: -1, value: 1 } },
-        ],
-        dialects: [
-          { $unwind: "$entries" },
-          {
-            $group: {
-              _id: {
-                value: {
-                  $toUpper: {
-                    $ifNull: ["$entries.dialect.region_code", ""],
-                  },
-                },
-                groupKey: "$key",
-              },
-            },
-          },
-          {
-            $group: {
-              _id: "$_id.value",
-              count: { $sum: 1 },
-            },
-          },
-          { $match: { _id: { $ne: "" } } },
-          { $project: { _id: 0, value: "$_id", count: 1 } },
-          { $sort: { count: -1, value: 1 } },
-        ],
-        types: [
-          { $unwind: "$entries" },
-          {
-            $group: {
-              _id: {
-                value: "$entries.entry_type",
-                groupKey: "$key",
-              },
-            },
-          },
-          {
-            $group: {
-              _id: "$_id.value",
-              count: { $sum: 1 },
-            },
-          },
-          { $match: { _id: { $ne: "" } } },
-          { $project: { _id: 0, value: "$_id", count: 1 } },
-          { $sort: { count: -1, value: 1 } },
-        ],
-      },
-    },
+  const entries = await atlasSearch(
+    collection,
+    query,
+    candidateLimit + 1,
+    undefined,
+    mode,
+    queryVariants,
+    buildSearchMongoFilter(filters, mongoFilter),
   );
+  const exact = entries.length <= candidateLimit;
 
-  const raw = await withTimeout(
-    collection
-      .aggregate(pipeline, {
-        maxTimeMS: ATLAS_SEARCH_TIMEOUT_MS,
-        allowDiskUse: true,
-      })
-      .toArray(),
-    ATLAS_SEARCH_TIMEOUT_MS + 500,
-    `Atlas grouped search timed out after ${ATLAS_SEARCH_TIMEOUT_MS}ms`,
-  );
-
-  return parseAtlasSearchResponse({
+  return buildGroupedSearchResponse({
     query,
     mode,
     sort,
     filters: getPublicFilters(filters),
+    entries: exact ? entries : entries.slice(0, candidateLimit),
     offset,
     limit,
-    raw,
-    exact:
-      !Array.isArray(raw?.[0]?.total) ||
-      Number(raw[0]?.total?.[0]?.entries || 0) <= candidateLimit,
+    exact,
   });
 }
 
