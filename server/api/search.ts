@@ -50,6 +50,7 @@ import {
   type SearchResponseFilters,
   type SearchSortOption,
 } from "../../utils/search-result-groups.ts";
+import { resolveWordEntriesFromJson } from "../../utils/headword-exact-match.ts";
 import type { EntryType } from "../../types/dictionary.ts";
 
 export interface SearchQuery {
@@ -113,7 +114,7 @@ interface ScoredEntry {
   secondaryScore: number;
 }
 
-const ATLAS_SEARCH_TIMEOUT_MS = 8000;
+const ATLAS_SEARCH_TIMEOUT_MS = 3500;
 const FALLBACK_SEARCH_TIMEOUT_MS = 8000;
 const SEARCH_HANDLER_TIMEOUT_MS = 12000;
 const SLOW_SEARCH_THRESHOLD_MS = 3000;
@@ -585,6 +586,70 @@ const buildSearchMongoFilter = (
   }
 
   return mongoFilter;
+};
+
+const entryMatchesSearchFilters = (
+  entry: any,
+  filters: SearchFilterOptions,
+): boolean => {
+  if (filters.dict && entry.source_book !== filters.dict) {
+    return false;
+  }
+
+  if (
+    filters.dialect &&
+    String(entry.dialect?.region_code || "").toUpperCase() !==
+      filters.dialect.toUpperCase()
+  ) {
+    return false;
+  }
+
+  if (filters.type && entry.entry_type !== filters.type) {
+    return false;
+  }
+
+  return true;
+};
+
+const buildExactAssetSearchResponse = async ({
+  query,
+  mode,
+  sort,
+  filters,
+  offset,
+  limit,
+}: {
+  query: string;
+  mode: SearchMode;
+  sort: SearchSortOption;
+  filters: SearchFilterOptions;
+  offset: number;
+  limit: number;
+}): Promise<GroupedSearchResponse | null> => {
+  if (mode !== "normal") {
+    return null;
+  }
+
+  const resolved = await resolveWordEntriesFromJson(query);
+  const entries = (resolved?.entries || []).filter((entry) =>
+    entryMatchesSearchFilters(entry, filters),
+  );
+
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return buildGroupedSearchResponse({
+    query,
+    mode,
+    sort,
+    filters: getPublicFilters(filters),
+    entries,
+    offset,
+    limit,
+    // This is an emergency exact-headword rescue, not the full fuzzy universe.
+    exact: false,
+  });
 };
 
 const getPublicFilters = (
@@ -1097,18 +1162,42 @@ const searchEventHandler = async (event: any) => {
         }
 
         metrics.strategy = "fallback";
-        return await measureAsync(metrics.phaseMs, "fallback", () =>
-          fallbackGroupedSearch(collection, searchQuery, {
-            limit: resultLimit,
-            offset: resultOffset,
-            mode: normalizedMode,
-            sort: normalizedSort,
-            queryVariants,
-            filters,
-            stageTimings: metrics.stageMs,
-            mongoFilter: moderationMongoFilter,
-          }),
-        );
+        try {
+          return await measureAsync(metrics.phaseMs, "fallback", () =>
+            fallbackGroupedSearch(collection, searchQuery, {
+              limit: resultLimit,
+              offset: resultOffset,
+              mode: normalizedMode,
+              sort: normalizedSort,
+              queryVariants,
+              filters,
+              stageTimings: metrics.stageMs,
+              mongoFilter: moderationMongoFilter,
+            }),
+          );
+        } catch (fallbackError) {
+          const exactAssetResponse = await measureAsync(
+            metrics.phaseMs,
+            "exactAsset",
+            () =>
+              buildExactAssetSearchResponse({
+                query: searchQuery,
+                mode: normalizedMode,
+                sort: normalizedSort,
+                filters,
+                offset: resultOffset,
+                limit: resultLimit,
+              }),
+          );
+
+          if (exactAssetResponse) {
+            metrics.degradedReason =
+              metrics.degradedReason || "fallback_exact_asset";
+            return exactAssetResponse;
+          }
+
+          throw fallbackError;
+        }
       })(),
       SEARCH_HANDLER_TIMEOUT_MS,
       `Search handler timed out after ${SEARCH_HANDLER_TIMEOUT_MS}ms`,
@@ -1132,6 +1221,45 @@ const searchEventHandler = async (event: any) => {
       logSearchFailure("[search-api] timed out", metrics, error);
     } else {
       logSearchFailure("[search-api] failed", metrics, error);
+    }
+
+    try {
+      const exactAssetResponse = await measureAsync(
+        metrics.phaseMs,
+        "exactAsset",
+        () =>
+          buildExactAssetSearchResponse({
+            query: searchQuery,
+            mode: normalizedMode,
+            sort: normalizedSort,
+            filters,
+            offset: resultOffset,
+            limit: resultLimit,
+          }),
+      );
+
+      if (exactAssetResponse) {
+        metrics.degradedReason =
+          metrics.degradedReason || "handler_timeout_exact_asset";
+        const visibleResponse = stripSearchResponseModerationMetadata(
+          event,
+          exactAssetResponse,
+        );
+        metrics.resultCount = visibleResponse.results.length;
+        metrics.totalMs = Date.now() - requestStartedAt;
+        logSlowSearch("[search-api] exact asset rescue", metrics, {
+          atlasAvailability: getAtlasSearchAvailability(),
+        });
+        return visibleResponse;
+      }
+    } catch (exactAssetError) {
+      console.error("[search-api] exact asset rescue failed", {
+        queryHash: metrics.queryHash,
+        error:
+          exactAssetError instanceof Error
+            ? exactAssetError.message
+            : String(exactAssetError),
+      });
     }
 
     return {
