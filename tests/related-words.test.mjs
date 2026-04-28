@@ -71,7 +71,9 @@ test("static related response returns grouped entries without full search depend
     response.groups.map((group) => group.primary.headword.display),
     ["沙士狗", "沙士茶", "新沙士"],
   );
-  assert.deepEqual(resolved, ["沙士狗", "沙士茶", "新沙士"]);
+  assert.deepEqual(resolved, ["沙士", "沙士狗", "沙士茶", "新沙士"]);
+  assert.equal(response.total.grouped, 3);
+  assert.equal(response.searchTotal.grouped, 4);
 });
 
 test("static related response applies mainland moderation filtering", async () => {

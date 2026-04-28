@@ -65,6 +65,7 @@ export interface GroupedSearchResponse {
   groups: AggregatedSearchEntry[];
   results: DictionaryEntry[];
   total: SearchTotalMeta;
+  searchTotal?: SearchTotalMeta;
   totalGrouped: number;
   page: SearchPageMeta;
   facets: SearchFacetCounts;

@@ -501,7 +501,9 @@ const relatedSearchResponse = computed(() => {
 });
 
 const backSearchResultCount = computed(() => {
-  const total = relatedSearchResponse.value?.total;
+  const total =
+    relatedSearchResponse.value?.searchTotal ||
+    relatedSearchResponse.value?.total;
   if (!total) return null;
   return total.exact ? String(total.grouped) : `${total.grouped}+`;
 });

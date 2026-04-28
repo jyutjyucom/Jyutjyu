@@ -41,6 +41,7 @@ interface RelatedCandidate {
 
 interface CachedRelatedEntries {
   entries: DictionaryEntry[];
+  searchEntries: DictionaryEntry[];
   exact: boolean;
 }
 
@@ -150,6 +151,7 @@ const getStaticRelatedEntries = async ({
   const allHeadwords = headwords ?? (await getCanonicalHeadwordsFromJson());
   const resolver = resolveWordEntries ?? resolveWordEntriesFromJson;
   const maxCandidates = getCandidateBudget(limit);
+  const currentResolved = await resolver(normalizedQuery);
   const candidates = await getRelatedHeadwordCandidates({
     query: normalizedQuery,
     headwords: allHeadwords,
@@ -174,6 +176,7 @@ const getStaticRelatedEntries = async ({
 
   const result = {
     entries,
+    searchEntries: [...(currentResolved?.entries || []), ...entries],
     exact: candidates.length < maxCandidates,
   };
 
@@ -203,25 +206,38 @@ export const buildStaticRelatedWordsResponse = async ({
   }
 
   try {
-    const { entries, exact } = await getStaticRelatedEntries({
+    const { entries, searchEntries, exact } = await getStaticRelatedEntries({
       query: normalizedQuery,
       limit: normalizedLimit,
       headwords,
       resolveWordEntries,
     });
-    const visibleEntries = event
-      ? filterRestrictedEntries(event, entries)
-      : entries.map((entry) => {
-          const { moderation: _moderation, ...cleanEntry } = entry as any;
-          return cleanEntry as DictionaryEntry;
-        });
-
-    return buildGroupedSearchResponse({
+    const getVisibleEntries = (items: DictionaryEntry[]) =>
+      event
+        ? filterRestrictedEntries(event, items)
+        : items.map((entry) => {
+            const { moderation: _moderation, ...cleanEntry } = entry as any;
+            return cleanEntry as DictionaryEntry;
+          });
+    const visibleEntries = getVisibleEntries(entries);
+    const visibleSearchEntries = getVisibleEntries(searchEntries);
+    const response = buildGroupedSearchResponse({
       query: normalizedQuery,
       entries: visibleEntries as DictionaryEntry[],
       limit: normalizedLimit,
       exact,
     });
+    const searchResponse = buildGroupedSearchResponse({
+      query: normalizedQuery,
+      entries: visibleSearchEntries as DictionaryEntry[],
+      limit: normalizedLimit,
+      exact,
+    });
+
+    return {
+      ...response,
+      searchTotal: searchResponse.total,
+    };
   } catch (error) {
     console.warn("[word-related-api] static lookup failed", {
       query: normalizedQuery,
