@@ -107,6 +107,11 @@ export const isSearchResultsViewQuery = (query: RouteQueryLike): boolean => {
   return value === SEARCH_RESULTS_VIEW_QUERY_VALUE;
 };
 
+export const isSearchRoutePath = (path: string): boolean => {
+  const strippedPath = stripLocalePrefix(path).replace(/\/+$/, "") || "/";
+  return strippedPath === "/search";
+};
+
 export const applyLocalePrefix = (path: string, prefix: string): string => {
   const normalizedPath = path || "";
 

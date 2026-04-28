@@ -51,6 +51,7 @@ import {
   type SearchSortOption,
 } from "../../utils/search-result-groups.ts";
 import { resolveWordEntriesFromJson } from "../../utils/headword-exact-match.ts";
+import { isJyutpingQuery as isValidatedJyutpingQuery } from "../../utils/query-classify.ts";
 import type { EntryType } from "../../types/dictionary.ts";
 
 export interface SearchQuery {
@@ -123,8 +124,8 @@ const FALLBACK_SCAN_LIMIT = 2000;
 const FALLBACK_STAGE_OVERSCAN = 20;
 const FALLBACK_STAGE_MIN_FETCH = 5;
 const FALLBACK_STAGE_TIMEOUT_MAX_MS = 4000;
-const ATLAS_GROUPED_CANDIDATE_MIN_LIMIT = 500;
-const ATLAS_GROUPED_CANDIDATE_MAX_LIMIT = 2000;
+const ATLAS_GROUPED_CANDIDATE_MIN_LIMIT = 80;
+const ATLAS_GROUPED_CANDIDATE_MAX_LIMIT = 800;
 
 let atlasSearchAvailability: AtlasSearchAvailability = "unknown";
 const queryVariantsCache = new Map<string, string[]>();
@@ -339,15 +340,18 @@ export const getCachedQueryVariants = async (query: string): Promise<string[]> =
 export const shouldAttemptAtlasSearch = ({
   mode,
   hasSymbolCharacters,
+  isJyutpingQuery = false,
   atlasAvailabilityState = getAtlasSearchAvailability(),
 }: {
   mode: SearchMode;
   hasSymbolCharacters: boolean;
+  isJyutpingQuery?: boolean;
   atlasAvailabilityState?: AtlasSearchAvailability;
 }): boolean => {
   return (
     mode === "normal" &&
     !hasSymbolCharacters &&
+    !isJyutpingQuery &&
     atlasAvailabilityState !== "unavailable"
   );
 };
@@ -552,6 +556,31 @@ const buildFallbackStages = (
   queryLower: string,
   mode: SearchMode,
 ): SearchStage[] => {
+  if (mode === "normal" && isValidatedJyutpingQuery(queryLower)) {
+    const jyutpingPattern = buildRegexPattern([queryLower]);
+    return [
+      {
+        name: "exact_jyutping",
+        priority: 70,
+        condition: {
+          "phonetic.jyutping": { $in: [queryLower] },
+        },
+      },
+      {
+        name: "contains_jyutping",
+        priority: 60,
+        condition: jyutpingPattern
+          ? {
+              "phonetic.jyutping": {
+                $regex: `(?:${jyutpingPattern})`,
+                $options: "i",
+              },
+            }
+          : null,
+      },
+    ];
+  }
+
   return mode === "reverse"
     ? buildReverseFallbackStages(queryVariants)
     : buildNormalFallbackStages(queryVariants, queryLower);
@@ -845,12 +874,10 @@ export async function atlasGroupedSearch(
     mongoFilter?: Record<string, unknown>;
   },
 ): Promise<GroupedSearchResponse> {
+  const requestedWindow = offset + limit;
   const candidateLimit = Math.min(
     ATLAS_GROUPED_CANDIDATE_MAX_LIMIT,
-    Math.max(
-      ATLAS_GROUPED_CANDIDATE_MIN_LIMIT,
-      getFallbackGroupedFetchLimit(offset, limit),
-    ),
+    Math.max(ATLAS_GROUPED_CANDIDATE_MIN_LIMIT, requestedWindow * 4),
   );
   const entries = await atlasSearch(
     collection,
@@ -984,7 +1011,10 @@ export async function fallbackGroupedSearch(
     mongoFilter?: Record<string, unknown>;
   },
 ): Promise<GroupedSearchResponse> {
-  const fetchLimit = getFallbackGroupedFetchLimit(offset, limit);
+  const fetchLimit =
+    mode === "normal" && isValidatedJyutpingQuery(query)
+      ? Math.min(FALLBACK_SCAN_LIMIT, offset + limit)
+      : getFallbackGroupedFetchLimit(offset, limit);
   const entries = await fallbackSearch(
     collection,
     query,
@@ -1089,6 +1119,7 @@ const searchEventHandler = async (event: any) => {
 
   const searchQuery = q.trim();
   const hasSymbolCharacters = /[\p{P}\p{S}]/u.test(searchQuery);
+  const isJyutpingSearchQuery = isValidatedJyutpingQuery(searchQuery);
   const metrics: SearchMetrics = {
     queryHash: hashSearchQuery(searchQuery),
     querySample: getSearchQuerySample(searchQuery),
@@ -1136,6 +1167,7 @@ const searchEventHandler = async (event: any) => {
           shouldAttemptAtlasSearch({
             mode: normalizedMode,
             hasSymbolCharacters,
+            isJyutpingQuery: isJyutpingSearchQuery,
           })
         ) {
           metrics.strategy = "atlas";

@@ -137,6 +137,15 @@ test("Atlas strategy skips reverse mode, symbol-heavy queries, and unavailable A
     shouldAttemptAtlasSearch({
       mode: "normal",
       hasSymbolCharacters: false,
+      isJyutpingQuery: true,
+      atlasAvailabilityState: "available",
+    }),
+    false,
+  );
+  assert.equal(
+    shouldAttemptAtlasSearch({
+      mode: "normal",
+      hasSymbolCharacters: false,
       atlasAvailabilityState: "unavailable",
     }),
     false,
@@ -331,10 +340,11 @@ test("Atlas grouped search uses a bounded candidate window without Mongo groupin
   resetSearchApiRuntimeStateForTests();
   await ensureInitialized();
 
-  let capturedPipeline;
+  const capturedLimits = [];
   const collection = {
     aggregate(pipeline) {
-      capturedPipeline = pipeline;
+      const limitStage = pipeline.find((stage) => "$limit" in stage);
+      capturedLimits.push(limitStage?.$limit);
       return {
         async toArray() {
           return [
@@ -358,16 +368,64 @@ test("Atlas grouped search uses a bounded candidate window without Mongo groupin
     limit: 12,
     offset: 0,
   });
-  const limitIndex = capturedPipeline.findIndex((stage) => "$limit" in stage);
-  const groupIndex = capturedPipeline.findIndex((stage) => "$group" in stage);
-  const facetIndex = capturedPipeline.findIndex((stage) => "$facet" in stage);
+  await atlasGroupedSearch(collection, "女", {
+    limit: 100,
+    offset: 0,
+  });
+  await atlasGroupedSearch(collection, "女", {
+    limit: 200,
+    offset: 50,
+  });
 
-  assert.ok(limitIndex > 0);
-  assert.equal(groupIndex, -1);
-  assert.equal(facetIndex, -1);
-  assert.equal(capturedPipeline[limitIndex].$limit, 501);
+  assert.deepEqual(capturedLimits, [81, 401, 801]);
   assert.equal(response.total.grouped, 1);
   assert.equal(response.total.exact, true);
+});
+
+test("Jyutping grouped fallback uses indexed Jyutping stages before broad search", async () => {
+  resetSearchApiRuntimeStateForTests();
+  await ensureInitialized();
+
+  const conditions = [];
+  const collection = {
+    find(condition) {
+      conditions.push(condition);
+      return {
+        maxTimeMS() {
+          return this;
+        },
+        limit() {
+          return this;
+        },
+        async toArray() {
+          return [
+            {
+              id: "nei",
+              source_book: "mock",
+              entry_type: "word",
+              headword: { display: "你", normalized: "你" },
+              phonetic: { jyutping: ["nei5"] },
+              senses: [{ definition: "you" }],
+              dialect: { region_code: "HK" },
+              keywords: ["你"],
+            },
+          ];
+        },
+      };
+    },
+  };
+
+  const response = await fallbackGroupedSearch(collection, "nei5", {
+    limit: 1,
+    offset: 0,
+    mode: "normal",
+  });
+
+  assert.equal(response.groups[0].primary.headword.display, "你");
+  assert.equal(conditions.length, 1);
+  assert.deepEqual(conditions[0], {
+    "phonetic.jyutping": { $in: ["nei5"] },
+  });
 });
 
 test("workers production request only fails fast behind the emergency env flag", () => {

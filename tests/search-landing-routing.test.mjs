@@ -12,6 +12,11 @@ import {
   isJyutpingQuery,
   normalizeSearchQuery,
 } from "../utils/query-classify.ts";
+import {
+  buildWordRoutePath,
+  isSearchResultsViewQuery,
+  isSearchRoutePath,
+} from "../utils/route-paths.ts";
 
 const createEntry = ({ id, display, normalized = display, variants = [] }) => ({
   id,
@@ -48,6 +53,12 @@ test("normalizeSearchQuery collapses repeated whitespace", () => {
 
 test("isJyutpingQuery only short-circuits obvious digit-bearing Jyutping", () => {
   assert.equal(isJyutpingQuery("aa3 soe4"), true);
+  assert.equal(isJyutpingQuery("nei5"), true);
+  assert.equal(isJyutpingQuery("m4"), true);
+  assert.equal(isJyutpingQuery("ng5"), true);
+  assert.equal(isJyutpingQuery("doi6*2"), true);
+  assert.equal(isJyutpingQuery("ji3-2"), true);
+  assert.equal(isJyutpingQuery("qi4"), false);
   assert.equal(isJyutpingQuery("bonus"), false);
   assert.equal(isJyutpingQuery("阿Sir"), false);
 });
@@ -169,6 +180,20 @@ test("reverse search never resolves directly to a word page", async () => {
 
   assert.equal(resolution.type, "search");
   assert.equal(resolution.reason, "reverse_search");
+});
+
+test("trailing-slash search exact match resolves to the same word redirect target", async () => {
+  assert.equal(isSearchRoutePath("/search/"), true);
+  assert.equal(isSearchResultsViewQuery({ show: "results" }), true);
+
+  const resolution = await resolveSearchLanding("女");
+
+  assert.equal(resolution.type, "word");
+  assert.equal(resolution.reason, "exact_unique");
+  assert.equal(
+    buildWordRoutePath(resolution.canonicalHeadword),
+    "/word/%E5%A5%B3",
+  );
 });
 
 test("Jyutping-looking queries stay on the search page", async () => {

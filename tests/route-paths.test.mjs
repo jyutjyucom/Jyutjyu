@@ -10,6 +10,7 @@ import {
   buildSitemapUrlEntryXml,
   buildWordRoutePath,
   isSearchResultsViewQuery,
+  isSearchRoutePath,
   withSiteUrl,
   stripLocalePrefix,
 } from "../utils/route-paths.ts";
@@ -63,6 +64,15 @@ test("search route query can explicitly stay on the search results page", () => 
   assert.equal(isSearchResultsViewQuery({ show: "results" }), true);
   assert.equal(isSearchResultsViewQuery({ show: ["results"] }), true);
   assert.equal(isSearchResultsViewQuery({ q: "揾老襯" }), false);
+});
+
+test("search exact redirect path matching accepts trailing slash and locale prefixes", () => {
+  assert.equal(isSearchRoutePath("/search"), true);
+  assert.equal(isSearchRoutePath("/search/"), true);
+  assert.equal(isSearchRoutePath("/zh-Hant/search"), true);
+  assert.equal(isSearchRoutePath("/zh-Hant/search/"), true);
+  assert.equal(isSearchRoutePath("/search/results"), false);
+  assert.equal(isSearchRoutePath("/word/search"), false);
 });
 
 test("word sitemap XML emits one canonical entry with alternates and x-default", () => {

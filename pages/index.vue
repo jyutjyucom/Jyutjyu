@@ -704,8 +704,8 @@ const currentMobileEntry = computed(() => {
 
 // 计算总词条数
 const totalEntriesCount = computed(() => {
-  if (!dictionariesData.value) return 0;
-  return dictionariesData.value.dictionaries.reduce(
+  const dictionaries = dictionariesData.value?.dictionaries || [];
+  return dictionaries.reduce(
     (sum: number, dict: any) => sum + (dict.entries_count || 0),
     0,
   );
@@ -713,10 +713,10 @@ const totalEntriesCount = computed(() => {
 
 // 按名称排序词典
 const sortedDictionaries = computed(() => {
-  if (!dictionariesData.value) return [];
+  const dictionaries = dictionariesData.value?.dictionaries || [];
   // 使用固定的 locale 'zh-CN' 来确保排序在 SSR 和客户端一致
   const sortLocale = "zh-CN";
-  return [...dictionariesData.value.dictionaries]
+  return [...dictionaries]
     .map(localizeDictionary)
     .sort((a, b) => {
       // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成"相等"(返回 0)，

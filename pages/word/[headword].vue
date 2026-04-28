@@ -347,7 +347,18 @@ const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
 const { navigateFromSearchInput } = useSearchNavigation();
 const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
-const requestFetch = process.server ? useRequestFetch() : $fetch;
+type RelatedRequestFetch = <T>(
+  request: string,
+  options?: Record<string, unknown>,
+) => Promise<T>;
+const requestFetch: RelatedRequestFetch = async (request, options) => {
+  if (process.server) {
+    const serverFetch = useRequestFetch() as any
+    return await serverFetch(request, options)
+  }
+
+  return await ($fetch as any)(request, options)
+}
 
 const normalizeComparable = (value: string) =>
   value.replace(/\s+/g, " ").trim().toLowerCase();
@@ -458,15 +469,15 @@ const fetchRelatedSearchData = () =>
       if (!query || !wordData.value) return null;
 
       try {
-        return await requestFetch<GroupedSearchResponse>("/api/search", {
-          query: {
-            q: query,
-            limit: 12,
-            offset: 0,
-            mode: "normal",
+        return await requestFetch<GroupedSearchResponse>(
+          `/api/word/${encodeURIComponent(query)}/related`,
+          {
+            query: {
+              limit: 12,
+            },
+            timeout: 1500,
           },
-          timeout: 5000,
-        });
+        );
       } catch (error) {
         console.warn("Related search fetch failed:", error);
         return null;

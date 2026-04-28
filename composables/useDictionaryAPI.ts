@@ -71,9 +71,7 @@ export const useDictionaryAPI = () => {
    */
   const isAPIEnabled = () => {
     // 环境变量可能是字符串 'true' 或布尔值 true，使用 String() 统一处理
-    return (
-      config.public.useApi === true || String(config.public.useApi) === "true"
-    );
+    return String(config.public.useApi).trim().toLowerCase() === "true";
   };
 
   /**

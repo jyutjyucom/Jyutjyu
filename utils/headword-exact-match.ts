@@ -7,7 +7,6 @@ import {
 import {
   EXACT_MATCH_BUCKET_HASH,
   EXACT_MATCH_BUCKET_MOD,
-  EXACT_MATCH_BUCKET_WIDTH,
   getExactMatchBucketId,
   getExactMatchBucketWidth,
 } from "../server/utils/exact-match-bucket.js";

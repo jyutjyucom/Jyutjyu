@@ -42,7 +42,7 @@ export const fetchAssetJson = async <T>(assetPath: string): Promise<T> => {
   }
 
   if (import.meta.client) {
-    return $fetch<T>(assetPath);
+    return (await $fetch<T>(assetPath)) as T;
   }
 
   const [{ readFile }, { resolve }] = await Promise.all([

@@ -3,7 +3,7 @@ import {
   applyLocalePrefix,
   buildWordRoutePath,
   isSearchResultsViewQuery,
-  stripLocalePrefix,
+  isSearchRoutePath,
 } from "../../utils/route-paths";
 import { resolveSearchLanding } from "../utils/word-resolver";
 
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   if (method !== "GET" && method !== "HEAD") return;
 
   const requestUrl = getRequestURL(event);
-  if (stripLocalePrefix(requestUrl.pathname) !== "/search") return;
+  if (!isSearchRoutePath(requestUrl.pathname)) return;
 
   const query = getQuery<{ q?: string; reverse?: string }>(event);
   const searchQuery = String(query.q || "").trim();

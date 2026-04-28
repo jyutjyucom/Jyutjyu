@@ -27,7 +27,6 @@ import {
 } from "../utils/random-entries";
 
 const QUALITY_DICTIONARIES = ["广州话俗语词典", "实用广州话分类词典"];
-const DEFAULT_RANDOM_QUERY_TIMEOUT_MS = 1200;
 
 const RECOMMENDATION_FILE_CANDIDATES = [
   resolve(process.cwd(), "public/recommendations.json"),

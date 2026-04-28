@@ -380,7 +380,7 @@
 </template>
 
 <script setup lang="ts">
-import type { DictionaryEntry } from "~/types/dictionary";
+import type { DictionaryEntry, EntryType } from "~/types/dictionary";
 import { hasDialectI18n } from "~/constants/dialect";
 import {
   aggregateSearchEntries,
@@ -521,6 +521,13 @@ const selectType = (type: string | null) => {
   showTypeDropdown.value = false;
   currentPage.value = 1;
   void performSearch(actualSearchQuery.value, { resetFilters: false });
+};
+
+const getSelectedEntryType = (): EntryType | undefined => {
+  const type = selectedType.value;
+  return type === "character" || type === "word" || type === "phrase"
+    ? type
+    : undefined;
 };
 
 const selectSort = (sort: SearchSortOption) => {
@@ -986,7 +993,7 @@ const performSearch = async (
       mode: enableReverseSearch.value ? "reverse" : "normal",
       dict: selectedDict.value || undefined,
       dialect: selectedDialect.value || undefined,
-      type: selectedType.value || undefined,
+      type: getSelectedEntryType(),
       sort: sortBy.value,
     });
 
@@ -1047,7 +1054,7 @@ const loadMore = async () => {
         mode: enableReverseSearch.value ? "reverse" : "normal",
         dict: selectedDict.value || undefined,
         dialect: selectedDialect.value || undefined,
-        type: selectedType.value || undefined,
+        type: getSelectedEntryType(),
         sort: sortBy.value,
       },
     );

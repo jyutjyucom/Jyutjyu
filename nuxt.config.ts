@@ -8,12 +8,12 @@ import { resolveTtsPublicRuntimeConfig } from "./utils/tts-runtime";
 
 const DEFAULT_SITE_URL = "https://jyutjyu.com";
 
-const resolveUseApi = (): boolean | "auto" => {
+const resolveUseApi = (): "true" | "false" | "auto" => {
   const explicit = process.env.NUXT_PUBLIC_USE_API;
-  if (explicit === "true") return true;
-  if (explicit === "false") return false;
+  if (explicit === "true") return "true";
+  if (explicit === "false") return "false";
   if (process.env.NODE_ENV !== "production" && process.env.MONGODB_URI) {
-    return true;
+    return "true";
   }
   return "auto";
 };
