@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  atlasGroupedSearch,
   fallbackGroupedSearch,
   fallbackSearch,
+  getFallbackStageTimeoutMs,
   normalizeSearchResultOffset,
   normalizeSearchResultLimit,
   resetSearchApiRuntimeStateForTests,
@@ -293,6 +295,73 @@ test("search result offset is clamped to a non-negative grouped offset", () => {
   assert.equal(normalizeSearchResultOffset("500"), 500);
   assert.equal(normalizeSearchResultOffset("-10"), 0);
   assert.equal(normalizeSearchResultOffset(undefined), 0);
+});
+
+test("fallback stages use the paid-plan budget instead of the old 900ms cap", async () => {
+  resetSearchApiRuntimeStateForTests();
+  await ensureInitialized();
+
+  assert.equal(getFallbackStageTimeoutMs(8000), 4000);
+
+  const maxTimeValues = [];
+  const collection = {
+    find() {
+      return {
+        maxTimeMS(value) {
+          maxTimeValues.push(value);
+          return this;
+        },
+        limit() {
+          return this;
+        },
+        async toArray() {
+          return [];
+        },
+      };
+    },
+  };
+
+  await fallbackSearch(collection, "女", 1, undefined, "normal");
+
+  assert.ok(maxTimeValues.length > 0);
+  assert.ok(maxTimeValues[0] > 900);
+});
+
+test("Atlas grouped search bounds the candidate window before grouping", async () => {
+  resetSearchApiRuntimeStateForTests();
+  await ensureInitialized();
+
+  let capturedPipeline;
+  const collection = {
+    aggregate(pipeline) {
+      capturedPipeline = pipeline;
+      return {
+        async toArray() {
+          return [
+            {
+              groups: [],
+              total: [{ grouped: 501, entries: 501 }],
+              dictionaries: [],
+              dialects: [],
+              types: [],
+            },
+          ];
+        },
+      };
+    },
+  };
+
+  const response = await atlasGroupedSearch(collection, "女", {
+    limit: 12,
+    offset: 0,
+  });
+  const limitIndex = capturedPipeline.findIndex((stage) => "$limit" in stage);
+  const groupIndex = capturedPipeline.findIndex((stage) => "$group" in stage);
+
+  assert.ok(limitIndex > 0);
+  assert.ok(groupIndex > limitIndex);
+  assert.equal(capturedPipeline[limitIndex].$limit, 501);
+  assert.equal(response.total.exact, false);
 });
 
 test("workers production request only fails fast behind the emergency env flag", () => {

@@ -122,6 +122,9 @@ const QUERY_VARIANT_CACHE_LIMIT = 128;
 const FALLBACK_SCAN_LIMIT = 2000;
 const FALLBACK_STAGE_OVERSCAN = 20;
 const FALLBACK_STAGE_MIN_FETCH = 5;
+const FALLBACK_STAGE_TIMEOUT_MAX_MS = 4000;
+const ATLAS_GROUPED_CANDIDATE_MIN_LIMIT = 500;
+const ATLAS_GROUPED_CANDIDATE_MAX_LIMIT = 2000;
 
 let atlasSearchAvailability: AtlasSearchAvailability = "unknown";
 const queryVariantsCache = new Map<string, string[]>();
@@ -197,6 +200,13 @@ const getStageFetchLimit = (remaining: number): number => {
   return Math.max(
     FALLBACK_STAGE_MIN_FETCH,
     remaining + Math.min(FALLBACK_STAGE_OVERSCAN, Math.max(remaining, 5)),
+  );
+};
+
+export const getFallbackStageTimeoutMs = (remainingBudgetMs: number): number => {
+  return Math.max(
+    250,
+    Math.min(FALLBACK_STAGE_TIMEOUT_MAX_MS, remainingBudgetMs - 25),
   );
 };
 
@@ -726,6 +736,7 @@ const parseAtlasSearchResponse = ({
   offset,
   limit,
   raw,
+  exact = true,
 }: {
   query: string;
   mode: SearchMode;
@@ -734,6 +745,7 @@ const parseAtlasSearchResponse = ({
   offset: number;
   limit: number;
   raw: any[];
+  exact?: boolean;
 }): GroupedSearchResponse => {
   const first = raw?.[0] || {};
   const groups = Array.isArray(first.groups)
@@ -763,7 +775,7 @@ const parseAtlasSearchResponse = ({
     total: {
       grouped: groupedTotal,
       entries: entryTotal,
-      exact: true,
+      exact,
     },
     totalGrouped: groupedTotal,
     page: buildSearchPageMeta({
@@ -846,6 +858,13 @@ export async function atlasGroupedSearch(
   const resolvedVariants = queryVariants ?? (await getCachedQueryVariants(query));
   const searchStage = buildAtlasSearchStage(query, mode, resolvedVariants);
   const matchStage = buildSearchMongoFilter(filters, mongoFilter);
+  const candidateLimit = Math.min(
+    ATLAS_GROUPED_CANDIDATE_MAX_LIMIT,
+    Math.max(
+      ATLAS_GROUPED_CANDIDATE_MIN_LIMIT,
+      getFallbackGroupedFetchLimit(offset, limit),
+    ),
+  );
   const pipeline: any[] = [
     { $search: searchStage },
     {
@@ -871,6 +890,11 @@ export async function atlasGroupedSearch(
         id: 1,
       },
     },
+    // Grouping every Atlas Search hit before paginating is the expensive path
+    // that caused broad searches and word-page related searches to time out.
+    // Use a bounded relevance window, and mark the count non-exact if the
+    // window is saturated.
+    { $limit: candidateLimit + 1 },
     {
       $group: {
         _id: {
@@ -1026,6 +1050,9 @@ export async function atlasGroupedSearch(
     offset,
     limit,
     raw,
+    exact:
+      !Array.isArray(raw?.[0]?.total) ||
+      Number(raw[0]?.total?.[0]?.entries || 0) <= candidateLimit,
   });
 }
 
@@ -1067,7 +1094,7 @@ export async function fallbackSearch(
       );
     }
 
-    const stageTimeoutMs = Math.max(250, Math.min(900, remainingBudgetMs - 25));
+    const stageTimeoutMs = getFallbackStageTimeoutMs(remainingBudgetMs);
     const remaining = limit - results.length;
     const queryCondition: Record<string, unknown> = {
       ...baseFilter,

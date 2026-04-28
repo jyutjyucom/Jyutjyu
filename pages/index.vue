@@ -76,10 +76,33 @@
               />
               <div class="absolute right-3 flex items-center gap-2">
                 <button
-                  class="bg-kapok text-white px-5 py-2.5 font-medium text-base hover:bg-kapok/90 transition-colors"
+                  class="bg-kapok text-white px-5 py-2.5 font-medium text-base hover:bg-kapok/90 transition-colors disabled:cursor-wait disabled:opacity-80 inline-flex items-center gap-2"
+                  :disabled="isSearchNavigating"
+                  :aria-busy="isSearchNavigating"
                   @click="handleSearch"
                 >
-                  {{ t("common.searchButton") }}
+                  <svg
+                    v-if="isSearchNavigating"
+                    class="w-4 h-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  <span>{{ t("common.searchButton") }}</span>
                 </button>
               </div>
             </div>
@@ -653,6 +676,7 @@ const { navigateFromSearchInput } = useSearchNavigation();
 
 const searchQuery = ref("");
 const enableReverseSearch = ref(false);
+const isSearchNavigating = ref(false);
 
 // 使用 useState 来保持状态在页面导航时不丢失
 const randomEntries = useState<DictionaryEntry[]>(
@@ -720,18 +744,25 @@ const bookCardClass = (index: number) => {
 
 const bookCardIsDark = (index: number) => index % 4 === 0 || index % 4 === 2;
 
-const handleSearch = () => {
+const handleSearch = async () => {
+  if (isSearchNavigating.value) return;
+
   if (searchQuery.value.trim()) {
-    void navigateFromSearchInput({
-      query: searchQuery.value,
-      reverse: enableReverseSearch.value,
-    });
+    isSearchNavigating.value = true;
+    try {
+      await navigateFromSearchInput({
+        query: searchQuery.value,
+        reverse: enableReverseSearch.value,
+      });
+    } finally {
+      isSearchNavigating.value = false;
+    }
   }
 };
 
 const searchExample = (query: string) => {
   searchQuery.value = query;
-  handleSearch();
+  void handleSearch();
 };
 
 const wordPath = (headword: string) => getWordPath(headword);
