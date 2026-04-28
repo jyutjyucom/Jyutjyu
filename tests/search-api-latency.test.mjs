@@ -356,9 +356,11 @@ test("Atlas grouped search bounds the candidate window before grouping", async (
     offset: 0,
   });
   const limitIndex = capturedPipeline.findIndex((stage) => "$limit" in stage);
+  const sortIndex = capturedPipeline.findIndex((stage) => "$sort" in stage);
   const groupIndex = capturedPipeline.findIndex((stage) => "$group" in stage);
 
   assert.ok(limitIndex > 0);
+  assert.ok(sortIndex > limitIndex);
   assert.ok(groupIndex > limitIndex);
   assert.equal(capturedPipeline[limitIndex].$limit, 501);
   assert.equal(response.total.exact, false);

@@ -884,17 +884,16 @@ export async function atlasGroupedSearch(
   }
 
   pipeline.push(
+    // Atlas Search already returns results in relevance order. Limit that
+    // stream before any explicit sort/group work, otherwise Mongo must
+    // materialize and sort the full search result set.
+    { $limit: candidateLimit + 1 },
     {
       $sort: {
         _score: -1,
         id: 1,
       },
     },
-    // Grouping every Atlas Search hit before paginating is the expensive path
-    // that caused broad searches and word-page related searches to time out.
-    // Use a bounded relevance window, and mark the count non-exact if the
-    // window is saturated.
-    { $limit: candidateLimit + 1 },
     {
       $group: {
         _id: {
