@@ -177,6 +177,22 @@ function parseSenses(definition) {
  * @param {string} text - 释义文本（不含备注）
  * @returns {Array<Object>} 包含单个义项的数组
  */
+function parseExamplePart(part) {
+  const matches = [...part.matchAll(/<([^>]+)>/g)];
+  const translationMatch = matches.find(
+    (match) => !/^[⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻]/.test(match[1].trim()),
+  );
+
+  if (!translationMatch) {
+    return { text: part };
+  }
+
+  return {
+    text: part.replace(translationMatch[0], "").trim(),
+    translation: translationMatch[1].trim(),
+  };
+}
+
 function parseExamplesInDefinition(text) {
   if (!text || !text.trim()) {
     return [
@@ -222,21 +238,7 @@ function parseExamplesInDefinition(text) {
       .filter((part) => part);
 
     exampleParts.forEach((part) => {
-      // 检查是否有尖括号包裹的翻译
-      const translationMatch = part.match(/<([^>]+)>/);
-
-      if (translationMatch) {
-        const translation = translationMatch[1].trim();
-        const exampleText = part.replace(/<[^>]+>/, "").trim();
-        sense.examples.push({
-          text: exampleText,
-          translation: translation,
-        });
-      } else {
-        sense.examples.push({
-          text: part,
-        });
-      }
+      sense.examples.push(parseExamplePart(part));
     });
   } else {
     // 没有冒号分隔，整个作为释义
@@ -314,21 +316,7 @@ function parseSubSenseText(text, label) {
       .filter((part) => part);
 
     exampleParts.forEach((part) => {
-      // 检查是否有尖括号包裹的翻译
-      const translationMatch = part.match(/<([^>]+)>/);
-
-      if (translationMatch) {
-        const translation = translationMatch[1].trim();
-        const exampleText = part.replace(/<[^>]+>/, "").trim();
-        subSense.examples.push({
-          text: exampleText,
-          translation: translation,
-        });
-      } else {
-        subSense.examples.push({
-          text: part,
-        });
-      }
+      subSense.examples.push(parseExamplePart(part));
     });
   } else {
     // 没有冒号分隔，整个作为释义
