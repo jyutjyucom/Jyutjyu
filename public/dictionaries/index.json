@@ -275,7 +275,7 @@
         "yue-Hant": "廣州方言詞典"
       },
       "dialect": "广州",
-      "entries_count": 7476,
+      "entries_count": 11862,
       "author": {
         "zh-Hans": "白宛如",
         "zh-Hant": "白宛如",
@@ -290,7 +290,7 @@
       },
       "year": 1998,
       "file": "gz-dialect.json",
-      "version": "2026-01-23",
+      "version": "2026-05-01",
       "description": {
         "zh-Hans": "收录广州话词汇，包含释义、读音、用例等，是研究粤语（广州话）的重要工具书",
         "zh-Hant": "收錄廣州話詞彙，包含釋義、讀音、用例等，是研究粵語（廣州話）的重要工具書",
@@ -561,6 +561,6 @@
       "cover": "/ts-english-dict.png"
     }
   ],
-  "last_updated": "2026-02-03T18:30:31.711Z",
+  "last_updated": "2026-05-01T13:41:02.462Z",
   "schema_version": "1.1.0"
 }

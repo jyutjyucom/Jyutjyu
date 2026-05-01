@@ -65,7 +65,7 @@ export const DICTIONARY_INFO = {
     "zh-Hans": "版权所有，仅供技术演示",
     "zh-Hant": "版權所有，僅供技術演示",
     "yue-Hans": "版权所有，只供技术演示",
-    "yue-Hant": "版權所有，只供技术演示",
+    "yue-Hant": "版權所有，只供技術演示",
   },
   usage_restriction: {
     "zh-Hans":
