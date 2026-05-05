@@ -66,7 +66,7 @@ export interface SearchQuery {
 }
 
 export type SearchMode = "normal" | "reverse";
-type SearchStrategy = "atlas" | "fallback";
+type SearchStrategy = "atlas" | "exact_asset";
 type AtlasSearchAvailability = "unknown" | "available" | "unavailable";
 
 interface SearchMetrics {
@@ -681,17 +681,6 @@ const buildExactAssetSearchResponse = async ({
   });
 };
 
-const shouldUseExactAssetAfterAtlasDegrade = ({
-  query,
-  mode,
-  offset,
-}: {
-  query: string;
-  mode: SearchMode;
-  offset: number;
-}): boolean => {
-  return mode === "normal" && offset === 0 && Array.from(query).length >= 2;
-};
 
 const getPublicFilters = (
   filters: SearchFilterOptions,
@@ -1126,7 +1115,7 @@ const searchEventHandler = async (event: any) => {
     mode: normalizedMode,
     limit: resultLimit,
     offset: resultOffset,
-    strategy: "fallback",
+    strategy: "atlas",  // ← Default strategy (will be updated based on actual path)
     phaseMs: {},
     stageMs: {},
   };
@@ -1199,77 +1188,61 @@ const searchEventHandler = async (event: any) => {
               metrics.degradedReason = "atlas_error";
             }
 
-            if (shouldFailFastAfterAtlasDegrade(event)) {
-              throw error;
+            // Atlas失败后，直接使用Exact Asset Rescue，跳过Fallback Regex
+            const exactAssetResponse = await measureAsync(
+              metrics.phaseMs,
+              "exactAsset",
+              () =>
+                buildExactAssetSearchResponse({
+                  query: searchQuery,
+                  mode: normalizedMode,
+                  sort: normalizedSort,
+                  filters,
+                  offset: resultOffset,
+                  limit: resultLimit,
+                }),
+            );
+
+            if (exactAssetResponse) {
+              metrics.degradedReason =
+                metrics.degradedReason || "atlas_exact_asset";
+              return exactAssetResponse;
             }
 
-            if (
-              shouldUseExactAssetAfterAtlasDegrade({
-                query: searchQuery,
-                mode: normalizedMode,
-                offset: resultOffset,
-              })
-            ) {
-              const exactAssetResponse = await measureAsync(
-                metrics.phaseMs,
-                "exactAsset",
-                () =>
-                  buildExactAssetSearchResponse({
-                    query: searchQuery,
-                    mode: normalizedMode,
-                    sort: normalizedSort,
-                    filters,
-                    offset: resultOffset,
-                    limit: resultLimit,
-                  }),
-              );
-
-              if (exactAssetResponse) {
-                metrics.degradedReason =
-                  metrics.degradedReason || "atlas_exact_asset";
-                return exactAssetResponse;
-              }
-            }
+            throw error;
           }
         }
 
-        metrics.strategy = "fallback";
-        try {
-          return await measureAsync(metrics.phaseMs, "fallback", () =>
-            fallbackGroupedSearch(collection, searchQuery, {
-              limit: resultLimit,
-              offset: resultOffset,
+        // Atlas不可用或不支持，直接使用Exact Asset Rescue
+        metrics.strategy = "exact_asset";
+        const exactAssetResponse = await measureAsync(
+          metrics.phaseMs,
+          "exactAsset",
+          () =>
+            buildExactAssetSearchResponse({
+              query: searchQuery,
               mode: normalizedMode,
               sort: normalizedSort,
-              queryVariants,
               filters,
-              stageTimings: metrics.stageMs,
-              mongoFilter: moderationMongoFilter,
+              offset: resultOffset,
+              limit: resultLimit,
             }),
-          );
-        } catch (fallbackError) {
-          const exactAssetResponse = await measureAsync(
-            metrics.phaseMs,
-            "exactAsset",
-            () =>
-              buildExactAssetSearchResponse({
-                query: searchQuery,
-                mode: normalizedMode,
-                sort: normalizedSort,
-                filters,
-                offset: resultOffset,
-                limit: resultLimit,
-              }),
-          );
+        );
 
-          if (exactAssetResponse) {
-            metrics.degradedReason =
-              metrics.degradedReason || "fallback_exact_asset";
-            return exactAssetResponse;
-          }
-
-          throw fallbackError;
+        if (exactAssetResponse) {
+          metrics.degradedReason = "atlas_unsupported_exact_asset";
+          return exactAssetResponse;
         }
+
+        // 无结果，返回空响应
+        return buildEmptySearchResponse({
+          query: searchQuery,
+          mode: normalizedMode,
+          sort: normalizedSort,
+          filters: publicFilters,
+          offset: resultOffset,
+          limit: resultLimit,
+        });
       })(),
       SEARCH_HANDLER_TIMEOUT_MS,
       `Search handler timed out after ${SEARCH_HANDLER_TIMEOUT_MS}ms`,
