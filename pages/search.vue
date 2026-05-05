@@ -528,21 +528,54 @@ const exampleSearches = ["我哋", "你哋", "佢", "dei6", "ngo5 dei6"];
 
 // 筛选函数
 const selectDict = (dict: string | null) => {
+  // 如果值未改变，只关闭dropdown
+  if (selectedDict.value === dict) {
+    showDictDropdown.value = false;
+    return;
+  }
+
   selectedDict.value = dict;
   showDictDropdown.value = false;
   currentPage.value = 1;
+
+  // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  if (getMode() === 'mongodb' && actualSearchQuery.value) {
+    void performSearch(actualSearchQuery.value, { resetFilters: false });
+  }
 };
 
 const selectDialect = (dialect: string | null) => {
+  // 如果值未改变，只关闭dropdown
+  if (selectedDialect.value === dialect) {
+    showDialectDropdown.value = false;
+    return;
+  }
+
   selectedDialect.value = dialect;
   showDialectDropdown.value = false;
   currentPage.value = 1;
+
+  // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  if (getMode() === 'mongodb' && actualSearchQuery.value) {
+    void performSearch(actualSearchQuery.value, { resetFilters: false });
+  }
 };
 
 const selectType = (type: string | null) => {
+  // 如果值未改变，只关闭dropdown
+  if (selectedType.value === type) {
+    showTypeDropdown.value = false;
+    return;
+  }
+
   selectedType.value = type;
   showTypeDropdown.value = false;
   currentPage.value = 1;
+
+  // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  if (getMode() === 'mongodb' && actualSearchQuery.value) {
+    void performSearch(actualSearchQuery.value, { resetFilters: false });
+  }
 };
 
 const getSelectedEntryType = (): EntryType | undefined => {
@@ -772,7 +805,7 @@ const filteredGroups = computed(() => {
         // 篮选方言
         if (selectedDialect.value) {
           const hasDialect = group.entries.some(entry =>
-            entry.dialect?.name?.toUpperCase() === selectedDialect.value?.toUpperCase()
+            entry.dialect?.region_code?.toUpperCase() === selectedDialect.value?.toUpperCase()
           )
           if (!hasDialect) return false
         }
@@ -802,7 +835,7 @@ const filteredGroups = computed(() => {
         // 篮选方言
         if (selectedDialect.value) {
           const hasDialect = group.entries.some(entry =>
-            entry.dialect?.name?.toUpperCase() === selectedDialect.value?.toUpperCase()
+            entry.dialect?.region_code?.toUpperCase() === selectedDialect.value?.toUpperCase()
           )
           if (!hasDialect) return false
         }
