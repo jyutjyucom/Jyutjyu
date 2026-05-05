@@ -44,9 +44,9 @@
             :get-type-count="getTypeCount"
             :get-dialect-label="getDialectLabel"
             :get-type-name="getTypeName"
-            @toggle-dict="showDictDropdown = !showDictDropdown"
-            @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-            @toggle-type="showTypeDropdown = !showTypeDropdown"
+            @toggle-dict="toggleDropdown('dict')"
+            @toggle-dialect="toggleDropdown('dialect')"
+            @toggle-type="toggleDropdown('type')"
             @select-dict="selectDict"
             @select-dialect="selectDialect"
             @select-type="selectType"
@@ -57,7 +57,7 @@
               :disabled="loading || loadingMore"
               :show-sort-dropdown="showSortDropdown"
               :get-sort-label="getSortLabel"
-              @toggle-sort="showSortDropdown = !showSortDropdown"
+              @toggle-sort="toggleDropdown('sort')"
               @select-sort="selectSort"
             />
             <SearchViewModeToggle
@@ -94,9 +94,9 @@
                 :get-type-count="getTypeCount"
                 :get-dialect-label="getDialectLabel"
                 :get-type-name="getTypeName"
-                @toggle-dict="showDictDropdown = !showDictDropdown"
-                @toggle-dialect="showDialectDropdown = !showDialectDropdown"
-                @toggle-type="showTypeDropdown = !showTypeDropdown"
+                @toggle-dict="toggleDropdown('dict')"
+                @toggle-dialect="toggleDropdown('dialect')"
+                @toggle-type="toggleDropdown('type')"
                 @select-dict="selectDict"
                 @select-dialect="selectDialect"
                 @select-type="selectType"
@@ -108,7 +108,7 @@
                   :show-sort-dropdown="showSortDropdown"
                   :get-sort-label="getSortLabel"
                   dropdown-align="right"
-                  @toggle-sort="showSortDropdown = !showSortDropdown"
+                  @toggle-sort="toggleDropdown('sort')"
                   @select-sort="selectSort"
                 />
                 <SearchViewModeToggle
@@ -452,6 +452,31 @@ const showSortDropdown = ref(false); // 排序下拉菜单显示状态
 const optionsExpanded = ref(true); // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0);
 const chineseConverterReady = ref(false);
+
+// Dropdown toggle helper - 关闭其他dropdown再打开指定的
+const toggleDropdown = (dropdown: 'dict' | 'dialect' | 'type' | 'sort') => {
+  // 先关闭所有dropdowns
+  showDictDropdown.value = false
+  showDialectDropdown.value = false
+  showTypeDropdown.value = false
+  showSortDropdown.value = false
+
+  // 然后打开指定的dropdown
+  switch (dropdown) {
+    case 'dict':
+      showDictDropdown.value = !showDictDropdown.value
+      break
+    case 'dialect':
+      showDialectDropdown.value = !showDialectDropdown.value
+      break
+    case 'type':
+      showTypeDropdown.value = !showTypeDropdown.value
+      break
+    case 'sort':
+      showSortDropdown.value = !showSortDropdown.value
+      break
+  }
+}
 const showingSearchResultsView = computed(() =>
   isSearchResultsViewQuery(route.query),
 );
@@ -506,21 +531,18 @@ const selectDict = (dict: string | null) => {
   selectedDict.value = dict;
   showDictDropdown.value = false;
   currentPage.value = 1;
-  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const selectDialect = (dialect: string | null) => {
   selectedDialect.value = dialect;
   showDialectDropdown.value = false;
   currentPage.value = 1;
-  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const selectType = (type: string | null) => {
   selectedType.value = type;
   showTypeDropdown.value = false;
   currentPage.value = 1;
-  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const getSelectedEntryType = (): EntryType | undefined => {
@@ -534,7 +556,6 @@ const selectSort = (sort: SearchSortOption) => {
   sortBy.value = sort;
   showSortDropdown.value = false;
   currentPage.value = 1;
-  void performSearch(actualSearchQuery.value, { resetFilters: false });
 };
 
 const getGroupSources = (group: AggregatedSearchEntry): string[] => {
@@ -734,6 +755,101 @@ const groupedResults = computed(() => {
   };
 });
 
+// 前端筛选后的结果（基于groupedResults）
+const filteredGroups = computed(() => {
+  // 获取原始分组结果
+  const { exactMatches, otherResults } = groupedResults.value
+
+  // 筛选exact matches
+  const filteredExact = selectedDict.value || selectedDialect.value || selectedType.value
+    ? exactMatches.filter(group => {
+        // 篮选词典
+        if (selectedDict.value) {
+          const hasDict = group.entries.some(entry => entry.source_book === selectedDict.value)
+          if (!hasDict) return false
+        }
+
+        // 篮选方言
+        if (selectedDialect.value) {
+          const hasDialect = group.entries.some(entry =>
+            entry.dialect?.name?.toUpperCase() === selectedDialect.value?.toUpperCase()
+          )
+          if (!hasDialect) return false
+        }
+
+        // 篮选类型
+        if (selectedType.value) {
+          const selectedEntryType = getSelectedEntryType()
+          if (selectedEntryType) {
+            const hasType = group.primary.entry_type === selectedEntryType
+            if (!hasType) return false
+          }
+        }
+
+        return true
+      })
+    : exactMatches
+
+  // 篮选other results
+  const filteredOther = selectedDict.value || selectedDialect.value || selectedType.value
+    ? otherResults.filter(group => {
+        // 篮选词典
+        if (selectedDict.value) {
+          const hasDict = group.entries.some(entry => entry.source_book === selectedDict.value)
+          if (!hasDict) return false
+        }
+
+        // 篮选方言
+        if (selectedDialect.value) {
+          const hasDialect = group.entries.some(entry =>
+            entry.dialect?.name?.toUpperCase() === selectedDialect.value?.toUpperCase()
+          )
+          if (!hasDialect) return false
+        }
+
+        // 篮选类型
+        if (selectedType.value) {
+          const selectedEntryType = getSelectedEntryType()
+          if (selectedEntryType) {
+            const hasType = group.primary.entry_type === selectedEntryType
+            if (!hasType) return false
+          }
+        }
+
+        return true
+      })
+    : otherResults
+
+  // 应用排序（非relevance时）
+  if (sortBy.value === 'headword') {
+    filteredExact.sort((a, b) =>
+      (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
+    )
+    filteredOther.sort((a, b) =>
+      (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
+    )
+  } else if (sortBy.value === 'jyutping') {
+    filteredExact.sort((a, b) =>
+      (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
+    )
+    filteredOther.sort((a, b) =>
+      (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
+    )
+  } else if (sortBy.value === 'dictionary') {
+    filteredExact.sort((a, b) =>
+      (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
+    )
+    filteredOther.sort((a, b) =>
+      (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
+    )
+  }
+
+  return {
+    exactMatches: filteredExact,
+    otherResults: filteredOther,
+  }
+});
+
 const exactMatchDictionaryCount = computed(() => {
   const sources = new Set<string>();
   groupedResults.value.exactMatches.forEach((group) => {
@@ -758,7 +874,7 @@ const otherResultsDictionaryCount = computed(() => {
 
 // 用于显示的合并结果（完全匹配在前，其他结果在后）
 const displayedGroupedResults = computed(() => {
-  const { exactMatches, otherResults } = groupedResults.value;
+  const { exactMatches, otherResults } = filteredGroups.value;
 
   return {
     exactMatches,
