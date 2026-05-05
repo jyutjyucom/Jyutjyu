@@ -544,7 +544,9 @@ export const useDictionary = () => {
       querySeeds.add(stripped);
     }
 
-    if (!searchDefinition && hasChineseChars) {
+    // CJK substring seeds对正查和反查都有用
+    // 反查时需要这些seeds来匹配释义中的CJK片段（例如"打嗝"匹配"打嗝儿"）
+    if (hasChineseChars) {
       getCjkSearchSubstringSeeds(stripped || normalizedQuery).forEach((seed) =>
         querySeeds.add(seed),
       );
@@ -804,9 +806,9 @@ export const useDictionary = () => {
           // 确定需要加载的分片
           let requiredChunks: string[];
 
-          // 反查模式下，对于 cantowords 需要加载所有分片（因为释义可能分布在任何分片）
-          // wiktionary 数据量大，仍使用优化的分片策略
-          if (searchDefinition && chunk_dir === "cantowords") {
+          // 反查模式下，所有分片词典都需要加载全部分片
+          // 因为释义可能分布在任何分片，不能按首字分片策略加载
+          if (searchDefinition) {
             requiredChunks = Object.keys(manifest.chunks);
             if (import.meta.dev)
               console.log(
