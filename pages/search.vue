@@ -165,7 +165,7 @@
             !loading &&
             isSearchComplete &&
             actualSearchQuery &&
-            allResults.length === 0
+            filteredTotalCount === 0
           "
           class="text-center py-16"
         >
@@ -761,7 +761,7 @@ const filteredGroups = computed(() => {
   const { exactMatches, otherResults } = groupedResults.value
 
   // 筛选exact matches
-  const filteredExact = selectedDict.value || selectedDialect.value || selectedType.value
+  let filteredExact = selectedDict.value || selectedDialect.value || selectedType.value
     ? exactMatches.filter(group => {
         // 篮选词典
         if (selectedDict.value) {
@@ -791,7 +791,7 @@ const filteredGroups = computed(() => {
     : exactMatches
 
   // 篮选other results
-  const filteredOther = selectedDict.value || selectedDialect.value || selectedType.value
+  let filteredOther = selectedDict.value || selectedDialect.value || selectedType.value
     ? otherResults.filter(group => {
         // 篮选词典
         if (selectedDict.value) {
@@ -820,26 +820,26 @@ const filteredGroups = computed(() => {
       })
     : otherResults
 
-  // 应用排序（非relevance时）
+  // 应用排序（非relevance时）- 复制数组后再排序，避免直接修改
   if (sortBy.value === 'headword') {
-    filteredExact.sort((a, b) =>
+    filteredExact = [...filteredExact].sort((a, b) =>
       (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
     )
-    filteredOther.sort((a, b) =>
+    filteredOther = [...filteredOther].sort((a, b) =>
       (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
     )
   } else if (sortBy.value === 'jyutping') {
-    filteredExact.sort((a, b) =>
+    filteredExact = [...filteredExact].sort((a, b) =>
       (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
     )
-    filteredOther.sort((a, b) =>
+    filteredOther = [...filteredOther].sort((a, b) =>
       (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
     )
   } else if (sortBy.value === 'dictionary') {
-    filteredExact.sort((a, b) =>
+    filteredExact = [...filteredExact].sort((a, b) =>
       (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
     )
-    filteredOther.sort((a, b) =>
+    filteredOther = [...filteredOther].sort((a, b) =>
       (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
     )
   }
@@ -929,7 +929,19 @@ const getTypeCount = (type: string): number => {
 const hasMore = computed(() => {
   return nextSearchOffset.value !== null;
 });
+
+// 篮选后的结果总数
+const filteredTotalCount = computed(() => {
+  const { exactMatches, otherResults } = filteredGroups.value
+  return exactMatches.length + otherResults.length
+})
+
 const totalCountLabel = computed(() => {
+  // 如果有筛选条件，显示筛选后的数量
+  if (selectedDict.value || selectedDialect.value || selectedType.value) {
+    return String(filteredTotalCount.value)
+  }
+  // 否则显示API返回的原始总数
   return searchTotal.value.exact
     ? String(searchTotal.value.grouped)
     : `${searchTotal.value.grouped}+`;
