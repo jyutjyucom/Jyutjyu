@@ -54,10 +54,19 @@ export const resolveServerUseApi = (
     return false
   }
 
+  // 生产环境：优先使用API mode（如果有MongoDB），否则fallback到JSON mode
   if (isProductionEnv(options.nodeEnv)) {
+    const runtimeMongoUri = getRuntimeMongoUri()
+    if (runtimeMongoUri) {
+      return true
+    }
+    if (String(options.mongodbUri || '').trim()) {
+      return true
+    }
     return false
   }
 
+  // 开发环境：检查MongoDB可用性
   const runtimeMongoUri = getRuntimeMongoUri()
   if (runtimeMongoUri) {
     return true
