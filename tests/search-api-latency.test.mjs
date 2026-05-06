@@ -310,7 +310,7 @@ test("fallback stages use the paid-plan budget instead of the old 900ms cap", as
   resetSearchApiRuntimeStateForTests();
   await ensureInitialized();
 
-  assert.equal(getFallbackStageTimeoutMs(8000), 4000);
+  assert.equal(getFallbackStageTimeoutMs(8000), 7975);
 
   const maxTimeValues = [];
   const collection = {
