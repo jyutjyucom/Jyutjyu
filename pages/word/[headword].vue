@@ -37,26 +37,35 @@
       </div>
 
       <div v-else class="font-cjk-content">
-        <NuxtLink
-          :to="searchLink"
-          class="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors mb-4 sm:mb-8"
-        >
-          <svg
-            class="w-3.5 h-3.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 sm:mb-8">
+          <NuxtLink
+            :to="primaryWordPageCta.to"
+            class="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-kapok hover:text-kapok/70 transition-colors"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          {{ searchBackLinkLabel }}
-        </NuxtLink>
+            <svg
+              class="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            {{ primaryWordPageCta.label }}
+          </NuxtLink>
+          <NuxtLink
+            v-if="secondaryWordPageCta"
+            :to="secondaryWordPageCta.to"
+            class="inline-flex items-center gap-1.5 text-sm sm:text-base font-medium text-graphite dark:text-stone-300 hover:text-kapok dark:hover:text-kapok transition-colors"
+          >
+            {{ secondaryWordPageCta.label }}
+          </NuxtLink>
+        </div>
 
         <div class="mb-4 sm:mb-8">
           <h1
@@ -299,6 +308,11 @@
 import "~/styles/chiron-hei-content.css";
 import "~/styles/chiron-sung-content.css";
 import type { DictionaryEntry } from "~/types/dictionary";
+import {
+  parseSearchOriginRouteQuery,
+  preserveWordRouteQuery,
+  type SearchRouteState,
+} from "~/utils/route-paths";
 import type { PronunciationDisplayItem } from "~/types/tts";
 import {
   groupEntriesByPronunciation,
@@ -346,7 +360,7 @@ const { t, locale } = useI18n();
 const { getLocalizedSourceBookLabel, dictionariesData } =
   useLocalizedDictionary();
 const { navigateFromSearchInput } = useSearchNavigation();
-const { absoluteUrl, homePath, searchPath, wordPath } = useAppRoutes();
+const { absoluteUrl, homePath, searchPath, searchPathFromOrigin, wordPath } = useAppRoutes();
 type RelatedRequestFetch = <T>(
   request: string,
   options?: Record<string, unknown>,
@@ -398,8 +412,17 @@ const canonicalHeadword = computed(() =>
 const searchHeadword = computed(
   () => canonicalHeadword.value || requestedHeadword.value,
 );
-const searchLink = computed(() =>
+const currentWordSearchLink = computed(() =>
   searchPath(searchHeadword.value, false, { showResults: true }),
+);
+const searchLink = currentWordSearchLink;
+const searchOrigin = computed<SearchRouteState | null>(() =>
+  parseSearchOriginRouteQuery(route.query),
+);
+const originSearchLink = computed(() =>
+  searchOrigin.value
+    ? searchPathFromOrigin(searchOrigin.value)
+    : currentWordSearchLink.value,
 );
 const shouldRedirect = computed(() => {
   if (!wordData.value) return false;
@@ -416,10 +439,16 @@ const redirectToCanonicalIfNeeded = async () => {
 
   redirectingToCanonical.value = true;
   try {
-    await navigateTo(wordPath(canonicalHeadword.value), {
-      redirectCode: 301,
-      replace: true,
-    });
+    await navigateTo(
+      {
+        path: wordPath(canonicalHeadword.value),
+        query: preserveWordRouteQuery(route.query),
+      },
+      {
+        redirectCode: 301,
+        replace: true,
+      },
+    );
   } finally {
     redirectingToCanonical.value = false;
   }
@@ -500,26 +529,48 @@ const relatedSearchResponse = computed(() => {
   return relatedSearchData.value;
 });
 
-const backSearchResultCount = computed(() => {
-  const total =
-    relatedSearchResponse.value?.searchTotal ||
-    relatedSearchResponse.value?.total;
-  if (!total) return null;
-  return total.exact ? String(total.grouped) : `${total.grouped}+`;
-});
-
 const backSearchAggregated = computed<AggregatedSearchEntry[]>(
   () => relatedSearchResponse.value?.groups || [],
 );
 
-const searchBackLinkLabel = computed(() => {
-  if (!backSearchResultCount.value) {
-    return t("common.searchHeader");
+const formatSearchOriginLabel = (origin: SearchRouteState): string => {
+  if (origin.resultCount) {
+    return t("wordPage.backToSearchResultsForCount", {
+      query: origin.query,
+      count: origin.resultCount,
+    });
   }
 
-  return t("common.searchResultsCount", {
-    count: backSearchResultCount.value,
+  return t("wordPage.backToSearchResultsFor", {
+    query: origin.query,
   });
+};
+
+const formatCurrentWordSearchLabel = () =>
+  t("wordPage.viewCurrentWordResults", { word: searchHeadword.value });
+
+const primaryWordPageCta = computed(() => {
+  if (searchOrigin.value) {
+    return {
+      to: originSearchLink.value,
+      label: formatSearchOriginLabel(searchOrigin.value),
+    };
+  }
+
+  return {
+    to: currentWordSearchLink.value,
+    label: formatCurrentWordSearchLabel(),
+  };
+});
+
+const secondaryWordPageCta = computed(() => {
+  if (!searchOrigin.value) return null;
+  if (originSearchLink.value === currentWordSearchLink.value) return null;
+
+  return {
+    to: currentWordSearchLink.value,
+    label: formatCurrentWordSearchLabel(),
+  };
 });
 
 const relatedWords = computed(() => {

@@ -238,6 +238,7 @@
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
                   :card-clickable="true"
+                  :word-path-builder="getSearchResultWordPath"
                 />
               </div>
             </template>
@@ -298,6 +299,7 @@
                   :sticky-header="true"
                   :sticky-offset="searchHeaderHeight"
                   :card-clickable="true"
+                  :word-path-builder="getSearchResultWordPath"
                 />
               </div>
             </template>
@@ -325,6 +327,7 @@
               :get-group-pronunciation-items="getGroupPronunciationItems"
               :get-group-definitions="getGroupDefinitions"
               :get-group-sources="getGroupSources"
+              :word-path-builder="getSearchResultWordPath"
             />
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
@@ -397,10 +400,15 @@ import {
   type SearchTotalMeta,
 } from "~/utils/search-result-groups";
 import { isJyutpingQuery } from "~/utils/query-classify";
-import { isSearchResultsViewQuery } from "~/utils/route-paths";
+import {
+  isSearchResultsViewQuery,
+  parseSearchRouteQuery,
+  type SearchRouteState,
+} from "~/utils/route-paths";
 import { getAggregatePronunciationDisplayItems } from "~/utils/pronunciation-display";
 
 const route = useRoute();
+const initialSearchRouteState = parseSearchRouteQuery(route.query);
 const router = useRouter();
 const apiSearch = useDictionaryAPI();
 const jsonSearch = useDictionary();
@@ -409,7 +417,7 @@ const { navigateFromSearchInput } = useSearchNavigation();
 const { t } = useI18n();
 const { getAllVariants, ensureInitialized } = useChineseConverter();
 const warmContentFonts = useWarmContentFonts();
-const { searchPath, wordPath } = useAppRoutes();
+const { searchPath, wordPathWithSearchOrigin } = useAppRoutes();
 
 // 开发时显示当前模式
 if (process.dev) {
@@ -417,10 +425,10 @@ if (process.dev) {
 }
 
 // 状态
-const searchQuery = ref((route.query.q as string) || ""); // 输入框中的查询词
+const searchQuery = ref(initialSearchRouteState.query); // 输入框中的查询词
 const actualSearchQuery = useState<string>(
   "search-actual-query",
-  () => (route.query.q as string) || "",
+  () => initialSearchRouteState.query,
 ); // 实际已搜索的查询词
 const searchGroups = useState<AggregatedSearchEntry[]>("search-groups", () => []);
 const jsonResultGroups = useState<AggregatedSearchEntry[]>(
@@ -445,15 +453,22 @@ const searchTotal = useState<SearchTotalMeta>("search-total", () => ({
 const searchFacets = useState<SearchFacetCounts>("search-facets", () =>
   createEmptySearchFacetCounts(),
 );
+const searchFacetOptions = useState<SearchFacetCounts>(
+  "search-facet-options",
+  () => createEmptySearchFacetCounts(),
+);
 const nextSearchOffset = useState<number | null>(
   "search-next-offset",
   () => null,
 );
 // 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
-const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
+const viewMode = useState<"card" | "list">(
+  "search-view-mode",
+  () => initialSearchRouteState.view || "card",
+);
 const enableReverseSearch = useState<boolean>(
   "search-reverse-enabled",
-  () => route.query.reverse === "1",
+  () => Boolean(initialSearchRouteState.reverse),
 ); // 从 URL 读取反查状态
 const isSearchComplete = useState<boolean>("search-complete", () => true); // 搜索是否完成（流式搜索中用）
 const allResults = computed(() => flattenSearchGroups(searchGroups.value));
@@ -463,13 +478,22 @@ const hasSearchContext = computed(() =>
 );
 
 // 筛选相关状态
-const selectedDict = useState<string | null>("search-selected-dict", () => null); // 选中的词典
+const selectedDict = useState<string | null>(
+  "search-selected-dict",
+  () => initialSearchRouteState.dict || null,
+); // 选中的词典
 const selectedDialect = useState<string | null>(
   "search-selected-dialect",
-  () => null,
+  () => initialSearchRouteState.dialect || null,
 ); // 选中的方言点
-const selectedType = useState<string | null>("search-selected-type", () => null); // 选中的类型 (character|word|phrase)
-const sortBy = useState<SearchSortOption>("search-sort-by", () => "relevance"); // 排序方式
+const selectedType = useState<string | null>(
+  "search-selected-type",
+  () => initialSearchRouteState.type || null,
+); // 选中的类型 (character|word|phrase)
+const sortBy = useState<SearchSortOption>(
+  "search-sort-by",
+  () => (initialSearchRouteState.sort || "relevance") as SearchSortOption,
+); // 排序方式
 const showDictDropdown = ref(false); // 词典下拉菜单显示状态
 const showDialectDropdown = ref(false); // 方言下拉菜单显示状态
 const showTypeDropdown = ref(false); // 类型下拉菜单显示状态
@@ -504,6 +528,50 @@ const toggleDropdown = (dropdown: 'dict' | 'dialect' | 'type' | 'sort') => {
 const showingSearchResultsView = computed(() =>
   isSearchResultsViewQuery(route.query),
 );
+
+const currentSearchRouteState = computed<SearchRouteState>(() => ({
+  query: actualSearchQuery.value,
+  reverse: enableReverseSearch.value,
+  showResults: showingSearchResultsView.value,
+  dict: selectedDict.value || undefined,
+  dialect: selectedDialect.value || undefined,
+  type: getSelectedEntryType(),
+  sort: sortBy.value,
+  view: viewMode.value,
+}));
+
+const displayedSearchResultCount = computed(() => totalCountLabel.value);
+
+const searchOriginState = computed<SearchRouteState | null>(() => {
+  const query = actualSearchQuery.value.trim();
+  if (!query || displayedResults.value.length === 0) return null;
+
+  return {
+    ...currentSearchRouteState.value,
+    query,
+    showResults: true,
+    resultCount: displayedSearchResultCount.value,
+  };
+});
+
+const getSearchResultWordPath = (headword: string): string => {
+  return wordPathWithSearchOrigin(headword, searchOriginState.value);
+};
+
+const replaceSearchRouteState = () => {
+  if (!process.client || !actualSearchQuery.value) return;
+
+  router.replace(
+    searchPath(actualSearchQuery.value, enableReverseSearch.value, {
+      showResults: true,
+      dict: selectedDict.value || undefined,
+      dialect: selectedDialect.value || undefined,
+      type: getSelectedEntryType(),
+      sort: sortBy.value,
+      view: viewMode.value,
+    }),
+  );
+};
 
 let chineseConverterInitPromise: Promise<void> | null = null;
 let chineseConverterWarmupTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -563,6 +631,8 @@ const selectDict = (dict: string | null) => {
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  replaceSearchRouteState();
+
   if (getMode() === 'mongodb' && actualSearchQuery.value) {
     void performSearch(actualSearchQuery.value, { resetFilters: false });
   }
@@ -580,6 +650,8 @@ const selectDialect = (dialect: string | null) => {
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  replaceSearchRouteState();
+
   if (getMode() === 'mongodb' && actualSearchQuery.value) {
     void performSearch(actualSearchQuery.value, { resetFilters: false });
   }
@@ -597,6 +669,8 @@ const selectType = (type: string | null) => {
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
+  replaceSearchRouteState();
+
   if (getMode() === 'mongodb' && actualSearchQuery.value) {
     void performSearch(actualSearchQuery.value, { resetFilters: false });
   }
@@ -613,6 +687,7 @@ const selectSort = (sort: SearchSortOption) => {
   sortBy.value = sort;
   showSortDropdown.value = false;
   currentPage.value = 1;
+  replaceSearchRouteState();
 };
 
 const getGroupSources = (group: AggregatedSearchEntry): string[] => {
@@ -653,11 +728,11 @@ const updateDisplayedResults = () => {
 
 // 计算属性：从搜索结果中提取可用的词典和方言点
 const availableDicts = computed(() => {
-  return searchFacets.value.dictionaries.map((bucket) => bucket.value);
+  return searchFacetOptions.value.dictionaries.map((bucket) => bucket.value);
 });
 
 const availableDialects = computed(() => {
-  const dialects = searchFacets.value.dialects.map((bucket) =>
+  const dialects = searchFacetOptions.value.dialects.map((bucket) =>
     bucket.value.toUpperCase(),
   );
   // 优先固定顺序，剩余按字母排序
@@ -682,7 +757,7 @@ const getDialectLabel = (code: string) => {
 };
 
 const availableTypes = computed(() => {
-  const types = searchFacets.value.types.map((bucket) => bucket.value);
+  const types = searchFacetOptions.value.types.map((bucket) => bucket.value);
   return Array.from(new Set(types)).sort((a, b) => {
     // 排序: 字, 词, 短语
     const order = { character: 1, word: 2, phrase: 3 } as Record<
@@ -962,7 +1037,7 @@ watch(
 // 计算各筛选项的数量
 const getDictCount = (dict: string): number => {
   return (
-    searchFacets.value.dictionaries.find((bucket) => bucket.value === dict)
+    searchFacetOptions.value.dictionaries.find((bucket) => bucket.value === dict)
       ?.count || 0
   );
 };
@@ -970,7 +1045,7 @@ const getDictCount = (dict: string): number => {
 const getDialectCount = (dialect: string): number => {
   const code = dialect?.toUpperCase();
   return (
-    searchFacets.value.dialects.find(
+    searchFacetOptions.value.dialects.find(
       (bucket) => bucket.value.toUpperCase() === code,
     )?.count || 0
   );
@@ -978,7 +1053,8 @@ const getDialectCount = (dialect: string): number => {
 
 const getTypeCount = (type: string): number => {
   return (
-    searchFacets.value.types.find((bucket) => bucket.value === type)?.count || 0
+    searchFacetOptions.value.types.find((bucket) => bucket.value === type)
+      ?.count || 0
   );
 };
 
@@ -1059,7 +1135,7 @@ const redirectToExactMatchIfNeeded = async (
   redirectingToExactMatch.value = true;
 
   try {
-    await navigateTo(wordPath(headword), {
+    await navigateTo(wordPathWithSearchOrigin(headword, null), {
       replace: true,
     });
     return true;
@@ -1077,6 +1153,7 @@ const resetSearchState = () => {
   jsonResultGroups.value = [];
   displayedResults.value = [];
   searchFacets.value = createEmptySearchFacetCounts();
+  searchFacetOptions.value = createEmptySearchFacetCounts();
   searchTotal.value = {
     grouped: 0,
     entries: 0,
@@ -1095,6 +1172,9 @@ const applySearchResponse = (
     : response.groups;
   searchTotal.value = response.total;
   searchFacets.value = response.facets;
+  if (!append || response.facetOptions) {
+    searchFacetOptions.value = response.facetOptions || response.facets;
+  }
   nextSearchOffset.value = response.page.nextOffset;
   exactResultsReady.value = true;
   isSearchComplete.value = true;
@@ -1117,6 +1197,7 @@ const performJsonEmergencySearch = async (query: string, requestId: number) => {
     exact: results.length < SEARCH_LOCAL_RESULT_LIMIT,
   };
   searchFacets.value = countSearchGroupFacets(jsonResultGroups.value);
+  searchFacetOptions.value = searchFacets.value;
   nextSearchOffset.value =
     jsonResultGroups.value.length > pageGroups.length ? pageGroups.length : null;
   exactResultsReady.value = true;
@@ -1159,6 +1240,7 @@ const performSearch = async (
     selectedDialect.value = null;
     selectedType.value = null;
     sortBy.value = "relevance";
+    viewMode.value = "card";
   }
   showDictDropdown.value = false;
   showDialectDropdown.value = false;
@@ -1319,18 +1401,41 @@ const searchExample = (query: string) => {
 
 // 监听 URL 变化（只在客户端执行搜索）
 watch(
-  () => [route.query.q, route.query.reverse],
-  ([newQuery, newReverse]) => {
-    const trimmedQuery = String(newQuery || "").trim();
-    const newReverseEnabled = newReverse === "1";
+  () => [
+    route.query.q,
+    route.query.reverse,
+    route.query.dict,
+    route.query.dialect,
+    route.query.type,
+    route.query.sort,
+    route.query.view,
+  ],
+  () => {
+    const state = parseSearchRouteQuery(route.query);
+    const trimmedQuery = state.query;
+    const newReverseEnabled = Boolean(state.reverse);
+    const newDict = state.dict || null;
+    const newDialect = state.dialect || null;
+    const newType = state.type || null;
+    const newSort = (state.sort || "relevance") as SearchSortOption;
+    const newView = state.view || "card";
     const isSameCompletedSearch =
       actualSearchQuery.value === trimmedQuery &&
       enableReverseSearch.value === newReverseEnabled &&
+      selectedDict.value === newDict &&
+      selectedDialect.value === newDialect &&
+      selectedType.value === newType &&
+      sortBy.value === newSort &&
       searchGroups.value.length > 0 &&
       isSearchComplete.value;
 
     searchQuery.value = trimmedQuery;
     enableReverseSearch.value = newReverseEnabled;
+    selectedDict.value = newDict;
+    selectedDialect.value = newDialect;
+    selectedType.value = newType;
+    sortBy.value = newSort;
+    viewMode.value = newView;
     // 只在客户端执行搜索
     if (process.client) {
       if (trimmedQuery) {
@@ -1339,7 +1444,7 @@ watch(
           loadingMore.value = false;
           return;
         }
-        performSearch(trimmedQuery);
+        performSearch(trimmedQuery, { resetFilters: false });
       } else {
         resetSearchState();
         actualSearchQuery.value = "";
@@ -1351,14 +1456,12 @@ watch(
 );
 
 // 监听反查开关变化，更新 URL 并重新搜索
-watch(enableReverseSearch, (newValue) => {
-  if (process.client && actualSearchQuery.value) {
-    router.replace(
-      searchPath(actualSearchQuery.value, newValue, {
-        showResults: showingSearchResultsView.value,
-      }),
-    );
-  }
+watch(enableReverseSearch, () => {
+  replaceSearchRouteState();
+});
+
+watch(viewMode, () => {
+  replaceSearchRouteState();
 });
 
 // 点击外部关闭建议和筛选下拉菜单

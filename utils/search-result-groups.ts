@@ -69,6 +69,7 @@ export interface GroupedSearchResponse {
   totalGrouped: number;
   page: SearchPageMeta;
   facets: SearchFacetCounts;
+  facetOptions?: SearchFacetCounts;
   error?: string;
 }
 
@@ -281,6 +282,7 @@ export const buildGroupedSearchResponse = ({
   offset = 0,
   limit = SEARCH_API_PAGE_SIZE,
   exact = true,
+  facetOptions,
 }: {
   query: string;
   mode?: "normal" | "reverse";
@@ -290,6 +292,7 @@ export const buildGroupedSearchResponse = ({
   offset?: number;
   limit?: number;
   exact?: boolean;
+  facetOptions?: SearchFacetCounts;
 }): GroupedSearchResponse => {
   const groups = sortSearchGroups(aggregateSearchEntries(entries), sort);
   const pageGroups = groups.slice(offset, offset + limit);
@@ -319,6 +322,7 @@ export const buildGroupedSearchResponse = ({
       returned: pageGroups.length,
     }),
     facets: countSearchGroupFacets(groups),
+    facetOptions,
   };
 };
 

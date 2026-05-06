@@ -454,6 +454,7 @@ interface Props {
   stickyHeader?: boolean;
   stickyOffset?: number;
   cardClickable?: boolean;
+  wordPathBuilder?: (headword: string) => string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -461,6 +462,7 @@ const props = withDefaults(defineProps<Props>(), {
   stickyHeader: false,
   stickyOffset: 0,
   cardClickable: false,
+  wordPathBuilder: undefined,
 });
 
 const entries = computed(() => props.entries || []);
@@ -480,7 +482,7 @@ const primary = computed(() => entries.value[0] as DictionaryEntry);
 const primaryWordTo = computed(() => {
   const word = primary.value?.headword?.display?.trim();
   if (!word) return null;
-  return wordPath(word);
+  return props.wordPathBuilder ? props.wordPathBuilder(word) : wordPath(word);
 });
 
 const normalizeJyutpingList = (values: string[]): string[] => {

@@ -144,6 +144,10 @@ const messagesZhHant = {
     metaDictionaryDefinition: "{dictionary}詞義",
     metaFallbackDefinition: "粵語詞義",
     metaCoverage: "收錄於 {count} 本詞典",
+    backToSearchResultsFor: "返回「{query}」的搜尋結果",
+    backToSearchResultsForCount: "返回「{query}」的搜尋結果（{count} 項）",
+    searchCurrentWord: "搜尋「{word}」",
+    viewCurrentWordResults: "查看「{word}」的搜尋結果",
   },
   dictCard: {
     placeholderWord: "有音無字",

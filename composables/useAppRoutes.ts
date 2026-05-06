@@ -1,7 +1,12 @@
 import {
   buildBrowseRoutePath,
+  buildSearchOriginRouteQuery,
   buildSearchRouteQuery,
+  buildSearchRouteQueryFromOrigin,
+  buildSearchRouteQueryFromState,
   buildWordRoutePath,
+  buildWordRouteQueryWithSearchOrigin,
+  type SearchRouteState,
 } from "~/utils/route-paths";
 
 interface BrowsePathOptions {
@@ -12,8 +17,10 @@ interface BrowsePathOptions {
   defaultSortBy?: string;
 }
 
-interface SearchPathOptions {
-  showResults?: boolean;
+type SearchPathOptions = Omit<SearchRouteState, "query" | "reverse">;
+
+interface WordPathOptions {
+  searchOrigin?: SearchRouteState | null;
 }
 
 type RouteQueryValue = string | number | undefined | null;
@@ -47,8 +54,11 @@ export const useAppRoutes = () => {
 
   const homePath = () => localePath("/");
 
-  const wordPath = (headword: string) => {
-    return localizedPath(buildWordRoutePath(headword));
+  const wordPath = (headword: string, options: WordPathOptions = {}) => {
+    return localizedPath(
+      buildWordRoutePath(headword),
+      buildWordRouteQueryWithSearchOrigin(options.searchOrigin),
+    );
   };
 
   const browsePath = (dictId?: string, options: BrowsePathOptions = {}) => {
@@ -77,6 +87,24 @@ export const useAppRoutes = () => {
     );
   };
 
+  const searchPathFromState = (state: SearchRouteState) => {
+    return localizedPath("/search", buildSearchRouteQueryFromState(state));
+  };
+
+  const searchPathFromOrigin = (origin: SearchRouteState) => {
+    return localizedPath("/search", buildSearchRouteQueryFromOrigin(origin));
+  };
+
+  const wordPathWithSearchOrigin = (
+    headword: string,
+    origin: SearchRouteState | null,
+  ) => {
+    return localizedPath(
+      buildWordRoutePath(headword),
+      buildSearchOriginRouteQuery(origin || { query: "" }),
+    );
+  };
+
   const absoluteUrl = (path: string) => {
     if (!siteUrl.value) return "";
     if (/^https?:\/\//.test(path)) return path;
@@ -91,6 +119,9 @@ export const useAppRoutes = () => {
     wordPath,
     browsePath,
     searchPath,
+    searchPathFromState,
+    searchPathFromOrigin,
+    wordPathWithSearchOrigin,
     absoluteUrl,
   };
 };

@@ -139,7 +139,11 @@ const messagesYueHans = {
     "metaTitleSuffix": "释义",
     "metaDictionaryDefinition": "{dictionary}词义",
     "metaFallbackDefinition": "粤语词义",
-    "metaCoverage": "收录于 {count} 本词典"
+    "metaCoverage": "收录于 {count} 本词典",
+    "backToSearchResultsFor": "返去「{query}」搜寻结果",
+    "backToSearchResultsForCount": "返去「{query}」搜寻结果（{count} 项）",
+    "searchCurrentWord": "搜寻「{word}」",
+    "viewCurrentWordResults": "睇「{word}」搜寻结果"
   },
   "dictCard": {
     "placeholderWord": "有音无字",

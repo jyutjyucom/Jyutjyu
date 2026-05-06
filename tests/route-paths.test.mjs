@@ -3,7 +3,9 @@ import test from "node:test";
 
 import {
   applyLocalePrefix,
+  buildSearchOriginRouteQuery,
   buildSearchRouteQuery,
+  buildSearchRouteQueryFromOrigin,
   buildSeoAlternateLinkDefinitions,
   buildSeoRoutePath,
   buildBrowseRoutePath,
@@ -11,6 +13,9 @@ import {
   buildWordRoutePath,
   isSearchResultsViewQuery,
   isSearchRoutePath,
+  parseSearchOriginRouteQuery,
+  parseSearchRouteQuery,
+  preserveWordRouteQuery,
   withSiteUrl,
   stripLocalePrefix,
 } from "../utils/route-paths.ts";
@@ -64,6 +69,135 @@ test("search route query can explicitly stay on the search results page", () => 
   assert.equal(isSearchResultsViewQuery({ show: "results" }), true);
   assert.equal(isSearchResultsViewQuery({ show: ["results"] }), true);
   assert.equal(isSearchResultsViewQuery({ q: "揾老襯" }), false);
+});
+
+test("search route state serializes and parses filters, sort, view, and results view", () => {
+  const query = buildSearchRouteQuery("女", true, {
+    showResults: true,
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "dictionary",
+    view: "list",
+  });
+
+  assert.deepEqual(query, {
+    q: "女",
+    reverse: "1",
+    show: "results",
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "dictionary",
+    view: "list",
+  });
+  assert.deepEqual(parseSearchRouteQuery(query), {
+    query: "女",
+    reverse: true,
+    showResults: true,
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "dictionary",
+    view: "list",
+  });
+  assert.deepEqual(
+    buildSearchRouteQuery("女", false, {
+      sort: "relevance",
+      view: "card",
+      type: "invalid",
+    }),
+    { q: "女" },
+  );
+});
+
+test("search origin state round-trips with safe count and restores search URL", () => {
+  const originQuery = buildSearchOriginRouteQuery({
+    query: "阿SIR",
+    reverse: true,
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "headword",
+    view: "list",
+    resultCount: "277+",
+  });
+
+  assert.deepEqual(originQuery, {
+    from: "search",
+    search_q: "阿SIR",
+    search_reverse: "1",
+    search_dict: "粵典",
+    search_dialect: "HK",
+    search_type: "word",
+    search_sort: "headword",
+    search_view: "list",
+    search_count: "277+",
+  });
+  const parsed = parseSearchOriginRouteQuery(originQuery);
+  assert.deepEqual(parsed, {
+    query: "阿SIR",
+    reverse: true,
+    showResults: true,
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "headword",
+    view: "list",
+    resultCount: "277+",
+  });
+  assert.deepEqual(buildSearchRouteQueryFromOrigin(parsed), {
+    q: "阿SIR",
+    reverse: "1",
+    show: "results",
+    dict: "粵典",
+    dialect: "HK",
+    type: "word",
+    sort: "headword",
+    view: "list",
+  });
+});
+
+test("search origin parsing ignores invalid counts and canonical redirect preserves allowlisted query", () => {
+  assert.deepEqual(
+    parseSearchOriginRouteQuery({
+      from: "search",
+      search_q: "係",
+      search_count: "javascript:alert(1)",
+      search_type: "invalid",
+      search_sort: "bad",
+      search_view: "bad",
+    }),
+    {
+      query: "係",
+      reverse: false,
+      showResults: true,
+      dict: undefined,
+      dialect: undefined,
+      type: undefined,
+      sort: undefined,
+      view: undefined,
+      resultCount: undefined,
+    },
+  );
+  assert.deepEqual(
+    preserveWordRouteQuery({
+      from: "search",
+      search_q: "係",
+      search_count: "3",
+      search_sort: "dictionary",
+      jp: "hai6",
+      returnUrl: "https://evil.example/",
+    }),
+    {
+      jp: "hai6",
+      from: "search",
+      search_q: "係",
+      search_sort: "dictionary",
+      search_count: "3",
+    },
+  );
+  assert.equal(parseSearchOriginRouteQuery({ from: "search" }), null);
 });
 
 test("search exact redirect path matching accepts trailing slash and locale prefixes", () => {

@@ -41,6 +41,8 @@ import {
 import {
   buildGroupedSearchResponse,
   buildSearchPageMeta,
+  aggregateSearchEntries,
+  countSearchGroupFacets,
   createEmptySearchFacetCounts,
   flattenSearchGroups,
   SEARCH_API_MAX_PAGE_SIZE,
@@ -66,7 +68,7 @@ export interface SearchQuery {
 }
 
 export type SearchMode = "normal" | "reverse";
-type SearchStrategy = "atlas" | "exact_asset";
+type SearchStrategy = "atlas" | "fallback" | "exact_asset";
 type AtlasSearchAvailability = "unknown" | "available" | "unavailable";
 
 interface SearchMetrics {
@@ -591,6 +593,15 @@ const stripMongoId = (entry: any) => {
   return rest;
 };
 
+const omitSearchFilter = (
+  filters: SearchFilterOptions,
+  filterKey: keyof SearchFilterOptions,
+): SearchFilterOptions => {
+  const next = { ...filters };
+  delete next[filterKey];
+  return next;
+};
+
 const buildSearchMongoFilter = (
   filters: SearchFilterOptions,
   moderationMongoFilter: Record<string, unknown> = {},
@@ -689,6 +700,35 @@ const getPublicFilters = (
   ...(filters.dialect ? { dialect: filters.dialect.toUpperCase() } : {}),
   ...(filters.type ? { type: filters.type } : {}),
 });
+
+const buildFacetOptionsFromEntries = async ({
+  searchEntries,
+  filters,
+  getEntries,
+}: {
+  searchEntries: any[];
+  filters: SearchFilterOptions;
+  getEntries: (filters: SearchFilterOptions) => Promise<any[]>;
+}) => {
+  const countFacets = (entries: any[]) =>
+    countSearchGroupFacets(aggregateSearchEntries(entries));
+
+  if (!filters.dict && !filters.dialect && !filters.type) {
+    return countFacets(searchEntries);
+  }
+
+  const [dictionaryEntries, dialectEntries, typeEntries] = await Promise.all([
+    getEntries(omitSearchFilter(filters, "dict")),
+    getEntries(omitSearchFilter(filters, "dialect")),
+    getEntries(omitSearchFilter(filters, "type")),
+  ]);
+
+  return {
+    dictionaries: countFacets(dictionaryEntries).dictionaries,
+    dialects: countFacets(dialectEntries).dialects,
+    types: countFacets(typeEntries).types,
+  };
+};
 
 const buildEmptySearchResponse = ({
   query,
@@ -868,26 +908,43 @@ export async function atlasGroupedSearch(
     ATLAS_GROUPED_CANDIDATE_MAX_LIMIT,
     Math.max(ATLAS_GROUPED_CANDIDATE_MIN_LIMIT, requestedWindow * 4),
   );
-  const entries = await atlasSearch(
-    collection,
-    query,
-    candidateLimit + 1,
-    undefined,
-    mode,
-    queryVariants,
-    buildSearchMongoFilter(filters, mongoFilter),
-  );
+  const fetchEntries = async (nextFilters: SearchFilterOptions) =>
+    atlasSearch(
+      collection,
+      query,
+      candidateLimit + 1,
+      undefined,
+      mode,
+      queryVariants,
+      buildSearchMongoFilter(nextFilters, mongoFilter),
+    );
+  const entries = await fetchEntries(filters);
   const exact = entries.length <= candidateLimit;
+  const responseEntries = exact ? entries : entries.slice(0, candidateLimit);
+  const facetOptions =
+    offset === 0
+      ? await buildFacetOptionsFromEntries({
+          searchEntries: responseEntries,
+          filters,
+          getEntries: async (nextFilters) => {
+            const siblingEntries = await fetchEntries(nextFilters);
+            return siblingEntries.length <= candidateLimit
+              ? siblingEntries
+              : siblingEntries.slice(0, candidateLimit);
+          },
+        })
+      : undefined;
 
   return buildGroupedSearchResponse({
     query,
     mode,
     sort,
     filters: getPublicFilters(filters),
-    entries: exact ? entries : entries.slice(0, candidateLimit),
+    entries: responseEntries,
     offset,
     limit,
     exact,
+    facetOptions,
   });
 }
 
@@ -1004,18 +1061,21 @@ export async function fallbackGroupedSearch(
     mode === "normal" && isValidatedJyutpingQuery(query)
       ? Math.min(FALLBACK_SCAN_LIMIT, offset + limit)
       : getFallbackGroupedFetchLimit(offset, limit);
-  const entries = await fallbackSearch(
-    collection,
-    query,
-    fetchLimit,
-    undefined,
-    mode,
-    {
+  const fetchEntries = (nextFilters: SearchFilterOptions) =>
+    fallbackSearch(collection, query, fetchLimit, undefined, mode, {
       queryVariants,
       stageTimings,
-      mongoFilter: buildSearchMongoFilter(filters, mongoFilter),
-    },
-  );
+      mongoFilter: buildSearchMongoFilter(nextFilters, mongoFilter),
+    });
+  const entries = await fetchEntries(filters);
+  const facetOptions =
+    offset === 0
+      ? await buildFacetOptionsFromEntries({
+          searchEntries: entries,
+          filters,
+          getEntries: fetchEntries,
+        })
+      : undefined;
   const response = buildGroupedSearchResponse({
     query,
     mode,
@@ -1025,6 +1085,7 @@ export async function fallbackGroupedSearch(
     offset,
     limit,
     exact: entries.length < fetchLimit,
+    facetOptions,
   });
 
   if (!response.total.exact) {
@@ -1213,7 +1274,25 @@ const searchEventHandler = async (event: any) => {
           }
         }
 
-        // Atlas不可用或不支持，直接使用Exact Asset Rescue
+        if (
+          normalizedMode === "reverse" ||
+          (normalizedMode === "normal" && isJyutpingSearchQuery)
+        ) {
+          metrics.strategy = "fallback";
+          return await measureAsync(metrics.phaseMs, "fallback", () =>
+            fallbackGroupedSearch(collection, searchQuery, {
+              limit: resultLimit,
+              offset: resultOffset,
+              mode: normalizedMode,
+              sort: normalizedSort,
+              queryVariants,
+              filters,
+              stageTimings: metrics.stageMs,
+              mongoFilter: moderationMongoFilter,
+            }),
+          );
+        }
+
         metrics.strategy = "exact_asset";
         const exactAssetResponse = await measureAsync(
           metrics.phaseMs,
@@ -1234,7 +1313,6 @@ const searchEventHandler = async (event: any) => {
           return exactAssetResponse;
         }
 
-        // 无结果，返回空响应
         return buildEmptySearchResponse({
           query: searchQuery,
           mode: normalizedMode,

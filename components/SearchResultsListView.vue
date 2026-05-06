@@ -378,6 +378,7 @@ interface Props {
   ) => PronunciationDisplayItem[];
   getGroupDefinitions: (group: AggregatedEntryGroup) => string;
   getGroupSources: (group: AggregatedEntryGroup) => string[];
+  wordPathBuilder?: (headword: string) => string;
 }
 
 const props = defineProps<Props>();
@@ -407,7 +408,7 @@ const otherResultsDictionaryCount = computed(() => {
 const getWordPath = (group: AggregatedEntryGroup): string => {
   const word = group.primary.headword.display?.trim();
   if (!word) return searchPath();
-  return wordPath(word);
+  return props.wordPathBuilder ? props.wordPathBuilder(word) : wordPath(word);
 };
 
 const openWordPage = (group: AggregatedEntryGroup, event?: Event) => {

@@ -22,6 +22,23 @@ export interface SeoAlternateLinkDefinition {
 export const DEFAULT_LOCALE_CODE = "yue-Hant";
 export const SEARCH_RESULTS_VIEW_QUERY_KEY = "show";
 export const SEARCH_RESULTS_VIEW_QUERY_VALUE = "results";
+export const SEARCH_ORIGIN_QUERY_VALUE = "search";
+
+export type SearchRouteEntryType = "character" | "word" | "phrase";
+export type SearchRouteSort = "relevance" | "jyutping" | "headword" | "dictionary";
+export type SearchRouteView = "card" | "list";
+
+export interface SearchRouteState {
+  query: string;
+  reverse?: boolean;
+  showResults?: boolean;
+  dict?: string;
+  dialect?: string;
+  type?: SearchRouteEntryType;
+  sort?: SearchRouteSort;
+  view?: SearchRouteView;
+  resultCount?: string;
+}
 
 export const LOCALE_ROUTE_DEFINITIONS: LocaleRouteDefinition[] = [
   { code: "yue-Hant", name: "粵文", language: "yue-Hant", prefix: "" },
@@ -57,6 +74,32 @@ export const SITEMAP_GROUP_CAPACITY = Math.max(
 
 const ZERO_WIDTH_CHARACTERS = /[\u200B-\u200D\uFEFF]/g;
 const BROWSE_SEO_QUERY_KEYS = ["page", "size", "sort"];
+const SEARCH_ROUTE_ENTRY_TYPES = new Set<SearchRouteEntryType>([
+  "character",
+  "word",
+  "phrase",
+]);
+const SEARCH_ROUTE_SORTS = new Set<SearchRouteSort>([
+  "relevance",
+  "jyutping",
+  "headword",
+  "dictionary",
+]);
+const SEARCH_ROUTE_VIEWS = new Set<SearchRouteView>(["card", "list"]);
+const WORD_ROUTE_PRESERVED_QUERY_KEYS = new Set([
+  "jp",
+  "source",
+  "from",
+  "search_q",
+  "search_reverse",
+  "search_dict",
+  "search_dialect",
+  "search_type",
+  "search_sort",
+  "search_view",
+  "search_count",
+]);
+const SEARCH_COUNT_PATTERN = /^\d{1,7}\+?$/;
 
 export const cleanHeadwordForPath = (headword: string): string => {
   return String(headword || "")
@@ -74,24 +117,183 @@ export const buildBrowseRoutePath = (dictId?: string): string => {
   return cleaned ? `/browse/${encodeURIComponent(cleaned)}` : "/browse";
 };
 
+const getFirstQueryValue = (value: RouteQueryValue): string => {
+  if (Array.isArray(value)) {
+    return value.find((item): item is string => typeof item === "string") || "";
+  }
+
+  return typeof value === "string" ? value : "";
+};
+
+const cleanQueryParam = (value?: string): string => String(value || "").trim();
+
+const normalizeSearchEntryType = (
+  value?: string,
+): SearchRouteEntryType | undefined => {
+  const cleaned = cleanQueryParam(value);
+  return SEARCH_ROUTE_ENTRY_TYPES.has(cleaned as SearchRouteEntryType)
+    ? (cleaned as SearchRouteEntryType)
+    : undefined;
+};
+
+const normalizeSearchSort = (value?: string): SearchRouteSort | undefined => {
+  const cleaned = cleanQueryParam(value);
+  return SEARCH_ROUTE_SORTS.has(cleaned as SearchRouteSort)
+    ? (cleaned as SearchRouteSort)
+    : undefined;
+};
+
+const normalizeSearchView = (value?: string): SearchRouteView | undefined => {
+  const cleaned = cleanQueryParam(value);
+  return SEARCH_ROUTE_VIEWS.has(cleaned as SearchRouteView)
+    ? (cleaned as SearchRouteView)
+    : undefined;
+};
+
+const normalizeSearchCount = (value?: string): string | undefined => {
+  const cleaned = cleanQueryParam(value);
+  return SEARCH_COUNT_PATTERN.test(cleaned) ? cleaned : undefined;
+};
+
+export const buildSearchRouteQueryFromState = (
+  state: SearchRouteState,
+): Record<string, string> => {
+  const result: Record<string, string> = {};
+  const query = cleanQueryParam(state.query);
+  const dict = cleanQueryParam(state.dict);
+  const dialect = cleanQueryParam(state.dialect);
+  const type = normalizeSearchEntryType(state.type);
+  const sort = normalizeSearchSort(state.sort);
+  const view = normalizeSearchView(state.view);
+
+  if (query) result.q = query;
+  if (state.reverse) result.reverse = "1";
+  if (state.showResults) {
+    result[SEARCH_RESULTS_VIEW_QUERY_KEY] = SEARCH_RESULTS_VIEW_QUERY_VALUE;
+  }
+  if (dict) result.dict = dict;
+  if (dialect) result.dialect = dialect;
+  if (type) result.type = type;
+  if (sort && sort !== "relevance") result.sort = sort;
+  if (view && view !== "card") result.view = view;
+
+  return result;
+};
+
 export const buildSearchRouteQuery = (
   query?: string,
   reverse = false,
-  options: { showResults?: boolean } = {},
+  options: Omit<SearchRouteState, "query" | "reverse"> = {},
+): Record<string, string> =>
+  buildSearchRouteQueryFromState({
+    ...options,
+    query: query || "",
+    reverse,
+  });
+
+export const parseSearchRouteQuery = (query: RouteQueryLike): SearchRouteState => {
+  return {
+    query: cleanQueryParam(getFirstQueryValue(query.q)),
+    reverse: getFirstQueryValue(query.reverse) === "1",
+    showResults: isSearchResultsViewQuery(query),
+    dict: cleanQueryParam(getFirstQueryValue(query.dict)) || undefined,
+    dialect: cleanQueryParam(getFirstQueryValue(query.dialect)) || undefined,
+    type: normalizeSearchEntryType(getFirstQueryValue(query.type)),
+    sort: normalizeSearchSort(getFirstQueryValue(query.sort)),
+    view: normalizeSearchView(getFirstQueryValue(query.view)),
+  };
+};
+
+export const buildSearchOriginRouteQuery = (
+  state: SearchRouteState,
 ): Record<string, string> => {
-  const trimmed = String(query || "").trim();
+  const query = cleanQueryParam(state.query);
+  if (!query) return {};
+
+  const result: Record<string, string> = {
+    from: SEARCH_ORIGIN_QUERY_VALUE,
+    search_q: query,
+  };
+  const dict = cleanQueryParam(state.dict);
+  const dialect = cleanQueryParam(state.dialect);
+  const type = normalizeSearchEntryType(state.type);
+  const sort = normalizeSearchSort(state.sort);
+  const view = normalizeSearchView(state.view);
+  const resultCount = normalizeSearchCount(state.resultCount);
+
+  if (state.reverse) result.search_reverse = "1";
+  if (dict) result.search_dict = dict;
+  if (dialect) result.search_dialect = dialect;
+  if (type) result.search_type = type;
+  if (sort && sort !== "relevance") result.search_sort = sort;
+  if (view && view !== "card") result.search_view = view;
+  if (resultCount) result.search_count = resultCount;
+
+  return result;
+};
+
+export const parseSearchOriginRouteQuery = (
+  query: RouteQueryLike,
+): SearchRouteState | null => {
+  if (getFirstQueryValue(query.from) !== SEARCH_ORIGIN_QUERY_VALUE) return null;
+
+  const searchQuery = cleanQueryParam(getFirstQueryValue(query.search_q));
+  if (!searchQuery) return null;
+
+  return {
+    query: searchQuery,
+    reverse: getFirstQueryValue(query.search_reverse) === "1",
+    showResults: true,
+    dict: cleanQueryParam(getFirstQueryValue(query.search_dict)) || undefined,
+    dialect: cleanQueryParam(getFirstQueryValue(query.search_dialect)) || undefined,
+    type: normalizeSearchEntryType(getFirstQueryValue(query.search_type)),
+    sort: normalizeSearchSort(getFirstQueryValue(query.search_sort)),
+    view: normalizeSearchView(getFirstQueryValue(query.search_view)),
+    resultCount: normalizeSearchCount(getFirstQueryValue(query.search_count)),
+  };
+};
+
+export const buildSearchRouteQueryFromOrigin = (
+  origin: SearchRouteState,
+): Record<string, string> =>
+  buildSearchRouteQueryFromState({
+    ...origin,
+    showResults: true,
+  });
+
+export const buildWordRouteQueryWithSearchOrigin = (
+  origin?: SearchRouteState | null,
+): Record<string, string> => (origin ? buildSearchOriginRouteQuery(origin) : {});
+
+export const preserveWordRouteQuery = (
+  query: RouteQueryLike,
+): Record<string, string> => {
   const result: Record<string, string> = {};
 
-  if (trimmed) {
-    result.q = trimmed;
-  }
+  WORD_ROUTE_PRESERVED_QUERY_KEYS.forEach((key) => {
+    const value = getFirstQueryValue(query[key]);
+    if (!value) return;
 
-  if (reverse) {
-    result.reverse = "1";
-  }
+    if (key === "search_count") {
+      const count = normalizeSearchCount(value);
+      if (count) result[key] = count;
+      return;
+    }
 
-  if (options.showResults) {
-    result[SEARCH_RESULTS_VIEW_QUERY_KEY] = SEARCH_RESULTS_VIEW_QUERY_VALUE;
+    if (key === "from" && value !== SEARCH_ORIGIN_QUERY_VALUE) return;
+    if (key === "search_type" && !normalizeSearchEntryType(value)) return;
+    if (key === "search_sort" && !normalizeSearchSort(value)) return;
+    if (key === "search_view" && !normalizeSearchView(value)) return;
+    if (key === "search_reverse" && value !== "1") return;
+
+    result[key] = value;
+  });
+
+  if (!parseSearchOriginRouteQuery(result)) {
+    delete result.from;
+    Object.keys(result).forEach((key) => {
+      if (key.startsWith("search_")) delete result[key];
+    });
   }
 
   return result;

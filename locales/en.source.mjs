@@ -144,6 +144,10 @@ const messagesEn = {
     metaDictionaryDefinition: "definition from {dictionary}",
     metaFallbackDefinition: "Cantonese definition",
     metaCoverage: "included in {count} dictionaries",
+    backToSearchResultsFor: "Back to results for “{query}”",
+    backToSearchResultsForCount: "Back to results for “{query}” ({count})",
+    searchCurrentWord: "Search “{word}”",
+    viewCurrentWordResults: "View results for “{word}”",
   },
   dictCard: {
     placeholderWord: "Phonetic only",
