@@ -417,34 +417,54 @@ if (process.dev) {
 
 // 状态
 const searchQuery = ref((route.query.q as string) || ""); // 输入框中的查询词
-const actualSearchQuery = ref((route.query.q as string) || ""); // 实际已搜索的查询词
-const searchGroups = ref<AggregatedSearchEntry[]>([]);
-const jsonResultGroups = ref<AggregatedSearchEntry[]>([]);
-const displayedResults = ref<AggregatedSearchEntry[]>([]);
+const actualSearchQuery = useState<string>(
+  "search-actual-query",
+  () => (route.query.q as string) || "",
+); // 实际已搜索的查询词
+const searchGroups = useState<AggregatedSearchEntry[]>("search-groups", () => []);
+const jsonResultGroups = useState<AggregatedSearchEntry[]>(
+  "search-json-result-groups",
+  () => [],
+);
+const displayedResults = useState<AggregatedSearchEntry[]>(
+  "search-displayed-results",
+  () => [],
+);
 const loading = ref(false);
 const loadingMore = ref(false);
 const suggestions = ref<string[]>([]);
 const showSuggestions = ref(false);
 const redirectingToExactMatch = ref(false);
 const exactResultsReady = ref(false);
-const searchTotal = ref<SearchTotalMeta>({
+const searchTotal = useState<SearchTotalMeta>("search-total", () => ({
   grouped: 0,
   entries: 0,
   exact: true,
-});
-const searchFacets = ref<SearchFacetCounts>(createEmptySearchFacetCounts());
-const nextSearchOffset = ref<number | null>(null);
+}));
+const searchFacets = useState<SearchFacetCounts>("search-facets", () =>
+  createEmptySearchFacetCounts(),
+);
+const nextSearchOffset = useState<number | null>(
+  "search-next-offset",
+  () => null,
+);
 // 使用全局状态在路由切换之间保留视图模式（卡片 / 列表）
 const viewMode = useState<"card" | "list">("search-view-mode", () => "card");
-const enableReverseSearch = ref(route.query.reverse === "1"); // 从 URL 读取反查状态
-const isSearchComplete = ref(true); // 搜索是否完成（流式搜索中用）
+const enableReverseSearch = useState<boolean>(
+  "search-reverse-enabled",
+  () => route.query.reverse === "1",
+); // 从 URL 读取反查状态
+const isSearchComplete = useState<boolean>("search-complete", () => true); // 搜索是否完成（流式搜索中用）
 const allResults = computed(() => flattenSearchGroups(searchGroups.value));
 
 // 筛选相关状态
-const selectedDict = ref<string | null>(null); // 选中的词典
-const selectedDialect = ref<string | null>(null); // 选中的方言点
-const selectedType = ref<string | null>(null); // 选中的类型 (character|word|phrase)
-const sortBy = ref<SearchSortOption>("relevance"); // 排序方式
+const selectedDict = useState<string | null>("search-selected-dict", () => null); // 选中的词典
+const selectedDialect = useState<string | null>(
+  "search-selected-dialect",
+  () => null,
+); // 选中的方言点
+const selectedType = useState<string | null>("search-selected-type", () => null); // 选中的类型 (character|word|phrase)
+const sortBy = useState<SearchSortOption>("search-sort-by", () => "relevance"); // 排序方式
 const showDictDropdown = ref(false); // 词典下拉菜单显示状态
 const showDialectDropdown = ref(false); // 方言下拉菜单显示状态
 const showTypeDropdown = ref(false); // 类型下拉菜单显示状态
@@ -1282,12 +1302,25 @@ const searchExample = (query: string) => {
 watch(
   () => [route.query.q, route.query.reverse],
   ([newQuery, newReverse]) => {
-    searchQuery.value = (newQuery as string) || "";
-    enableReverseSearch.value = newReverse === "1";
+    const trimmedQuery = String(newQuery || "").trim();
+    const newReverseEnabled = newReverse === "1";
+    const isSameCompletedSearch =
+      actualSearchQuery.value === trimmedQuery &&
+      enableReverseSearch.value === newReverseEnabled &&
+      searchGroups.value.length > 0 &&
+      isSearchComplete.value;
+
+    searchQuery.value = trimmedQuery;
+    enableReverseSearch.value = newReverseEnabled;
     // 只在客户端执行搜索
     if (process.client) {
-      if (newQuery) {
-        performSearch(newQuery as string);
+      if (trimmedQuery) {
+        if (isSameCompletedSearch) {
+          loading.value = false;
+          loadingMore.value = false;
+          return;
+        }
+        performSearch(trimmedQuery);
       } else {
         resetSearchState();
         actualSearchQuery.value = "";
