@@ -39,8 +39,8 @@
           class="bg-surface-low dark:bg-stone-900 px-3 py-2.5 cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
           role="link"
           tabindex="0"
-          @click="openWordPage(group)"
-          @keydown.enter.prevent="openWordPage(group)"
+          @click="openWordPage(group, $event)"
+          @keydown.enter.prevent="openWordPage(group, $event)"
         >
           <div class="flex items-baseline gap-2 mb-1">
             <span
@@ -112,8 +112,8 @@
                 class="hover:bg-surface-high dark:hover:bg-stone-800 cursor-pointer transition-colors"
                 role="link"
                 tabindex="0"
-                @click="openWordPage(group)"
-                @keydown.enter.prevent="openWordPage(group)"
+                @click="openWordPage(group, $event)"
+                @keydown.enter.prevent="openWordPage(group, $event)"
               >
                 <td class="px-3 whitespace-nowrap py-2">
                   <NuxtLink
@@ -220,8 +220,8 @@
           class="bg-surface-low dark:bg-stone-900 px-3 py-2.5 cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
           role="link"
           tabindex="0"
-          @click="openWordPage(group)"
-          @keydown.enter.prevent="openWordPage(group)"
+          @click="openWordPage(group, $event)"
+          @keydown.enter.prevent="openWordPage(group, $event)"
         >
           <div class="flex items-baseline gap-2 mb-1">
             <span
@@ -295,8 +295,8 @@
                 class="hover:bg-surface-high dark:hover:bg-stone-800 cursor-pointer transition-colors"
                 role="link"
                 tabindex="0"
-                @click="openWordPage(group)"
-                @keydown.enter.prevent="openWordPage(group)"
+                @click="openWordPage(group, $event)"
+                @keydown.enter.prevent="openWordPage(group, $event)"
               >
                 <td class="px-3 whitespace-nowrap py-2">
                   <NuxtLink
@@ -410,7 +410,16 @@ const getWordPath = (group: AggregatedEntryGroup): string => {
   return wordPath(word);
 };
 
-const openWordPage = (group: AggregatedEntryGroup) => {
+const openWordPage = (group: AggregatedEntryGroup, event?: Event) => {
+  const target = event?.target as HTMLElement | null;
+  if (
+    target?.closest(
+      'button, a, input, select, textarea, [role="button"], [data-no-row-navigation]',
+    )
+  ) {
+    return;
+  }
+
   const path = getWordPath(group);
   if (!path || path === searchPath()) return;
   router.push(path);

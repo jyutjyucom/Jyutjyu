@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+  <div class="flex flex-wrap items-center gap-2 sm:gap-3" data-search-interactive>
     <span
       class="text-xs sm:text-sm text-graphite/60 dark:text-stone-100 font-medium"
       >{{ t("common.filterLabel") }}</span
@@ -17,7 +17,7 @@
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
         :disabled="disabled"
-        @click="$emit('toggle-dict')"
+        @click.stop="$emit('toggle-dict')"
       >
         <span>{{ selectedDict || t("common.allDictionaries") }}</span>
         <svg
@@ -81,7 +81,7 @@
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
         :disabled="disabled"
-        @click="$emit('toggle-dialect')"
+        @click.stop="$emit('toggle-dialect')"
       >
         <span>{{
           selectedDialect
@@ -149,7 +149,7 @@
             : 'bg-surface-low dark:bg-stone-800 text-graphite dark:text-stone-100 hover:bg-surface-high dark:hover:bg-stone-700'
         "
         :disabled="disabled"
-        @click="$emit('toggle-type')"
+        @click.stop="$emit('toggle-type')"
       >
         <span>{{
           selectedType ? getTypeName(selectedType) : t("common.allTypes")

@@ -13,6 +13,7 @@
         <div
           v-if="suggestions.length > 0 && showSuggestions"
           class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-content"
+          data-search-interactive
         >
           <button
             v-for="(suggestion, idx) in suggestions"
@@ -26,7 +27,7 @@
       </template>
 
       <template #mobile-extra>
-        <template v-if="actualSearchQuery && allResults.length > 0">
+        <template v-if="hasSearchContext">
           <SearchFilterControls
             :selected-dict="selectedDict"
             :selected-dialect="selectedDialect"
@@ -54,7 +55,7 @@
           <div class="flex flex-wrap items-center gap-3">
             <SearchSortSelect
               :sort-by="sortBy"
-              :disabled="loading || loadingMore"
+              :disabled="!actualSearchQuery"
               :show-sort-dropdown="showSortDropdown"
               :get-sort-label="getSortLabel"
               @toggle-sort="toggleDropdown('sort')"
@@ -72,7 +73,7 @@
 
       <template #after>
         <div
-          v-if="actualSearchQuery && allResults.length > 0"
+          v-if="hasSearchContext"
           class="hidden lg:block border-t border-outline-soft/20 dark:border-stone-800 bg-surface-low/80 dark:bg-stone-900/80"
         >
           <div class="max-w-7xl mx-auto px-6 md:px-8 py-3">
@@ -104,7 +105,7 @@
               <div class="flex items-center gap-3 ml-auto shrink-0">
                 <SearchSortSelect
                   :sort-by="sortBy"
-                  :disabled="loading || loadingMore"
+                  :disabled="!actualSearchQuery"
                   :show-sort-dropdown="showSortDropdown"
                   :get-sort-label="getSortLabel"
                   dropdown-align="right"
@@ -456,6 +457,10 @@ const enableReverseSearch = useState<boolean>(
 ); // 从 URL 读取反查状态
 const isSearchComplete = useState<boolean>("search-complete", () => true); // 搜索是否完成（流式搜索中用）
 const allResults = computed(() => flattenSearchGroups(searchGroups.value));
+const hasSearchContext = computed(() =>
+  Boolean(actualSearchQuery.value) &&
+  (allResults.value.length > 0 || loading.value || loadingMore.value),
+);
 
 // 筛选相关状态
 const selectedDict = useState<string | null>("search-selected-dict", () => null); // 选中的词典
@@ -475,28 +480,27 @@ const chineseConverterReady = ref(false);
 
 // Dropdown toggle helper - 关闭其他dropdown再打开指定的
 const toggleDropdown = (dropdown: 'dict' | 'dialect' | 'type' | 'sort') => {
-  // 先关闭所有dropdowns
-  showDictDropdown.value = false
-  showDialectDropdown.value = false
-  showTypeDropdown.value = false
-  showSortDropdown.value = false
+  const wasOpen =
+    dropdown === 'dict'
+      ? showDictDropdown.value
+      : dropdown === 'dialect'
+        ? showDialectDropdown.value
+        : dropdown === 'type'
+          ? showTypeDropdown.value
+          : showSortDropdown.value;
 
-  // 然后打开指定的dropdown
-  switch (dropdown) {
-    case 'dict':
-      showDictDropdown.value = !showDictDropdown.value
-      break
-    case 'dialect':
-      showDialectDropdown.value = !showDialectDropdown.value
-      break
-    case 'type':
-      showTypeDropdown.value = !showTypeDropdown.value
-      break
-    case 'sort':
-      showSortDropdown.value = !showSortDropdown.value
-      break
-  }
-}
+  showDictDropdown.value = false;
+  showDialectDropdown.value = false;
+  showTypeDropdown.value = false;
+  showSortDropdown.value = false;
+
+  if (wasOpen) return;
+
+  if (dropdown === 'dict') showDictDropdown.value = true;
+  if (dropdown === 'dialect') showDialectDropdown.value = true;
+  if (dropdown === 'type') showTypeDropdown.value = true;
+  if (dropdown === 'sort') showSortDropdown.value = true;
+};
 const showingSearchResultsView = computed(() =>
   isSearchResultsViewQuery(route.query),
 );
@@ -1207,6 +1211,22 @@ const loadMore = async () => {
     return;
   }
 
+  const requestId = activeSearchRequestId;
+  const query = actualSearchQuery.value;
+  const dict = selectedDict.value;
+  const dialect = selectedDialect.value;
+  const type = selectedType.value;
+  const entryType = getSelectedEntryType();
+  const sort = sortBy.value;
+
+  const isStillCurrent = () =>
+    requestId === activeSearchRequestId &&
+    actualSearchQuery.value === query &&
+    selectedDict.value === dict &&
+    selectedDialect.value === dialect &&
+    selectedType.value === type &&
+    sortBy.value === sort;
+
   loadingMore.value = true;
 
   try {
@@ -1217,6 +1237,8 @@ const loadMore = async () => {
 
     if (getMode() === "json") {
       const nextGroups = jsonResultGroups.value.slice(offset, offset + PAGE_SIZE);
+      if (!isStillCurrent()) return;
+
       searchGroups.value = [...searchGroups.value, ...nextGroups];
       nextSearchOffset.value =
         jsonResultGroups.value.length > offset + nextGroups.length
@@ -1227,20 +1249,17 @@ const loadMore = async () => {
       return;
     }
 
-    const response = await apiSearch.searchDetailedOrNull(
-      actualSearchQuery.value,
-      {
-        limit: PAGE_SIZE,
-        offset,
-        mode: enableReverseSearch.value ? "reverse" : "normal",
-        dict: selectedDict.value || undefined,
-        dialect: selectedDialect.value || undefined,
-        type: getSelectedEntryType(),
-        sort: sortBy.value,
-      },
-    );
+    const response = await apiSearch.searchDetailedOrNull(query, {
+      limit: PAGE_SIZE,
+      offset,
+      mode: enableReverseSearch.value ? "reverse" : "normal",
+      dict: dict || undefined,
+      dialect: dialect || undefined,
+      type: entryType,
+      sort,
+    });
 
-    if (response) {
+    if (response && isStillCurrent()) {
       applySearchResponse(response, { append: true });
       currentPage.value++;
     }
@@ -1346,13 +1365,13 @@ watch(enableReverseSearch, (newValue) => {
 onMounted(async () => {
   clickOutsideHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (!target.closest(".relative")) {
-      showSuggestions.value = false;
-      showDictDropdown.value = false;
-      showDialectDropdown.value = false;
-      showTypeDropdown.value = false;
-      showSortDropdown.value = false;
-    }
+    if (target.closest('[data-search-interactive]')) return;
+
+    showSuggestions.value = false;
+    showDictDropdown.value = false;
+    showDialectDropdown.value = false;
+    showTypeDropdown.value = false;
+    showSortDropdown.value = false;
   };
   document.addEventListener("click", clickOutsideHandler);
 });

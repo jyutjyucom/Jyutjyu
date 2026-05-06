@@ -4,7 +4,7 @@
       class="text-xs sm:text-sm text-graphite/60 dark:text-stone-100 font-medium"
       >{{ t("common.sortLabel") }}</span
     >
-    <div class="relative">
+    <div class="relative" data-search-interactive>
       <button
         class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm transition-colors"
         :class="

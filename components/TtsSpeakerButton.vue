@@ -5,6 +5,11 @@
     :class="resolvedButtonClass"
     :aria-label="ariaLabel"
     :title="ariaLabel"
+    :aria-busy="isLoading ? 'true' : undefined"
+    data-no-row-navigation
+    @pointerdown.stop
+    @mousedown.stop
+    @touchstart.stop
     @click.stop.prevent="handleClick"
   >
     <LoaderCircle

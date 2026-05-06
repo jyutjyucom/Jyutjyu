@@ -3,6 +3,9 @@ import type { TtsManifestV1 } from "~/types/tts";
 let manifestCache: TtsManifestV1 | null | undefined;
 let manifestPromise: Promise<TtsManifestV1 | null> | null = null;
 let sharedAudio: HTMLAudioElement | null = null;
+let playbackStartupTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const PLAYBACK_STARTUP_TIMEOUT_MS = 12000;
 
 const joinBaseUrl = (baseUrl: string, relativePath: string) => {
   const normalizedRelative = relativePath.replace(/^\/+/, "");
@@ -44,8 +47,36 @@ export const useTtsAudio = () => {
     unavailableKeys.value = [...unavailableKeys.value, normalized];
   };
 
+  const clearPlaybackStartupTimeout = () => {
+    if (!playbackStartupTimeout) return;
+    clearTimeout(playbackStartupTimeout);
+    playbackStartupTimeout = null;
+  };
+
+  const clearLoadingForKey = (normalized: string | null) => {
+    if (!normalized) return;
+    if (loadingKey.value === normalized) loadingKey.value = null;
+  };
+
+  const setPlayingForKey = (normalized: string | null) => {
+    if (!normalized) return;
+    clearPlaybackStartupTimeout();
+    clearLoadingForKey(normalized);
+    playingKey.value = normalized;
+    activeKey.value = normalized;
+  };
+
+  const startPlaybackStartupTimeout = (normalized: string) => {
+    clearPlaybackStartupTimeout();
+    playbackStartupTimeout = setTimeout(() => {
+      playbackStartupTimeout = null;
+      clearLoadingForKey(normalized);
+    }, PLAYBACK_STARTUP_TIMEOUT_MS);
+  };
+
   const clearStateForKey = (normalized: string | null) => {
     if (!normalized) return;
+    clearPlaybackStartupTimeout();
     if (activeKey.value === normalized) activeKey.value = null;
     if (playingKey.value === normalized) playingKey.value = null;
     if (loadingKey.value === normalized) loadingKey.value = null;
@@ -58,6 +89,12 @@ export const useTtsAudio = () => {
     sharedAudio = new Audio();
     sharedAudio.preload = "none";
 
+    sharedAudio.addEventListener("canplay", () => {
+      clearLoadingForKey(activeKey.value);
+    });
+    sharedAudio.addEventListener("playing", () => {
+      setPlayingForKey(activeKey.value);
+    });
     sharedAudio.addEventListener("ended", () => {
       clearStateForKey(activeKey.value);
     });
@@ -190,10 +227,9 @@ export const useTtsAudio = () => {
       audio.pause();
       audio.src = resolveAudioUrl(manifest, relativePath);
       audio.currentTime = 0;
+      startPlaybackStartupTimeout(normalized);
       await audio.play();
-      loadingKey.value = null;
-      playingKey.value = normalized;
-      activeKey.value = normalized;
+      setPlayingForKey(normalized);
       return true;
     } catch {
       markUnavailable(normalized);
