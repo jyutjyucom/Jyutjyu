@@ -3,7 +3,7 @@
   "account_id": "bee0d87089b3c5c89023aef60639ebeb",
   "main": ".output/server/index.mjs",
   "compatibility_date": "2024-11-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_v2"],
   "limits": {
     "cpu_ms": 30000,
   },
