@@ -1,5 +1,5 @@
-export const DEFAULT_RANDOM_QUERY_TIMEOUT_MS = 1200;
-export const WORKER_RANDOM_QUERY_TIMEOUT_MS = 1200;
+export const DEFAULT_RANDOM_QUERY_TIMEOUT_MS = 5000;
+export const WORKER_RANDOM_QUERY_TIMEOUT_MS = 5000;
 
 export interface RandomEntriesResponse<T> {
   success: boolean;

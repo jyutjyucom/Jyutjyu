@@ -645,9 +645,15 @@ export const getBrowsePage = async (
   }
 
   const dataset = await getBrowseDataset();
-  const safeScope = normalizeSpace(options.scope || "all") || "all";
+  let safeScope = normalizeSpace(options.scope || "all") || "all";
   const safeSort = normalizeSort(options.sort);
-  const scopeHeadwords = dataset.scopes.get(safeScope);
+  let scopeHeadwords = dataset.scopes.get(safeScope);
+
+  // Fall back to "all" scope if the requested scope doesn't exist
+  if (!scopeHeadwords) {
+    safeScope = "all";
+    scopeHeadwords = dataset.scopes.get(safeScope);
+  }
 
   if (!scopeHeadwords) {
     throw new Error(`Unknown browse scope: ${safeScope}`);
