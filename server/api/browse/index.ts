@@ -22,18 +22,6 @@ const getFirstQueryValue = (value: string | string[] | undefined): string => {
   return value || "";
 };
 
-// Sanitize dict parameter to avoid invalid values like ":dict()"
-const sanitizeDictParam = (dict: string): string => {
-  const cleaned = dict.trim();
-
-  // Reject obviously invalid values that look like unresolved route params
-  if (!cleaned || cleaned.includes(":") || cleaned.includes("(") || cleaned.includes(")")) {
-    return "all";
-  }
-
-  return cleaned;
-};
-
 const shouldRequirePrecomputedBrowseAssets = (event: any): boolean => {
   const isProduction =
     String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
@@ -51,18 +39,29 @@ export default defineEventHandler(async (event) => {
     1,
     parseInt(getFirstQueryValue(query.size) || "100", 10) || 100,
   );
-  const dict = sanitizeDictParam(getFirstQueryValue(query.dict));
+  const dict = getFirstQueryValue(query.dict).trim() || "all";
   const sortRaw = getFirstQueryValue(query.sort).trim().toLowerCase();
   const sort = sortRaw === "jyutping" ? "jyutping" : "headword";
   const mainlandModeration = shouldApplyMainlandModeration(event);
 
   if (shouldRequirePrecomputedBrowseAssets(event) && !mainlandModeration) {
-    const precomputed = await getBrowsePageFromPrecomputed({
+    // Try requested scope first
+    let precomputed = await getBrowsePageFromPrecomputed({
       page,
       scope: dict,
       pageSize: size,
       sort,
     });
+
+    // If not found, try "all" scope
+    if (!precomputed && dict !== "all") {
+      precomputed = await getBrowsePageFromPrecomputed({
+        page,
+        scope: "all",
+        pageSize: size,
+        sort,
+      });
+    }
 
     if (!precomputed) {
       throw createError({
