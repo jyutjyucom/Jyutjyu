@@ -595,6 +595,13 @@ export const getBrowsePageFromPrecomputed = async (
   };
 };
 
+const isBrowseScopeInManifest = async (scope: string): Promise<boolean> => {
+  const safeScope = normalizeSpace(scope || "all") || "all";
+  const manifest = await getBrowseManifest();
+
+  return Boolean(manifest?.scopes?.[safeScope]);
+};
+
 export const isBrowseScopeSupported = async (
   scope: string,
 ): Promise<boolean> => {
@@ -645,7 +652,7 @@ export const getBrowsePage = async (
   }
 
   const requestedScope = normalizeSpace(options.scope || "all") || "all";
-  if (requestedScope !== "all") {
+  if (requestedScope !== "all" && !(await isBrowseScopeInManifest(requestedScope))) {
     const fallbackPrecomputed = await getBrowsePageFromPrecomputed({
       ...options,
       scope: "all",
