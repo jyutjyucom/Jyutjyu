@@ -644,12 +644,22 @@ export const getBrowsePage = async (
     return precomputed;
   }
 
+  const requestedScope = normalizeSpace(options.scope || "all") || "all";
+  if (requestedScope !== "all") {
+    const fallbackPrecomputed = await getBrowsePageFromPrecomputed({
+      ...options,
+      scope: "all",
+    });
+    if (fallbackPrecomputed) {
+      return fallbackPrecomputed;
+    }
+  }
+
   const dataset = await getBrowseDataset();
-  let safeScope = normalizeSpace(options.scope || "all") || "all";
+  let safeScope = requestedScope;
   const safeSort = normalizeSort(options.sort);
   let scopeHeadwords = dataset.scopes.get(safeScope);
 
-  // Fall back to "all" scope if the requested scope doesn't exist
   if (!scopeHeadwords) {
     safeScope = "all";
     scopeHeadwords = dataset.scopes.get(safeScope);

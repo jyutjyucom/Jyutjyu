@@ -75,6 +75,7 @@ export interface SearchLandingResolution {
 const DICTIONARY_ASSET_ROOT = "/dictionaries";
 const EXACT_MATCH_ASSET_ROOT = "/exact-match";
 const CHUNK_CACHE_LIMIT = 24;
+const EXACT_MATCH_BUCKET_CACHE_LIMIT = 48;
 const DEFAULT_CANONICAL_HEADWORDS_ASSET = "canonical-headwords.json";
 
 interface WorkerAssetsBinding {
@@ -196,6 +197,20 @@ const setTraceCount = (
   }
 
   trace.counts[key] = value;
+};
+
+const touchMapCache = <T>(cache: Map<string, T>, key: string, value: T, limit: number) => {
+  if (cache.has(key)) {
+    cache.delete(key);
+  }
+
+  cache.set(key, value);
+
+  while (cache.size > limit) {
+    const oldestKey = cache.keys().next().value;
+    if (!oldestKey) break;
+    cache.delete(oldestKey);
+  }
 };
 
 const getWorkerAssetsBinding = (): WorkerAssetsBinding | null => {
@@ -383,6 +398,12 @@ const getExactMatchFormsBucket = async (
 ): Promise<ExactMatchFormsBucket> => {
   const cached = exactMatchFormsBucketCache.get(bucketId);
   if (cached) {
+    touchMapCache(
+      exactMatchFormsBucketCache,
+      bucketId,
+      cached,
+      EXACT_MATCH_BUCKET_CACHE_LIMIT,
+    );
     return cached;
   }
 
@@ -399,12 +420,22 @@ const getExactMatchFormsBucket = async (
       const parsed = measureTraceSync(trace, "exact.forms_parse", () =>
         JSON.parse(raw) as ExactMatchFormsBucket,
       );
-      exactMatchFormsBucketCache.set(bucketId, parsed);
+      touchMapCache(
+        exactMatchFormsBucketCache,
+        bucketId,
+        parsed,
+        EXACT_MATCH_BUCKET_CACHE_LIMIT,
+      );
       return parsed;
     } catch (error) {
       if (isMissingAssetError(error)) {
         const emptyBucket: ExactMatchFormsBucket = { forms: {} };
-        exactMatchFormsBucketCache.set(bucketId, emptyBucket);
+        touchMapCache(
+          exactMatchFormsBucketCache,
+          bucketId,
+          emptyBucket,
+          EXACT_MATCH_BUCKET_CACHE_LIMIT,
+        );
         return emptyBucket;
       }
 
@@ -424,6 +455,12 @@ const getExactMatchWordsBucket = async (
 ): Promise<ExactMatchWordsBucket> => {
   const cached = exactMatchWordsBucketCache.get(bucketId);
   if (cached) {
+    touchMapCache(
+      exactMatchWordsBucketCache,
+      bucketId,
+      cached,
+      EXACT_MATCH_BUCKET_CACHE_LIMIT,
+    );
     return cached;
   }
 
@@ -440,12 +477,22 @@ const getExactMatchWordsBucket = async (
       const parsed = measureTraceSync(trace, "exact.words_parse", () =>
         JSON.parse(raw) as ExactMatchWordsBucket,
       );
-      exactMatchWordsBucketCache.set(bucketId, parsed);
+      touchMapCache(
+        exactMatchWordsBucketCache,
+        bucketId,
+        parsed,
+        EXACT_MATCH_BUCKET_CACHE_LIMIT,
+      );
       return parsed;
     } catch (error) {
       if (isMissingAssetError(error)) {
         const emptyBucket: ExactMatchWordsBucket = { words: {} };
-        exactMatchWordsBucketCache.set(bucketId, emptyBucket);
+        touchMapCache(
+          exactMatchWordsBucketCache,
+          bucketId,
+          emptyBucket,
+          EXACT_MATCH_BUCKET_CACHE_LIMIT,
+        );
         return emptyBucket;
       }
 
