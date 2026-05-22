@@ -71,7 +71,7 @@ const resolveCandidatesFromApi = async (
           { "meta.headword_variants": { $in: exactForms } },
         ],
       },
-      { projection: { _id: 0 } },
+      { projection: { _id: 0 }, maxTimeMS: 5000 },
     )
     .toArray();
 
@@ -155,7 +155,7 @@ const getCanonicalHeadwordsFromApi = async (): Promise<string[]> => {
             },
           },
         ],
-        { allowDiskUse: true },
+        { allowDiskUse: true, maxTimeMS: 15000 },
       )
       .toArray()) as Array<{ canonicalHeadword: string }>;
 
@@ -181,17 +181,6 @@ export const resolveWordEntries = async (
       return null;
     }
 
-    // Exact word resolution is performance-sensitive on Workers and the bundled
-    // static exact-match assets are more reliable there than a live Mongo lookup.
-    try {
-      return await resolveWordEntriesFromJson(cleaned, trace);
-    } catch (error) {
-      console.error(
-        "Word resolve (JSON mode) failed, fallback to API mode:",
-        error,
-      );
-    }
-
     if (getIsServerApiEnabled()) {
       if (trace) {
         trace.strategy = "api_fallback";
@@ -200,12 +189,17 @@ export const resolveWordEntries = async (
       try {
         return await resolveFromApi(cleaned);
       } catch (error) {
-        console.error("Word resolve (API fallback) failed:", error);
+        console.error("Word resolve (API mode) failed:", error);
         return null;
       }
     }
 
-    return null;
+    try {
+      return await resolveWordEntriesFromJson(cleaned, trace);
+    } catch (error) {
+      console.error("Word resolve (JSON mode) failed:", error);
+      return null;
+    }
   });
 };
 
@@ -235,25 +229,29 @@ export const resolveSearchLanding = async (
     };
   }
 
-  try {
-    return await resolveSearchLandingFromJson(cleaned, options);
-  } catch (error) {
-    console.error(
-      "Search landing resolve (JSON mode) failed, fallback to API mode:",
-      error,
-    );
-  }
-
   if (getIsServerApiEnabled()) {
     try {
       const candidates = await resolveCandidatesFromApi(cleaned);
       return resolveSearchLandingFromEntries(candidates?.entries || [], cleaned);
     } catch (error) {
       console.error(
-        "Search landing resolve (API fallback) failed, fallback to search result:",
+        "Search landing resolve (API mode) failed, fallback to search result:",
         error,
       );
+      return {
+        type: "search",
+        reason: "no_exact_match",
+      };
     }
+  }
+
+  try {
+    return await resolveSearchLandingFromJson(cleaned, options);
+  } catch (error) {
+    console.error(
+      "Search landing resolve (JSON mode) failed, fallback to search result:",
+      error,
+    );
   }
 
   return {
@@ -263,25 +261,21 @@ export const resolveSearchLanding = async (
 };
 
 export const getCanonicalHeadwords = async (): Promise<string[]> => {
-  try {
-    return await getCanonicalHeadwordsFromJson();
-  } catch (error) {
-    console.error(
-      "Canonical headwords (JSON mode) failed, fallback to API mode:",
-      error,
-    );
-  }
-
   if (getIsServerApiEnabled()) {
     try {
       return await getCanonicalHeadwordsFromApi();
     } catch (error) {
-      console.error("Canonical headwords (API fallback) failed:", error);
+      console.error("Canonical headwords (API mode) failed:", error);
       return [];
     }
   }
 
-  return [];
+  try {
+    return await getCanonicalHeadwordsFromJson();
+  } catch (error) {
+    console.error("Canonical headwords (JSON mode) failed:", error);
+    return [];
+  }
 };
 
 export {

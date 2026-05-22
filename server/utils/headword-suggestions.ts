@@ -6,7 +6,9 @@ import {
   type HeadwordSuggestionRecord,
   normalizeValue,
   rankHeadwordSuggestions,
+  toSearchTerm,
 } from "./headword-suggestion-ranking.ts";
+import { getIsServerApiEnabled } from "./runtime-mode.ts";
 
 interface SuggestionAssetPayload {
   records?: HeadwordSuggestionRecord[];
@@ -51,6 +53,31 @@ export const getHeadwordSuggestionRecords = async (): Promise<
   return suggestionRecordsPromise;
 };
 
+export const getHeadwordSuggestionsFromApi = async (
+  query: string,
+  limit: number = 10,
+): Promise<string[]> => {
+  const normalizedQuery = normalizeValue(query);
+  if (normalizedQuery.length < 2) {
+    return [];
+  }
+
+  const [{ getCanonicalHeadwords }, { getQueryVariants }] = await Promise.all([
+    import("./word-resolver.ts"),
+    import("./opencc.ts"),
+  ]);
+  const [headwords, queryVariants] = await Promise.all([
+    getCanonicalHeadwords(),
+    getQueryVariants(normalizedQuery),
+  ]);
+  const records = headwords.map((headword) => ({
+    suggestion: headword,
+    searchTerms: [toSearchTerm(headword)],
+  }));
+
+  return rankHeadwordSuggestions(records, queryVariants, limit);
+};
+
 export const getHeadwordSuggestions = async (
   query: string,
   limit: number = 10,
@@ -58,6 +85,10 @@ export const getHeadwordSuggestions = async (
   const normalizedQuery = normalizeValue(query);
   if (normalizedQuery.length < 2) {
     return [];
+  }
+
+  if (getIsServerApiEnabled()) {
+    return getHeadwordSuggestionsFromApi(normalizedQuery, limit);
   }
 
   const records = await getHeadwordSuggestionRecords();

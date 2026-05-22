@@ -4,7 +4,9 @@ import type { DictionaryEntry } from "../../types/dictionary.ts";
 import {
   getCanonicalHeadwordsFromJson,
   getExactQueryForms,
+  matchesExactQuery,
   resolveWordEntriesFromJson,
+  selectCanonicalWordEntries,
   toComparableHeadwordKey,
   type ResolvedWordResult,
 } from "../../utils/headword-exact-match.ts";
@@ -12,7 +14,9 @@ import {
   buildGroupedSearchResponse,
   type GroupedSearchResponse,
 } from "../../utils/search-result-groups.ts";
-import { filterRestrictedEntries } from "./moderation.ts";
+import { getEntriesCollection } from "./mongodb.ts";
+import { getModerationMongoFilter, filterRestrictedEntries } from "./moderation.ts";
+import { getIsServerApiEnabled } from "./runtime-mode.ts";
 
 export const RELATED_WORDS_DEFAULT_LIMIT = 12;
 export const RELATED_WORDS_MAX_LIMIT = 24;
@@ -132,6 +136,108 @@ export const getRelatedHeadwordCandidates = async ({
     .slice(0, maxCandidates);
 };
 
+const resolveEntriesFromApi = async (
+  headwords: string[],
+  event?: H3Event,
+): Promise<Map<string, ResolvedWordResult>> => {
+  const formsByHeadword = new Map<string, string[]>();
+  const allForms = new Set<string>();
+
+  for (const headword of headwords) {
+    const forms = (await getExactQueryForms(headword))
+      .map((form) => String(form || "").trim())
+      .filter(Boolean);
+    formsByHeadword.set(headword, forms);
+    forms.forEach((form) => allForms.add(form));
+  }
+
+  if (allForms.size === 0) {
+    return new Map();
+  }
+
+  const collection = await getEntriesCollection();
+  const entries = await collection
+    .find<DictionaryEntry>(
+      {
+        ...getModerationMongoFilter(event as H3Event),
+        $or: [
+          { "headword.normalized": { $in: Array.from(allForms) } },
+          { "headword.display": { $in: Array.from(allForms) } },
+          { "meta.headword_variants": { $in: Array.from(allForms) } },
+        ],
+      },
+      { projection: { _id: 0 }, maxTimeMS: 8000 },
+    )
+    .toArray();
+
+  const result = new Map<string, ResolvedWordResult>();
+
+  for (const [headword, forms] of formsByHeadword) {
+    const originalKey = toComparableHeadwordKey(headword);
+    const queryKeys = new Set(forms.map(toComparableHeadwordKey).filter(Boolean));
+    const matchingEntries = entries.filter((entry) =>
+      matchesExactQuery(entry, queryKeys),
+    );
+    const resolved = selectCanonicalWordEntries(
+      matchingEntries,
+      originalKey,
+      queryKeys,
+    );
+
+    if (resolved) {
+      result.set(headword, resolved);
+    }
+  }
+
+  return result;
+};
+
+const getApiRelatedEntries = async ({
+  query,
+  limit,
+  event,
+}: Required<Pick<StaticRelatedWordsOptions, "query" | "limit">> & {
+  limit: number;
+  event?: H3Event;
+}) => {
+  const normalizedQuery = query.trim();
+  const { getCanonicalHeadwords } = await import("./word-resolver.ts");
+  const allHeadwords = await getCanonicalHeadwords();
+  const maxCandidates = getCandidateBudget(limit);
+  const candidates = await getRelatedHeadwordCandidates({
+    query: normalizedQuery,
+    headwords: allHeadwords,
+    maxCandidates,
+  });
+  const resolvedByHeadword = await resolveEntriesFromApi(
+    [normalizedQuery, ...candidates.map((candidate) => candidate.headword)],
+    event,
+  );
+  const currentResolved = resolvedByHeadword.get(normalizedQuery);
+  const queryKeys = await getQueryKeys(normalizedQuery);
+  const entries: DictionaryEntry[] = [];
+
+  for (const candidate of candidates) {
+    const resolved = resolvedByHeadword.get(candidate.headword);
+    if (!resolved?.entries?.length) {
+      continue;
+    }
+
+    const canonicalKey = toComparableHeadwordKey(resolved.canonicalHeadword);
+    if (canonicalKey && queryKeys.has(canonicalKey)) {
+      continue;
+    }
+
+    entries.push(...resolved.entries);
+  }
+
+  return {
+    entries,
+    searchEntries: [...(currentResolved?.entries || []), ...entries],
+    exact: candidates.length < maxCandidates,
+  };
+};
+
 const getStaticRelatedEntries = async ({
   query,
   limit,
@@ -206,12 +312,19 @@ export const buildStaticRelatedWordsResponse = async ({
   }
 
   try {
-    const { entries, searchEntries, exact } = await getStaticRelatedEntries({
-      query: normalizedQuery,
-      limit: normalizedLimit,
-      headwords,
-      resolveWordEntries,
-    });
+    const relatedEntries = getIsServerApiEnabled()
+      ? await getApiRelatedEntries({
+          query: normalizedQuery,
+          limit: normalizedLimit,
+          event,
+        })
+      : await getStaticRelatedEntries({
+          query: normalizedQuery,
+          limit: normalizedLimit,
+          headwords,
+          resolveWordEntries,
+        });
+    const { entries, searchEntries, exact } = relatedEntries;
     const getVisibleEntries = (items: DictionaryEntry[]) =>
       event
         ? filterRestrictedEntries(event, items)

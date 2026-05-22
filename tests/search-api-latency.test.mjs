@@ -108,7 +108,7 @@ const createMockCollection = (entries) => {
   };
 };
 
-test("Atlas strategy skips reverse mode, symbol-heavy queries, and unavailable Atlas", () => {
+test("Atlas strategy uses Atlas for normal and reverse text search but skips symbol-heavy, Jyutping, and unavailable Atlas", () => {
   assert.equal(
     shouldAttemptAtlasSearch({
       mode: "normal",
@@ -131,7 +131,7 @@ test("Atlas strategy skips reverse mode, symbol-heavy queries, and unavailable A
       hasSymbolCharacters: false,
       atlasAvailabilityState: "available",
     }),
-    false,
+    true,
   );
   assert.equal(
     shouldAttemptAtlasSearch({

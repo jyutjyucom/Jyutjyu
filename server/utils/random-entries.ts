@@ -12,6 +12,7 @@ interface ResolveRandomEntriesOptions<T> {
   count: number;
   event?: any;
   fallbackEntries: T[];
+  loadFallbackEntries?: () => T[] | Promise<T[]>;
   fetchFromMongo: (count: number, timeoutMs: number) => Promise<T[]>;
   timeoutMsOverride?: number;
   onError?: (error: unknown) => void;
@@ -78,6 +79,7 @@ export const resolveRandomEntries = async <T>({
   count,
   event,
   fallbackEntries,
+  loadFallbackEntries,
   fetchFromMongo,
   timeoutMsOverride,
   onError,
@@ -99,8 +101,13 @@ export const resolveRandomEntries = async <T>({
   } catch (error) {
     onError?.(error);
 
-    if (fallbackEntries.length > 0) {
-      const results = pickRandomEntries(fallbackEntries, count);
+    const fallback =
+      fallbackEntries.length > 0
+        ? fallbackEntries
+        : (await loadFallbackEntries?.()) || [];
+
+    if (fallback.length > 0) {
+      const results = pickRandomEntries(fallback, count);
 
       return {
         success: true,

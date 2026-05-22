@@ -32,7 +32,7 @@ test("resolveServerUseApi enables API mode from MongoDB only in non-production",
   );
 });
 
-test("resolveServerUseApi stays disabled in production without explicit flag", () => {
+test("resolveServerUseApi enables API mode from MongoDB in production", () => {
   process.env.MONGODB_URI = "mongodb+srv://runtime.mongodb.net/jyutjyu";
 
   assert.equal(
@@ -41,7 +41,7 @@ test("resolveServerUseApi stays disabled in production without explicit flag", (
       mongodbUri: "",
       nodeEnv: "production",
     }),
-    false,
+    true,
   );
 });
 

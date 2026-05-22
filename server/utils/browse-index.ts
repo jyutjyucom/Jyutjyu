@@ -427,7 +427,7 @@ const buildBrowseDatasetFromApi = async (): Promise<BrowseDataset> => {
           },
         },
       ],
-      { allowDiskUse: true },
+      { allowDiskUse: true, maxTimeMS: 30000 },
     )
     .toArray()) as ApiCanonicalRow[];
 
@@ -505,16 +505,8 @@ const buildBrowseDataset = async (): Promise<BrowseDataset> => {
     try {
       return await buildBrowseDatasetFromApi();
     } catch (apiError) {
-      console.error(
-        "Browse index (API mode) failed, fallback to JSON mode:",
-        apiError,
-      );
-      try {
-        return await buildBrowseDatasetFromJson();
-      } catch (jsonError) {
-        console.error("Browse index JSON fallback failed:", jsonError);
-        throw apiError;
-      }
+      console.error("Browse index (API mode) failed:", apiError);
+      throw apiError;
     }
   }
 

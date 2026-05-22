@@ -13,7 +13,6 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import bundledRecommendations from "~/public/recommendations.json";
 import { getEntriesCollection } from "../utils/mongodb";
 import {
   filterRestrictedEntries,
@@ -25,6 +24,7 @@ import {
   isProductionWorkerRandomRuntime,
   resolveRandomEntries,
 } from "../utils/random-entries";
+import { getIsServerApiEnabled } from "../utils/runtime-mode";
 
 const QUALITY_DICTIONARIES = ["广州话俗语词典", "实用广州话分类词典"];
 
@@ -49,16 +49,25 @@ const parseFallbackEntries = (payload: unknown): any[] => {
   return [];
 };
 
-const loadFallbackEntries = ({
+const loadBundledRecommendations = async (): Promise<unknown> => {
+  try {
+    const module = await import("~/public/recommendations.json");
+    return module.default;
+  } catch {
+    return [];
+  }
+};
+
+const loadFallbackEntries = async ({
   preferBundledOnly = false,
 }: {
   preferBundledOnly?: boolean;
-} = {}): any[] => {
+} = {}): Promise<any[]> => {
   if (cachedFallbackEntries) {
     return cachedFallbackEntries;
   }
 
-  const bundledEntries = parseFallbackEntries(bundledRecommendations);
+  const bundledEntries = parseFallbackEntries(await loadBundledRecommendations());
   if (bundledEntries.length > 0) {
     cachedFallbackEntries = bundledEntries;
     return bundledEntries;
@@ -141,10 +150,13 @@ export default defineEventHandler(async (event) => {
   const query = getQuery<RandomQuery>(event);
   const count = Math.min(Math.max(1, parseInt(query.count || "3") || 3), 20);
   const preferBundledOnly = isProductionWorkerRandomRuntime(event);
-  const fallbackEntries = filterRestrictedEntries(
-    event,
-    loadFallbackEntries({ preferBundledOnly }),
-  );
+  const useApi = getIsServerApiEnabled();
+  const fallbackEntries = useApi
+    ? []
+    : filterRestrictedEntries(
+        event,
+        await loadFallbackEntries({ preferBundledOnly }),
+      );
   if (shouldApplyMainlandModeration(event)) {
     setModerationCacheHeaders(event);
   }
@@ -155,6 +167,13 @@ export default defineEventHandler(async (event) => {
     fallbackEntries,
     fetchFromMongo: (requestedCount, timeoutMs) =>
       fetchRandomEntriesFromMongo(requestedCount, timeoutMs, event),
+    loadFallbackEntries: useApi
+      ? async () =>
+          filterRestrictedEntries(
+            event,
+            await loadFallbackEntries({ preferBundledOnly }),
+          )
+      : undefined,
     onError: (error) => {
       console.error("MongoDB 隨機詞條失敗，改用靜態推薦回退:", error);
     },

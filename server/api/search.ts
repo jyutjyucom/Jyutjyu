@@ -55,6 +55,7 @@ import {
 import { resolveWordEntriesFromJson } from "../../utils/headword-exact-match.ts";
 import { isJyutpingQuery as isValidatedJyutpingQuery } from "../../utils/query-classify.ts";
 import type { EntryType } from "../../types/dictionary.ts";
+import { getIsServerApiEnabled } from "../utils/runtime-mode.ts";
 
 export interface SearchQuery {
   q?: string;
@@ -351,7 +352,7 @@ export const shouldAttemptAtlasSearch = ({
   atlasAvailabilityState?: AtlasSearchAvailability;
 }): boolean => {
   return (
-    mode === "normal" &&
+    (mode === "normal" || mode === "reverse") &&
     !hasSymbolCharacters &&
     !isJyutpingQuery &&
     atlasAvailabilityState !== "unavailable"
@@ -1249,7 +1250,22 @@ const searchEventHandler = async (event: any) => {
               metrics.degradedReason = "atlas_error";
             }
 
-            // Atlas失败后，直接使用Exact Asset Rescue，跳过Fallback Regex
+            if (getIsServerApiEnabled()) {
+              metrics.strategy = "fallback";
+              return await measureAsync(metrics.phaseMs, "fallback", () =>
+                fallbackGroupedSearch(collection, searchQuery, {
+                  limit: resultLimit,
+                  offset: resultOffset,
+                  mode: normalizedMode,
+                  sort: normalizedSort,
+                  queryVariants,
+                  filters,
+                  stageTimings: metrics.stageMs,
+                  mongoFilter: moderationMongoFilter,
+                }),
+              );
+            }
+
             const exactAssetResponse = await measureAsync(
               metrics.phaseMs,
               "exactAsset",
@@ -1278,6 +1294,22 @@ const searchEventHandler = async (event: any) => {
           normalizedMode === "reverse" ||
           (normalizedMode === "normal" && isJyutpingSearchQuery)
         ) {
+          metrics.strategy = "fallback";
+          return await measureAsync(metrics.phaseMs, "fallback", () =>
+            fallbackGroupedSearch(collection, searchQuery, {
+              limit: resultLimit,
+              offset: resultOffset,
+              mode: normalizedMode,
+              sort: normalizedSort,
+              queryVariants,
+              filters,
+              stageTimings: metrics.stageMs,
+              mongoFilter: moderationMongoFilter,
+            }),
+          );
+        }
+
+        if (getIsServerApiEnabled()) {
           metrics.strategy = "fallback";
           return await measureAsync(metrics.phaseMs, "fallback", () =>
             fallbackGroupedSearch(collection, searchQuery, {

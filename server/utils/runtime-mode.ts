@@ -80,10 +80,11 @@ export const resolveServerUseApi = (
 }
 
 export const getIsServerApiEnabled = (): boolean => {
-  const config = useRuntimeConfig()
+  const runtimeConfig =
+    typeof useRuntimeConfig === 'function' ? useRuntimeConfig() : null
 
   return resolveServerUseApi({
-    publicUseApi: config.public.useApi,
-    mongodbUri: config.mongodbUri,
+    publicUseApi: runtimeConfig?.public?.useApi,
+    mongodbUri: runtimeConfig?.mongodbUri,
   })
 }

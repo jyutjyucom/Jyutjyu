@@ -419,6 +419,9 @@ async function main() {
       "headword.normalized": 1,
       source_book: 1,
     });
+    await collection.createIndex({ "senses.definition": 1 });
+    await collection.createIndex({ keywords: 1 });
+    await collection.createIndex({ "meta.headword_variants": 1 });
 
     console.log("✅ 索引已就绪\n");
 
