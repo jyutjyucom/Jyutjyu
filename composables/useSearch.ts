@@ -285,7 +285,9 @@ export const useSearch = () => {
       }
     }
 
-    if (!shouldTryApi || (apiRequestFailed && !preferApiByConfig)) {
+    const shouldAllowJsonFallback = forceJsonByConfig || import.meta.dev;
+
+    if (!shouldTryApi || (apiRequestFailed && shouldAllowJsonFallback)) {
       results = await jsonSearch.searchBasic(query, {
         ...options,
         onResults: wrappedOnResults,
@@ -323,6 +325,8 @@ export const useSearch = () => {
       return jsonSearch.getSuggestions(query);
     }
 
+    const shouldAllowJsonFallback = forceJsonByConfig || import.meta.dev;
+
     if (suggestionAvailability !== false) {
       const lightweightSuggestions = await apiSearch.getSuggestions(query);
       if (lightweightSuggestions !== null) {
@@ -345,7 +349,10 @@ export const useSearch = () => {
 
       recordSearchFailure();
     }
-    return jsonSearch.getSuggestions(query);
+    if (shouldAllowJsonFallback) {
+      return jsonSearch.getSuggestions(query);
+    }
+    return [];
   };
 
   /**
