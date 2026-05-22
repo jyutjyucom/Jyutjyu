@@ -1,0 +1,16 @@
+.git
+.claude
+.nuxt
+.output
+dist
+node_modules
+coverage
+.nyc_output
+playwright-report
+test-results
+*.log*
+.DS_Store
+.env
+.env.*
+!.env.example
+.tts-cache

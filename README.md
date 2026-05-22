@@ -50,7 +50,7 @@
 - **UI**: [Tailwind CSS](https://tailwindcss.com/)
 - **數據**: 靜態 JSON / [MongoDB Atlas](https://www.mongodb.com/atlas)
 - **中文轉換**: [OpenCC.js](https://github.com/nk2028/opencc-js)
-- **部署**: [Vercel](https://vercel.com/)
+- **部署**: [Vercel](https://vercel.com/) / [Docker Compose](./docs/DOCKER.md)
 
 ## 快速開始
 
@@ -79,7 +79,7 @@ npm run dev
 1.  **靜態 JSON (預設)**：適合小型項目或測試，無需數據庫，數據喺 `public/dictionaries/`。
 2.  **MongoDB (生產環境)**：適合大規模數據同高性能搜尋。配置 `.env` 啟用。
 
-詳細配置見 [MongoDB 指南](./docs/MONGODB_SETUP.md)。
+詳細配置見 [MongoDB 指南](./docs/MONGODB_SETUP.md)。Docker 服務器部署見 [Docker Compose 部署](./docs/DOCKER.md)。
 
 ### 數據處理
 
