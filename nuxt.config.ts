@@ -29,8 +29,6 @@ const localizedPrerenderRoutes = LOCALE_ROUTE_DEFINITIONS.flatMap(
 );
 const localizedRouteRules = Object.fromEntries(
   LOCALE_ROUTE_DEFINITIONS.flatMap(({ prefix }) => [
-    [applyLocalePrefix("/word/**", prefix), { swr: 86400 }],
-    [applyLocalePrefix("/browse/**", prefix), { swr: 86400 }],
     [applyLocalePrefix("/", prefix), { prerender: true }],
     [applyLocalePrefix("/about", prefix), { prerender: true }],
     [applyLocalePrefix("/search", prefix), { prerender: true }],

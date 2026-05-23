@@ -513,8 +513,8 @@ const fetchRelatedSearchData = () =>
       }
     },
     {
-      server: true,
-      lazy: process.client,
+      server: false,
+      lazy: true,
       watch: [searchHeadword],
     },
   );
