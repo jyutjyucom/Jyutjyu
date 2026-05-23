@@ -42,7 +42,11 @@ export default defineEventHandler(async (event) => {
       };
     }
 
-    const rawSuggestions = await getHeadwordSuggestions(searchQuery, limit);
+    const rawSuggestions = await getHeadwordSuggestions(
+      searchQuery,
+      limit,
+      event,
+    );
     const suggestions = mainlandModeration
       ? rawSuggestions.filter(
           (suggestion) => !queryTouchesRestrictedTerm(suggestion),

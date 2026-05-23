@@ -103,6 +103,12 @@ let browseDatasetPromise: Promise<BrowseDataset> | null = null;
 let browseManifestCache: BrowseIndexManifest | null = null;
 let browseManifestPromise: Promise<BrowseIndexManifest | null> | null = null;
 
+const isProductionRuntime = (): boolean =>
+  String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
+
+export const shouldAllowBrowseDatasetFallback = (): boolean =>
+  !(isProductionRuntime() && getIsServerApiEnabled());
+
 const normalizeSpace = (value: string): string =>
   value.replace(/\s+/g, " ").trim();
 
@@ -602,6 +608,10 @@ export const isBrowseScopeSupported = async (
     return scope === "all" || Boolean(manifest.scopes[scope]);
   }
 
+  if (!shouldAllowBrowseDatasetFallback()) {
+    return scope === "all";
+  }
+
   const dataset = await getBrowseDataset();
   return scope === "all" || dataset.scopes.has(scope);
 };
@@ -630,6 +640,12 @@ export const getBrowseScopeTotalPages = async (
     return Math.max(1, Math.ceil(total / safePageSize));
   }
 
+  if (!shouldAllowBrowseDatasetFallback()) {
+    throw new Error(
+      "Missing browse manifest; dataset fallback disabled in production API mode",
+    );
+  }
+
   const dataset = await getBrowseDataset();
   const headwords = dataset.scopes.get(safeScope)?.byHeadword || [];
   return Math.max(1, Math.ceil(headwords.length / safePageSize));
@@ -652,6 +668,12 @@ export const getBrowsePage = async (
     if (fallbackPrecomputed) {
       return fallbackPrecomputed;
     }
+  }
+
+  if (!shouldAllowBrowseDatasetFallback()) {
+    throw new Error(
+      "Missing precomputed browse asset; dataset fallback disabled in production API mode",
+    );
   }
 
   const dataset = await getBrowseDataset();

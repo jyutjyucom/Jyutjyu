@@ -667,7 +667,7 @@ const buildExactAssetSearchResponse = async ({
   offset: number;
   limit: number;
 }): Promise<GroupedSearchResponse | null> => {
-  if (mode !== "normal") {
+  if (getIsServerApiEnabled() || mode !== "normal") {
     return null;
   }
 

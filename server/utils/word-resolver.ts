@@ -23,8 +23,11 @@ interface CandidateResolution {
   entries: DictionaryEntry[];
 }
 
-let apiCanonicalHeadwordsCache: string[] | null = null;
-let apiCanonicalHeadwordsPromise: Promise<string[]> | null = null;
+let apiCanonicalHeadwordCountCache: { count: number; timestamp: number } | null = null;
+let apiCanonicalHeadwordCountPromise: Promise<number> | null = null;
+
+const API_CANONICAL_HEADWORD_COUNT_CACHE_MS = 60 * 60 * 1000;
+const API_CANONICAL_HEADWORD_AGGREGATE_TIMEOUT_MS = 15000;
 
 const normalizeSpace = (value: string): string => normalizeSearchQuery(value);
 
@@ -97,78 +100,120 @@ const resolveFromApi = async (
   );
 };
 
-const getCanonicalHeadwordsFromApi = async (): Promise<string[]> => {
-  if (apiCanonicalHeadwordsCache) {
-    return apiCanonicalHeadwordsCache;
-  }
-
-  if (apiCanonicalHeadwordsPromise) {
-    return apiCanonicalHeadwordsPromise;
-  }
-
-  apiCanonicalHeadwordsPromise = (async () => {
-    const collection = await getEntriesCollection();
-
-    const rows = (await collection
-      .aggregate(
-        [
-          {
-            $project: {
-              canonicalHeadword: {
-                $let: {
-                  vars: {
-                    normalized: {
-                      $trim: {
-                        input: { $ifNull: ["$headword.normalized", ""] },
-                      },
-                    },
-                    display: {
-                      $trim: { input: { $ifNull: ["$headword.display", ""] } },
-                    },
-                  },
-                  in: {
-                    $cond: [
-                      { $ne: ["$$normalized", ""] },
-                      "$$normalized",
-                      "$$display",
-                    ],
-                  },
-                },
+const getCanonicalHeadwordStages = () => [
+  {
+    $project: {
+      canonicalHeadword: {
+        $let: {
+          vars: {
+            normalized: {
+              $trim: {
+                input: { $ifNull: ["$headword.normalized", ""] },
               },
             },
-          },
-          {
-            $match: {
-              canonicalHeadword: { $ne: "" },
+            display: {
+              $trim: { input: { $ifNull: ["$headword.display", ""] } },
             },
           },
-          {
-            $group: {
-              _id: { $toLower: "$canonicalHeadword" },
-              canonicalHeadword: { $first: "$canonicalHeadword" },
-            },
+          in: {
+            $cond: [
+              { $ne: ["$$normalized", ""] },
+              "$$normalized",
+              "$$display",
+            ],
           },
-          {
-            $project: {
-              _id: 0,
-              canonicalHeadword: 1,
-            },
-          },
-        ],
-        { allowDiskUse: true, maxTimeMS: 15000 },
+        },
+      },
+    },
+  },
+  {
+    $match: {
+      canonicalHeadword: { $ne: "" },
+    },
+  },
+  {
+    $group: {
+      _id: { $toLower: "$canonicalHeadword" },
+      canonicalHeadword: { $first: "$canonicalHeadword" },
+    },
+  },
+];
+
+export const getCanonicalHeadwordCountFromApi = async (): Promise<number> => {
+  const now = Date.now();
+  if (
+    apiCanonicalHeadwordCountCache &&
+    now - apiCanonicalHeadwordCountCache.timestamp <
+      API_CANONICAL_HEADWORD_COUNT_CACHE_MS
+  ) {
+    return apiCanonicalHeadwordCountCache.count;
+  }
+
+  if (apiCanonicalHeadwordCountPromise) {
+    return apiCanonicalHeadwordCountPromise;
+  }
+
+  apiCanonicalHeadwordCountPromise = (async () => {
+    const collection = await getEntriesCollection();
+    const rows = (await collection
+      .aggregate(
+        [...getCanonicalHeadwordStages(), { $count: "total" }],
+        {
+          allowDiskUse: true,
+          maxTimeMS: API_CANONICAL_HEADWORD_AGGREGATE_TIMEOUT_MS,
+        },
       )
-      .toArray()) as Array<{ canonicalHeadword: string }>;
+      .toArray()) as Array<{ total?: number }>;
+    const count = Number(rows[0]?.total || 0);
+    apiCanonicalHeadwordCountCache = { count, timestamp: Date.now() };
+    return count;
+  })().finally(() => {
+    apiCanonicalHeadwordCountPromise = null;
+  });
 
-    const headwords = rows
-      .map((row) => normalizeSpace(row.canonicalHeadword || ""))
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  return apiCanonicalHeadwordCountPromise;
+};
 
-    apiCanonicalHeadwordsCache = headwords;
-    return headwords;
-  })();
+export const getCanonicalHeadwordPageFromApi = async ({
+  offset,
+  limit,
+}: {
+  offset: number;
+  limit: number;
+}): Promise<string[]> => {
+  const safeOffset = Math.max(0, Math.floor(offset));
+  const safeLimit = Math.min(Math.max(0, Math.floor(limit)), 50000);
+  if (safeLimit === 0) {
+    return [];
+  }
 
-  return apiCanonicalHeadwordsPromise;
+  const collection = await getEntriesCollection();
+  const rows = (await collection
+    .aggregate(
+      [
+        ...getCanonicalHeadwordStages(),
+        { $sort: { canonicalHeadword: 1 } },
+        { $skip: safeOffset },
+        { $limit: safeLimit },
+        { $project: { _id: 0, canonicalHeadword: 1 } },
+      ],
+      {
+        allowDiskUse: true,
+        maxTimeMS: API_CANONICAL_HEADWORD_AGGREGATE_TIMEOUT_MS,
+      },
+    )
+    .toArray()) as Array<{ canonicalHeadword?: string }>;
+
+  return rows
+    .map((row) => normalizeSpace(row.canonicalHeadword || ""))
+    .filter(Boolean);
+};
+
+const getCanonicalHeadwordsFromApi = async (): Promise<string[]> => {
+  console.warn(
+    "getCanonicalHeadwords() is disabled in API mode; use bounded canonical headword helpers instead",
+  );
+  return [];
 };
 
 export const resolveWordEntries = async (

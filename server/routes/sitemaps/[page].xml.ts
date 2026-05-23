@@ -1,6 +1,11 @@
-import { getCanonicalHeadwords } from "../../utils/word-resolver";
+import {
+  getCanonicalHeadwordCountFromApi,
+  getCanonicalHeadwordPageFromApi,
+  getCanonicalHeadwords,
+} from "../../utils/word-resolver";
 import { getSitemapLastmod } from "../../utils/sitemap-meta";
 import { getBrowseSitemapStaticPaths } from "../../utils/sitemap-browse";
+import { getIsServerApiEnabled } from "../../utils/runtime-mode";
 import {
   SITEMAP_GROUP_CAPACITY,
   buildSitemapUrlEntryXml,
@@ -26,9 +31,13 @@ export default defineEventHandler(async (event) => {
     /\/sitemaps\/([^/]+?)(?:\.xml)?$/i,
   );
   const page = toPageNumber(pathMatch?.[1] || getRouterParam(event, "page"));
-  const headwords = await getCanonicalHeadwords();
+  const useApi = getIsServerApiEnabled();
+  const allHeadwords = useApi ? null : await getCanonicalHeadwords();
+  const headwordCount = useApi
+    ? await getCanonicalHeadwordCountFromApi()
+    : allHeadwords!.length;
   const browseStaticPaths = await getBrowseSitemapStaticPaths();
-  const totalGroups = browseStaticPaths.length + headwords.length;
+  const totalGroups = browseStaticPaths.length + headwordCount;
   const totalPages = Math.max(
     1,
     Math.ceil(totalGroups / SITEMAP_GROUP_CAPACITY),
@@ -59,7 +68,12 @@ export default defineEventHandler(async (event) => {
 
   const headwordStart = Math.max(0, start - browseStaticPaths.length);
   const headwordEnd = Math.max(0, end - browseStaticPaths.length);
-  const pageHeadwords = headwords.slice(headwordStart, headwordEnd);
+  const pageHeadwords = useApi
+    ? await getCanonicalHeadwordPageFromApi({
+        offset: headwordStart,
+        limit: headwordEnd - headwordStart,
+      })
+    : allHeadwords!.slice(headwordStart, headwordEnd);
 
   for (const headword of pageHeadwords) {
     xml += `${buildSitemapUrlEntryXml(`/word/${encodeURIComponent(headword)}`, siteUrl, lastmod)}\n`;

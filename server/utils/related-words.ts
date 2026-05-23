@@ -24,6 +24,11 @@ export const RELATED_WORDS_MAX_LIMIT = 24;
 const RELATED_WORDS_CACHE_LIMIT = 256;
 const RELATED_WORDS_MIN_CANDIDATE_BUDGET = 16;
 const RELATED_WORDS_MAX_CANDIDATE_BUDGET = 32;
+const RELATED_WORDS_API_CANDIDATE_TIMEOUT_MS = 3000;
+const RELATED_WORDS_API_CANDIDATE_MULTIPLIER = 4;
+
+const escapeRegex = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 type ResolveWordEntries = (
   headword: string,
@@ -136,6 +141,98 @@ export const getRelatedHeadwordCandidates = async ({
     .slice(0, maxCandidates);
 };
 
+const getApiRelatedHeadwordCandidates = async ({
+  query,
+  maxCandidates,
+  event,
+}: {
+  query: string;
+  maxCandidates: number;
+  event?: H3Event;
+}): Promise<RelatedCandidate[]> => {
+  const normalizedQuery = query.trim();
+  const queryKeys = await getQueryKeys(normalizedQuery);
+  if (queryKeys.size === 0) return [];
+
+  const queryForms = (await getExactQueryForms(normalizedQuery))
+    .map((form) => String(form || "").trim())
+    .filter(Boolean);
+  const variants = Array.from(new Set([normalizedQuery, ...queryForms]));
+  const collection = await getEntriesCollection();
+  const candidates: RelatedCandidate[] = [];
+  const seenKeys = new Set<string>();
+  const stageLimit = Math.max(
+    maxCandidates * RELATED_WORDS_API_CANDIDATE_MULTIPLIER,
+    maxCandidates,
+  );
+  const mongoFilter = event ? getModerationMongoFilter(event) : {};
+
+  const addCandidate = (headword: string, priority: number) => {
+    const candidate = headword.trim();
+    const key = toComparableHeadwordKey(candidate);
+    if (!candidate || !key || queryKeys.has(key) || seenKeys.has(key)) return;
+    seenKeys.add(key);
+    candidates.push({ headword: candidate, key, priority });
+  };
+
+  const runStage = async (pattern: string, priority: number) => {
+    if (candidates.length >= maxCandidates) return;
+
+    const rows = (await collection
+      .find(
+        {
+          ...mongoFilter,
+          $or: [
+            { "headword.normalized": { $regex: pattern, $options: "i" } },
+            { "headword.display": { $regex: pattern, $options: "i" } },
+            { "meta.headword_variants": { $regex: pattern, $options: "i" } },
+          ],
+        },
+        {
+          projection: {
+            _id: 0,
+            "headword.normalized": 1,
+            "headword.display": 1,
+          },
+          maxTimeMS: RELATED_WORDS_API_CANDIDATE_TIMEOUT_MS,
+        },
+      )
+      .limit(stageLimit)
+      .toArray()) as Array<{
+      headword?: { normalized?: string; display?: string };
+    }>;
+
+    rows
+      .map((entry) => entry.headword?.normalized || entry.headword?.display || "")
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.length !== b.length) return a.length - b.length;
+        return a.localeCompare(b, "zh-Hant");
+      })
+      .forEach((headword) => addCandidate(headword, priority));
+  };
+
+  for (const variant of variants) {
+    if (candidates.length >= maxCandidates) break;
+    await runStage(`^${escapeRegex(variant)}`, 0);
+  }
+
+  for (const variant of variants) {
+    if (candidates.length >= maxCandidates) break;
+    await runStage(escapeRegex(variant), 1);
+  }
+
+  return candidates
+    .sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      if (a.headword.length !== b.headword.length) {
+        return a.headword.length - b.headword.length;
+      }
+      return a.headword.localeCompare(b.headword, "zh-Hant");
+    })
+    .slice(0, maxCandidates);
+};
+
 const resolveEntriesFromApi = async (
   headwords: string[],
   event?: H3Event,
@@ -159,7 +256,7 @@ const resolveEntriesFromApi = async (
   const entries = await collection
     .find<DictionaryEntry>(
       {
-        ...getModerationMongoFilter(event as H3Event),
+        ...(event ? getModerationMongoFilter(event) : {}),
         $or: [
           { "headword.normalized": { $in: Array.from(allForms) } },
           { "headword.display": { $in: Array.from(allForms) } },
@@ -201,13 +298,11 @@ const getApiRelatedEntries = async ({
   event?: H3Event;
 }) => {
   const normalizedQuery = query.trim();
-  const { getCanonicalHeadwords } = await import("./word-resolver.ts");
-  const allHeadwords = await getCanonicalHeadwords();
   const maxCandidates = getCandidateBudget(limit);
-  const candidates = await getRelatedHeadwordCandidates({
+  const candidates = await getApiRelatedHeadwordCandidates({
     query: normalizedQuery,
-    headwords: allHeadwords,
     maxCandidates,
+    event,
   });
   const resolvedByHeadword = await resolveEntriesFromApi(
     [normalizedQuery, ...candidates.map((candidate) => candidate.headword)],

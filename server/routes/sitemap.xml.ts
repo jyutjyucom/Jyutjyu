@@ -1,6 +1,10 @@
-import { getCanonicalHeadwords } from "../utils/word-resolver";
+import {
+  getCanonicalHeadwordCountFromApi,
+  getCanonicalHeadwords,
+} from "../utils/word-resolver";
 import { getSitemapLastmod } from "../utils/sitemap-meta";
 import { getBrowseSitemapStaticPaths } from "../utils/sitemap-browse";
+import { getIsServerApiEnabled } from "../utils/runtime-mode";
 import { SITEMAP_GROUP_CAPACITY } from "../../utils/route-paths";
 
 const getSiteUrl = () => {
@@ -12,9 +16,11 @@ const getSiteUrl = () => {
 };
 
 export default defineEventHandler(async (event) => {
-  const headwords = await getCanonicalHeadwords();
+  const headwordCount = getIsServerApiEnabled()
+    ? await getCanonicalHeadwordCountFromApi()
+    : (await getCanonicalHeadwords()).length;
   const browseStaticPaths = await getBrowseSitemapStaticPaths();
-  const totalGroups = browseStaticPaths.length + headwords.length;
+  const totalGroups = browseStaticPaths.length + headwordCount;
   const totalPages = Math.max(
     1,
     Math.ceil(totalGroups / SITEMAP_GROUP_CAPACITY),

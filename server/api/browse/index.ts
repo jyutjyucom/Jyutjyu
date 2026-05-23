@@ -1,6 +1,7 @@
 import {
   getBrowsePage,
   getBrowsePageFromPrecomputed,
+  shouldAllowBrowseDatasetFallback,
 } from "../../utils/browse-index";
 import {
   queryTouchesRestrictedTerm,
@@ -22,12 +23,8 @@ const getFirstQueryValue = (value: string | string[] | undefined): string => {
   return value || "";
 };
 
-const shouldRequirePrecomputedBrowseAssets = (event: any): boolean => {
-  const isProduction =
-    String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
-
-  return isProduction && Boolean(event?.context?.cloudflare);
-};
+const shouldRequirePrecomputedBrowseAssets = (): boolean =>
+  !shouldAllowBrowseDatasetFallback();
 
 export default defineEventHandler(async (event) => {
   const query = getQuery<BrowseQuery>(event);
@@ -44,7 +41,7 @@ export default defineEventHandler(async (event) => {
   const sort = sortRaw === "jyutping" ? "jyutping" : "headword";
   const mainlandModeration = shouldApplyMainlandModeration(event);
 
-  if (shouldRequirePrecomputedBrowseAssets(event) && !mainlandModeration) {
+  if (shouldRequirePrecomputedBrowseAssets() && !mainlandModeration) {
     // Try requested scope first
     let precomputed = await getBrowsePageFromPrecomputed({
       page,

@@ -25,6 +25,7 @@ import {
   resolveRandomEntries,
 } from "../utils/random-entries";
 import { getIsServerApiEnabled } from "../utils/runtime-mode";
+import { fetchAssetJson } from "~/utils/asset-json";
 
 const QUALITY_DICTIONARIES = ["广州话俗语词典", "实用广州话分类词典"];
 
@@ -51,8 +52,7 @@ const parseFallbackEntries = (payload: unknown): any[] => {
 
 const loadBundledRecommendations = async (): Promise<unknown> => {
   try {
-    const module = await import("~/public/recommendations.json");
-    return module.default;
+    return await fetchAssetJson("/recommendations.json");
   } catch {
     return [];
   }
