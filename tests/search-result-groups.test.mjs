@@ -5,6 +5,7 @@ import {
   aggregateSearchEntries,
   buildGroupedSearchResponse,
   pickRicherSearchEntries,
+  SEARCH_API_PAGE_SIZE,
   SEARCH_API_MAX_PAGE_SIZE,
   SEARCH_PAGE_SIZE,
   summarizeGroupedSearchCount,
@@ -53,7 +54,7 @@ test("summarizeGroupedSearchCount returns an overflow label when capped", () => 
     createEntry({ id: "2", display: "你哋" }),
   ];
 
-  assert.equal(SEARCH_PAGE_SIZE, 100);
+  assert.equal(SEARCH_API_PAGE_SIZE, 100);
   assert.equal(SEARCH_API_MAX_PAGE_SIZE, 200);
   assert.deepEqual(
     summarizeGroupedSearchCount(entries, {
@@ -66,6 +67,12 @@ test("summarizeGroupedSearchCount returns an overflow label when capped", () => 
       isOverflow: true,
     },
   );
+});
+
+test("search UI renders a smaller first batch than the API default", () => {
+  assert.equal(SEARCH_API_PAGE_SIZE, 100);
+  assert.equal(SEARCH_PAGE_SIZE, 40);
+  assert.ok(SEARCH_PAGE_SIZE < SEARCH_API_PAGE_SIZE);
 });
 
 test("buildGroupedSearchResponse paginates grouped cards by offset", () => {

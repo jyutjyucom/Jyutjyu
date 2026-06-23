@@ -76,7 +76,7 @@ export interface GroupedSearchResponse {
 export const SEARCH_API_PAGE_SIZE = 100;
 export const SEARCH_API_MAX_PAGE_SIZE = 200;
 export const SEARCH_API_FIRST_PAGE_LIMIT = SEARCH_API_PAGE_SIZE;
-export const SEARCH_PAGE_SIZE = SEARCH_API_PAGE_SIZE;
+export const SEARCH_PAGE_SIZE = 40;
 export const SEARCH_LOCAL_RESULT_LIMIT = 1000;
 
 const normalizeHeadwordPart = (value: string | null | undefined): string => {
