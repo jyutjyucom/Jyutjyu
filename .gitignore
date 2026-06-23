@@ -63,3 +63,4 @@ data/processed/structure_analysis.txt
 
 # 欽州粵拼 原始数据
 data/raw/hamzau_jyutping.dict.yaml
+.claude/
