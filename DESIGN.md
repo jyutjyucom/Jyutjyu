@@ -1,9 +1,10 @@
 ---
 version: alpha
 name: Jyutjyu-design-system
-description: A scholarly dictionary interface for Cantonese linguistic heritage — "Scholar's Ink (Kapok Edition)". The system anchors on a warm parchment canvas with deep ink-blue body text, a deep red Kapok accent (#b53a25 — the flower of Southern China), and a five-tier warm-neutral surface stack for managing dense dictionary content. Serif CJK fonts (Chiron Sung HK) render headwords and headings, evoking printed dictionaries; sans-serif CJK (Chiron Hei HK) serves UI chrome. The signature decorative element is a "red dot divider" — a horizontal line with a centered circle dot. Buttons are sharp rectangular (no border-radius), reinforcing the traditional scholarly aesthetic.
+description: A scholarly dictionary interface for Cantonese linguistic heritage — "Scholar's Ink (Kapok Edition)". The system anchors on a warm parchment canvas with deep ink-blue body text, a deep red Kapok accent (#b53a25 — the flower of Southern China), and a five-tier warm-neutral surface stack for managing dense dictionary content. Serif CJK fonts (Chiron Sung HK) render headwords and headings, evoking printed dictionaries; sans-serif CJK (Chiron Hei HK) serves UI chrome. The signature decorative element is a "red dot divider" — a horizontal line with a centered circle dot. Primary actions, search controls, and segmented controls stay sharp rectangular; metadata chips, feedback affordances, and audio icon buttons may round.
 
 colors:
+  primary: "#b53a25"
   kapok: "#b53a25"
   kapok-hover: "#9e3220"
   kapok-container: "#f8e7e4"
@@ -105,10 +106,11 @@ typography:
     letterSpacing: 0
 
 rounded:
-  none: 0
+  none: 0px
   sm: 6px
   md: 8px
   lg: 12px
+  full: 9999px
 
 spacing:
   xxs: 4px
@@ -183,6 +185,12 @@ components:
     typography: "{typography.body-sm}"
     rounded: "{rounded.lg}"
     padding: 4px 12px
+  example-query-pill:
+    backgroundColor: "{colors.surface-low}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-sm}"
+    rounded: "{rounded.full}"
+    padding: 6px 16px
   dict-card:
     backgroundColor: "{colors.surface-low}"
     textColor: "{colors.ink}"
@@ -258,15 +266,21 @@ components:
     typography: "{typography.body-sm}"
     rounded: "{rounded.md}"
     padding: 6px 12px
+  tts-icon-button:
+    backgroundColor: transparent
+    textColor: "{colors.graphite}"
+    rounded: "{rounded.full}"
+    size: 28px
   pronunciation-tab-active:
     backgroundColor: "{colors.kapok}"
     textColor: "{colors.on-primary}"
     fontWeight: 700
-    rounded: "{rounded.lg}"
+    rounded: "{rounded.none}"
     shadow: "0 4px 12px {colors.kapok} at 20% opacity"
   pronunciation-tab-inactive:
     backgroundColor: transparent
     textColor: "{colors.graphite}"
+    rounded: "{rounded.none}"
 ---
 
 ## Overview
@@ -288,7 +302,7 @@ Typography is split into **serif display** (Chiron Sung HK) for headwords, headi
 - Kapok red primary CTA (`{colors.kapok}` — #b53a25). Used on buttons, active states, Jyutping text, and the signature red-dot divider.
 - Serif CJK display via Chiron Sung HK for headwords and page titles. Pairs with Chiron Hei HK sans body for definitions and UI.
 - Five-tier warm-neutral surface stack (`{colors.surface-low}` through `{colors.surface-highest}`) for layered card backgrounds.
-- Sharp rectangular buttons (zero border-radius) — reinforcing the traditional, serious aesthetic. Only tags/badges use rounded corners.
+- Sharp rectangular treatment for primary/search/filter/segmented controls — reinforcing the traditional, serious aesthetic. Rounded forms are reserved for metadata chips, example-query pills, feedback affordances, and tiny audio icon buttons.
 - The "red dot divider" — a horizontal line with a centered circle dot — is the system's most distinctive decorative element.
 - Left-border accent blocks in semantic colors (kapok, archive-green, muted-gold) communicate information category at a glance.
 - Information density with hierarchy: dense dictionary entries managed through layered surfaces, subtle accents, and tab-based grouping.
@@ -422,12 +436,13 @@ The elevation philosophy is **surface-tone stepping, not shadow**. Most depth co
 
 | Token | Value | Use |
 |---|---|---|
-| `{rounded.none}` | 0 | **All buttons, all inputs** — sharp rectangular. The defining shape choice. |
+| `{rounded.none}` | 0px | **Primary/search/filter/segmented buttons and inputs** — sharp rectangular. The defining shape choice for core controls. |
 | `{rounded.sm}` | 6px | Dictionary entry cards, modal dialogs |
-| `{rounded.md}` | 8px | Feedback buttons, filter dropdowns |
-| `{rounded.lg}` | 12px | Tags/badges, pronunciation tabs, section containers |
+| `{rounded.md}` | 8px | Feedback buttons, compact dropdown surfaces |
+| `{rounded.lg}` | 12px | Tags/badges, section containers |
+| `{rounded.full}` | 9999px | Example-query pills, audio icon buttons, decorative divider dots |
 
-The sharp rectangular treatment of buttons and inputs is a deliberate design choice — it reinforces the traditional, serious, print-like aesthetic. Rounding a button would make it feel like a mobile app; keeping it square feels like a book.
+The sharp rectangular treatment of primary controls and inputs is a deliberate design choice — it reinforces the traditional, serious, print-like aesthetic. Rounded shapes are used only for inline chips or tiny utility affordances, where the round shape signals "metadata" or "secondary tool" rather than a primary command.
 
 ### Photography & Illustrations
 The system uses almost no photography. Instead:
@@ -463,6 +478,8 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 
 **`tag-soft`** — Register, category, or other metadata. `{colors.surface-highest}` background, `{colors.graphite}` text. Example: "口語", "書面語".
 
+**`example-query-pill`** — Homepage and empty-state query suggestions. `{colors.surface-low}` background, `{colors.ink}` text, `{rounded.full}`. Hover may shift toward archive-green to frame examples as exploratory rather than primary actions.
+
 ### Cards & Containers
 
 **`dict-card`** — Single dictionary entry card. Background `{colors.surface-low}`, `{rounded.sm}`, padding 24px. Structured as header (headword in serif + Jyutping in kapok + variant markers) → tags row → body (numbered senses with italic kapok numbering, nested sub-senses with `border-l-2 border-kapok/20`) → accent blocks (notes, etymology, references) → see-also links in kapok with `underline-offset-2`. Entry animation: `fadeIn 0.3s ease-in` with `translateY(10px)` slide-up.
@@ -483,7 +500,7 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 
 **Book Spine Cards** — Dictionary showcase cards on the home page cycling through 4 visual variants: `{component.book-spine-card-dark}` (ink navy, white text), `{component.book-spine-card-gray}` (warm gray, ink text), `{component.book-spine-card-green}` (archive green, white text), `{component.book-spine-card-light}` (parchment, ink text). All use `aspect-[3/4]` proportions. Dark variants carry a decorative corner accent. They evoke a shelf of reference books.
 
-**Pronunciation Tabs** (`{component.pronunciation-tab-active}` / `{component.pronunciation-tab-inactive}`) — Desktop: pill-style tab bar for switching between pronunciation variants. Active tab: `{colors.kapok}` background, white text, bold, with `shadow-lg shadow-kapok/20`. Inactive: transparent, `{colors.graphite}` text. Full keyboard navigation (ArrowRight, ArrowLeft, Home, End). Mobile: accordion pattern instead of tabs.
+**Pronunciation Tabs** (`{component.pronunciation-tab-active}` / `{component.pronunciation-tab-inactive}`) — Desktop: square segmented tab bar for switching between pronunciation variants. Active tab: `{colors.kapok}` background, white text, bold, with `shadow-lg shadow-kapok/20`. Inactive: transparent, `{colors.graphite}` text. Full keyboard navigation (ArrowRight, ArrowLeft, Home, End). Mobile: accordion pattern instead of tabs.
 
 **Search Filter Controls** — Three dropdown filters (dictionary, dialect, entry type) each using their semantic color: dict=kapok, dialect=archive-green, type=muted-gold. Selected state shows the semantic color as background tint; unselected is `{colors.surface-low}`.
 
@@ -492,6 +509,8 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 **`text-input`** — Standard form field. Background `{colors.surface-low}`, text `{colors.ink}`, type `{typography.body-md}`, **zero border-radius**, no visible border. Focus state adds `ring-1 ring-kapok/30` — a subtle kapok glow. The borderless design integrates inputs into the surface system rather than treating them as separate UI elements.
 
 **`feedback-button`** — Inline button for submitting feedback. Background `{colors.archive-green}` at 10% opacity, text `{colors.archive-green}`, `{rounded.md}`. Opens a teleported modal with form fields. Deliberately subdued — feedback is available but doesn't compete with dictionary content.
+
+**`tts-icon-button`** — Inline pronunciation audio control. Transparent background, graphite icon, `{rounded.full}` hit area. On hover or active playback it shifts to kapok. It stays visually smaller than pronunciation text so audio support never competes with Jyutping.
 
 ### Footer
 
@@ -503,7 +522,7 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 - Anchor every page on the warm parchment canvas (`{colors.parchment}`). Pure white reads as "generic web app"; the warm tint is the brand differentiator.
 - Use Chiron Sung HK serif for every headword and heading. Pair with Chiron Hei HK sans for body. The serif/sans split signals "dictionary" at a glance.
 - Use `{colors.kapok}` for all interactive states: primary buttons, active tabs, links, Jyutping text, focus rings. The red is the interactive language.
-- Keep buttons sharp rectangular (zero border-radius). Tags and badges may round; buttons and inputs must not.
+- Keep primary/search/filter/segmented controls sharp rectangular. Use rounded shapes only for chips, badges, feedback buttons, and icon-only audio controls.
 - Use the red-dot divider to separate major page sections. Use the green variant for sub-entry separation within grouped cards.
 - Use left-border accent blocks to communicate information category: kapok = proofreader, muted-gold = notes, archive-green = etymology, outline-soft = examples.
 - Apply semantic tag colors consistently: kapok for source, archive-green for dialect, muted-gold for type, surface-highest for soft metadata.
@@ -513,7 +532,7 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 ### Don't
 - Don't use pure white (`#ffffff`) for page backgrounds. The warm parchment (`#fbf9f4`) is the brand.
 - Don't use sans-serif for headwords. The serif headword is the most important visual signal that this is a dictionary interface.
-- Don't round buttons or inputs. The sharp rectangle is the shape signature — it reads as traditional and serious.
+- Don't round primary CTAs, search submits, filter controls, segmented controls, or text inputs. The sharp rectangle is the shape signature for core actions.
 - Don't use shadows for elevation. Use the five-tier surface stack instead. Shadows break the print-like flatness.
 - Don't use `{colors.kapok}` for body text or large fills. It's an accent — reserve it for interactive elements, Jyutping text, and decorative dividers.
 - Don't introduce new accent colors. The trinity of kapok / archive-green / muted-gold covers all semantic needs.
@@ -540,7 +559,7 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 ### Collapsing Strategy
 - Header collapses controls behind an expandable panel at the `lg` (1024px) breakpoint.
 - Browse page's 3-column sidebar collapses to an accordion on mobile.
-- Pronunciation tabs switch from pill-bar to accordion on mobile.
+- Pronunciation tabs switch from square segmented tab bar to accordion on mobile.
 - Headword grids reduce columns (5 → 4 → 3) rather than scaling cards down.
 - Search filter dropdowns stack vertically on mobile.
 - Footer columns stack to single-column on mobile.
@@ -555,7 +574,7 @@ Tags follow a strict semantic color system — the color tells you what kind of 
 1. Focus on ONE component at a time. Reference its YAML key (`{component.dict-card}`, `{component.red-dot-divider}`).
 2. Variants of an existing component (`-active`, `-inactive`, `-green`) live as separate entries in `components:`.
 3. Use `{token.refs}` everywhere — never inline hex.
-4. Buttons are always sharp rectangular. Tags are always `{rounded.lg}`. This is non-negotiable.
+4. Core controls are sharp rectangular; chips, tags, feedback affordances, and audio icon buttons are the only rounded interactive forms.
 5. Serif is for headwords and headings. Sans is for body and UI. The split is unbreakable.
 6. Parchment + kapok + archive-green + muted-gold is the color palette. Don't introduce a fifth accent.
 7. When unsure about emphasis: larger serif type before stronger color.
