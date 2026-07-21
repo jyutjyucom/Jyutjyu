@@ -29,10 +29,20 @@ export const useDictionaryEntry = () => {
     return CANTO_DICT_SOURCES.includes(entry.source_book);
   };
 
+  const escapeHtml = (value: string): string => {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  };
+
   const formatDefinitionWithLinks = (definition: string): string => {
     if (!definition) return "";
+    const escaped = escapeHtml(definition);
     const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g;
-    return definition.replace(regex, (match, word) => {
+    return escaped.replace(regex, (match, word) => {
       const wordUrl = wordPath(word);
       return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`;
     });

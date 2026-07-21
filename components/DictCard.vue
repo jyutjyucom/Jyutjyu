@@ -417,7 +417,7 @@ import { getOriginalPhoneticForIndex } from "~/utils/phonetic-display";
 const { t } = useI18n();
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
 const { wordPath } = useAppRoutes();
-const { getEntryFeedbackDescription: buildEntryFeedbackDescription } =
+const { getEntryFeedbackDescription: buildEntryFeedbackDescription, formatDefinitionWithLinks } =
   useDictionaryEntry();
 
 interface Props {
@@ -474,24 +474,7 @@ const isCantoDict = computed(() => {
   );
 });
 
-/**
- * 将释义中以#开头的词组转换为可点击的搜索链接
- * 仅用于粤典词条
- */
-const formatDefinitionWithLinks = (definition: string): string => {
-  if (!definition) return "";
 
-  // 匹配以#开头的词组（仅汉字）
-  // 使用排除法：排除 ASCII 字符、空格、中文标点、全角字符等
-  // 这样可以自动支持所有汉字区块（包括未来的扩展区块）
-  const regex = /#([^\u0000-\u007F\u3000-\u303F\uFF00-\uFFEF\s]+)/g;
-
-  return definition.replace(regex, (match, word) => {
-    // 生成词条链接
-    const wordUrl = wordPath(word);
-    return `<a href="${wordUrl}" class="text-kapok hover:text-kapok/80 underline decoration-1 underline-offset-2 font-medium" onclick="event.stopPropagation()">${match}</a>`;
-  });
-};
 
 /**
  * 统一获取指定索引的原书注音
