@@ -34,6 +34,8 @@ const normalizeCountryCode = (value: unknown): string => {
 
 const normalizeQuery = (value: string): string => {
   return String(value || "")
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
