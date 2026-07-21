@@ -49,11 +49,9 @@ const containsLatinTerm = (query: string, term: string): boolean => {
 };
 
 export const getCountryCode = (event: H3Event): string => {
-  const testCountry = normalizeCountryCode(
-    process.env.NUXT_MODERATION_TEST_COUNTRY ||
-      getHeader(event, "x-jyutjyu-test-country"),
-  );
-  if (testCountry) return testCountry;
+  if (process.env.NUXT_MODERATION_TEST_COUNTRY) {
+    return normalizeCountryCode(process.env.NUXT_MODERATION_TEST_COUNTRY);
+  }
 
   const cloudflareCountry = normalizeCountryCode(
     (event.context as any)?.cloudflare?.request?.cf?.country ||
