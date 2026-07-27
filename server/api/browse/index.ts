@@ -75,12 +75,28 @@ export default defineEventHandler(async (event) => {
     return precomputed;
   }
 
-  const data = await getBrowsePage({
-    page,
-    scope: dict,
-    pageSize: size,
-    sort,
-  });
+  let data;
+  try {
+    data = await getBrowsePage({
+      page,
+      scope: dict,
+      pageSize: size,
+      sort,
+    });
+  } catch (error) {
+    // Keep parity with the non-moderated path above: missing precomputed
+    // assets are a temporary data-availability problem (503), not a 500.
+    if (
+      error instanceof Error &&
+      error.message.includes("dataset fallback disabled")
+    ) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: "Missing precomputed browse asset for this request",
+      });
+    }
+    throw error;
+  }
 
   if (mainlandModeration) {
     setModerationCacheHeaders(event);

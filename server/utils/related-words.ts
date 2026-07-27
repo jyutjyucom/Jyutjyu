@@ -178,29 +178,42 @@ const getApiRelatedHeadwordCandidates = async ({
   const runStage = async (pattern: string, priority: number) => {
     if (candidates.length >= maxCandidates) return;
 
-    const rows = (await collection
-      .find(
-        {
-          ...mongoFilter,
-          $or: [
-            { "headword.normalized": { $regex: pattern, $options: "i" } },
-            { "headword.display": { $regex: pattern, $options: "i" } },
-            { "meta.headword_variants": { $regex: pattern, $options: "i" } },
-          ],
-        },
-        {
-          projection: {
-            _id: 0,
-            "headword.normalized": 1,
-            "headword.display": 1,
-          },
-          maxTimeMS: RELATED_WORDS_API_CANDIDATE_TIMEOUT_MS,
-        },
-      )
-      .limit(stageLimit)
-      .toArray()) as Array<{
+    let rows: Array<{
       headword?: { normalized?: string; display?: string };
     }>;
+    try {
+      rows = (await collection
+        .find(
+          {
+            ...mongoFilter,
+            $or: [
+              { "headword.normalized": { $regex: pattern, $options: "i" } },
+              { "headword.display": { $regex: pattern, $options: "i" } },
+              { "meta.headword_variants": { $regex: pattern, $options: "i" } },
+            ],
+          },
+          {
+            projection: {
+              _id: 0,
+              "headword.normalized": 1,
+              "headword.display": 1,
+            },
+            maxTimeMS: RELATED_WORDS_API_CANDIDATE_TIMEOUT_MS,
+          },
+        )
+        .limit(stageLimit)
+        .toArray()) as Array<{
+        headword?: { normalized?: string; display?: string };
+      }>;
+    } catch (error) {
+      // A stage timeout (maxTimeMS) or transient Mongo error must not
+      // abort the remaining stages; degrade to fewer candidates instead.
+      console.warn("[word-related-api] candidate stage failed", {
+        pattern,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return;
+    }
 
     rows
       .map((entry) => entry.headword?.normalized || entry.headword?.display || "")

@@ -16,10 +16,23 @@ const getSiteUrl = () => {
 };
 
 export default defineEventHandler(async (event) => {
-  const headwordCount = getIsServerApiEnabled()
-    ? await getCanonicalHeadwordCountFromApi()
-    : (await getCanonicalHeadwords()).length;
-  const browseStaticPaths = await getBrowseSitemapStaticPaths();
+  // Degrade gracefully when MongoDB or precomputed browse assets are
+  // unavailable: serve a partial sitemap index instead of a 500.
+  let degraded = false;
+  let headwordCount = 0;
+  try {
+    headwordCount = getIsServerApiEnabled()
+      ? await getCanonicalHeadwordCountFromApi()
+      : (await getCanonicalHeadwords()).length;
+  } catch {
+    degraded = true;
+  }
+  let browseStaticPaths: string[] = [];
+  try {
+    browseStaticPaths = await getBrowseSitemapStaticPaths();
+  } catch {
+    degraded = true;
+  }
   const totalGroups = browseStaticPaths.length + headwordCount;
   const totalPages = Math.max(
     1,
@@ -41,10 +54,13 @@ export default defineEventHandler(async (event) => {
   xml += "</sitemapindex>\n";
 
   setHeader(event, "content-type", "application/xml; charset=UTF-8");
+  // Avoid caching a degraded (partial) sitemap for a full day.
   setHeader(
     event,
     "cache-control",
-    "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    degraded
+      ? "public, max-age=60, s-maxage=60"
+      : "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
   );
   return xml;
 });

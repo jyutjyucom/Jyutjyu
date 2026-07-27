@@ -32,11 +32,25 @@ export default defineEventHandler(async (event) => {
   );
   const page = toPageNumber(pathMatch?.[1] || getRouterParam(event, "page"));
   const useApi = getIsServerApiEnabled();
-  const allHeadwords = useApi ? null : await getCanonicalHeadwords();
-  const headwordCount = useApi
-    ? await getCanonicalHeadwordCountFromApi()
-    : allHeadwords!.length;
-  const browseStaticPaths = await getBrowseSitemapStaticPaths();
+  // Degrade gracefully when MongoDB or precomputed browse assets are
+  // unavailable: serve a partial sitemap page instead of a 500.
+  let degraded = false;
+  let allHeadwords: string[] | null = null;
+  let headwordCount = 0;
+  try {
+    allHeadwords = useApi ? null : await getCanonicalHeadwords();
+    headwordCount = useApi
+      ? await getCanonicalHeadwordCountFromApi()
+      : allHeadwords!.length;
+  } catch {
+    degraded = true;
+  }
+  let browseStaticPaths: string[] = [];
+  try {
+    browseStaticPaths = await getBrowseSitemapStaticPaths();
+  } catch {
+    degraded = true;
+  }
   const totalGroups = browseStaticPaths.length + headwordCount;
   const totalPages = Math.max(
     1,
@@ -68,12 +82,17 @@ export default defineEventHandler(async (event) => {
 
   const headwordStart = Math.max(0, start - browseStaticPaths.length);
   const headwordEnd = Math.max(0, end - browseStaticPaths.length);
-  const pageHeadwords = useApi
-    ? await getCanonicalHeadwordPageFromApi({
-        offset: headwordStart,
-        limit: headwordEnd - headwordStart,
-      })
-    : allHeadwords!.slice(headwordStart, headwordEnd);
+  let pageHeadwords: string[] = [];
+  try {
+    pageHeadwords = useApi
+      ? await getCanonicalHeadwordPageFromApi({
+          offset: headwordStart,
+          limit: headwordEnd - headwordStart,
+        })
+      : (allHeadwords || []).slice(headwordStart, headwordEnd);
+  } catch {
+    degraded = true;
+  }
 
   for (const headword of pageHeadwords) {
     xml += `${buildSitemapUrlEntryXml(`/word/${encodeURIComponent(headword)}`, siteUrl, lastmod)}\n`;
@@ -82,10 +101,13 @@ export default defineEventHandler(async (event) => {
   xml += "</urlset>\n";
 
   setHeader(event, "content-type", "application/xml; charset=UTF-8");
+  // Avoid caching a degraded (partial) sitemap for a full day.
   setHeader(
     event,
     "cache-control",
-    "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    degraded
+      ? "public, max-age=60, s-maxage=60"
+      : "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
   );
   return xml;
 });

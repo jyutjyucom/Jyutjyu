@@ -18,7 +18,10 @@ const MAX_DESCRIPTION_LENGTH = 5000;
 const MAX_OPTIONAL_FIELD_LENGTH = 200;
 
 const escapeMarkdown = (value: string): string => {
-  return value.replace(/[<>\\]/g, "\\$&");
+  // Escape all ASCII punctuation with Markdown meaning, including "@"
+  // (mention autolink) and "["/"]"/"(" (link construction), so user
+  // input cannot inject links, mentions, or formatting into the issue.
+  return value.replace(/[\\`*_[\]{}()<>#+.!|@~-]/g, "\\$&");
 };
 
 export default defineEventHandler(async (event) => {
@@ -34,7 +37,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody<FeedbackRequestBody>(event);
-  if (!body?.title || !body.description || !body.feedbackType) {
+  if (
+    !body ||
+    typeof body.title !== "string" ||
+    typeof body.description !== "string" ||
+    typeof body.feedbackType !== "string" ||
+    !body.title ||
+    !body.description ||
+    !body.feedbackType
+  ) {
     throw createError({
       statusCode: 400,
       message: "Invalid payload",
@@ -60,17 +71,22 @@ export default defineEventHandler(async (event) => {
       message: `Description exceeds maximum length of ${MAX_DESCRIPTION_LENGTH} characters`,
     });
   }
-  if (body.entryWord && body.entryWord.length > MAX_OPTIONAL_FIELD_LENGTH) {
-    throw createError({ statusCode: 400, message: "entryWord too long" });
-  }
-  if (body.entrySource && body.entrySource.length > MAX_OPTIONAL_FIELD_LENGTH) {
-    throw createError({ statusCode: 400, message: "entrySource too long" });
-  }
-  if (body.entryId && body.entryId.length > MAX_OPTIONAL_FIELD_LENGTH) {
-    throw createError({ statusCode: 400, message: "entryId too long" });
-  }
-  if (body.contact && body.contact.length > MAX_OPTIONAL_FIELD_LENGTH) {
-    throw createError({ statusCode: 400, message: "contact too long" });
+  const optionalFields: Array<
+    ["entryWord" | "entrySource" | "entryId" | "contact", string | undefined]
+  > = [
+    ["entryWord", body.entryWord],
+    ["entrySource", body.entrySource],
+    ["entryId", body.entryId],
+    ["contact", body.contact],
+  ];
+  for (const [name, value] of optionalFields) {
+    if (value === undefined || value === null || value === "") continue;
+    if (typeof value !== "string") {
+      throw createError({ statusCode: 400, message: `${name} must be a string` });
+    }
+    if (value.length > MAX_OPTIONAL_FIELD_LENGTH) {
+      throw createError({ statusCode: 400, message: `${name} too long` });
+    }
   }
 
   const labelMap: Record<FeedbackType, string> = {

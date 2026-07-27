@@ -74,8 +74,9 @@ const loadFallbackEntries = async ({
   }
 
   if (preferBundledOnly) {
-    cachedFallbackEntries = [];
-    return cachedFallbackEntries;
+    // Do not cache an empty result: a transient asset/fs failure would
+    // otherwise disable the fallback for the process lifetime.
+    return [];
   }
 
   for (const filePath of RECOMMENDATION_FILE_CANDIDATES) {
@@ -92,8 +93,8 @@ const loadFallbackEntries = async ({
     }
   }
 
-  cachedFallbackEntries = [];
-  return cachedFallbackEntries;
+  // Do not cache an empty result (see above).
+  return [];
 };
 
 const fetchRandomEntriesFromMongo = async (
