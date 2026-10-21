@@ -200,8 +200,13 @@ The `yue-Hans` and `zh-Hans` locales are auto-generated from their respective so
 - `build:font-ui`: Build Chiron Hei/Sung UI subset fonts (requires `pyftsubset`)
 - `build:i18n-hans`: Generate `yue-Hans` locale from `yue-Hant` source
 - `build:i18n-zh-hans`: Generate `zh-Hans` locale from `zh-Hant` source
+- `build:trad-variant-map`: Build traditional/simplified variant mapping
+- `build:exact-match-index`: Build exact match search index
 - `build:browse-index`: Build browse page index data
 - `build:recommendations`: Build random entry recommendation data
+- `build:search-suggestions`: Build headword suggestion records
+
+`predev` runs a subset: `build:font-ui`, `build:trad-variant-map`, `build:exact-match-index`, `build:search-suggestions`.
 
 ### Chunked Dictionary Loading
 
@@ -263,9 +268,9 @@ All types defined in `types/dictionary.ts`:
 
 ### Route-Level Caching
 
-- `/word/**` and `/browse/**`: SWR caching with 86400s (24h) revalidation
-- `/` and `/about`: Prerendered at build time
-- Browse pages for each dictionary: Prerendered at build time
+- `/`, `/about`, `/search`, `/browse`: Prerendered at build time (with locale variants)
+- `/word/**`: Dynamically served per request (no route-level caching)
+- API-level CDN caching: `server/api/browse/index.ts` sets `Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800`
 
 ## Important Implementation Notes
 
