@@ -77,7 +77,8 @@
     "build:d1": "node scripts/import-to-d1.js",
     "db:d1:apply": "wrangler d1 execute jyutjyu --local --config wrangler.jsonc --file=data/d1/seed.sql",
     "db:d1:deploy": "wrangler d1 execute jyutjyu --remote --config wrangler.jsonc --file=data/d1/seed.sql",
-    "deploy:cf": "NITRO_PRESET=cloudflare_module npm run build && wrangler deploy --config wrangler.jsonc"
+    "build:cf": "npm run build:i18n && npm run build:trad-variant-map && npm run build:exact-match-index && npm run build:browse-index && npm run build:recommendations && npm run build:search-suggestions && NITRO_PRESET=cloudflare_module nuxt build && npm run guard:static-assets",
+    "deploy:cf": "npm run build:cf && wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
     "@fontsource-variable/chiron-hei-hk": "^5.2.5",

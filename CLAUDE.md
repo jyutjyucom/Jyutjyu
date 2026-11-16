@@ -290,6 +290,7 @@ All types defined in `types/dictionary.ts`:
 - `@nuxtjs/i18n` v10 messages are registered at runtime by `plugins/i18n-messages.ts`; `nuxt.config.ts` sets `payloadExtraction: false` (Cloudflare preset prerender limitation).
 - `@nuxt/content` and `@nuxt/image` are removed; images use plain `<img>`.
 - Deployment config lives in `wrangler.jsonc` (D1 binding `DB`, assets, zone routes); `wrangler.spike.jsonc` and `scripts/d1-spike/` are the local benchmark harness.
+- Workers Builds (Git integration) uses `npm run build:cf` as the build command and `npx wrangler deploy` as the deploy command. `build:cf` skips font subsetting (fonts are committed) but still generates the git-ignored search/browse indexes.
 
 ### Design System — Scholar's Ink (Kapok Edition)
 

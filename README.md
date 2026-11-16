@@ -89,6 +89,17 @@ npm run deploy:cf       # 建置並部署 Worker + 靜態資產
 ```
 
 首次部署前需 `npx wrangler login`，並在 `wrangler.jsonc` 設定 `account_id` 與 D1 `database_id`。
+
+**Workers Builds（Git 自動部署）**：Dashboard → Worker → Settings → Builds → Connect，選擇 repo 後填：
+
+| 設定 | 值 |
+| --- | --- |
+| Build command | `npm run build:cf` |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | `/` |
+| Branch | `main` |
+
+`build:cf` 會跳過字型子集化（字型已提交進 repo），但仍會生成 browse/exact-match/suggestions 等 gitignore 的索引。
 完整遷移記錄見 [D1 驗證報告](./docs/D1_SPIKE_RESULTS.md) 與 [可行性評估](./docs/CLOUDFLARE_D1_MIGRATION_ASSESSMENT.md)。
 
 Docker 服務器部署見 [Docker Compose 部署](./docs/DOCKER.md)。
