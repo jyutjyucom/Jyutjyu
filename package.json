@@ -73,16 +73,17 @@
     "db:import:kpd": "node scripts/import-to-mongodb.js --dict kp-dialect --mode replace",
     "db:import:tsed": "node scripts/import-to-mongodb.js --dict ts-english-dict --mode replace",
     "db:import:wiktionary": "node scripts/import-to-mongodb.js --dict wiktionary-cantonese --mode replace",
-    "db:import:help": "node scripts/import-to-mongodb.js --help"
+    "db:import:help": "node scripts/import-to-mongodb.js --help",
+    "build:d1": "node scripts/import-to-d1.js",
+    "db:d1:apply": "wrangler d1 execute jyutjyu --local --config wrangler.jsonc --file=data/d1/seed.sql",
+    "db:d1:deploy": "wrangler d1 execute jyutjyu --remote --config wrangler.jsonc --file=data/d1/seed.sql",
+    "deploy:cf": "NITRO_PRESET=cloudflare_module npm run build && wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
     "@fontsource-variable/chiron-hei-hk": "^5.2.5",
     "@fontsource-variable/chiron-sung-hk": "^5.2.4",
     "@fontsource-variable/inter": "^5.2.8",
-    "@nuxt/content": "^2.13.4",
-    "@nuxt/image": "^2.0.0",
-    "@nuxtjs/i18n": "^8.5.6",
-    "esbuild": "^0.27.3",
+    "@nuxtjs/i18n": "^10.4.1",
     "lucide-vue-next": "^0.563.0",
     "mongodb": "^7.1.0",
     "nuxt": "^4.3.1",
@@ -103,7 +104,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
     "vue-eslint-parser": "^10.4.0",
-    "vue-tsc": "^3.2.4"
+    "vue-tsc": "^3.2.4",
+    "wrangler": "^4.162.0"
   },
   "keywords": [
     "cantonese",

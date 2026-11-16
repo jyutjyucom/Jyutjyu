@@ -3,6 +3,8 @@ export interface LocaleRouteDefinition {
   name: string;
   language: string;
   prefix: string;
+  /** 供 @nuxtjs/i18n 載入訊息檔（相對於 langDir） */
+  file?: string;
 }
 
 export type RouteQueryValue =
@@ -41,7 +43,12 @@ export interface SearchRouteState {
 }
 
 export const LOCALE_ROUTE_DEFINITIONS: LocaleRouteDefinition[] = [
-  { code: "yue-Hant", name: "粵文", language: "yue-Hant", prefix: "" },
+  {
+    code: "yue-Hant",
+    name: "粵文",
+    language: "yue-Hant",
+    prefix: "",
+  },
   {
     code: "yue-Hans",
     name: "简体粤文",
@@ -60,7 +67,12 @@ export const LOCALE_ROUTE_DEFINITIONS: LocaleRouteDefinition[] = [
     language: "zh-Hans",
     prefix: "/zh-Hans",
   },
-  { code: "en", name: "English", language: "en", prefix: "/en" },
+  {
+    code: "en",
+    name: "English",
+    language: "en",
+    prefix: "/en",
+  },
 ];
 
 export const NON_DEFAULT_LOCALE_PREFIXES = LOCALE_ROUTE_DEFINITIONS.map(

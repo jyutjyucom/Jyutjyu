@@ -8,6 +8,7 @@ import type {
   SearchOptions,
   SearchResult,
 } from "~/types/dictionary";
+import { fetchAssetJson } from "~/utils/asset-json";
 import {
   getCjkChunkProbeCharacters,
   getCjkSearchSubstringSeeds,
@@ -919,7 +920,9 @@ export const useDictionary = () => {
    */
   const getDictionaries = async () => {
     try {
-      const index = await queryContent("dictionaries/index").findOne();
+      const index = await fetchAssetJson<{
+        dictionaries?: Record<string, unknown>[];
+      }>("/dictionaries/index.json");
 
       return index?.dictionaries || [];
     } catch (error) {

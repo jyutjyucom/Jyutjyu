@@ -48,10 +48,11 @@
           class="bg-surface-low dark:bg-stone-900 p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center gap-6"
         >
           <div v-if="dictionaryInfo.cover" class="flex-shrink-0">
-            <NuxtImg
+            <img
               :src="dictionaryInfo.cover"
               :alt="dictionaryInfo.name"
               loading="lazy"
+              decoding="async"
               class="w-24 md:w-32 max-h-40 object-contain"
             />
           </div>

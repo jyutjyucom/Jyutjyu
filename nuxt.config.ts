@@ -69,6 +69,9 @@ export default defineNuxtConfig({
 
   experimental: {
     watcher: "parcel",
+    // Cloudflare preset 的 prerender payload cache 不接受 "/" 這個 key，
+    // 關掉 payload 抽取，讓 payload 直接內嵌在 HTML。
+    payloadExtraction: false,
   },
 
   devServer: {
@@ -76,8 +79,6 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    "@nuxt/content",
-    "@nuxt/image",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/i18n",
     "@nuxtjs/critters",
@@ -92,27 +93,15 @@ export default defineNuxtConfig({
   },
 
   i18n: {
-    vueI18n: "./i18n.config.ts",
+    // 訊息來自 i18n.config.ts 的 runtime config，關掉 bundle 讓執行時載入。
+    bundle: false,
+    // v10 只接受絕對路徑的 vueI18n 設定檔（相對路徑會被當成 i18n/ 底下）。
+    vueI18n: fileURLToPath(new URL("./i18n.config.ts", import.meta.url)),
     defaultLocale: "yue-Hant",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
     strategy: "prefix_except_default",
     detectBrowserLanguage: false,
     locales: i18nLocales,
-  },
-
-  // Nuxt Content 配置
-  content: {
-    // 高亮配置
-    highlight: {
-      theme: "github-light",
-    },
-    // Markdown 配置
-    markdown: {
-      toc: {
-        depth: 3,
-        searchDepth: 3,
-      },
-    },
   },
 
   // App 配置
@@ -141,10 +130,6 @@ export default defineNuxtConfig({
       ],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
-  },
-
-  image: {
-    provider: "ipx",
   },
 
   // TypeScript 配置

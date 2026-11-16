@@ -1,18 +1,6 @@
-import messagesEn from "./locales/en.source.mjs";
-import messagesYueHans from "./locales/yue-Hans.generated";
-import messagesYueHant from "./locales/yue-Hant.source.mjs";
-import messagesZhHans from "./locales/zh-Hans.generated";
-import messagesZhHant from "./locales/zh-Hant.source.mjs";
-
+// 訊息由 plugins/i18n-messages.ts 在執行時註冊。
 export default defineI18nConfig(() => ({
   legacy: false,
   locale: "yue-Hant",
   fallbackLocale: "yue-Hant",
-  messages: {
-    en: messagesEn,
-    "yue-Hans": messagesYueHans,
-    "yue-Hant": messagesYueHant,
-    "zh-Hant": messagesZhHant,
-    "zh-Hans": messagesZhHans,
-  },
 }));
