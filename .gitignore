@@ -64,3 +64,9 @@ data/processed/structure_analysis.txt
 # 欽州粵拼 原始数据
 data/raw/hamzau_jyutping.dict.yaml
 .claude/
+
+# Generated D1 import artifacts
+data/d1/
+
+# Wrangler local state
+.wrangler/

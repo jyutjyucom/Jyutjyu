@@ -14,8 +14,9 @@ import {
 } from "~/utils/headword-exact-match";
 import { isJyutpingQuery, normalizeSearchQuery } from "~/utils/query-classify";
 
+import { getD1Binding, getServerDataMode } from "./d1";
+import { findEntriesByForms } from "./d1-entries";
 import { getEntriesCollection } from "./mongodb";
-import { getIsServerApiEnabled } from "./runtime-mode";
 
 interface CandidateResolution {
   originalKey: string;
@@ -100,6 +101,51 @@ const resolveFromApi = async (
   );
 };
 
+const resolveCandidatesFromD1 = async (
+  headword: string,
+): Promise<CandidateResolution | null> => {
+  const db = getD1Binding();
+  if (!db) {
+    return null;
+  }
+
+  const queryForms = await getExactQueryForms(headword);
+  if (queryForms.length === 0) {
+    return null;
+  }
+
+  const originalKey = toComparableHeadwordKey(normalizeSpace(headword));
+  const queryKeys = new Set(
+    queryForms.map(toComparableHeadwordKey).filter(Boolean),
+  );
+  const exactForms = Array.from(
+    new Set(queryForms.map((form) => normalizeSpace(form)).filter(Boolean)),
+  );
+
+  const entries = await findEntriesByForms(db, exactForms);
+
+  return {
+    originalKey,
+    queryKeys,
+    entries: entries.filter((entry) => matchesExactQuery(entry, queryKeys)),
+  };
+};
+
+const resolveFromD1 = async (
+  headword: string,
+): Promise<ResolvedWordResult | null> => {
+  const candidates = await resolveCandidatesFromD1(headword);
+  if (!candidates) {
+    return null;
+  }
+
+  return selectCanonicalWordEntries(
+    candidates.entries,
+    candidates.originalKey,
+    candidates.queryKeys,
+  );
+};
+
 const getCanonicalHeadwordStages = () => [
   {
     $project: {
@@ -139,7 +185,26 @@ const getCanonicalHeadwordStages = () => [
   },
 ];
 
+const getCanonicalHeadwordsFromD1 = async (): Promise<string[]> => {
+  const db = getD1Binding();
+  if (!db) return [];
+
+  const { results } = await db
+    .prepare("SELECT canon FROM entries GROUP BY canon ORDER BY canon")
+    .all<{ canon: string }>();
+
+  return results.map((row) => row.canon).filter(Boolean);
+};
+
 export const getCanonicalHeadwordCountFromApi = async (): Promise<number> => {
+  const db = getD1Binding();
+  if (db) {
+    const row = await db
+      .prepare("SELECT count(DISTINCT canon) AS n FROM entries")
+      .first<{ n: number }>();
+    return Number(row?.n || 0);
+  }
+
   const now = Date.now();
   if (
     apiCanonicalHeadwordCountCache &&
@@ -187,6 +252,18 @@ export const getCanonicalHeadwordPageFromApi = async ({
     return [];
   }
 
+  const db = getD1Binding();
+  if (db) {
+    const { results } = await db
+      .prepare(
+        "SELECT canon FROM entries GROUP BY canon ORDER BY canon LIMIT ?1 OFFSET ?2",
+      )
+      .bind(safeLimit, safeOffset)
+      .all<{ canon: string }>();
+
+    return results.map((row) => normalizeSpace(row.canon || "")).filter(Boolean);
+  }
+
   const collection = await getEntriesCollection();
   const rows = (await collection
     .aggregate(
@@ -226,7 +303,22 @@ export const resolveWordEntries = async (
       return null;
     }
 
-    if (getIsServerApiEnabled()) {
+    const mode = getServerDataMode();
+
+    if (mode === "d1") {
+      if (trace) {
+        trace.strategy = "d1_exact";
+      }
+
+      try {
+        return await resolveFromD1(cleaned);
+      } catch (error) {
+        console.error("Word resolve (D1 mode) failed:", error);
+        return null;
+      }
+    }
+
+    if (mode === "mongo") {
       if (trace) {
         trace.strategy = "api_fallback";
       }
@@ -274,7 +366,20 @@ export const resolveSearchLanding = async (
     };
   }
 
-  if (getIsServerApiEnabled()) {
+  if (getServerDataMode() === "d1") {
+    try {
+      const candidates = await resolveCandidatesFromD1(cleaned);
+      return resolveSearchLandingFromEntries(candidates?.entries || [], cleaned);
+    } catch (error) {
+      console.error("Search landing resolve (D1 mode) failed:", error);
+      return {
+        type: "search",
+        reason: "no_exact_match",
+      };
+    }
+  }
+
+  if (getServerDataMode() === "mongo") {
     try {
       const candidates = await resolveCandidatesFromApi(cleaned);
       return resolveSearchLandingFromEntries(candidates?.entries || [], cleaned);
@@ -306,7 +411,18 @@ export const resolveSearchLanding = async (
 };
 
 export const getCanonicalHeadwords = async (): Promise<string[]> => {
-  if (getIsServerApiEnabled()) {
+  const mode = getServerDataMode();
+
+  if (mode === "d1") {
+    try {
+      return await getCanonicalHeadwordsFromD1();
+    } catch (error) {
+      console.error("Canonical headwords (D1 mode) failed:", error);
+      return [];
+    }
+  }
+
+  if (mode === "mongo") {
     try {
       return await getCanonicalHeadwordsFromApi();
     } catch (error) {

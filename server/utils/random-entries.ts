@@ -15,6 +15,8 @@ interface ResolveRandomEntriesOptions<T> {
   loadFallbackEntries?: () => T[] | Promise<T[]>;
   fetchFromMongo: (count: number, timeoutMs: number) => Promise<T[]>;
   timeoutMsOverride?: number;
+  /** false 時完全不查遠端（D1 模式用預生成的 recommendations.json） */
+  useRemote?: boolean;
   onError?: (error: unknown) => void;
 }
 
@@ -82,25 +84,30 @@ export const resolveRandomEntries = async <T>({
   loadFallbackEntries,
   fetchFromMongo,
   timeoutMsOverride,
+  useRemote = true,
   onError,
 }: ResolveRandomEntriesOptions<T>): Promise<RandomEntriesResponse<T>> => {
   const timeoutMs = timeoutMsOverride ?? getRandomQueryTimeoutMs(event);
 
-  try {
-    const results = await withTimeout(
-      fetchFromMongo(count, timeoutMs),
-      timeoutMs,
-      `Random entry query timed out after ${timeoutMs}ms`,
-    );
+  if (useRemote) {
+    try {
+      const results = await withTimeout(
+        fetchFromMongo(count, timeoutMs),
+        timeoutMs,
+        `Random entry query timed out after ${timeoutMs}ms`,
+      );
 
-    return {
-      success: true,
-      count: results.length,
-      results,
-    };
-  } catch (error) {
-    onError?.(error);
+      return {
+        success: true,
+        count: results.length,
+        results,
+      };
+    } catch (error) {
+      onError?.(error);
+    }
+  }
 
+  {
     const fallback =
       fallbackEntries.length > 0
         ? fallbackEntries

@@ -2,7 +2,9 @@ import type { H3Event } from "h3";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { getQueryVariants } from "./opencc.ts";
+import { getD1Binding } from "./d1.ts";
+import { getHeadwordSuggestionsFromD1 } from "./d1-search.ts";
+import { getQueryVariants } from "./han-variants.ts";
 import { getEntriesCollection } from "./mongodb.ts";
 import { getModerationMongoFilter } from "./moderation.ts";
 import {
@@ -228,6 +230,11 @@ export const getHeadwordSuggestions = async (
   const normalizedQuery = normalizeValue(query);
   if (normalizedQuery.length < 2) {
     return [];
+  }
+
+  const db = getD1Binding();
+  if (db) {
+    return getHeadwordSuggestionsFromD1(db, normalizedQuery, limit);
   }
 
   if (getIsServerApiEnabled()) {

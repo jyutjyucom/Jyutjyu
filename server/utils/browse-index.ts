@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import type { DictionaryEntry } from "~/types/dictionary";
 import { getEntriesCollection } from "./mongodb";
 import { getIsServerApiEnabled } from "./runtime-mode";
@@ -89,8 +87,7 @@ const DEFAULT_PAGE_SIZE = 100;
 const ALLOWED_PAGE_SIZES = new Set([100, 500, 1000]);
 const DEFAULT_SORT: BrowseSort = "headword";
 const ALLOWED_SORTS = new Set<BrowseSort>(["headword", "jyutping"]);
-const DICTIONARY_ROOT = resolve(process.cwd(), "public/dictionaries");
-const DICTIONARY_INDEX_PATH = resolve(DICTIONARY_ROOT, "index.json");
+const DICTIONARY_INDEX_ASSET = "/dictionaries/index.json";
 
 const bundledDictionaries = Array.isArray(
   (bundledDictionaryIndex as DictionaryIndex)?.dictionaries,
@@ -214,15 +211,13 @@ const toScopeHeadwords = (
   };
 };
 
-const readDictionaryEntriesFile = async (
-  filePath: string,
+const readDictionaryEntriesAsset = async (
+  assetPath: string,
 ): Promise<DictionaryEntry[]> => {
-  const raw = await readFile(filePath, "utf8");
-  const parsed = JSON.parse(raw);
-  if (!Array.isArray(parsed)) {
-    return [];
-  }
-  return parsed as DictionaryEntry[];
+  const parsed = await fetchAssetJson<DictionaryEntry[]>(
+    `/dictionaries/${assetPath}`,
+  );
+  return Array.isArray(parsed) ? parsed : [];
 };
 
 const loadDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
@@ -230,8 +225,7 @@ const loadDictionaryIndex = async (): Promise<DictionaryIndexItem[]> => {
     return bundledDictionaries;
   }
 
-  const raw = await readFile(DICTIONARY_INDEX_PATH, "utf8");
-  const parsed = JSON.parse(raw) as DictionaryIndex;
+  const parsed = await fetchAssetJson<DictionaryIndex>(DICTIONARY_INDEX_ASSET);
   return Array.isArray(parsed?.dictionaries) ? parsed.dictionaries : [];
 };
 
@@ -270,21 +264,19 @@ const getDictionaryEntries = async (
   dict: DictionaryIndexItem,
 ): Promise<DictionaryEntry[]> => {
   if (!dict.chunked && dict.file) {
-    return readDictionaryEntriesFile(resolve(DICTIONARY_ROOT, dict.file));
+    return readDictionaryEntriesAsset(dict.file);
   }
 
   if (dict.chunked && dict.chunk_dir) {
-    const manifestRaw = await readFile(
-      resolve(DICTIONARY_ROOT, dict.chunk_dir, "manifest.json"),
-      "utf8",
+    const manifest = await fetchAssetJson<ChunkManifest>(
+      `/dictionaries/${dict.chunk_dir}/manifest.json`,
     );
-    const manifest = JSON.parse(manifestRaw) as ChunkManifest;
     const entries: DictionaryEntry[] = [];
 
     for (const info of Object.values(manifest.chunks || {})) {
       if (!info?.file) continue;
-      const chunk = await readDictionaryEntriesFile(
-        resolve(DICTIONARY_ROOT, dict.chunk_dir, info.file),
+      const chunk = await readDictionaryEntriesAsset(
+        `${dict.chunk_dir}/${info.file}`,
       );
       entries.push(...chunk);
     }

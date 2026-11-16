@@ -37,7 +37,7 @@ import {
 import {
   ensureInitialized,
   getQueryVariants,
-} from "../utils/opencc.ts";
+} from "../utils/han-variants.ts";
 import {
   buildGroupedSearchResponse,
   buildSearchPageMeta,
@@ -55,6 +55,8 @@ import {
 import { resolveWordEntriesFromJson } from "../../utils/headword-exact-match.ts";
 import { isJyutpingQuery as isValidatedJyutpingQuery } from "../../utils/query-classify.ts";
 import type { EntryType } from "../../types/dictionary.ts";
+import { getServerDataMode, requireD1 } from "../utils/d1.ts";
+import { searchEntriesFromD1 } from "../utils/d1-search.ts";
 import { getIsServerApiEnabled } from "../utils/runtime-mode.ts";
 
 export interface SearchQuery {
@@ -1197,6 +1199,50 @@ const searchEventHandler = async (event: any) => {
           limit: resultLimit,
         }),
       };
+    }
+  }
+
+  if (getServerDataMode(event) === "d1") {
+    metrics.strategy = "d1";
+    const d1StartedAt = Date.now();
+
+    try {
+      const d1Response = await searchEntriesFromD1(requireD1(event), {
+        query: searchQuery,
+        mode: normalizedMode,
+        sort: normalizedSort,
+        filters: publicFilters,
+        offset: resultOffset,
+        limit: resultLimit,
+      });
+
+      metrics.phaseMs["d1"] = Date.now() - d1StartedAt;
+      return stripSearchResponseModerationMetadata(
+        event,
+        d1Response ??
+          buildEmptySearchResponse({
+            query: searchQuery,
+            mode: normalizedMode,
+            sort: normalizedSort,
+            filters: publicFilters,
+            offset: resultOffset,
+            limit: resultLimit,
+          }),
+      );
+    } catch (error) {
+      metrics.phaseMs["d1"] = Date.now() - d1StartedAt;
+      logSearchFailure("[search-api] d1 failed", metrics, error);
+      setResponseStatus(event, 500);
+      return buildEmptySearchResponse({
+        success: false,
+        query: searchQuery,
+        mode: normalizedMode,
+        sort: normalizedSort,
+        filters: publicFilters,
+        offset: resultOffset,
+        limit: resultLimit,
+        error: "搜尋服務暫時不可用",
+      });
     }
   }
 

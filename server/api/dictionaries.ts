@@ -5,10 +5,21 @@
  *   返回所有词典的元数据和统计信息
  */
 
+import { getServerDataMode, requireD1 } from "../utils/d1";
+import { getDictionaryStatsFromD1 } from "../utils/d1-entries";
 import { getEntriesCollection } from "../utils/mongodb";
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
+    if (getServerDataMode(event) === "d1") {
+      const stats = await getDictionaryStatsFromD1(requireD1(event));
+      return {
+        success: true,
+        total_entries: stats.totalEntries,
+        dictionaries: stats.dictionaries,
+      };
+    }
+
     const collection = await getEntriesCollection();
 
     // 按词典分组统计

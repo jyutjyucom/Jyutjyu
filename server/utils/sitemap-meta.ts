@@ -1,13 +1,12 @@
-import { readFile, stat } from "node:fs/promises";
-import { resolve } from "node:path";
+import { fetchAssetJson } from "~/utils/asset-json";
 
 interface DictionaryIndexMeta {
   last_updated?: string;
 }
 
-const INDEX_CANDIDATE_PATHS = [
-  resolve(process.cwd(), "content/dictionaries/index.json"),
-  resolve(process.cwd(), "public/dictionaries/index.json"),
+const INDEX_CANDIDATE_ASSETS = [
+  "/dictionaries/index.json",
+  "/browse-index/manifest.json",
 ];
 
 const BUILD_TIME_FALLBACK = (() => {
@@ -37,29 +36,26 @@ const toIsoOrNull = (value: unknown): string | null => {
   return parsed.toISOString();
 };
 
-const readLastmodFromIndex = async (
-  filePath: string,
+const readLastmodFromAsset = async (
+  assetPath: string,
 ): Promise<string | null> => {
   try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as DictionaryIndexMeta;
-    const fromField = toIsoOrNull(parsed?.last_updated);
-    if (fromField) return fromField;
-  } catch {
-    // fallback to file metadata
-  }
-
-  try {
-    const fileStat = await stat(filePath);
-    return fileStat.mtime.toISOString();
+    const parsed = await fetchAssetJson<
+      DictionaryIndexMeta & { generated_at?: string }
+    >(assetPath);
+    return (
+      toIsoOrNull(parsed?.last_updated) ??
+      toIsoOrNull(parsed?.generated_at) ??
+      null
+    );
   } catch {
     return null;
   }
 };
 
 const resolveSitemapLastmod = async (): Promise<string> => {
-  for (const filePath of INDEX_CANDIDATE_PATHS) {
-    const lastmod = await readLastmodFromIndex(filePath);
+  for (const assetPath of INDEX_CANDIDATE_ASSETS) {
+    const lastmod = await readLastmodFromAsset(assetPath);
     if (lastmod) return lastmod;
   }
 

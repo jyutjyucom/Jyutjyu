@@ -24,7 +24,7 @@ import {
   isProductionWorkerRandomRuntime,
   resolveRandomEntries,
 } from "../utils/random-entries";
-import { getIsServerApiEnabled } from "../utils/runtime-mode";
+import { getServerDataMode } from "../utils/d1";
 import { fetchAssetJson } from "~/utils/asset-json";
 
 const QUALITY_DICTIONARIES = ["广州话俗语词典", "实用广州话分类词典"];
@@ -151,7 +151,8 @@ export default defineEventHandler(async (event) => {
   const query = getQuery<RandomQuery>(event);
   const count = Math.min(Math.max(1, parseInt(query.count || "3") || 3), 20);
   const preferBundledOnly = isProductionWorkerRandomRuntime(event);
-  const useApi = getIsServerApiEnabled();
+  // D1 模式下不做 random() 全表掃描（實測 546k 行 / 83 ms），直接用預生成推薦。
+  const useApi = getServerDataMode(event) === "mongo";
   const fallbackEntries = useApi
     ? []
     : filterRestrictedEntries(
@@ -166,6 +167,7 @@ export default defineEventHandler(async (event) => {
     count,
     event,
     fallbackEntries,
+    useRemote: useApi,
     fetchFromMongo: (requestedCount, timeoutMs) =>
       fetchRandomEntriesFromMongo(requestedCount, timeoutMs, event),
     loadFallbackEntries: useApi

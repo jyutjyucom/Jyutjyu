@@ -1,12 +1,11 @@
 {
   "name": "jyutjyu",
-  "account_id": "bee0d87089b3c5c89023aef60639ebeb",
+  "account_id": "9e0a4763181fe8362abab21f899f7ae2",
   "main": ".output/server/index.mjs",
   "compatibility_date": "2024-11-01",
   "compatibility_flags": ["nodejs_compat"],
-  "limits": {
-    "cpu_ms": 30000,
-  },
+  // Free plan 不支援自訂 CPU 上限；升級 Paid（$5/月）後再打開：
+  // "limits": { "cpu_ms": 30000 },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
@@ -14,6 +13,18 @@
       "invocation_logs": true,
     },
   },
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "jyutjyu.com/*", "zone_name": "jyutjyu.com" },
+    { "pattern": "www.jyutjyu.com/*", "zone_name": "jyutjyu.com" },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jyutjyu",
+      "database_id": "1a45931d-5323-457b-a39e-bf73dd841cde",
+    },
+  ],
   "assets": {
     "directory": ".output/public",
     "binding": "ASSETS",

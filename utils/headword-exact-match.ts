@@ -3,7 +3,7 @@ import {
   ensureInitialized,
   toSimplified,
   toTraditional,
-} from "../server/utils/opencc.ts";
+} from "../server/utils/han-variants.ts";
 import {
   EXACT_MATCH_BUCKET_HASH,
   EXACT_MATCH_BUCKET_MOD,
@@ -47,7 +47,8 @@ interface CandidateResolution {
 export type WordResolveStrategy =
   | "exact_index"
   | "scanned_json"
-  | "api_fallback";
+  | "api_fallback"
+  | "d1_exact";
 
 export interface WordResolveTrace {
   phaseMs: Record<string, number>;

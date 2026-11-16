@@ -8,6 +8,20 @@ const GENERATED_MAP_PATH = resolve(
   "trad-variant-map.json",
 );
 
+const TRAD_TO_SIMPLIFIED_PATH = resolve(
+  process.cwd(),
+  "server",
+  "generated",
+  "trad-to-simplified-map.json",
+);
+
+const SIMPLIFIED_TO_TRADITIONAL_PATH = resolve(
+  process.cwd(),
+  "server",
+  "generated",
+  "simplified-to-traditional-map.json",
+);
+
 const CJK_UNIFIED_START = 0x3400;
 const CJK_UNIFIED_END = 0x9fff;
 
@@ -54,6 +68,8 @@ const main = async () => {
 
   const { toSimplified, toTraditional } = await createConverters();
   const tempMap = new Map();
+  const tradToSimplified = {};
+  const preferredTraditional = {};
 
   for (
     let codePoint = CJK_UNIFIED_START;
@@ -70,6 +86,10 @@ const main = async () => {
     const variants = tempMap.get(simplified) ?? new Set([simplified]);
     variants.add(char.toLowerCase());
     tempMap.set(simplified, variants);
+
+    if (simplified !== char.toLowerCase()) {
+      tradToSimplified[char] = simplified;
+    }
   }
 
   const payload = Object.fromEntries(
@@ -81,8 +101,35 @@ const main = async () => {
       ]),
   );
 
+  for (const simplified of tempMap.keys()) {
+    const preferred = String(toTraditional(simplified) || "").toLowerCase();
+    if (
+      Array.from(preferred).length === 1 &&
+      preferred &&
+      preferred !== simplified
+    ) {
+      preferredTraditional[simplified] = preferred;
+    }
+  }
+
+  const sortedTradToSimplified = Object.fromEntries(
+    Object.entries(tradToSimplified).sort(([left], [right]) =>
+      left.localeCompare(right, "zh-Hant"),
+    ),
+  );
+
   await mkdir(dirname(GENERATED_MAP_PATH), { recursive: true });
   await writeFile(GENERATED_MAP_PATH, JSON.stringify(payload), "utf8");
+  await writeFile(
+    TRAD_TO_SIMPLIFIED_PATH,
+    JSON.stringify(sortedTradToSimplified),
+    "utf8",
+  );
+  await writeFile(
+    SIMPLIFIED_TO_TRADITIONAL_PATH,
+    JSON.stringify(preferredTraditional),
+    "utf8",
+  );
 
   const elapsedMs = Number(process.hrtime.bigint() - startTime) / 1_000_000;
   console.log(
@@ -90,6 +137,8 @@ const main = async () => {
       "Traditional-variant map built.",
       `output=${GENERATED_MAP_PATH}`,
       `keys=${Object.keys(payload).length}`,
+      `trad_to_simplified=${Object.keys(sortedTradToSimplified).length}`,
+      `simplified_to_traditional=${Object.keys(preferredTraditional).length}`,
       `elapsed_ms=${elapsedMs.toFixed(1)}`,
     ].join(" "),
   );

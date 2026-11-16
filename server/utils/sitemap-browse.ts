@@ -1,11 +1,10 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { fetchAssetJson } from "~/utils/asset-json";
+
 import { getBrowseScopeTotalPages, getBrowseTotalPages } from "./browse-index";
 
-const DICTIONARY_INDEX_CANDIDATES = [
-  resolve(process.cwd(), "public/browse-index/manifest.json"),
-  resolve(process.cwd(), "content/dictionaries/index.json"),
-  resolve(process.cwd(), "public/dictionaries/index.json"),
+const DICTIONARY_INDEX_ASSETS = [
+  "/browse-index/manifest.json",
+  "/dictionaries/index.json",
 ];
 
 let dictionaryIdsCache: string[] | null = null;
@@ -13,12 +12,13 @@ let dictionaryIdsPromise: Promise<string[]> | null = null;
 const browseStaticPathsCache = new Map<number, string[]>();
 const browseStaticPathsPromiseCache = new Map<number, Promise<string[]>>();
 
-const readDictionaryIdsFromFile = async (
-  filePath: string,
+const readDictionaryIdsFromAsset = async (
+  assetPath: string,
 ): Promise<string[]> => {
   try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as { dictionaries?: Array<{ id?: string }> };
+    const parsed = await fetchAssetJson<{
+      dictionaries?: Array<{ id?: string }>;
+    }>(assetPath);
     if (!Array.isArray(parsed?.dictionaries)) return [];
     return parsed.dictionaries
       .map((dict) => String(dict?.id || "").trim())
@@ -29,8 +29,8 @@ const readDictionaryIdsFromFile = async (
 };
 
 const resolveDictionaryIds = async (): Promise<string[]> => {
-  for (const filePath of DICTIONARY_INDEX_CANDIDATES) {
-    const ids = await readDictionaryIdsFromFile(filePath);
+  for (const assetPath of DICTIONARY_INDEX_ASSETS) {
+    const ids = await readDictionaryIdsFromAsset(assetPath);
     if (ids.length > 0) return ids;
   }
   return [];

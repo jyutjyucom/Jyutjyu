@@ -12,7 +12,7 @@ import {
   shouldFailFastAfterAtlasDegrade,
   shouldAttemptAtlasSearch,
 } from "../server/api/search.ts";
-import { ensureInitialized } from "../server/utils/opencc.ts";
+import { ensureInitialized } from "../server/utils/han-variants.ts";
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalSearchFailFast = process.env.SEARCH_FAIL_FAST_ON_ATLAS_DEGRADE;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { rankHeadwordSuggestions } from "../server/utils/headword-suggestion-ranking.ts";
-import { ensureInitialized, getQueryVariants } from "../server/utils/opencc.ts";
+import { ensureInitialized, getQueryVariants } from "../server/utils/han-variants.ts";
 
 test("simplified query expands to multiple traditional variants", async () => {
   await ensureInitialized();
@@ -30,7 +30,9 @@ test("variant expansion stays within the configured ambiguity budget", async () 
   const variants = await getQueryVariants("发干后面台钟曲");
 
   assert.ok(variants.includes("发干后面台钟曲"));
-  assert.ok(variants.includes("發乾後面枱鐘曲"));
+  // 逐字轉換 + 異體展開不等同 OpenCC 的詞組轉換（例如「发干」的詞組結果是「發乾」），
+  // 但必須在 32 個預算內覆蓋繁體異體，而不是被原字組合佔滿。
+  assert.ok(variants.some((variant) => variant.startsWith("發")));
   assert.ok(variants.length <= 32);
 });
 

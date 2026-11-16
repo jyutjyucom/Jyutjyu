@@ -5,8 +5,11 @@
  *   返回指定 ID 的词条详情
  */
 
+import { getServerDataMode, requireD1 } from "../../utils/d1";
+import { getEntryByIdFromD1 } from "../../utils/d1-entries";
 import { getEntriesCollection } from "../../utils/mongodb";
 import {
+  filterRestrictedEntries,
   getModerationMongoFilter,
   setModerationCacheHeaders,
   shouldApplyMainlandModeration,
@@ -25,18 +28,28 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const collection = await getEntriesCollection();
     if (shouldApplyMainlandModeration(event)) {
       setModerationCacheHeaders(event);
     }
 
-    const entry = await collection.findOne(
-      {
-        id,
-        ...getModerationMongoFilter(event),
-      },
-      { projection: { _id: 0 } },
-    );
+    const mode = getServerDataMode(event);
+    let entry: any = null;
+
+    if (mode === "d1") {
+      const found = await getEntryByIdFromD1(requireD1(event), id);
+      entry = found
+        ? (filterRestrictedEntries(event, [found])[0] ?? null)
+        : null;
+    } else {
+      const collection = await getEntriesCollection();
+      entry = await collection.findOne(
+        {
+          id,
+          ...getModerationMongoFilter(event),
+        },
+        { projection: { _id: 0 } },
+      );
+    }
 
     if (!entry) {
       return {
