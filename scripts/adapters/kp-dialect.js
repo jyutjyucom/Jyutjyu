@@ -142,6 +142,12 @@ function cleanKpText(text) {
     return "";
   }
 
+  // 「词:~例句」格式（如「诶:~,你来」「乸:鸡~」）：冒号前才是词头
+  const colonIndex = text.search(/[:：]/);
+  if (colonIndex > 0) {
+    text = text.substring(0, colonIndex);
+  }
+
   // 移除所有特殊标记符号（考虑全半角及各种变体）
   let cleaned = text
     // 白读标记：] (半角) 和 ］ (全角)
@@ -162,6 +168,8 @@ function cleanKpText(text) {
     // U+0027 (APOSTROPHE), U+2018 (LEFT SINGLE QUOTATION MARK),
     // U+2019 (RIGHT SINGLE QUOTATION MARK), U+02BC (MODIFIER LETTER APOSTROPHE)
     .replace(/['''']/g, "")
+    // 冒号前可能残留句点（如「啊.:乜~」）
+    .replace(/[.．。·]+$/g, "")
     .trim();
 
   return cleaned;
@@ -262,7 +270,8 @@ export function transformRow(row, rowIndex = 0) {
     dialect: DICTIONARY_INFO.dialect,
 
     headword: {
-      display: rawKpText, // 使用原始词头（保留所有符号用于显示）
+      // 显示用清理后的词头：] ） } 等是原书的读音/训读标记，不应当作词头显示
+      display: cleanedKpText,
       search: headwordInfo.normalized, // 使用清理后的词头（用于搜索）
       normalized: headwordInfo.normalized,
       is_placeholder: headwordInfo.isPlaceholder || false,

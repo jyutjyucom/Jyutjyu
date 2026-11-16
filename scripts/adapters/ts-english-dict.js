@@ -146,6 +146,84 @@ function guessEntryType(recordType, headword) {
 }
 
 /**
+ * 清理词头
+ *
+ * 原书是网页版，导出成 CSV 后词头列混入了几类排版痕迹：
+ * - 字形注记：`磍𥓑 ❄{⿰石刹}`、`𨁶❄`
+ * - 标签：`<粵> 頕天望地`、`<文读>`
+ * - 跨行残片：`(cf 樔`、`(variants: 螣,𧎢,𧎬`、`(same as 爸 bā`
+ * - 落单的收尾括号：`[頂呱呱])`、`扁鱼[扁魚)`
+ *
+ * @param {string} raw - CSV 中的繁体/简体词头
+ * @returns {string} 清理后的词头
+ */
+function isBalancedPair(text, open, close) {
+  let depth = 0;
+  for (const char of text) {
+    if (char === open) depth++;
+    else if (char === close) {
+      if (depth === 0) return false;
+      depth--;
+    }
+  }
+  return depth === 0;
+}
+
+const TS_OPEN_TO_CLOSE = { "(": ")", "（": "）", "[": "]", "［": "］", "{": "}", "<": ">" };
+const TS_CLOSE_TO_OPEN = { ")": "(", "）": "（", "]": "[", "］": "］", "}": "{", ">": "<" };
+
+function cleanTsHeadword(raw) {
+  if (!raw) return "";
+
+  let text = raw.trim();
+
+  // 字形注记 ❄{⿰石刹} 或单个 ❄
+  text = text.replace(/\s*❄\s*\{[^}]*\}/g, "").replace(/❄/g, "");
+  // <粵>、<old>、<文读> 等标签
+  text = text.replace(/<[^<>]{0,12}>/g, " ");
+  text = text.replace(/\s+/g, " ").trim();
+
+  // 跨行残片：取残片里的第一个汉字串（如 "(cf 樔" → "樔"）
+  if (/^[（(]/.test(text)) {
+    const fragment = text.replace(/^[（(]\s*/, "");
+    if (
+      /^(?:cf\b|variants?:|old variant|same as\b|see\b|also\b|[a-z]\))/i.test(
+        fragment,
+      )
+    ) {
+      const cjk = fragment.match(/[\u3400-\u9fff\u{20000}-\u{2ffff}]+/u);
+      if (cjk) {
+        text = cjk[0];
+      }
+    } else {
+      text = fragment;
+    }
+  }
+
+  // 只去掉「不成对」的收尾/开头括号，避免误伤 "扁豆 (稨豆,萹豆,藊豆)" 这类正常写法
+  for (let guard = 0; guard < 4; guard++) {
+    const last = text[text.length - 1];
+    const lastOpen = TS_CLOSE_TO_OPEN[last];
+    if (lastOpen && !isBalancedPair(text, lastOpen, last)) {
+      text = text.slice(0, -1).trim();
+      continue;
+    }
+    break;
+  }
+  for (let guard = 0; guard < 4; guard++) {
+    const first = text[0];
+    const firstClose = TS_OPEN_TO_CLOSE[first];
+    if (firstClose && !isBalancedPair(text, first, firstClose)) {
+      text = text.slice(1).trim();
+      continue;
+    }
+    break;
+  }
+
+  return text.trim();
+}
+
+/**
  * 转换单行 CSV 为标准 DictionaryEntry
  * @param {Object} row - CSV 行
  * @param {number} rowIndex - 行号（用于生成 id）
@@ -161,7 +239,9 @@ export function transformRow(row, rowIndex) {
   const headwordRaw = trad || simp;
   if (!headwordRaw) return null;
 
-  const headwordInfo = cleanHeadword(headwordRaw);
+  // 去掉排版痕迹后再生成词头；清理结果为空时退回原文，避免丢条目
+  const headwordDisplay = cleanTsHeadword(headwordRaw) || headwordRaw;
+  const headwordInfo = cleanHeadword(headwordDisplay);
   const jyutpingArray = parseJyutping(row["Jyutping"] || "");
   let gps = (row["GPS"] || "").trim();
   if (gps && (gps.match(/[\u4e00-\u9fa5]/) || !/[a-zA-Z]/.test(gps))) {
@@ -176,7 +256,7 @@ export function transformRow(row, rowIndex) {
     dialect: DICTIONARY_INFO.dialect,
 
     headword: {
-      display: headwordRaw,
+      display: headwordDisplay,
       search: headwordInfo.normalized,
       normalized: headwordInfo.normalized,
       is_placeholder: headwordInfo.isPlaceholder || false,
