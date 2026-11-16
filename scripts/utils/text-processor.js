@@ -124,6 +124,151 @@ export function cleanHeadword(word) {
 }
 
 /**
+ * 引号/括号：用于判断某个位置是否位于引号或括号内部。
+ * 对应关系见 QUOTE_PAIRS；中文引号常有不配对的情况，只统计成对的符号。
+ */
+const QUOTE_OPENERS = new Set([
+  "“",
+  "「",
+  "『",
+  "‘",
+  "（",
+  "(",
+  "【",
+  "《",
+  "〈",
+  "［",
+  "[",
+]);
+const QUOTE_CLOSERS = new Set([
+  "”",
+  "」",
+  "』",
+  "’",
+  "）",
+  ")",
+  "】",
+  "》",
+  "〉",
+  "］",
+  "]",
+]);
+
+/**
+ * 收尾符号 → 起始符号的对应关系
+ */
+const QUOTE_PAIRS = new Map([
+  ["”", "“"],
+  ["」", "「"],
+  ["』", "『"],
+  ["’", "‘"],
+  ["）", "（"],
+  [")", "("],
+  ["】", "【"],
+  ["》", "《"],
+  ["〉", "〈"],
+  ["］", "［"],
+  ["]", "["],
+]);
+
+/**
+ * 计算每个字符位置所处的引号/括号深度
+ *
+ * 只统计成对的引号/括号：原文里常有未闭合的引号（例如“同“有紋路“。”），
+ * 若把未配对的起始符号也算进去，后续的义项编号就会被误判为“在引号内”。
+ * @param {string} text
+ * @returns {number[]}
+ */
+function getQuoteDepthMap(text) {
+  const depths = new Array(text.length).fill(0);
+  const openStacks = new Map();
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (QUOTE_OPENERS.has(char)) {
+      if (!openStacks.has(char)) openStacks.set(char, []);
+      openStacks.get(char).push(i);
+    } else if (QUOTE_CLOSERS.has(char)) {
+      const opener = QUOTE_PAIRS.get(char);
+      const stack = openStacks.get(opener);
+      if (stack && stack.length > 0) {
+        const start = stack.pop();
+        for (let j = start + 1; j < i; j++) depths[j]++;
+      }
+    }
+  }
+
+  return depths;
+}
+
+/**
+ * 只在引号/括号外部按分隔符切分
+ * 例如 "馬櫻丹。北方別稱“│五色梅”" 中的 │ 位于引号内，不应作为例句分隔符
+ * @param {string} text
+ * @param {RegExp} separatorRegex
+ * @returns {string[]}
+ */
+export function splitOutsideQuotes(text, separatorRegex) {
+  if (!text) return [text];
+
+  const depths = getQuoteDepthMap(text);
+  const flags = separatorRegex.flags.includes("g")
+    ? separatorRegex.flags
+    : `${separatorRegex.flags}g`;
+  const regex = new RegExp(separatorRegex.source, flags);
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match[0].length === 0) {
+      regex.lastIndex++;
+      continue;
+    }
+    if (depths[match.index] === 0) {
+      parts.push(text.slice(lastIndex, match.index));
+      lastIndex = match.index + match[0].length;
+    }
+  }
+
+  parts.push(text.slice(lastIndex));
+  return parts;
+}
+
+/**
+ * 找出真正的义项编号位置
+ *
+ * 引号/括号内的编号（如 "见“㩄①”"、"參見“飲茶②”"）是交叉引用，不算义项标记。
+ * @param {string} text
+ * @param {RegExp} markerRegex - 匹配圈号的正则
+ * @returns {number[]}
+ */
+export function findSenseMarkerPositions(text, markerRegex) {
+  if (!text) return [];
+
+  const depths = getQuoteDepthMap(text);
+  const flags = markerRegex.flags.includes("g")
+    ? markerRegex.flags
+    : `${markerRegex.flags}g`;
+  const regex = new RegExp(markerRegex.source, flags);
+  const positions = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match[0].length === 0) {
+      regex.lastIndex++;
+      continue;
+    }
+
+    const index = match.index;
+    if (depths[index] > 0) continue;
+    positions.push(index);
+  }
+
+  return positions;
+}
+
+/**
  * 解析例句（从释义中提取），支持多义项
  * 格式: "释义。例句1。（翻译1。）│例句2。（翻译2。）"
  * 或: "①释义1。例句1。（翻译1。）②释义2。例句2。（翻译2。）"
@@ -138,11 +283,14 @@ export function parseExamples(meanings) {
 
   // 检测是否有编号义项（①②③④⑤⑥⑦⑧⑨⑩ 或 ⑴⑵⑶⑷⑸等）
   const senseMarkerRegex = /[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽]/g;
-  const markers = cleanedMeanings.match(senseMarkerRegex);
+  const markerPositions = findSenseMarkerPositions(
+    cleanedMeanings,
+    senseMarkerRegex,
+  );
 
-  if (markers && markers.length > 0) {
+  if (markerPositions.length > 0) {
     // 有编号义项，需要分割处理
-    return parseMultipleSenses(cleanedMeanings, markers);
+    return parseMultipleSenses(cleanedMeanings, markerPositions);
   } else {
     // 单一义项，使用原有逻辑
     return [parseSingleSense(cleanedMeanings)];
@@ -287,8 +435,8 @@ function parseSingleSense(text) {
     examples: [],
   };
 
-  // 先按 │ 分割各个例句组
-  const segments = text.split("│");
+  // 先按 │ 分割各个例句组（引号内的 │ 是原文内容，不能切）
+  const segments = splitOutsideQuotes(text, /│/);
 
   if (segments.length === 0) return result;
 
@@ -360,32 +508,34 @@ function parseSingleSense(text) {
  * @param {Array<string>} markers - 义项编号标记数组
  * @returns {Array<Object>} 义项数组
  */
-function parseMultipleSenses(text, markers) {
+function parseMultipleSenses(text, positions) {
   const senses = [];
 
-  // 为每个标记找到其在文本中的位置
-  const markerPositions = [];
-  let searchStart = 0;
+  // 第一个编号之前的前缀：
+  // - 以句号收尾的，是完整的前置义项（原书漏标①时的正文）
+  // - 其余（如「【喻】【謔】」「詞尾，用於：」）只是标签，归入第一个义项
+  const prefix = positions[0] > 0 ? text.substring(0, positions[0]).trim() : "";
+  const prefixIsOwnSense =
+    /[。！？]\s*$/.test(prefix) &&
+    (prefix.length > 6 || /[，、：（）]/.test(prefix));
 
-  markers.forEach((marker) => {
-    const pos = text.indexOf(marker, searchStart);
-    if (pos !== -1) {
-      markerPositions.push({ marker, pos });
-      searchStart = pos + 1;
+  if (prefix && prefixIsOwnSense) {
+    const prefixSense = parseSingleSense(prefix);
+    if (prefixSense.definition || prefixSense.examples.length > 0) {
+      senses.push(prefixSense);
     }
-  });
+  }
 
-  // 按位置分割文本
-  for (let i = 0; i < markerPositions.length; i++) {
-    const start = markerPositions[i].pos;
-    const end =
-      i < markerPositions.length - 1 ? markerPositions[i + 1].pos : text.length;
+  for (let i = 0; i < positions.length; i++) {
+    const start = positions[i] + 1; // 跳过编号标记
+    const end = i < positions.length - 1 ? positions[i + 1] : text.length;
 
-    // 提取该义项的文本（去掉编号标记）
-    let senseText = text.substring(start, end);
-    senseText = senseText
-      .replace(/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽]/, "")
-      .trim();
+    let senseText = text.substring(start, end).trim();
+    if (i === 0 && prefix && !prefixIsOwnSense) {
+      senseText = prefix + senseText;
+    }
+
+    if (!senseText) continue;
 
     // 解析这个义项
     const sense = parseSingleSense(senseText);

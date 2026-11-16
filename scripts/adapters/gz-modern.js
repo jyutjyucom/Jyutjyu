@@ -20,6 +20,8 @@ import {
   generateKeywords,
   cleanHeadword,
   parseNote,
+  findSenseMarkerPositions,
+  splitOutsideQuotes,
 } from "../utils/text-processor.js";
 
 /**
@@ -135,10 +137,12 @@ function parseSenses(definition) {
   }
 
   // 检查是否包含 ❶❷❸❹❺❻❼❽❾❿ 或 ①②③④⑤⑥⑦⑧⑨⑩ 等标记
+  // 只把句首、句末标点后的编号视为义项标记；
+  // “见“㩄①”（481 页）”这类交叉引用里的编号不算，避免把释义切断。
   const sensePattern = /[❶❷❸❹❺❻❼❽❾❿⓫⓬⓭⓮⓯⓰⓱⓲⓳⓴①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳]/g;
-  const matches = [...mainText.matchAll(sensePattern)];
+  const markerPositions = findSenseMarkerPositions(mainText, sensePattern);
 
-  if (matches.length === 0) {
+  if (markerPositions.length === 0) {
     // 没有多义项标记，整个作为一个义项
     return {
       senses: parseExamplesInDefinition(mainText),
@@ -148,10 +152,32 @@ function parseSenses(definition) {
 
   // 有多义项标记，分割
   const senses = [];
-  for (let i = 0; i < matches.length; i++) {
-    const start = matches[i].index + 1; // 跳过标记符号
-    const end = i < matches.length - 1 ? matches[i + 1].index : mainText.length;
-    const senseText = mainText.substring(start, end).trim();
+  // 第一个编号之前的前缀：
+  // - 以句号收尾的，是原书漏标①时的前置义项
+  // - 其余（如「【喻】」标签）归入第一个义项
+  const prefix =
+    markerPositions[0] > 0
+      ? mainText.substring(0, markerPositions[0]).trim()
+      : "";
+  const prefixIsOwnSense =
+    /[。！？]\s*$/.test(prefix) &&
+    (prefix.length > 6 || /[，、：（）]/.test(prefix));
+
+  if (prefix && prefixIsOwnSense) {
+    senses.push({ definition: prefix, examples: [] });
+  }
+
+  for (let i = 0; i < markerPositions.length; i++) {
+    const start = markerPositions[i] + 1; // 跳过编号标记
+    const end =
+      i < markerPositions.length - 1
+        ? markerPositions[i + 1]
+        : mainText.length;
+    let senseText = mainText.substring(start, end).trim();
+
+    if (i === 0 && prefix && !prefixIsOwnSense) {
+      senseText = prefix + senseText;
+    }
 
     if (senseText) {
       const parsedSenses = parseExamplesInDefinition(senseText);
@@ -207,8 +233,7 @@ function parseExamplesInDefinition(text) {
 
     // 解析例句（可能用丨分隔多个例句）
     const exampleText = exampleSplit.slice(1).join("：").trim();
-    const exampleParts = exampleText
-      .split(/[丨｜|]/)
+    const exampleParts = splitOutsideQuotes(exampleText, /[丨｜|]/)
       .map((part) => part.trim())
       .filter((part) => part);
 
