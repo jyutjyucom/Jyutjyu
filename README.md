@@ -46,11 +46,11 @@
 
 ## 技術棧
 
-- **框架**: [Nuxt 3](https://nuxt.com/) (Vue 3 + SSR)
+- **框架**: [Nuxt 4](https://nuxt.com/) (Vue 3 + SSR)
 - **UI**: [Tailwind CSS](https://tailwindcss.com/)
-- **數據**: 靜態 JSON / [MongoDB Atlas](https://www.mongodb.com/atlas)
-- **中文轉換**: [OpenCC.js](https://github.com/nk2028/opencc-js)
-- **部署**: [Vercel](https://vercel.com/) / [Docker Compose](./docs/DOCKER.md)
+- **數據**: [Cloudflare D1](https://developers.cloudflare.com/d1/)（生產）/ 靜態 JSON / [MongoDB Atlas](https://www.mongodb.com/atlas)（回退）
+- **中文轉換**: 建置期轉換表（伺服器）/ [OpenCC.js](https://github.com/nk2028/opencc-js)（客戶端）
+- **部署**: [Cloudflare Workers + D1](./wrangler.jsonc)；[Vercel](https://vercel.com/) / [Docker Compose](./docs/DOCKER.md) 保留為回退
 
 ## 快速開始
 
@@ -76,10 +76,22 @@ npm run dev
 
 ### 數據存儲模式
 
-1.  **靜態 JSON (預設)**：適合小型項目或測試，無需數據庫，數據喺 `public/dictionaries/`。
-2.  **MongoDB (生產環境)**：適合大規模數據同高性能搜尋。配置 `.env` 啟用。
+1.  **Cloudflare D1（生產環境）**：Workers + D1，273k 詞條、FTS5 全文搜尋。部署設定見 `wrangler.jsonc`。
+2.  **靜態 JSON (預設)**：適合小型項目或測試，無需數據庫，數據喺 `public/dictionaries/`。
+3.  **MongoDB（回退）**：舊生產路徑，保留作 rollback。配置見 [MongoDB 指南](./docs/MONGODB_SETUP.md)。
 
-詳細配置見 [MongoDB 指南](./docs/MONGODB_SETUP.md)。Docker 服務器部署見 [Docker Compose 部署](./docs/DOCKER.md)。
+### Cloudflare 部署
+
+```bash
+npm run build:d1        # 產生 data/d1/seed.sql
+npm run db:d1:deploy    # 匯入遠端 D1（首次或資料更新時）
+npm run deploy:cf       # 建置並部署 Worker + 靜態資產
+```
+
+首次部署前需 `npx wrangler login`，並在 `wrangler.jsonc` 設定 `account_id` 與 D1 `database_id`。
+完整遷移記錄見 [D1 驗證報告](./docs/D1_SPIKE_RESULTS.md) 與 [可行性評估](./docs/CLOUDFLARE_D1_MIGRATION_ASSESSMENT.md)。
+
+Docker 服務器部署見 [Docker Compose 部署](./docs/DOCKER.md)。
 
 ### 數據處理
 

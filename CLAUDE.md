@@ -8,12 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Key Technologies
 
-- **Framework**: Nuxt 3 (Vue 3 + SSR)
+- **Framework**: Nuxt 4 (Vue 3 + SSR)
 - **UI**: Tailwind CSS
-- **Data Storage**: Dual mode - Static JSON files or MongoDB Atlas
-- **Chinese Conversion**: OpenCC.js (server and client)
-- **Search**: MiniSearch (client) or MongoDB Atlas Search (server)
-- **Deployment**: Vercel
+- **Data Storage**: Cloudflare D1（生产）/ Static JSON files / MongoDB Atlas（回退）
+- **Chinese Conversion**: 建置期轉換表（server）/ OpenCC.js（client、build scripts）
+- **Search**: D1 FTS5（server，生產）/ MiniSearch（client，靜態模式）
+- **Deployment**: Cloudflare Workers + D1（`wrangler.jsonc`）；Vercel / Docker 保留为回退
 
 ## Development Commands
 
@@ -81,29 +81,36 @@ npm run db:import:replace    # Replace entire dictionary
 npm run db:import:gzpc       # Import specific dictionary
 ```
 
+**Build / apply D1 data (Cloudflare)**:
+
+```bash
+npm run build:d1        # 產生 data/d1/seed.sql（schema + entries + FTS + forms）
+npm run db:d1:apply     # 套用到本地 D1（wrangler --local）
+npm run db:d1:deploy    # 套用到遠端 D1（wrangler --remote）
+npm run deploy:cf       # 建置並部署 Worker + 靜態資產
+```
+
 ## Architecture
 
-### Dual Storage Mode
+### Data Modes (D1 / MongoDB / Static JSON)
 
-The application supports two storage modes, controlled by `NUXT_PUBLIC_USE_API` environment variable:
+Data access is resolved at runtime by `server/utils/d1.ts` (`getServerDataMode`):
 
-1. **Static JSON Mode** (`NUXT_PUBLIC_USE_API=false` or unset)
-   - Dictionary data stored in `public/dictionaries/`
-   - Client-side search using MiniSearch
-   - Client-side OpenCC conversion
-   - Suitable for development, demos, small-scale deployments
-   - Zero database cost
+1. **D1 Mode** (Cloudflare Workers, production)
+   - `DB` binding present, or `JYUTJYU_DATA_MODE=d1`
+   - 273k entries in one D1 database: `entries` + `entry_fts` (contentless FTS5) + `entry_forms`
+   - Search: CJK pre-tokenization (unigrams + bigrams) + bm25; grouping/facets stay in JS
+   - See `docs/D1_SPIKE_RESULTS.md`
 
-2. **MongoDB API Mode** (`NUXT_PUBLIC_USE_API=true`)
-   - Data stored in MongoDB Atlas
-   - Server-side search via API endpoints
-   - Server-side OpenCC conversion
-   - Supports Atlas Search for full-text search
-   - Suitable for production, large-scale deployments
+2. **MongoDB API Mode** (`NUXT_PUBLIC_USE_API=true` + `MONGODB_URI`)
+   - Legacy production path, kept as rollback target
+   - Atlas Search (`$search`) with regex fallback
 
-3. **Auto Mode** (neither set): If `MONGODB_URI` is configured, defaults to API mode; otherwise uses static JSON.
+3. **Static JSON Mode** (no bindings, or `NUXT_PUBLIC_USE_API=false`)
+   - Data in `public/dictionaries/`, client-side MiniSearch
+   - Zero database cost; local development and demos
 
-**Implementation**: `composables/useSearch.ts` automatically selects the appropriate implementation based on runtime config.
+**Implementation**: `server/utils/d1.ts` picks the mode; `server/utils/d1-entries.ts` and `d1-search.ts` implement D1 paths; `composables/useSearch.ts` still selects JSON/API on the client.
 
 ### Core Data Flow
 
@@ -111,9 +118,9 @@ The application supports two storage modes, controlled by `NUXT_PUBLIC_USE_API` 
 CSV Data (data/processed/)
   ↓ (scripts/csv-to-json.js with adapter)
 JSON Files (public/dictionaries/)
-  ↓ (optional: import-to-mongodb.js)
-MongoDB Atlas
-  ↓ (server/api/search.ts)
+  ↓ (scripts/import-to-d1.js)          ↓ (scripts/import-to-mongodb.js)
+D1: entries / entry_fts / entry_forms   MongoDB Atlas（回退）
+  ↓ (server/api/search.ts, D1 模式)
 Client Search (composables/useSearch.ts)
 ```
 
@@ -153,7 +160,7 @@ Key fields:
 Implementation:
 
 - Client: `composables/useDictionary.ts` - `searchBasic()` method
-- Server: `server/api/search.ts` - `fallbackSearch()` and `atlasSearch()` functions
+- Server: `server/utils/d1-search.ts` (D1/FTS5, production) / `server/api/search.ts` - `fallbackSearch()` and `atlasSearch()` (MongoDB mode)
 
 ### Dictionary Adapters
 
@@ -176,8 +183,9 @@ When adding a new dictionary, create a new adapter following the pattern in exis
 
 **Server-side**:
 
-- MongoDB connection pooling (singleton pattern in `server/utils/mongodb.ts`)
-- OpenCC converter instances cached after initialization
+- D1: per-request FTS5 queries; Cloudflare edge caches static assets and prerendered HTML
+- MongoDB mode: connection pooling (singleton in `server/utils/mongodb.ts`)
+- 簡繁轉換改為查表（`server/generated/*.json`），沒有初始化成本
 
 ### Internationalization
 
@@ -252,18 +260,18 @@ All types defined in `types/dictionary.ts`:
 ### Server Utilities
 
 - `server/utils/mongodb.ts`: MongoDB connection management (singleton)
-- `server/utils/opencc.ts`: Server-side Chinese conversion with caching
+- `server/utils/han-variants.ts`: Build-time generated 简繁/异体 tables (replaces runtime OpenCC)
 - `server/utils/word-resolver.ts`: Entry lookup and word page data resolution (prioritizes original headword over simplified/traditional variants)
 - `server/utils/headword-suggestions.ts`: Builds and caches suggestion records from all dictionaries
 - `server/utils/headword-suggestion-ranking.ts`: Ranks suggestions (exact > prefix > contains)
 - `server/utils/browse-index.ts`: Pre-built browse page index management
+- `server/utils/d1.ts`, `d1-entries.ts`, `d1-search.ts`: D1 mode (binding, exact lookup, FTS5 search)
+- `server/utils/cjk-tokenize.ts`: CJK unigram/bigram tokenizer shared by importer and queries
 
 ### Nuxt Modules
 
-- `@nuxt/content`: Markdown content rendering (about page, docs)
-- `@nuxt/image`: Image optimization via IPX provider
 - `@nuxtjs/tailwindcss`: Tailwind CSS integration
-- `@nuxtjs/i18n`: Internationalization
+- `@nuxtjs/i18n` v10: Internationalization (messages registered in `plugins/i18n-messages.ts`)
 - `@nuxtjs/critters`: Critical CSS inlining
 
 ### Route-Level Caching
@@ -273,6 +281,15 @@ All types defined in `types/dictionary.ts`:
 - API-level CDN caching: `server/api/browse/index.ts` sets `Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800`
 
 ## Important Implementation Notes
+
+### Cloudflare D1 / Workers Notes
+
+- `server/utils/d1.ts` resolves the data mode (`d1` / `mongo` / `json`); `JYUTJYU_DATA_MODE` overrides it.
+- Search uses FTS5 + offline CJK tokenization (`server/utils/cjk-tokenize.ts`: unigrams + adjacent bigrams); `entry_forms` handles exact headword resolution.
+- The server no longer imports `opencc-js`: simplified/traditional tables are generated at build time by `scripts/build-trad-variant-map.js` (`server/generated/*.json`).
+- `@nuxtjs/i18n` v10 messages are registered at runtime by `plugins/i18n-messages.ts`; `nuxt.config.ts` sets `payloadExtraction: false` (Cloudflare preset prerender limitation).
+- `@nuxt/content` and `@nuxt/image` are removed; images use plain `<img>`.
+- Deployment config lives in `wrangler.jsonc` (D1 binding `DB`, assets, zone routes); `wrangler.spike.jsonc` and `scripts/d1-spike/` are the local benchmark harness.
 
 ### Design System — Scholar's Ink (Kapok Edition)
 
@@ -318,10 +335,10 @@ When adding a new page: add `class="font-cjk-ui"` to `<main>`, and if the page s
 
 ### Traditional/Simplified Chinese Handling
 
-**Both client and server** use OpenCC for conversion:
+**Client** still uses `opencc-js` (`composables/useChineseConverter.ts`); **server** uses build-time tables:
 
-- Client: `composables/useChineseConverter.ts`
-- Server: `server/utils/opencc.ts`
+- `server/utils/han-variants.ts` → `server/generated/trad-variant-map.json`, `trad-to-simplified-map.json`, `simplified-to-traditional-map.json`
+- Server code must not import `opencc-js`
 
 Always generate search variants (traditional, simplified, original) for matching. Use `getQueryVariants()` on server, `toSimplified()`/`toTraditional()` on client.
 
@@ -347,16 +364,17 @@ Dictionaries are stored as:
 
 Index file: `public/dictionaries/index.json` lists all dictionaries with metadata.
 
-### MongoDB Atlas Search
+### MongoDB Atlas Search (legacy)
 
-If Atlas Search is available, the search API uses `$search` aggregation stage with `lucene.cjk` tokenizer for automatic traditional/simplified matching. If unavailable, falls back to regex-based `fallbackSearch()`.
+Kept only for the MongoDB fallback mode. If Atlas Search is available, the search API uses `$search` aggregation stage with `lucene.cjk` tokenizer for automatic traditional/simplified matching. If unavailable, falls back to regex-based `fallbackSearch()`.
 
 ### Environment Variables
 
 See `env.example` for full configuration. Key variables:
 
 ```
-NUXT_PUBLIC_USE_API=true           # Force API mode (false for static JSON, unset for auto)
+NUXT_PUBLIC_USE_API=true           # Force MongoDB API mode (false for static JSON, unset for auto)
+JYUTJYU_DATA_MODE=d1|mongo|json    # 直接指定資料模式（D1 部署時由 DB binding 自動判定）
 NUXT_PUBLIC_SITE_URL=https://...   # Canonical URL (default: https://jyutjyu.com)
 ENFORCE_CANONICAL_HOST_REDIRECT=false  # 301 redirect to canonical host
 
@@ -395,7 +413,7 @@ Validation checks for:
 3. Add adapter to `scripts/csv-to-json.js` ADAPTERS object
 4. Run validation: `npm run validate -- data/processed/<file>.csv`
 5. Convert to JSON: `npm run build:data -- --dict <dict-id> --input <file>`
-6. Import to MongoDB (if using API mode): `npm run db:import:<dict-id>`
+6. 匯入資料庫：D1（`npm run build:d1 && npm run db:d1:deploy`）或 MongoDB（`npm run db:import:<dict-id>`）
 
 ## Content Licensing
 
