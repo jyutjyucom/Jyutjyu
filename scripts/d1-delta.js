@@ -156,9 +156,22 @@ const withoutCreatedAt = (entry) => {
   return rest;
 };
 
+const idMapPath = getArg("--id-map");
+const idMap = idMapPath
+  ? JSON.parse(readFileSync(idMapPath, "utf8")).entries ||
+    JSON.parse(readFileSync(idMapPath, "utf8"))
+  : null;
+
 const oldRows = buildRows(oldDir).rows;
 const newData = buildRows(newDir);
 const newRows = newData.rows;
+
+// 資料庫現有的 rowid 未必等於由快照重新推算的 rowid（例如上次是增量更新、
+// 沒有重新編號）。有 --id-map 時以資料庫的 entry_id → id 對應為準。
+const resolveId = (entryId, fallback) => {
+  const mapped = idMap ? idMap[entryId] : undefined;
+  return Number.isFinite(mapped) ? mapped : fallback;
+};
 
 const changed = [];
 const added = [];
@@ -174,12 +187,18 @@ for (const [entryId, row] of newRows) {
     JSON.stringify(withoutCreatedAt(oldRow.entry)) !==
     JSON.stringify(withoutCreatedAt(row.entry))
   ) {
-    changed.push({ oldRow, newRow: row });
+    changed.push({
+      oldRow,
+      newRow: row,
+      dbId: resolveId(entryId, oldRow.id),
+    });
   }
 }
 
 for (const [entryId, oldRow] of oldRows) {
-  if (!newRows.has(entryId)) removed.push(oldRow);
+  if (!newRows.has(entryId)) {
+    removed.push({ ...oldRow, dbId: resolveId(entryId, oldRow.id) });
+  }
 }
 
 mkdirSync(dirname(outPath), { recursive: true });
@@ -275,14 +294,14 @@ await write(
 // entry_forms 的主鍵是 (key, entry_id)，沒有 entry_id 索引，
 // 逐條 DELETE ... WHERE entry_id = ? 會整表掃描；改成一次 IN (...) 批次刪除。
 const staleIds = [
-  ...changed.map(({ oldRow }) => oldRow.id),
-  ...removed.map((row) => row.id),
-];
+  ...changed.map(({ oldRow, dbId }) => ({ ...oldRow, id: dbId })),
+  ...removed,
+].map((row) => row.id);
 const FORMS_DELETE_BATCH = 500;
 
 // 1. 先刪 FTS 舊值
-for (const { oldRow } of changed) {
-  await write(ftsDelete(oldRow));
+for (const { oldRow, dbId } of changed) {
+  await write(ftsDelete({ ...oldRow, id: dbId }));
 }
 for (const row of removed) {
   await write(ftsDelete(row));
@@ -296,23 +315,26 @@ for (let i = 0; i < staleIds.length; i += FORMS_DELETE_BATCH) {
   );
 }
 
-// 3. 更新／刪除 entries（rowid 沿用舊快照，不重新編號）
-for (const { oldRow, newRow } of changed) {
-  await write(entryUpdate({ ...newRow, id: oldRow.id }));
+// 3. 更新／刪除 entries（rowid 沿用資料庫現有的 id）
+for (const { newRow, dbId } of changed) {
+  await write(entryUpdate({ ...newRow, id: dbId }));
 }
 for (const row of removed) {
   await write("DELETE FROM entries WHERE id = " + row.id + ";\n");
 }
 
 // 4. 寫回新的 FTS 與 entry_forms
-for (const { oldRow, newRow } of changed) {
-  const row = { ...newRow, id: oldRow.id };
+for (const { newRow, dbId } of changed) {
+  const row = { ...newRow, id: dbId };
   await write(ftsInsert(row));
   await write(formsInsert(row));
 }
 
 // 新增（id 接在舊快照之後，避免影响既有 rowid）
-let nextId = newData.maxId;
+let nextId = Math.max(
+  newData.maxId,
+  ...(idMap ? Object.values(idMap).filter(Number.isFinite) : []),
+);
 for (const row of added) {
   nextId += 1;
   row.id = nextId;
