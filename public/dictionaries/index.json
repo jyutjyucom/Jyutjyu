@@ -478,7 +478,7 @@
       },
       "year": 2000,
       "file": "kp-dialect.json",
-      "version": "2026-11-16",
+      "version": "2026-11-17",
       "description": {
         "zh-Hans": "收录开平话词汇，包含国际音标、粤拼及普通话释义，是研究开平方言的重要工具书",
         "zh-Hant": "收錄開平話詞彙，包含國際音標、粵拼及普通話釋義，是研究開平方言的重要工具書",
@@ -561,6 +561,6 @@
       "cover": "ts-english-dict.png"
     }
   ],
-  "last_updated": "2026-11-16T18:54:49.838Z",
+  "last_updated": "2026-11-17T01:00:30.337Z",
   "schema_version": "1.1.0"
 }
