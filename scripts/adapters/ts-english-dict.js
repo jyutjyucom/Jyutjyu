@@ -172,6 +172,23 @@ function isBalancedPair(text, open, close) {
 const TS_OPEN_TO_CLOSE = { "(": ")", "（": "）", "[": "]", "［": "］", "{": "}", "<": ">" };
 const TS_CLOSE_TO_OPEN = { ")": "(", "）": "（", "]": "[", "］": "］", "}": "{", ">": "<" };
 
+/**
+ * 判断一行是不是原书排版残片（不是真词条）：
+ * - 又音注记：词头被误读成「又」/「又>」
+ * - 跨行残片：以左括号开头，如 "(cf 樔"、"(variants: …"
+ * - 纯标签行：<文读>、<old> 等
+ *
+ * 这些在 pipeline 侧已修复；adapter 保留同样的过滤，避免旧 CSV 再混进来。
+ */
+function isFragmentRow(raw) {
+  const text = (raw || "").trim();
+  if (!text) return true;
+  if (/^[（(]/.test(text)) return true;
+  if (/^又>?$/.test(text)) return true;
+  if (!text.replace(/<[^<>]{1,12}>/g, "").trim()) return true;
+  return false;
+}
+
 function cleanTsHeadword(raw) {
   if (!raw) return "";
 
@@ -238,6 +255,9 @@ export function transformRow(row, rowIndex) {
   // 词头：优先繁体，否则简体
   const headwordRaw = trad || simp;
   if (!headwordRaw) return null;
+
+  // 原书里的又音注记、变体残片、纯标签行不是词条
+  if (isFragmentRow(headwordRaw)) return null;
 
   // 去掉排版痕迹后再生成词头；清理结果为空时退回原文，避免丢条目
   const headwordDisplay = cleanTsHeadword(headwordRaw) || headwordRaw;

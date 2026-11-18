@@ -518,7 +518,7 @@
       "file": "ts-english-dict.json",
       "chunked": true,
       "chunk_dir": "ts-english-dict",
-      "entries_count": 42499,
+      "entries_count": 42338,
       "author": {
         "zh-Hans": "Gene M. Chin",
         "zh-Hant": "Gene M. Chin",
@@ -532,7 +532,7 @@
         "yue-Hant": "網絡詞典"
       },
       "year": 2024,
-      "version": "2026-11-16",
+      "version": "2026-11-18",
       "description": {
         "zh-Hans": "台山话—英语网络词典，收录字头、词组及例句，提供台山话罗马字与汉语拼音，英文释义。",
         "zh-Hant": "台山話—英語網絡詞典，收錄字頭、詞組及例句，提供台山話羅馬字與漢語拼音，英文釋義。",
@@ -561,6 +561,6 @@
       "cover": "ts-english-dict.png"
     }
   ],
-  "last_updated": "2026-11-18T11:41:31.684Z",
+  "last_updated": "2026-11-18T12:11:59.179Z",
   "schema_version": "1.1.0"
 }
