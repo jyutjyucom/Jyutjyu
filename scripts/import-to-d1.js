@@ -10,8 +10,16 @@
  * 產物：data/d1/schema.sql, data/d1/seed.sql
  */
 
-import { createWriteStream, readFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import {
+  appendFileSync,
+  createWriteStream,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { resolve, dirname, join } from "node:path";
 import { tokenizeCjk } from "../server/utils/cjk-tokenize.ts";
 import { stableId } from "./utils/stable-id.js";
 
@@ -104,13 +112,28 @@ const schemaSql = readFileSync(
 );
 
 const writer = new BufferedWriter(resolve(outDir, "seed.sql"));
-await writer.write(schemaSql + "\n");
 
 const seen = new Set();
 const seenIds = new Map();
 let total = 0;
 let skipped = 0;
 // rowid 由 entry_id 哈希决定，不再依赖出现顺序
+
+// 先按 id 高 8 位分桶落盘，再逐桶按 id 升序写出。
+// 顺序插入让 SQLite 以 append 方式填 B-tree（约 90% 填充率）；
+// 随机插入只有约 57%，同样数据会多占三成空间。
+const BUCKETS = 256;
+const bucketDir = mkdtempSync(join(tmpdir(), "jyutjyu-d1-"));
+const bucketPaths = Array.from({ length: BUCKETS }, (_, i) =>
+  join(bucketDir, `b${i}.ndjson`),
+);
+const bucketBuffers = Array.from({ length: BUCKETS }, () => []);
+
+const flushBucket = (bucket) => {
+  if (bucketBuffers[bucket].length === 0) return;
+  appendFileSync(bucketPaths[bucket], bucketBuffers[bucket].join("\n") + "\n");
+  bucketBuffers[bucket] = [];
+};
 
 let entryBatch = [];
 let ftsBatch = [];
@@ -180,34 +203,32 @@ for (const file of buildFiles()) {
     const definitions = collectDefinitions(entry);
     const payload = JSON.stringify(entry);
 
-    entryBatch.push(
+    const entryTuple =
       "(" +
-        [
-          rowId,
-          quote(entry.id),
-          quote(entry.source_book || ""),
-          quote(entry.dialect?.name || ""),
-          quote(entry.entry_type || ""),
-          quote(canon),
-          quote(display + " " + canon),
-          quote(jyutping),
-          restrictedIds.has(entry.id) ? 1 : 0,
-          quote(payload),
-        ].join(", ") +
-        ")",
-    );
-    ftsBatch.push(
+      [
+        rowId,
+        quote(entry.id),
+        quote(entry.source_book || ""),
+        quote(entry.dialect?.name || ""),
+        quote(entry.entry_type || ""),
+        quote(canon),
+        quote(display + " " + canon),
+        quote(jyutping),
+        restrictedIds.has(entry.id) ? 1 : 0,
+        quote(payload),
+      ].join(", ") +
+      ")";
+    const ftsTuple =
       "(" +
-        [
-          rowId,
-          quote(tokenizeCjk(display + " " + canon)),
-          quote(tokenizeCjk(variants)),
-          quote(tokenizeCjk(jyutping)),
-          quote(tokenizeCjk(keywords)),
-          quote(tokenizeCjk(definitions)),
-        ].join(", ") +
-        ")",
-    );
+      [
+        rowId,
+        quote(tokenizeCjk(display + " " + canon)),
+        quote(tokenizeCjk(variants)),
+        quote(tokenizeCjk(jyutping)),
+        quote(tokenizeCjk(keywords)),
+        quote(tokenizeCjk(definitions)),
+      ].join(", ") +
+      ")";
 
     const forms = new Set(
       [
@@ -218,13 +239,21 @@ for (const file of buildFiles()) {
         .map((form) => String(form || "").replace(/\s+/g, " ").trim().toLowerCase())
         .filter(Boolean),
     );
+    const formTuples = [];
     for (const form of forms) {
-      formBatch.push("(" + quote(form) + ", " + rowId + ")");
+      formTuples.push("(" + quote(form) + ", " + rowId + ")");
     }
 
-    if (entryBatch.length >= BATCH_ROWS) {
-      await flush();
-    }
+    const bucket = Number((rowId >> 55n) & 0xffn);
+    bucketBuffers[bucket].push(
+      JSON.stringify({
+        id: rowId.toString(),
+        e: entryTuple,
+        f: ftsTuple,
+        m: formTuples,
+      }),
+    );
+    if (bucketBuffers[bucket].length >= 500) flushBucket(bucket);
     if (total % 20000 === 0) {
       console.log("rows", total, "elapsed_ms", Date.now() - startedAt);
     }
@@ -232,9 +261,38 @@ for (const file of buildFiles()) {
   if (limit > 0 && total >= limit) break;
 }
 
+for (let i = 0; i < BUCKETS; i += 1) flushBucket(i);
+
+await writer.write(schemaSql + "\n");
+
+for (let b = 0; b < BUCKETS; b += 1) {
+  let lines = [];
+  try {
+    lines = readFileSync(bucketPaths[b], "utf8").split("\n").filter(Boolean);
+  } catch {
+    continue;
+  }
+  if (lines.length === 0) continue;
+
+  const records = lines.map((line) => JSON.parse(line));
+  records.sort((left, right) => {
+    const a = BigInt(left.id);
+    const bId = BigInt(right.id);
+    return a < bId ? -1 : a > bId ? 1 : 0;
+  });
+
+  for (const record of records) {
+    entryBatch.push(record.e);
+    ftsBatch.push(record.f);
+    for (const form of record.m) formBatch.push(form);
+    if (entryBatch.length >= BATCH_ROWS) await flush();
+  }
+}
+
 await flush();
 await writer.write("ANALYZE;\n");
 await writer.close();
+rmSync(bucketDir, { recursive: true, force: true });
 
 console.log(
   JSON.stringify({
