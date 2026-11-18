@@ -19,6 +19,7 @@
 import { readFileSync, mkdirSync, createWriteStream } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { tokenizeCjk } from "../server/utils/cjk-tokenize.ts";
+import { stableId } from "./utils/stable-id.js";
 
 const args = process.argv.slice(2);
 const getArg = (name) => {
@@ -88,7 +89,6 @@ function buildRows(dir) {
   const rows = new Map(); // entry_id -> { id, entry, fields... }
   const byId = new Map();
   const seen = new Set();
-  let rowId = 0;
 
   for (const file of listEntryFiles(dir)) {
     let parsed;
@@ -104,7 +104,7 @@ function buildRows(dir) {
     for (const entry of entries) {
       if (!entry?.id || seen.has(entry.id)) continue;
       seen.add(entry.id);
-      rowId += 1;
+      const rowId = stableId(entry.id);
 
       const headword = entry.headword || {};
       const canon = String(headword.normalized || headword.display || "").trim();
@@ -148,7 +148,7 @@ function buildRows(dir) {
     }
   }
 
-  return { rows, byId, maxId: rowId };
+  return { rows, byId };
 }
 
 const withoutCreatedAt = (entry) => {
@@ -331,13 +331,8 @@ for (const { newRow, dbId } of changed) {
 }
 
 // 新增（id 接在舊快照之後，避免影响既有 rowid）
-let nextId = Math.max(
-  newData.maxId,
-  ...(idMap ? Object.values(idMap).filter(Number.isFinite) : []),
-);
 for (const row of added) {
-  nextId += 1;
-  row.id = nextId;
+  row.id = stableId(row.entryId);
   await write(entryInsert(row));
   await write(ftsInsert(row));
   await write(formsInsert(row));

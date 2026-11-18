@@ -13,6 +13,7 @@
 import { createWriteStream, readFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { tokenizeCjk } from "../server/utils/cjk-tokenize.ts";
+import { stableId } from "./utils/stable-id.js";
 
 const ROOT = resolve(process.cwd(), "public/dictionaries");
 const OUT_DIR = resolve(process.cwd(), "data/d1");
@@ -106,9 +107,11 @@ const writer = new BufferedWriter(resolve(outDir, "seed.sql"));
 await writer.write(schemaSql + "\n");
 
 const seen = new Set();
+const seenIds = new Map();
 let total = 0;
 let skipped = 0;
-let rowId = 0;
+// rowid 由 entry_id 哈希决定，不再依赖出现顺序
+
 let entryBatch = [];
 let ftsBatch = [];
 let formBatch = [];
@@ -159,7 +162,13 @@ for (const file of buildFiles()) {
     }
     if (limit > 0 && total >= limit) break;
     seen.add(entry.id);
-    rowId += 1;
+    const rowId = stableId(entry.id);
+    if (seenIds.has(rowId)) {
+      throw new Error(
+        "stable id collision: " + entry.id + " 与 " + seenIds.get(rowId),
+      );
+    }
+    seenIds.set(rowId, entry.id);
     total += 1;
 
     const headword = entry.headword || {};
