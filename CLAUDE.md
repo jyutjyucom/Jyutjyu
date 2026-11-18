@@ -291,6 +291,8 @@ All types defined in `types/dictionary.ts`:
 - `@nuxt/content` and `@nuxt/image` are removed; images use plain `<img>`.
 - Deployment config lives in `wrangler.jsonc` (D1 binding `DB`, assets, zone routes); `wrangler.spike.jsonc` and `scripts/d1-spike/` are the local benchmark harness.
 - Workers Builds (Git integration) uses `npm run build:cf` as the build command and `npx wrangler deploy` as the deploy command. `build:cf` skips font subsetting (fonts are committed) but still generates the git-ignored search/browse indexes.
+- `entries.id` 是 `sha256(entry_id)` 派生的 63-bit 值（`scripts/utils/stable-id.js`），不是顺序编号；改数据后优先走增量 delta，不要重灌全量。
+- 增量更新：`node scripts/d1-delta.js --old <上次上线快照> --out data/d1/delta.sql`，再用 `wrangler d1 execute --file` 应用；全量 seed 只用于首次建库/灾难恢复。详见 `docs/D1_STABLE_IDS.md`。
 
 ### Design System — Scholar's Ink (Kapok Edition)
 
