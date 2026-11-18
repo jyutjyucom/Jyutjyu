@@ -17,6 +17,8 @@
  * Copyright © 2005-2024 Gene M. Chin. 网络词典，直接公开在网上，协议不明。
  */
 
+import { createHash } from "node:crypto";
+
 import { generateKeywords, cleanHeadword } from "../utils/text-processor.js";
 
 /**
@@ -240,10 +242,33 @@ function cleanTsHeadword(raw) {
   return text.trim();
 }
 
+const shortHash = (value, length = 12) =>
+  createHash("sha1").update(String(value), "utf8").digest("hex").slice(0, length);
+
+/**
+ * 用原书字段拼出稳定键（与行序无关）。
+ * 行号会随插入/删除漂移，不能作为 entry_id。
+ */
+function sourceKeyOf(row) {
+  return [
+    row["RecordType"],
+    row["号"],
+    row["部"],
+    row["画"],
+    row["繁"],
+    row["简"],
+    row["GPS"],
+    row["汉拼"],
+    row["Nos."],
+  ]
+    .map((value) => String(value ?? "").trim())
+    .join("|");
+}
+
 /**
  * 转换单行 CSV 为标准 DictionaryEntry
  * @param {Object} row - CSV 行
- * @param {number} rowIndex - 行号（用于生成 id）
+ * @param {number} rowIndex - 行号（仅作 source_id 参考）
  * @returns {Object|null} DictionaryEntry 或 null（跳过）
  */
 export function transformRow(row, rowIndex) {
@@ -269,7 +294,8 @@ export function transformRow(row, rowIndex) {
   }
 
   const entry = {
-    id: `${DICTIONARY_INFO.id}_${String(rowIndex).padStart(6, "0")}`,
+    // entry_id 由原书字段派生，重导/重分片都不会变
+    id: `${DICTIONARY_INFO.id}_${shortHash(sourceKeyOf(row))}`,
     source_book: DICTIONARY_INFO.source_book,
     source_id: String(rowIndex),
 
@@ -344,6 +370,29 @@ export function transformAll(rows) {
 
   if (skipped > 0) {
     console.log(`ℹ️  跳过 ${skipped} 行（无词头：繁/简均为空）`);
+  }
+
+  // 同词多义（如 再說 两个义项）会落到同一个源键上；
+  // 用释义哈希补后缀，避免 entry_id 冲突。
+  const groups = new Map();
+  for (const entry of entries) {
+    if (!groups.has(entry.id)) groups.set(entry.id, []);
+    groups.get(entry.id).push(entry);
+  }
+  for (const [id, group] of groups) {
+    if (group.length < 2) continue;
+    const used = new Set();
+    for (const entry of group) {
+      const gloss = entry.senses?.[0]?.definition || "";
+      let candidate = `${id}-${shortHash(gloss, 6)}`;
+      let suffix = 2;
+      while (used.has(candidate)) {
+        candidate = `${id}-${shortHash(gloss, 6)}-${suffix}`;
+        suffix += 1;
+      }
+      used.add(candidate);
+      entry.id = candidate;
+    }
   }
 
   return { entries, errors };
