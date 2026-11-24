@@ -1,63 +1,71 @@
 <template>
   <section :class="[panelClasses, 'font-cjk-content']">
-    <button
-      v-if="collapsible"
-      type="button"
-      class="w-full text-left py-2"
-      @click="$emit('toggle')"
-    >
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <h2
-            class="text-sm break-words"
-            :class="
-              active
-                ? 'text-ink dark:text-parchment font-semibold'
-                : 'text-graphite dark:text-stone-400 font-medium'
-            "
-          >
-            {{ sourceLabel }}
-          </h2>
-          <p
-            class="mt-1 text-xs"
-            :class="
-              active
-                ? 'text-ink dark:text-parchment'
-                : 'text-graphite dark:text-stone-400'
-            "
-          >
-            {{ t("common.senseCount", { count: entries.length }) }}
-          </p>
-        </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span
-            v-for="dialect in dialectLabels"
-            :key="dialect"
-            class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap"
-          >
-            {{ dialect }}
+    <h2 v-if="collapsible">
+      <button
+        type="button"
+        class="w-full text-left py-2"
+        :aria-expanded="expanded"
+        :aria-controls="panelId"
+        @click="emit('toggle')"
+      >
+        <span class="flex items-start justify-between gap-3">
+          <span class="min-w-0">
+            <span
+              class="block text-sm break-words"
+              :class="
+                active
+                  ? 'text-ink dark:text-parchment font-semibold'
+                  : 'text-graphite dark:text-stone-400 font-medium'
+              "
+            >
+              {{ sourceLabel }}
+            </span>
+            <span
+              class="block mt-1 text-xs"
+              :class="
+                active
+                  ? 'text-ink dark:text-parchment'
+                  : 'text-graphite dark:text-stone-400'
+              "
+            >
+              {{ t("common.senseCount", { count: entries.length }) }}
+            </span>
           </span>
-          <svg
-            class="w-4 h-4 text-graphite dark:text-stone-200 transition-transform"
-            :class="expanded ? 'rotate-180' : ''"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </div>
-      </div>
-    </button>
+          <span class="flex items-center gap-2 flex-shrink-0">
+            <span
+              v-for="dialect in dialectLabels"
+              :key="dialect"
+              class="px-2 py-0.5 bg-archive-green/10 dark:bg-archive-green/20 text-archive-green dark:text-archive-green-light rounded-md text-xs sm:text-sm whitespace-nowrap"
+            >
+              {{ dialect }}
+            </span>
+            <svg
+              class="w-4 h-4 text-graphite dark:text-stone-200 transition-transform"
+              :class="expanded ? 'rotate-180' : ''"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </span>
+        </span>
+      </button>
+    </h2>
 
-    <div v-show="!collapsible || expanded" :class="collapsible ? 'py-3' : ''">
-      <article
+    <div
+      :id="collapsible ? panelId : undefined"
+      :hidden="collapsible && !expanded ? 'until-found' : undefined"
+      @beforematch="handleBeforeMatch"
+    >
+      <div :class="collapsible ? 'py-3' : ''">
+        <article
         v-for="(entry, entryIdx) in entries"
         :key="entry.id"
         class="relative"
@@ -203,15 +211,12 @@
                 <!-- Definition title + inline label badge -->
                 <div class="flex flex-wrap items-center gap-3">
                   <p
-                    v-if="isCantoDict(entry)"
-                    class="text-ink dark:text-stone-100 text-base sm:text-lg font-semibold leading-relaxed"
-                    v-html="formatDefinitionWithLinks(sense.definition)"
-                  ></p>
-                  <p
-                    v-else
                     class="text-ink dark:text-stone-100 text-base sm:text-lg font-semibold leading-relaxed"
                   >
-                    {{ sense.definition }}
+                    <DefinitionText
+                      :text="sense.definition"
+                      :linkify="isCantoDict(entry)"
+                    />
                   </p>
 
                   <span
@@ -258,15 +263,12 @@
                           class="space-y-1"
                         >
                           <p
-                            v-if="isCantoDict(entry)"
-                            class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
-                            v-html="formatDefinitionWithLinks(example.text)"
-                          ></p>
-                          <p
-                            v-else
                             class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                           >
-                            {{ example.text }}
+                            <DefinitionText
+                              :text="example.text"
+                              :linkify="isCantoDict(entry)"
+                            />
                           </p>
                           <p
                             v-if="example.jyutping"
@@ -307,15 +309,12 @@
                       class="space-y-1"
                     >
                       <p
-                        v-if="isCantoDict(entry)"
-                        class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
-                        v-html="formatDefinitionWithLinks(example.text)"
-                      ></p>
-                      <p
-                        v-else
                         class="font-sung-content text-base sm:text-lg text-ink dark:text-stone-100"
                       >
-                        {{ example.text }}
+                        <DefinitionText
+                          :text="example.text"
+                          :linkify="isCantoDict(entry)"
+                        />
                       </p>
                       <p
                         v-if="example.jyutping"
@@ -436,6 +435,7 @@
           </div>
         </div>
       </article>
+      </div>
     </div>
     <!-- Divider at bottom of accordion (mobile, not on last item) -->
     <div v-if="collapsible && !isLast" class="flex items-center gap-3 mt-4">
@@ -477,16 +477,24 @@ const props = withDefaults(defineProps<Props>(), {
   isLast: false,
 });
 
-defineEmits<{
+const panelId = useId();
+
+const emit = defineEmits<{
   toggle: [];
+  expand: [];
 }>();
+
+const handleBeforeMatch = () => {
+  if (props.collapsible && !props.expanded) {
+    emit("expand");
+  }
+};
 
 const { t } = useI18n();
 const {
   getEntryTypeLabel,
   getDialectLabel,
   isCantoDict,
-  formatDefinitionWithLinks,
   getEntryJyutpingList,
   getEntryOriginalPhonetic,
   getEntryOriginalPhoneticList,

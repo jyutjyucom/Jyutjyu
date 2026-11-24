@@ -18,6 +18,7 @@ import {
   isRestrictedEntry,
   loadPublicRestrictedEntryFilterIds,
 } from "~/utils/restricted-entry-filter";
+import { yieldToMain } from "~/utils/yield-to-main";
 
 // 全局缓存，在客户端持久化词典数据
 let cachedEntries: DictionaryEntry[] | null = null;
@@ -102,7 +103,7 @@ const extractKeywordStrings = (value: unknown): string[] => {
  */
 export const useDictionary = () => {
   const loadDictionaryIndex = async (): Promise<any | null> => {
-    if (!process.client) {
+    if (!import.meta.client) {
       return null;
     }
 
@@ -140,7 +141,7 @@ export const useDictionary = () => {
    */
   const loadChunkManifest = async (chunkDir: string): Promise<any> => {
     // 只在客户端运行
-    if (!process.client) {
+    if (!import.meta.client) {
       return null;
     }
 
@@ -271,7 +272,7 @@ export const useDictionary = () => {
    */
   const getAllEntries = async (): Promise<DictionaryEntry[]> => {
     // 只在客户端运行
-    if (!process.client) {
+    if (!import.meta.client) {
       return [];
     }
 
@@ -503,7 +504,7 @@ export const useDictionary = () => {
     } = options;
 
     // 只在客户端运行
-    if (!process.client) {
+    if (!import.meta.client) {
       if (import.meta.dev) console.log("伺服器端略過搜尋");
       return [];
     }
@@ -730,11 +731,16 @@ export const useDictionary = () => {
         searchIndex.initialized = true;
       }
 
-      // 先快速搜索基础词典
+      // 先快速搜索基础词典（超过 50ms 预算时让出主线程以保护 INP）
+      let deadline = performance.now() + 50;
       for (const entry of baseEntries) {
         const result = processEntry(entry);
         if (result) {
           allResultsWithPriority.push({ entry, ...result });
+        }
+        if (performance.now() >= deadline) {
+          await yieldToMain();
+          deadline = performance.now() + 50;
         }
       }
 
@@ -788,13 +794,18 @@ export const useDictionary = () => {
               }
             }
 
-            // 处理当前分片
+            // 处理当前分片（超过 50ms 预算时让出主线程以保护 INP）
             let hasNewResults = false;
+            let chunkDeadline = performance.now() + 50;
             for (const entry of chunkEntries) {
               const result = processEntry(entry);
               if (result) {
                 allResultsWithPriority.push({ entry, ...result });
                 hasNewResults = true;
+              }
+              if (performance.now() >= chunkDeadline) {
+                await yieldToMain();
+                chunkDeadline = performance.now() + 50;
               }
             }
 
@@ -975,7 +986,7 @@ export const useDictionary = () => {
   const getRandomRecommendedEntries = async (
     count: number = 3,
   ): Promise<DictionaryEntry[]> => {
-    if (!process.client) {
+    if (!import.meta.client) {
       return [];
     }
 

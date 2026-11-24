@@ -138,6 +138,9 @@ const messagesEn = {
     searchResultsCount: "{count} search results",
     senseCount: "{count} senses",
     unannotatedPronunciation: "(unannotated)",
+    viewModeAria: "Switch view mode",
+    searchSuggestionsAria: "Search suggestions",
+    searchResultsTableAria: "Search results",
   },
   wordPage: {
     metaTitleSuffix: "Cantonese definition",
@@ -148,6 +151,7 @@ const messagesEn = {
     backToSearchResultsForCount: "Back to results for “{query}” ({count})",
     searchCurrentWord: "Search “{word}”",
     viewCurrentWordResults: "View results for “{word}”",
+    sourcesNavAria: "Dictionary sources",
   },
   dictCard: {
     placeholderWord: "Phonetic only",
@@ -336,12 +340,14 @@ const messagesEn = {
     titleField: {
       label: "Title",
       placeholder: "Briefly describe the issue or suggestion",
+      requiredError: "Please enter a title",
     },
     description: {
       label: "Details",
       placeholder:
         "Describe the problem, suggestion, or entry error in as much detail as you can...",
       clear: "Clear",
+      requiredError: "Please enter details",
     },
     entry: {
       word: {

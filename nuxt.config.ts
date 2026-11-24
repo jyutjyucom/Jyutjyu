@@ -67,6 +67,12 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag === "search",
+    },
+  },
+
   experimental: {
     watcher: "parcel",
     // Cloudflare preset 的 prerender payload cache 不接受 "/" 這個 key，
@@ -111,7 +117,8 @@ export default defineNuxtConfig({
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { name: "color-scheme", content: "light dark" },
+        { name: "color-scheme", content: "light" },
+        { name: "theme-color", content: "#fbf9f4" },
         { name: "author", content: "Jyut Collection" },
         {
           name: "google-site-verification",
@@ -129,6 +136,12 @@ export default defineNuxtConfig({
         { name: "twitter:image:alt", content: "Jyutjyu" },
       ],
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      script: [
+        {
+          innerHTML:
+            "(function(){try{var s=localStorage.getItem('jyutjyu-theme');var m=s==='dark'||s==='system'||s==='light'?s:'light';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);var cs=document.querySelector('meta[name=\"color-scheme\"]');if(cs)cs.setAttribute('content',m==='system'?'light dark':m);var tc=document.querySelector('meta[name=\"theme-color\"]');if(tc)tc.setAttribute('content',d?'#0c0a09':'#fbf9f4');}catch(e){}})();",
+        },
+      ],
     },
   },
 

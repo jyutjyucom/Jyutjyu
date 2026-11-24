@@ -2,7 +2,7 @@
   <button
     v-if="showButton"
     type="button"
-    :class="resolvedButtonClass"
+    :class="['min-w-6 min-h-6', resolvedButtonClass]"
     :aria-label="ariaLabel"
     :title="ariaLabel"
     :aria-busy="isLoading ? 'true' : undefined"
@@ -15,7 +15,7 @@
     <LoaderCircle
       v-if="isLoading"
       :class="resolvedIconClass"
-      class="animate-spin"
+      class="animate-spin motion-reduce:animate-none"
       aria-hidden="true"
     />
     <Volume2

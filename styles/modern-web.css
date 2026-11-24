@@ -1,0 +1,391 @@
+/* Global Modern Web Guidance styles (top-level / unscoped so :root, @property,
+   @starting-style, ::backdrop, and [popover] rules work as specified). */
+
+:root {
+  color-scheme: light;
+  interpolate-size: allow-keywords;
+  accent-color: #b53a25;
+  --scrollbar-track: light-dark(#f0eee9, #1c1917);
+  --scrollbar-thumb: light-dark(#6b6d73, #a8a29e);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: auto;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="light dark"]) {
+  color-scheme: light dark;
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]),
+html.dark {
+  color-scheme: dark;
+}
+
+::selection {
+  background-color: light-dark(#f8e7e4, rgb(181 58 37 / 0.35));
+  color: light-dark(#b53a25, #fbf9f4);
+}
+
+body {
+  font-family: "Inter Variable", sans-serif;
+  font-size-adjust: from-font;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+.prose-pretty p,
+.prose-pretty li {
+  text-wrap: pretty;
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid #b53a25;
+  outline-offset: 2px;
+}
+
+/* Native top-layer <dialog> */
+dialog.mwg-dialog {
+  opacity: 0;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.mwg-dialog {
+    transform: scale(0.96);
+  }
+}
+
+dialog.mwg-dialog[open] {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.mwg-dialog[open] {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.mwg-dialog[open] {
+    transform: scale(1);
+  }
+
+  @starting-style {
+    dialog.mwg-dialog[open] {
+      transform: scale(0.96);
+    }
+  }
+}
+
+dialog.mwg-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.mwg-dialog::backdrop {
+  background-color: rgb(0 0 0 / 0);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  transition-property: background-color, display, overlay;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+dialog.mwg-dialog[open]::backdrop {
+  background-color: rgb(0 0 0 / 0.5);
+}
+
+@starting-style {
+  dialog.mwg-dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0);
+  }
+}
+
+html.dark dialog.mwg-dialog[open]::backdrop {
+  background-color: rgb(0 0 0 / 0.7);
+}
+
+@starting-style {
+  html.dark dialog.mwg-dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 0);
+  }
+}
+
+/* Native [popover] dropdowns with CSS Anchor Positioning + @supports fallback */
+[popover].mwg-popover {
+  opacity: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.16s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [popover].mwg-popover {
+    transform: translateY(-4px);
+  }
+}
+
+[popover].mwg-popover:popover-open {
+  opacity: 1;
+}
+
+@starting-style {
+  [popover].mwg-popover:popover-open {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [popover].mwg-popover:popover-open {
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    [popover].mwg-popover:popover-open {
+      transform: translateY(-4px);
+    }
+  }
+}
+
+@supports (position-area: block-end) {
+  [popover].mwg-popover {
+    inset: auto;
+    margin: 0;
+    margin-block: 0.25rem;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+
+  [popover].mwg-popover--align-end {
+    position-area: block-end span-inline-start;
+  }
+}
+
+@supports not (position-area: block-end) {
+  [popover].mwg-popover {
+    position: fixed;
+    inset: auto 1rem 1rem 1rem;
+    width: auto;
+    max-width: 24rem;
+    margin-inline: auto;
+    max-height: 70dvh;
+    overflow-y: auto;
+  }
+
+  [popover].mwg-popover::backdrop {
+    background-color: rgb(0 0 0 / 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.mwg-dialog,
+  dialog.mwg-dialog::backdrop,
+  [popover].mwg-popover {
+    transition-duration: 0.08s;
+  }
+}
+
+/* Native <details> intrinsic-size transitions */
+details.mwg-details::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 0.25s ease-out,
+    content-visibility 0.25s ease-out;
+  transition-behavior: allow-discrete;
+}
+
+details.mwg-details[open]::details-content {
+  block-size: auto;
+}
+
+details.mwg-details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details.mwg-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.mwg-details[open] .mwg-details-chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.mwg-details::details-content,
+  details.mwg-details .mwg-details-chevron {
+    transition: none;
+  }
+}
+
+/* Form auto-sizing and post-interaction :user-invalid validation */
+textarea.mwg-auto-textarea {
+  field-sizing: content;
+  width: 100%;
+  height: auto;
+  min-block-size: 8lh;
+  max-block-size: 20lh;
+  resize: vertical;
+}
+
+:is(.mwg-field-control:user-invalid, .mwg-field-control.user-invalid-fallback) {
+  box-shadow: inset 0 0 0 1.5px #b53a25;
+}
+
+.mwg-field-error {
+  display: none;
+}
+
+:is(.mwg-field-control:user-invalid, .mwg-field-control.user-invalid-fallback)
+  ~ .mwg-field-error {
+  display: flex;
+}
+
+/* Semantic <progress> spinner */
+@property --arc-start {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --arc-end {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --progress-dash-animation {
+  syntax: "*";
+  inherits: false;
+  initial-value: , mwg-progress-dash 3s ease-in-out infinite;
+}
+
+progress.mwg-spinner:indeterminate::-webkit-progress-bar {
+  display: none;
+  background: none;
+}
+
+progress.mwg-spinner:indeterminate::-webkit-progress-value {
+  display: none;
+  background: none;
+}
+
+progress.mwg-spinner:indeterminate::-moz-progress-bar {
+  display: none;
+  background: none;
+}
+
+progress.mwg-spinner:indeterminate::slider-fill {
+  display: none;
+  background: none;
+}
+
+progress.mwg-spinner:indeterminate {
+  --_from: calc(90deg + var(--arc-start, 0deg));
+  --_to: calc(90deg + var(--arc-end, 158deg));
+  --size: 2.5rem;
+  --thickness: 3px;
+  --spinner-color: #b53a25;
+  --track-color: light-dark(rgb(181 58 37 / 0.16), rgb(181 58 37 / 0.25));
+  --spinner-duration: 1.2s;
+  --_used-spinner-duration: var(--spinner-duration);
+
+  display: inline-block;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  appearance: none;
+  background: conic-gradient(
+      from var(--_from),
+      var(--spinner-color) calc(var(--_to) - var(--_from)),
+      transparent 0
+    )
+    var(--track-color);
+
+  animation: mwg-progress-spin var(--_used-spinner-duration) linear infinite
+    var(--progress-dash-animation, );
+}
+
+@supports (background-clip: border-area) {
+  progress.mwg-spinner:indeterminate {
+    background-clip: border-area;
+    border: var(--thickness) solid transparent;
+    background-origin: border-box;
+  }
+}
+
+@supports not (background-clip: border-area) {
+  progress.mwg-spinner:indeterminate {
+    --clip-boundary: calc(100% - var(--thickness));
+    mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
+    border: 0;
+  }
+}
+
+@media (forced-colors: active) {
+  progress.mwg-spinner:indeterminate {
+    forced-color-adjust: none;
+    --spinner-color: CanvasText;
+    --track-color: Canvas;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  progress.mwg-spinner:indeterminate {
+    --_used-spinner-duration: 6s;
+    --progress-dash-animation: ;
+    --arc-end: 158deg;
+  }
+}
+
+@keyframes mwg-progress-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes mwg-progress-dash {
+  from {
+    --arc-start: 0deg;
+    --arc-end: 3deg;
+  }
+  50% {
+    --arc-start: 100deg;
+    --arc-end: 358deg;
+  }
+  to {
+    --arc-start: 360deg;
+    --arc-end: 363deg;
+  }
+}
+
+/* Smooth transition helper */
+.transition-theme {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}

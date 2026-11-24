@@ -136,6 +136,9 @@ const messagesYueHant = {
     searchResultsCount: "{count} 條搜尋結果",
     senseCount: "{count} 義項",
     unannotatedPronunciation: "（未標注）",
+    viewModeAria: "切換顯示模式",
+    searchSuggestionsAria: "搜尋建議",
+    searchResultsTableAria: "搜尋結果列表",
   },
   wordPage: {
     metaTitleSuffix: "釋義",
@@ -146,6 +149,7 @@ const messagesYueHant = {
     backToSearchResultsForCount: "返去「{query}」搜尋結果（{count} 項）",
     searchCurrentWord: "搜尋「{word}」",
     viewCurrentWordResults: "睇「{word}」搜尋結果",
+    sourcesNavAria: "詞典來源切換",
   },
   dictCard: {
     placeholderWord: "有音無字",
@@ -317,11 +321,13 @@ const messagesYueHant = {
     titleField: {
       label: "標題",
       placeholder: "簡要描述你嘅問題或建議",
+      requiredError: "請填寫標題",
     },
     description: {
       label: "詳細描述",
       placeholder: "請詳細講下你遇到嘅問題、建議或者詞條錯誤...",
       clear: "清空內容",
+      requiredError: "請填寫詳細描述",
     },
     entry: {
       word: {

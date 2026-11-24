@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen bg-parchment dark:bg-stone-950 selection:bg-kapok-container selection:text-kapok"
+    class="min-h-screen min-h-[100dvh] bg-parchment dark:bg-stone-950 selection:bg-kapok-container selection:text-kapok"
   >
     <!-- Top bar -->
     <div
@@ -10,13 +10,14 @@
       <LanguageSwitcher />
     </div>
 
-    <main id="main-content" class="font-cjk-ui">
+    <main id="main-content" tabindex="-1" class="font-cjk-ui">
       <!-- Hero Section -->
       <section
         class="relative min-h-[580px] md:min-h-[680px] flex flex-col items-center justify-center px-6 pt-16 pb-28 overflow-hidden"
       >
         <!-- Background watermark character -->
         <div
+          aria-hidden="true"
           class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none select-none flex items-center justify-center"
         >
           <span
@@ -49,9 +50,10 @@
           </p>
 
           <!-- Search Bar -->
-          <div class="w-full max-w-4xl mx-auto group">
-            <div
+          <search class="w-full max-w-4xl mx-auto group block">
+            <form
               class="relative flex items-center bg-white dark:bg-stone-900 overflow-hidden transition-colors duration-300"
+              @submit.prevent="handleSearch"
             >
               <!-- Search icon -->
               <svg
@@ -59,6 +61,7 @@
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -67,23 +70,31 @@
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
+              <label :for="heroSearchInputId" class="sr-only">
+                {{ t("common.searchDictionaryAria") }}
+              </label>
               <input
+                :id="heroSearchInputId"
                 v-model="searchQuery"
-                type="text"
+                type="search"
+                enterkeyhint="search"
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
                 :placeholder="t('common.searchPlaceholder')"
-                class="w-full py-5 pl-14 pr-36 bg-transparent border-none focus:outline-none focus:ring-0 text-ink dark:text-stone-100 placeholder:text-graphite/40 dark:placeholder:text-stone-600 text-lg"
-                @keyup.enter="handleSearch"
+                class="w-full py-5 pl-14 pr-36 bg-transparent border-none text-ink dark:text-stone-100 placeholder:text-graphite/40 dark:placeholder:text-stone-600 text-lg"
+                @keydown.enter="handleHeroEnter"
               />
               <div class="absolute right-3 flex items-center gap-2">
                 <button
+                  type="submit"
                   class="bg-kapok text-white px-5 py-2.5 font-medium text-base hover:bg-kapok/90 transition-colors disabled:cursor-wait disabled:opacity-80 inline-flex items-center gap-2"
                   :disabled="isSearchNavigating"
                   :aria-busy="isSearchNavigating"
-                  @click="handleSearch"
                 >
                   <svg
                     v-if="isSearchNavigating"
-                    class="w-4 h-4 animate-spin"
+                    class="w-4 h-4 animate-spin motion-reduce:animate-none"
                     viewBox="0 0 24 24"
                     fill="none"
                     aria-hidden="true"
@@ -105,17 +116,19 @@
                   <span>{{ t("common.searchButton") }}</span>
                 </button>
               </div>
-            </div>
+            </form>
             <!-- Example badges + reverse toggle -->
             <div class="mt-4 flex flex-wrap justify-center items-center gap-3">
               <template v-if="enableReverseSearch">
                 <button
+                  type="button"
                   class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                   @click="searchExample('為什麼')"
                 >
                   為什麼
                 </button>
                 <button
+                  type="button"
                   class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                   @click="searchExample('奇怪')"
                 >
@@ -124,12 +137,14 @@
               </template>
               <template v-else>
                 <button
+                  type="button"
                   class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                   @click="searchExample('阿Sir')"
                 >
                   阿Sir
                 </button>
                 <button
+                  type="button"
                   class="px-4 py-1.5 bg-surface-low dark:bg-stone-800 rounded-full text-sm text-ink dark:text-stone-100 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green transition-colors"
                   @click="searchExample('aa3 soe4')"
                 >
@@ -143,14 +158,14 @@
                 <input
                   v-model="enableReverseSearch"
                   type="checkbox"
-                  class="w-4 h-4 text-kapok bg-white dark:bg-stone-800 border border-outline-soft dark:border-stone-600 rounded focus:ring-kapok/40"
+                  class="w-4 h-4 accent-kapok text-kapok bg-white dark:bg-stone-800 border border-outline-soft dark:border-stone-600 rounded focus:ring-kapok/40"
                 />
                 <span class="text-base text-ink dark:text-stone-100">{{
                   t("common.reverseSearch")
                 }}</span>
               </label>
             </div>
-          </div>
+          </search>
         </div>
       </section>
 
@@ -165,16 +180,18 @@
             </h2>
           </div>
           <button
+            type="button"
             @click="refreshRandomEntries"
             :disabled="loadingRandomEntries"
             class="text-kapok font-semibold flex items-center gap-2 hover:underline underline-offset-8 transition-all text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg
               v-if="loadingRandomEntries"
-              class="w-4 h-4 animate-spin"
+              class="w-4 h-4 animate-spin motion-reduce:animate-none"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -190,6 +207,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -206,9 +224,7 @@
           v-if="loadingRandomEntries && randomEntries.length === 0"
           class="text-center py-16"
         >
-          <div
-            class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-kapok border-t-transparent"
-          ></div>
+          <LoadingSpinner size="md" />
           <p class="text-graphite dark:text-stone-200 mt-4 text-sm">
             {{ t("common.loading") }}
           </p>
@@ -247,9 +263,7 @@
                   v-if="navigatingToId === featuredEntry.id"
                   class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
                 >
-                  <div
-                    class="animate-spin w-8 h-8 border-2 border-kapok border-t-transparent rounded-full"
-                  ></div>
+                  <LoadingSpinner size="md" />
                 </div>
 
                 <div>
@@ -286,6 +300,7 @@
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       stroke-linecap="round"
@@ -312,9 +327,7 @@
                     v-if="navigatingToId === entry.id"
                     class="absolute inset-0 bg-white/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
                   >
-                    <div
-                      class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
-                    ></div>
+                    <LoadingSpinner size="sm" />
                   </div>
 
                   <div
@@ -366,9 +379,7 @@
                       v-if="navigatingToId === currentMobileEntry.id"
                       class="absolute inset-0 bg-parchment/80 dark:bg-stone-900/80 flex items-center justify-center z-10"
                     >
-                      <div
-                        class="animate-spin w-6 h-6 border-2 border-kapok border-t-transparent rounded-full"
-                      ></div>
+                      <LoadingSpinner size="sm" />
                     </div>
                     <div class="text-center">
                       <h3
@@ -399,6 +410,7 @@
               <!-- Navigation -->
               <div class="flex justify-between items-center mt-4 px-2">
                 <button
+                  type="button"
                   @click="nextMobileEntry"
                   class="text-kapok font-medium flex items-center gap-1 text-sm"
                 >
@@ -408,6 +420,7 @@
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       stroke-linecap="round"
@@ -421,6 +434,7 @@
                   <button
                     v-for="(_, idx) in randomEntries"
                     :key="idx"
+                    type="button"
                     @click="selectMobileEntry(idx)"
                     class="flex items-center justify-center w-9 h-9 rounded-full transition-all"
                     :aria-label="
@@ -449,9 +463,7 @@
               class="absolute inset-0 flex items-center justify-center bg-parchment/72 dark:bg-stone-950/72 backdrop-blur-[2px] pointer-events-none"
             >
               <div class="text-center">
-                <div
-                  class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-kapok border-t-transparent"
-                ></div>
+                <LoadingSpinner size="md" />
                 <p class="text-graphite dark:text-stone-200 mt-4 text-sm">
                   {{ t("common.loading") }}
                 </p>
@@ -472,6 +484,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -591,6 +604,7 @@
         >
           <!-- Decorative background icon -->
           <div
+            aria-hidden="true"
             class="absolute top-0 right-0 p-10 opacity-[0.04] pointer-events-none"
           >
             <svg
@@ -598,6 +612,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -619,6 +634,7 @@
               <a
                 href="https://github.com/jyutjyucom/jyutjyu"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 bg-kapok text-white px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/90 transition-colors"
               >
                 <Github class="w-4 h-4" aria-hidden="true" />
@@ -627,6 +643,7 @@
               <a
                 href="https://github.com/jyutjyucom/jyutjyu/blob/main/docs/CSV_GUIDE.md"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 text-kapok border border-kapok/20 px-6 py-3 font-bold text-sm tracking-wide hover:bg-kapok/10 hover:border-kapok dark:hover:bg-kapok/10 dark:hover:border-kapok transition-colors bg-transparent"
               >
                 <Database class="w-4 h-4" aria-hidden="true" />
@@ -674,7 +691,14 @@ const {
 } = useAppRoutes();
 const { navigateFromSearchInput } = useSearchNavigation();
 
+const heroSearchInputId = useId();
 const searchQuery = ref("");
+
+const handleHeroEnter = (event: KeyboardEvent) => {
+  if (event.isComposing || event.keyCode === 229) {
+    event.preventDefault();
+  }
+};
 const enableReverseSearch = ref(false);
 const isSearchNavigating = ref(false);
 
@@ -716,9 +740,9 @@ const sortedDictionaries = computed(() => {
   const dictionaries = dictionariesData.value?.dictionaries || [];
   // 使用固定的 locale 'zh-CN' 来确保排序在 SSR 和客户端一致
   const sortLocale = "zh-CN";
-  return [...dictionaries]
+  return dictionaries
     .map(localizeDictionary)
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成"相等"(返回 0)，
       // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
       const cmp = a.lName.localeCompare(b.lName, sortLocale);
@@ -1016,16 +1040,56 @@ useHead(() => ({
 
 <style scoped>
 .random-batch-stage {
-  transition:
-    opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  transition: opacity 180ms ease;
 }
 
 .random-batch-stage.is-hidden {
   opacity: 0;
-  transform: translate3d(0, 12px, 0);
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .random-batch-stage {
+    transition:
+      opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .random-batch-stage.is-hidden {
+    transform: translate3d(0, 12px, 0);
+  }
+
+  .mobile-card-next-enter-active,
+  .mobile-card-next-leave-active,
+  .mobile-card-prev-enter-active,
+  .mobile-card-prev-leave-active {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mobile-card-next-leave-active,
+  .mobile-card-prev-leave-active {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .mobile-card-next-enter-from,
+  .mobile-card-prev-leave-to {
+    transform: translate3d(100%, 0, 0);
+  }
+
+  .mobile-card-next-leave-to,
+  .mobile-card-prev-enter-from {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  .mobile-card-next-enter-to,
+  .mobile-card-next-leave-from,
+  .mobile-card-prev-enter-to,
+  .mobile-card-prev-leave-from {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .random-batch-spinner-enter-active,
@@ -1036,38 +1100,5 @@ useHead(() => ({
 .random-batch-spinner-enter-from,
 .random-batch-spinner-leave-to {
   opacity: 0;
-}
-
-.mobile-card-next-enter-active,
-.mobile-card-next-leave-active,
-.mobile-card-prev-enter-active,
-.mobile-card-prev-leave-active {
-  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.mobile-card-next-leave-active,
-.mobile-card-prev-leave-active {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  pointer-events: none;
-}
-
-.mobile-card-next-enter-from,
-.mobile-card-prev-leave-to {
-  transform: translate3d(100%, 0, 0);
-}
-
-.mobile-card-next-leave-to,
-.mobile-card-prev-enter-from {
-  transform: translate3d(-100%, 0, 0);
-}
-
-.mobile-card-next-enter-to,
-.mobile-card-next-leave-from,
-.mobile-card-prev-enter-to,
-.mobile-card-prev-leave-from {
-  transform: translate3d(0, 0, 0);
 }
 </style>

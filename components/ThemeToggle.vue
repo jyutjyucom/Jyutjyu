@@ -1,17 +1,18 @@
 <template>
   <button
     type="button"
-    class="inline-flex items-center justify-center w-9 h-9 transition-colors focus:outline-none"
+    class="inline-flex items-center justify-center w-9 h-9 transition-colors"
     :class="buttonClass"
     :title="title"
+    :aria-label="title"
     @click="cycleTheme"
   >
     <!-- 亮色模式图标 -->
-    <Sun v-if="theme === 'light'" class="w-4 h-4 text-graphite" />
+    <Sun v-if="theme === 'light'" class="w-4 h-4 text-graphite" aria-hidden="true" />
     <!-- 暗色模式图标 -->
-    <Moon v-else-if="theme === 'dark'" class="w-4 h-4 text-stone-400" />
+    <Moon v-else-if="theme === 'dark'" class="w-4 h-4 text-stone-400" aria-hidden="true" />
     <!-- 系统模式图标 -->
-    <Monitor v-else class="w-4 h-4 text-graphite dark:text-stone-400" />
+    <Monitor v-else class="w-4 h-4 text-graphite dark:text-stone-400" aria-hidden="true" />
     <span class="sr-only">{{ title }}</span>
   </button>
 </template>

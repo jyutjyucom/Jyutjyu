@@ -16,6 +16,7 @@
               v-for="scope in scopeTabs"
               :key="scope.id"
               :to="buildScopeLink(scope.id)"
+              :aria-current="activeScopeId === scope.id ? 'page' : undefined"
               active-class=""
               exact-active-class=""
               class="flex items-center justify-between gap-3 px-4 py-3 text-base transition-all border-l-4"
@@ -48,13 +49,22 @@
           class="bg-surface-low dark:bg-stone-900 p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center gap-6"
         >
           <div v-if="dictionaryInfo.cover" class="flex-shrink-0">
-            <img
-              :src="dictionaryInfo.cover"
-              :alt="dictionaryInfo.name"
-              loading="lazy"
-              decoding="async"
-              class="w-24 md:w-32 max-h-40 object-contain"
-            />
+            <picture>
+              <source
+                v-if="coverWebpSrc"
+                :srcset="coverWebpSrc"
+                type="image/webp"
+              />
+              <img
+                :src="dictionaryInfo.cover"
+                :alt="dictionaryInfo.name"
+                width="128"
+                height="160"
+                loading="lazy"
+                decoding="async"
+                class="w-24 md:w-32 max-h-40 object-contain"
+              />
+            </picture>
           </div>
           <div class="flex-1 min-w-0">
             <h2
@@ -129,50 +139,50 @@
         </div>
 
         <div class="lg:hidden -mx-6 md:-mx-8 px-6 md:px-8 py-2">
-          <button
-            :aria-label="t('common.selectDictionaryAria')"
-            :aria-expanded="mobileAccordionOpen"
-            class="w-full px-4 py-3 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-base font-medium flex items-center justify-between"
-            @click="mobileAccordionOpen = !mobileAccordionOpen"
-          >
-            <span>{{ activeScopeLabel }}</span>
-            <svg
-              class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform"
-              :class="mobileAccordionOpen ? 'rotate-180' : ''"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <details ref="mobileScopeDetailsEl" class="mwg-details">
+            <summary
+              :aria-label="t('common.selectDictionaryAria')"
+              class="w-full px-4 py-3 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100 text-base font-medium flex items-center justify-between"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          <div
-            v-show="mobileAccordionOpen"
-            class="bg-surface-low dark:bg-stone-900 border-t border-outline-soft/20 dark:border-stone-800"
-          >
-            <NuxtLink
-              v-for="scope in scopeTabs"
-              :key="`mobile:${scope.id}`"
-              :to="buildScopeLink(scope.id)"
-              class="flex items-center justify-between px-4 py-2.5 text-sm transition-colors"
-              :class="
-                activeScopeId === scope.id
-                  ? 'text-kapok font-semibold bg-kapok/5'
-                  : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'
-              "
-              @click="mobileAccordionOpen = false"
+              <span>{{ activeScopeLabel }}</span>
+              <svg
+                class="w-5 h-5 text-graphite dark:text-stone-200 transition-transform mwg-details-chevron"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </summary>
+            <div
+              class="bg-surface-low dark:bg-stone-900 border-t border-outline-soft/20 dark:border-stone-800"
             >
-              <span>{{ scope.label }}</span>
-              <span class="text-xs text-graphite/60 dark:text-stone-200">{{
-                formatCount(scope.total)
-              }}</span>
-            </NuxtLink>
-          </div>
+              <NuxtLink
+                v-for="scope in scopeTabs"
+                :key="`mobile:${scope.id}`"
+                :to="buildScopeLink(scope.id)"
+                :aria-current="activeScopeId === scope.id ? 'page' : undefined"
+                class="flex items-center justify-between px-4 py-2.5 text-sm transition-colors"
+                :class="
+                  activeScopeId === scope.id
+                    ? 'text-kapok font-semibold bg-kapok/5'
+                    : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'
+                "
+                @click="closeMobileScopeDetails"
+              >
+                <span>{{ scope.label }}</span>
+                <span class="text-xs text-graphite/60 dark:text-stone-200">{{
+                  formatCount(scope.total)
+                }}</span>
+              </NuxtLink>
+            </div>
+          </details>
         </div>
 
         <div class="bg-surface-low dark:bg-stone-900 px-4 py-3">
@@ -231,6 +241,7 @@
               >
                 <NuxtLink
                   v-if="browseData.page > 1"
+                  rel="prev"
                   :to="
                     buildScopePath(
                       activeScopeId,
@@ -243,6 +254,7 @@
                 >
                 <span
                   v-else
+                  aria-disabled="true"
                   class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                   >{{ t("browse.prevPage") }}</span
                 >
@@ -253,6 +265,7 @@
                   <input
                     v-model="pageInput"
                     type="number"
+                    inputmode="numeric"
                     min="1"
                     :max="browseData.totalPages"
                     :disabled="loading"
@@ -263,7 +276,7 @@
                         total: browseData.totalPages,
                       })
                     "
-                    @keydown.enter.prevent="commitPageInput"
+                    @keydown.enter="handlePageInputKeydown"
                     @blur="commitPageInput"
                   />
                   <span
@@ -273,6 +286,7 @@
                 </label>
                 <NuxtLink
                   v-if="browseData.page < browseData.totalPages"
+                  rel="next"
                   :to="
                     buildScopePath(
                       activeScopeId,
@@ -285,6 +299,7 @@
                 >
                 <span
                   v-else
+                  aria-disabled="true"
                   class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                   >{{ t("browse.nextPage") }}</span
                 >
@@ -339,6 +354,7 @@
                 <input
                   v-model="pageInput"
                   type="number"
+                  inputmode="numeric"
                   min="1"
                   :max="browseData.totalPages"
                   :disabled="loading"
@@ -349,7 +365,7 @@
                       total: browseData.totalPages,
                     })
                   "
-                  @keydown.enter.prevent="commitPageInput"
+                  @keydown.enter="handlePageInputKeydown"
                   @blur="commitPageInput"
                 />
                 <span
@@ -362,6 +378,7 @@
               <div class="flex items-center gap-3">
                 <NuxtLink
                   v-if="browseData.page > 1"
+                  rel="prev"
                   :to="
                     buildScopePath(
                       activeScopeId,
@@ -374,11 +391,13 @@
                 >
                 <span
                   v-else
+                  aria-disabled="true"
                   class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                   >{{ t("browse.prevPage") }}</span
                 >
                 <NuxtLink
                   v-if="browseData.page < browseData.totalPages"
+                  rel="next"
                   :to="
                     buildScopePath(
                       activeScopeId,
@@ -391,6 +410,7 @@
                 >
                 <span
                   v-else
+                  aria-disabled="true"
                   class="flex-1 text-center px-3 py-2 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-white dark:bg-stone-800 cursor-not-allowed"
                   >{{ t("browse.nextPage") }}</span
                 >
@@ -405,9 +425,7 @@
             class="bg-surface-low dark:bg-stone-900 min-h-[18rem] flex items-center justify-center"
           >
             <div class="text-center text-graphite/60 dark:text-stone-200">
-              <div
-                class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-kapok border-t-transparent"
-              ></div>
+              <LoadingSpinner size="lg" />
               <p class="mt-3 text-sm">{{ t("common.loading") }}</p>
             </div>
           </div>
@@ -421,7 +439,7 @@
               :key="headword"
               :to="wordPath(headword)"
               :prefetch="false"
-              class="px-2 py-1.5 sm:px-3 sm:py-2.5 text-center text-sm sm:text-base font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-high dark:hover:bg-stone-800 transition-colors truncate"
+              class="browse-headword-link px-2 py-1.5 sm:px-3 sm:py-2.5 text-center text-sm sm:text-base font-medium text-ink dark:text-stone-100 hover:text-kapok hover:bg-surface-high dark:hover:bg-stone-800 transition-colors truncate"
             >
               {{ headword }}
             </NuxtLink>
@@ -610,7 +628,20 @@ const buildScopeLink = (scopeId: string) => {
   return buildScopePath(scopeId, 1, props.browseData.pageSize);
 };
 
-const mobileAccordionOpen = ref(false);
+const mobileScopeDetailsEl = ref<HTMLDetailsElement | null>(null);
+const closeMobileScopeDetails = () => {
+  if (mobileScopeDetailsEl.value) {
+    mobileScopeDetailsEl.value.open = false;
+  }
+};
+
+const coverWebpSrc = computed(() => {
+  const cover = props.dictionaryInfo?.cover;
+  if (!cover || !/^\/[^/]+\.(png|jpe?g)$/i.test(cover)) {
+    return "";
+  }
+  return cover.replace(/\.(png|jpe?g)$/i, ".webp");
+});
 
 const handlePageSizeChange = (event: Event) => {
   const target = event.target as HTMLSelectElement | null;
@@ -666,4 +697,17 @@ const commitPageInput = () => {
     ),
   );
 };
+
+const handlePageInputKeydown = (event: KeyboardEvent) => {
+  if (event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  commitPageInput();
+};
 </script>
+
+<style scoped>
+.browse-headword-link:nth-child(n + 41) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 44px;
+}
+</style>

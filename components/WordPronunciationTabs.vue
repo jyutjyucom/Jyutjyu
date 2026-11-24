@@ -15,8 +15,10 @@
         >
           <div v-for="(tab, index) in tabs" :key="tab.id" class="inline-flex">
             <button
+              :ref="(el) => setTabButtonRef(el, index)"
               type="button"
               role="tab"
+              :tabindex="tab.id === modelValue ? 0 : -1"
               class="inline-flex items-center px-4 py-1.5 text-base transition-all whitespace-nowrap"
               :class="
                 tab.id === modelValue
@@ -40,6 +42,7 @@
         class="flex items-center gap-2 px-3 py-2 bg-surface-low dark:bg-stone-900 text-ink dark:text-stone-100"
       >
         <button
+          type="button"
           :aria-label="t('common.selectPronunciationAria')"
           :aria-expanded="accordionOpen"
           class="flex-1 text-left text-sm font-medium flex items-center justify-between"
@@ -52,6 +55,7 @@
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               stroke-linecap="round"
@@ -76,30 +80,28 @@
               : 'text-graphite dark:text-stone-400 hover:bg-surface-high dark:hover:bg-stone-800'
           "
         >
-          <div
-            role="button"
-            tabindex="0"
-            class="w-full px-3 py-2 text-left flex items-center gap-1.5"
-            @click="selectTab(tab.id)"
-            @keydown.enter.prevent="selectTab(tab.id)"
-            @keydown.space.prevent="selectTab(tab.id)"
-          >
-            <span class="min-w-0 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+          <div class="w-full px-3 py-2 flex items-center gap-1.5">
+            <button
+              type="button"
+              class="min-w-0 flex-1 text-left flex flex-wrap items-center gap-x-1.5 gap-y-0.5"
+              :aria-pressed="tab.id === modelValue"
+              @click="selectTab(tab.id)"
+            >
               <span class="font-semibold">{{ tab.label }}</span>
-              <TtsSpeakerButton
-                v-if="tab.pronunciation"
-                :label="tab.pronunciation.label"
-                :normalized="tab.pronunciation.normalized"
-                :tts-eligible="tab.pronunciation.ttsEligible"
-                button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
-                icon-class="w-3.5 h-3.5"
-              />
               <span
                 class="text-xs font-normal text-graphite/60 dark:text-stone-400"
               >
                 {{ t("dictCard.collectedBy", { count: tab.dictionaryCount }) }}
               </span>
-            </span>
+            </button>
+            <TtsSpeakerButton
+              v-if="tab.pronunciation"
+              :label="tab.pronunciation.label"
+              :normalized="tab.pronunciation.normalized"
+              :tts-eligible="tab.pronunciation.ttsEligible"
+              button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok shrink-0"
+              icon-class="w-3.5 h-3.5"
+            />
           </div>
         </div>
       </div>
@@ -136,6 +138,18 @@ const emit = defineEmits<{
 }>();
 
 const accordionOpen = ref(true);
+const tabButtonRefs = ref<(HTMLButtonElement | null)[]>([]);
+
+onBeforeUpdate(() => {
+  tabButtonRefs.value = [];
+});
+
+const setTabButtonRef = (
+  el: Element | ComponentPublicInstance | null,
+  index: number,
+) => {
+  tabButtonRefs.value[index] = el instanceof HTMLButtonElement ? el : null;
+};
 
 const activeTab = computed(
   () => props.tabs.find((tab) => tab.id === props.modelValue) || props.tabs[0],
@@ -181,6 +195,7 @@ const onTabKeydown = (event: KeyboardEvent, currentIndex: number) => {
   const nextTab = props.tabs[nextIndex];
   if (nextTab) {
     emit("update:modelValue", nextTab.id);
+    tabButtonRefs.value[nextIndex]?.focus();
   }
 };
 </script>

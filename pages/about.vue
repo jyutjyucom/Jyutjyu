@@ -1,6 +1,10 @@
 <template>
-  <div class="min-h-screen bg-parchment dark:bg-stone-950">
-    <div class="max-w-4xl mx-auto px-6 md:px-8 py-16 font-cjk-ui">
+  <div class="min-h-screen min-h-[100dvh] bg-parchment dark:bg-stone-950">
+    <main
+      id="main-content"
+      tabindex="-1"
+      class="max-w-4xl mx-auto px-6 md:px-8 py-16 font-cjk-ui prose-pretty"
+    >
       <!-- 页面标题 -->
       <div class="mb-12">
         <div class="flex justify-end items-center gap-3 mb-6">
@@ -35,6 +39,7 @@
             <a
               href="https://github.com/jyutjyucom/jyutjyu"
               target="_blank"
+              rel="noopener noreferrer"
               class="inline-flex items-center gap-2 px-4 py-2 bg-ink dark:bg-stone-700 text-white hover:bg-ink/80 dark:hover:bg-stone-600 transition-colors whitespace-nowrap flex-shrink-0"
             >
               <Github class="w-5 h-5" aria-hidden="true" />
@@ -66,6 +71,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -109,6 +115,7 @@
                   href="https://github.com/jyutjyucom/jyutjyu/issues"
                   class="text-kapok hover:text-kapok/80 hover:underline"
                   target="_blank"
+              rel="noopener noreferrer"
                   >GitHub Issue</a
                 >
               </p>
@@ -185,6 +192,7 @@
                   href="https://words.hk/base/hoifong/"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium"
                   target="_blank"
+              rel="noopener noreferrer"
                   >Non-Commercial Open Data License 1.0</a
                 >{{ t("about.community.wordsLicenseNote") }}
               </p>
@@ -236,6 +244,7 @@
                   href="https://creativecommons.org/licenses/by-sa/4.0/"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium"
                   target="_blank"
+              rel="noopener noreferrer"
                   >CC BY-SA 4.0</a
                 >{{ t("about.community.wiktLicenseNote") }}
               </p>
@@ -292,6 +301,7 @@
                   href="https://creativecommons.org/licenses/by-nc/4.0/"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium"
                   target="_blank"
+              rel="noopener noreferrer"
                   >CC BY-NC 4.0</a
                 >
               </p>
@@ -352,6 +362,7 @@
                   href="https://www.gnu.org/licenses/gpl-3.0.html"
                   class="text-kapok hover:text-kapok/80 hover:underline font-medium"
                   target="_blank"
+              rel="noopener noreferrer"
                   >GPL-3.0</a
                 >{{ t("about.original.qzLicenseNote") }}
               </p>
@@ -442,6 +453,7 @@
                     href="https://github.com/jyutjyucom/jyutjyu/issues"
                     class="text-kapok hover:text-kapok/80 hover:underline"
                     target="_blank"
+              rel="noopener noreferrer"
                   >
                     github.com/jyutjyucom/jyutjyu/issues
                   </a>
@@ -452,6 +464,7 @@
                     href="https://github.com/jyutjyucom/jyutjyu/discussions"
                     class="text-kapok hover:text-kapok/80 hover:underline"
                     target="_blank"
+              rel="noopener noreferrer"
                   >
                     github.com/jyutjyucom/jyutjyu/discussions
                   </a>
@@ -515,6 +528,7 @@
             <a
               href="https://github.com/jyutjyucom/jyutjyu/blob/main/CONTRIBUTING.md"
               target="_blank"
+              rel="noopener noreferrer"
               class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors font-medium"
             >
               {{ t("about.contribute.guide") }}
@@ -522,6 +536,7 @@
             <a
               href="https://github.com/jyutjyucom/jyutjyu/blob/main/docs/CSV_GUIDE.md"
               target="_blank"
+              rel="noopener noreferrer"
               class="px-6 py-3 border border-kapok text-kapok hover:bg-kapok/10 transition-colors font-medium"
             >
               {{ t("about.contribute.csvGuide") }}
@@ -529,7 +544,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </main>
 
     <SiteFooter />
   </div>

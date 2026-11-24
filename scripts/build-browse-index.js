@@ -25,7 +25,7 @@ const getPrimaryJyutping = (entry) => {
 };
 
 const sortHeadwords = (headwords) =>
-  [...headwords].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  headwords.toSorted((a, b) => a.localeCompare(b, "zh-Hant"));
 
 const sortByJyutping = (headwordMap, jyutpingMap) => {
   const rows = Array.from(headwordMap.entries()).map(

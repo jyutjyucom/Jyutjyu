@@ -12,6 +12,7 @@
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -33,21 +34,21 @@
       </div>
       <!-- Mobile: compact cards -->
       <div class="md:hidden space-y-2">
-        <div
+        <article
           v-for="group in displayedGroupedResults.exactMatches"
           :key="group.key"
-          class="bg-surface-low dark:bg-stone-900 px-3 py-2.5 cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
-          role="link"
-          tabindex="0"
-          @click="openWordPage(group, $event)"
-          @keydown.enter.prevent="openWordPage(group, $event)"
+          class="relative bg-surface-low dark:bg-stone-900 px-3 py-2.5 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
         >
           <div class="flex items-baseline gap-2 mb-1">
-            <span
-              class="text-lg font-sung-content font-semibold text-ink dark:text-parchment"
-              >{{ group.primary.headword.display }}</span
+            <NuxtLink
+              :to="getWordPath(group)"
+              class="text-lg font-sung-content font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors after:absolute after:inset-0"
             >
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              {{ group.primary.headword.display }}
+            </NuxtLink>
+            <div
+              class="relative z-10 flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0"
+            >
               <PronunciationWithTts
                 v-for="item in getGroupPronunciationItems(group)"
                 :key="`${group.key}:${item.normalized}`"
@@ -70,31 +71,38 @@
               >{{ source }}</span
             >
           </div>
-        </div>
+        </article>
       </div>
       <!-- Desktop: table -->
       <div
         class="hidden md:block bg-surface-low dark:bg-stone-900 overflow-hidden"
       >
         <table class="w-full">
+          <caption class="sr-only">
+            {{ t("common.searchResultsTableAria") }}
+          </caption>
           <thead class="bg-surface-high dark:bg-stone-800">
             <tr>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.wordColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.jyutpingColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.definitionColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.sourceColumn") }}
@@ -110,10 +118,7 @@
             >
               <tr
                 class="hover:bg-surface-high dark:hover:bg-stone-800 cursor-pointer transition-colors"
-                role="link"
-                tabindex="0"
                 @click="openWordPage(group, $event)"
-                @keydown.enter.prevent="openWordPage(group, $event)"
               >
                 <td class="px-3 whitespace-nowrap py-2">
                   <NuxtLink
@@ -178,6 +183,7 @@
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -214,21 +220,21 @@
       </div>
       <!-- Mobile: compact cards -->
       <div class="md:hidden space-y-2">
-        <div
+        <article
           v-for="group in displayedGroupedResults.otherResults"
           :key="group.key"
-          class="bg-surface-low dark:bg-stone-900 px-3 py-2.5 cursor-pointer hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
-          role="link"
-          tabindex="0"
-          @click="openWordPage(group, $event)"
-          @keydown.enter.prevent="openWordPage(group, $event)"
+          class="relative bg-surface-low dark:bg-stone-900 px-3 py-2.5 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors"
         >
           <div class="flex items-baseline gap-2 mb-1">
-            <span
-              class="text-lg font-sung-content font-semibold text-ink dark:text-parchment"
-              >{{ group.primary.headword.display }}</span
+            <NuxtLink
+              :to="getWordPath(group)"
+              class="text-lg font-sung-content font-semibold text-ink dark:text-parchment hover:text-kapok transition-colors after:absolute after:inset-0"
             >
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              {{ group.primary.headword.display }}
+            </NuxtLink>
+            <div
+              class="relative z-10 flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0"
+            >
               <PronunciationWithTts
                 v-for="item in getGroupPronunciationItems(group)"
                 :key="`${group.key}:${item.normalized}`"
@@ -251,33 +257,40 @@
               >{{ source }}</span
             >
           </div>
-        </div>
+        </article>
       </div>
       <!-- Desktop: table -->
       <div
         class="hidden md:block bg-surface-low dark:bg-stone-900 overflow-hidden"
       >
         <table class="w-full">
+          <caption class="sr-only">
+            {{ t("common.searchResultsTableAria") }}
+          </caption>
           <thead
             class="bg-surface-low dark:bg-stone-800 border-b border-outline-soft/20 dark:border-stone-700"
           >
             <tr>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.wordColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.jyutpingColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.definitionColumn") }}
               </th>
               <th
+                scope="col"
                 class="px-3 text-left text-base font-medium uppercase tracking-wider py-2 text-ink dark:text-parchment"
               >
                 {{ t("common.sourceColumn") }}
@@ -293,10 +306,7 @@
             >
               <tr
                 class="hover:bg-surface-high dark:hover:bg-stone-800 cursor-pointer transition-colors"
-                role="link"
-                tabindex="0"
                 @click="openWordPage(group, $event)"
-                @keydown.enter.prevent="openWordPage(group, $event)"
               >
                 <td class="px-3 whitespace-nowrap py-2">
                   <NuxtLink

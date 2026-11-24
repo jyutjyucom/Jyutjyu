@@ -1,80 +1,102 @@
 export type Theme = "light" | "dark" | "system";
 
 const THEME_KEY = "jyutjyu-theme";
+const LIGHT_THEME_COLOR = "#fbf9f4";
+const DARK_THEME_COLOR = "#0c0a09";
+
+let listenersBound = false;
+
+const isValidTheme = (value: string | null): value is Theme =>
+  value === "light" || value === "dark" || value === "system";
 
 export function useTheme() {
-  const theme = useState<Theme>("theme", () => "system");
+  const theme = useState<Theme>("theme", () => "light");
   const isDark = useState<boolean>("isDark", () => false);
 
-  // 检测系统偏好
   const getSystemPreference = (): boolean => {
-    if (process.server) return false;
+    if (import.meta.server) return false;
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   };
 
-  // 应用主题到 DOM
-  const applyTheme = (isDarkMode: boolean) => {
-    if (process.server) return;
+  const resolveIsDark = (activeTheme: Theme): boolean => {
+    return activeTheme === "system"
+      ? getSystemPreference()
+      : activeTheme === "dark";
+  };
+
+  const applyTheme = (isDarkMode: boolean, activeTheme: Theme) => {
+    if (import.meta.server) return;
 
     isDark.value = isDarkMode;
+    document.documentElement.classList.toggle("dark", isDarkMode);
 
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+    if (metaColorScheme) {
+      metaColorScheme.setAttribute(
+        "content",
+        activeTheme === "system" ? "light dark" : activeTheme,
+      );
     }
 
-    // 更新 meta theme-color
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         "content",
-        isDarkMode ? "#0f172a" : "#ffffff",
+        isDarkMode ? DARK_THEME_COLOR : LIGHT_THEME_COLOR,
       );
     }
   };
 
-  // 设置主题
+  const readStoredTheme = (): Theme => {
+    if (import.meta.server) return "light";
+    try {
+      const saved = localStorage.getItem(THEME_KEY);
+      return isValidTheme(saved) ? saved : "light";
+    } catch {
+      return "light";
+    }
+  };
+
   const setTheme = (newTheme: Theme) => {
     theme.value = newTheme;
 
-    if (process.client) {
-      localStorage.setItem(THEME_KEY, newTheme);
-
-      if (newTheme === "system") {
-        applyTheme(getSystemPreference());
-      } else {
-        applyTheme(newTheme === "dark");
+    if (import.meta.client) {
+      try {
+        localStorage.setItem(THEME_KEY, newTheme);
+      } catch {
+        // Ignore storage errors when site storage is restricted.
       }
+      applyTheme(resolveIsDark(newTheme), newTheme);
     }
   };
 
-  // 初始化主题
   const initTheme = () => {
-    if (process.server) return;
+    if (import.meta.server) return;
 
-    // 读取保存的主题或默认使用 system
-    const savedTheme = localStorage.getItem(THEME_KEY) as Theme | null;
-    const initialTheme = savedTheme || "light";
-
+    const initialTheme = readStoredTheme();
     theme.value = initialTheme;
+    applyTheme(resolveIsDark(initialTheme), initialTheme);
 
-    if (initialTheme === "system") {
-      applyTheme(getSystemPreference());
-    } else {
-      applyTheme(initialTheme === "dark");
-    }
+    if (listenersBound) return;
+    listenersBound = true;
 
-    // 监听系统主题变化
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    mediaQuery.addEventListener("change", (e) => {
+    mediaQuery.addEventListener("change", (event) => {
       if (theme.value === "system") {
-        applyTheme(e.matches);
+        applyTheme(event.matches, "system");
       }
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key !== THEME_KEY) return;
+      const syncedTheme = isValidTheme(event.newValue)
+        ? event.newValue
+        : "light";
+      theme.value = syncedTheme;
+      applyTheme(resolveIsDark(syncedTheme), syncedTheme);
     });
   };
 
-  // 切换主题（light -> dark -> system -> light）
   const cycleTheme = () => {
     const cycle: Theme[] = ["light", "dark", "system"];
     const currentIndex = cycle.indexOf(theme.value);

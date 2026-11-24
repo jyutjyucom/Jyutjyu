@@ -60,7 +60,7 @@ const getBaseExactForms = (entry) => {
 };
 
 const sortEntries = (entries) =>
-  [...entries].sort((a, b) => String(a?.id || "").localeCompare(String(b?.id || "")));
+  entries.toSorted((a, b) => String(a?.id || "").localeCompare(String(b?.id || "")));
 
 const loadDictionaryFiles = async () => {
   const parsed = await readJsonFile(DICTIONARY_INDEX_PATH);

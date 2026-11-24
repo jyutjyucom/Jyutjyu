@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-parchment dark:bg-stone-950">
+  <div class="min-h-screen min-h-[100dvh] bg-parchment dark:bg-stone-950">
     <AppHeader
       v-model:search-query="searchQuery"
       v-model:reverse-search="enableReverseSearch"
@@ -10,12 +10,11 @@
 
     <main
       id="main-content"
+      tabindex="-1"
       class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-ui"
     >
       <div v-if="pending" class="text-center py-16">
-        <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
-        ></div>
+        <LoadingSpinner size="lg" />
         <p class="text-graphite dark:text-stone-400 mt-4">
           {{ t("common.loading") }}
         </p>
@@ -121,7 +120,10 @@
           <div class="hidden lg:grid lg:grid-cols-12 gap-8">
             <aside class="lg:col-span-4 xl:col-span-3">
               <div class="sticky" :style="{ top: `${appHeaderHeight + 24}px` }">
-                <nav class="space-y-1">
+                <nav
+                  class="space-y-1"
+                  :aria-label="t('wordPage.sourcesNavAria')"
+                >
                   <button
                     v-for="source in activePronunciationGroup.sources"
                     :key="`${activePronunciationGroup.id}:${source.id}`"
@@ -131,6 +133,9 @@
                       activeSourceId === source.id
                         ? 'bg-surface-high dark:bg-stone-800 border-l-4 border-l-kapok'
                         : 'hover:bg-surface-low dark:hover:bg-stone-800/50 border-l-4 border-l-transparent'
+                    "
+                    :aria-current="
+                      activeSourceId === source.id ? 'true' : undefined
                     "
                     @click="selectDesktopSource(source.id)"
                   >
@@ -197,6 +202,7 @@
                 sourceIdx === activePronunciationGroup.sources.length - 1
               "
               @toggle="toggleMobileSource(source.id)"
+              @expand="expandMobileSource(source.id)"
             />
           </div>
         </div>
@@ -216,32 +222,36 @@
           </div>
 
           <div>
-            <h3
+            <h2
               class="text-2xl md:text-3xl font-headline font-bold text-ink dark:text-parchment mb-8"
             >
               {{ t("dictCard.relatedPhrases") }}
-            </h3>
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <NuxtLink
+              <article
                 v-for="group in relatedWords.slice(0, 8)"
                 :key="group.key"
-                :to="
-                  wordPath(
-                    group.primary.headword.display ||
-                      group.primary.headword.normalized,
-                  )
-                "
-                class="p-5 bg-surface-low dark:bg-stone-900 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 group"
+                class="relative p-5 bg-surface-low dark:bg-stone-900 hover:bg-surface-high dark:hover:bg-stone-800 transition-colors duration-500 group"
               >
                 <div class="flex justify-between items-start">
                   <div>
                     <p
                       class="font-sung-content text-2xl text-ink dark:text-parchment group-hover:text-kapok transition-colors"
                     >
-                      {{
-                        group.primary.headword.display ||
-                        group.primary.headword.normalized
-                      }}
+                      <NuxtLink
+                        :to="
+                          wordPath(
+                            group.primary.headword.display ||
+                              group.primary.headword.normalized,
+                          )
+                        "
+                        class="after:absolute after:inset-0"
+                      >
+                        {{
+                          group.primary.headword.display ||
+                          group.primary.headword.normalized
+                        }}
+                      </NuxtLink>
                     </p>
                     <div class="mt-2 text-sm text-graphite dark:text-stone-200">
                       <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -251,7 +261,7 @@
                           )"
                           :key="`${group.key}:${item.normalized}`"
                           :item="item"
-                          wrapper-class="flex items-center gap-1"
+                          wrapper-class="relative z-10 flex items-center gap-1"
                           label-class="text-kapok font-semibold"
                           button-class="inline-flex items-center justify-center rounded-full p-1 text-graphite dark:text-stone-200 transition-colors hover:text-kapok"
                           icon-class="w-3.5 h-3.5"
@@ -284,6 +294,7 @@
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       stroke-linecap="round"
@@ -293,7 +304,7 @@
                     />
                   </svg>
                 </div>
-              </NuxtLink>
+              </article>
             </div>
           </div>
         </template>
@@ -838,7 +849,7 @@ const isMobileSourceExpanded = (tabId: string, sourceId: string) => {
   return mobileExpandedSources.value[tabId]?.includes(sourceId) || false;
 };
 
-const toggleMobileSource = (sourceId: string) => {
+const updateMobileSource = (sourceId: string, expandOnly: boolean) => {
   const group = activePronunciationGroup.value;
   if (!group) return;
 
@@ -849,6 +860,7 @@ const toggleMobileSource = (sourceId: string) => {
 
   const idx = current.indexOf(sourceId);
   if (idx >= 0) {
+    if (expandOnly) return;
     current.splice(idx, 1);
   } else {
     current.push(sourceId);
@@ -873,6 +885,12 @@ const toggleMobileSource = (sourceId: string) => {
 
   void syncRouteQuery();
 };
+
+const toggleMobileSource = (sourceId: string) =>
+  updateMobileSource(sourceId, false);
+
+const expandMobileSource = (sourceId: string) =>
+  updateMobileSource(sourceId, true);
 
 const handleSearch = () => {
   const query = searchQuery.value.trim();

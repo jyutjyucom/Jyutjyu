@@ -5,6 +5,7 @@
   >
     <NuxtLink
       v-if="page > 1"
+      rel="prev"
       :to="pageLink(page - 1)"
       class="px-3 py-1.5 text-sm font-medium text-archive-green bg-surface-low dark:bg-stone-800 hover:bg-surface-high dark:hover:bg-stone-700 transition-colors"
     >
@@ -12,6 +13,7 @@
     </NuxtLink>
     <span
       v-else
+      aria-disabled="true"
       class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t("browse.prevPage") }}
@@ -21,6 +23,7 @@
     </span>
     <NuxtLink
       v-if="page < totalPages"
+      rel="next"
       :to="pageLink(page + 1)"
       class="px-3 py-1.5 text-sm font-medium text-white bg-kapok hover:bg-kapok/90 transition-colors"
     >
@@ -28,6 +31,7 @@
     </NuxtLink>
     <span
       v-else
+      aria-disabled="true"
       class="px-3 py-1.5 text-sm font-medium text-graphite/40 dark:text-stone-300 bg-surface-low dark:bg-stone-800 cursor-not-allowed"
     >
       {{ t("browse.nextPage") }}

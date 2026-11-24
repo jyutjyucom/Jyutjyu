@@ -23,11 +23,47 @@ interface NavigateFromSearchInputOptions {
 // request, while still falling back to the search page if the resolver hangs.
 const RESOLVE_TIMEOUT_MS = 5000;
 
+const getErrorName = (error: unknown): string => {
+  if (error instanceof Error) return error.name;
+  return String((error as { name?: string } | null)?.name || "");
+};
+
+const isTimeoutError = (error: unknown): boolean => {
+  return getErrorName(error) === "TimeoutError";
+};
+
 const isAbortError = (error: unknown): boolean => {
-  return (
-    (error instanceof Error && error.name === "AbortError") ||
-    String((error as { name?: string } | null)?.name || "") === "AbortError"
-  );
+  return getErrorName(error) === "AbortError";
+};
+
+const createDeadlineSignal = (
+  controller: AbortController,
+  timeoutMs: number,
+): { signal: AbortSignal; cleanup: () => void; didTimeout: () => boolean } => {
+  if (
+    typeof AbortSignal !== "undefined" &&
+    typeof AbortSignal.any === "function" &&
+    typeof AbortSignal.timeout === "function"
+  ) {
+    const timeoutSignal = AbortSignal.timeout(timeoutMs);
+    return {
+      signal: AbortSignal.any([controller.signal, timeoutSignal]),
+      cleanup: () => {},
+      didTimeout: () => timeoutSignal.aborted,
+    };
+  }
+
+  let timedOut = false;
+  const timeoutId = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
+
+  return {
+    signal: controller.signal,
+    cleanup: () => clearTimeout(timeoutId),
+    didTimeout: () => timedOut,
+  };
 };
 
 export const useSearchNavigation = () => {
@@ -47,7 +83,11 @@ export const useSearchNavigation = () => {
     fallbackTarget: string,
     options: { hardReload?: boolean } = {},
   ) => {
-    if (options.hardReload && process.client && typeof window !== "undefined") {
+    if (
+      options.hardReload &&
+      import.meta.client &&
+      typeof window !== "undefined"
+    ) {
       window.location.assign(fallbackTarget);
       return;
     }
@@ -82,12 +122,7 @@ export const useSearchNavigation = () => {
 
     const controller = new AbortController();
     pendingResolveController = controller;
-
-    let didTimeout = false;
-    const timeoutId = setTimeout(() => {
-      didTimeout = true;
-      controller.abort();
-    }, RESOLVE_TIMEOUT_MS);
+    const deadline = createDeadlineSignal(controller, RESOLVE_TIMEOUT_MS);
 
     try {
       const params = new URLSearchParams({
@@ -97,7 +132,7 @@ export const useSearchNavigation = () => {
       const response = await $fetch<SearchResolveResponse>(
         `/api/search/resolve?${params}`,
         {
-          signal: controller.signal,
+          signal: deadline.signal,
         },
       );
 
@@ -115,7 +150,7 @@ export const useSearchNavigation = () => {
     } catch (error) {
       if (resolveToken !== activeResolveToken) return;
 
-      if (didTimeout) {
+      if (isTimeoutError(error) || deadline.didTimeout()) {
         await navigateToSearchFallback(fallbackTarget, { hardReload: true });
         return;
       }
@@ -126,7 +161,7 @@ export const useSearchNavigation = () => {
 
       await navigateToSearchFallback(fallbackTarget);
     } finally {
-      clearTimeout(timeoutId);
+      deadline.cleanup();
 
       if (
         resolveToken === activeResolveToken &&

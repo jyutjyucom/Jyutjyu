@@ -1,6 +1,12 @@
 <template>
-  <div class="inline-flex border border-outline-soft/20 dark:border-stone-700">
+  <div
+    role="group"
+    :aria-label="t('common.viewModeAria')"
+    class="inline-flex border border-outline-soft/20 dark:border-stone-700"
+  >
     <button
+      type="button"
+      :aria-pressed="modelValue === 'card'"
       class="text-xs sm:text-sm font-medium transition-colors"
       :class="[
         modelValue === 'card'
@@ -16,6 +22,7 @@
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -29,6 +36,8 @@
       <span v-else>{{ t("common.cardView") }}</span>
     </button>
     <button
+      type="button"
+      :aria-pressed="modelValue === 'list'"
       class="text-sm font-medium transition-colors border-l border-outline-soft/20 dark:border-stone-700"
       :class="[
         modelValue === 'list'
@@ -44,6 +53,7 @@
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"

@@ -133,7 +133,10 @@ const messagesYueHans = {
     "stopPronunciationAudio": "停止播放读音 {pronunciation}",
     "searchResultsCount": "{count} 条搜寻结果",
     "senseCount": "{count} 义项",
-    "unannotatedPronunciation": "（未标注）"
+    "unannotatedPronunciation": "（未标注）",
+    "viewModeAria": "切换显示模式",
+    "searchSuggestionsAria": "搜寻建议",
+    "searchResultsTableAria": "搜寻结果列表"
   },
   "wordPage": {
     "metaTitleSuffix": "释义",
@@ -143,7 +146,8 @@ const messagesYueHans = {
     "backToSearchResultsFor": "返去「{query}」搜寻结果",
     "backToSearchResultsForCount": "返去「{query}」搜寻结果（{count} 项）",
     "searchCurrentWord": "搜寻「{word}」",
-    "viewCurrentWordResults": "睇「{word}」搜寻结果"
+    "viewCurrentWordResults": "睇「{word}」搜寻结果",
+    "sourcesNavAria": "词典来源切换"
   },
   "dictCard": {
     "placeholderWord": "有音无字",
@@ -294,12 +298,14 @@ const messagesYueHans = {
     },
     "titleField": {
       "label": "标题",
-      "placeholder": "简要描述你嘅问题或建议"
+      "placeholder": "简要描述你嘅问题或建议",
+      "requiredError": "请填写标题"
     },
     "description": {
       "label": "详细描述",
       "placeholder": "请详细讲下你遇到嘅问题、建议或者词条错误...",
-      "clear": "清空内容"
+      "clear": "清空内容",
+      "requiredError": "请填写详细描述"
     },
     "entry": {
       "word": {

@@ -331,7 +331,7 @@ const dedupeEntriesById = (entries: DictionaryEntry[]): DictionaryEntry[] => {
 };
 
 const sortEntries = (entries: DictionaryEntry[]): DictionaryEntry[] => {
-  return [...entries].sort((a, b) => a.id.localeCompare(b.id));
+  return entries.toSorted((a, b) => a.id.localeCompare(b.id));
 };
 
 const getExactMatchManifest = async (): Promise<ExactMatchManifest | null> => {

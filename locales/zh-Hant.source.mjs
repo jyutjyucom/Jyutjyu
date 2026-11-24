@@ -138,6 +138,9 @@ const messagesZhHant = {
     searchResultsCount: "{count} 條搜尋結果",
     senseCount: "{count} 義項",
     unannotatedPronunciation: "（未標註）",
+    viewModeAria: "切換顯示模式",
+    searchSuggestionsAria: "搜尋建議",
+    searchResultsTableAria: "搜尋結果列表",
   },
   wordPage: {
     metaTitleSuffix: "釋義",
@@ -148,6 +151,7 @@ const messagesZhHant = {
     backToSearchResultsForCount: "返回「{query}」的搜尋結果（{count} 項）",
     searchCurrentWord: "搜尋「{word}」",
     viewCurrentWordResults: "查看「{word}」的搜尋結果",
+    sourcesNavAria: "詞典來源切換",
   },
   dictCard: {
     placeholderWord: "有音無字",
@@ -319,11 +323,13 @@ const messagesZhHant = {
     titleField: {
       label: "標題",
       placeholder: "簡要描述您的問題或建議",
+      requiredError: "請填寫標題",
     },
     description: {
       label: "詳細描述",
       placeholder: "請詳細說明您遇到的問題、建議或詞條錯誤...",
       clear: "清空內容",
+      requiredError: "請填寫詳細描述",
     },
     entry: {
       word: {

@@ -102,7 +102,7 @@
         "yue-Hans": "《广州话俗语词典》，欧阳觉亚、周无忌、饶秉才编，广东人民出版社，2010年版",
         "yue-Hant": "《廣州話俗語詞典》，歐陽覺亞、周無忌、饒秉才編，廣東人民出版社，2010年版"
       },
-      "cover": "/gz-colloquialisms.png"
+      "cover": "/gz-colloquialisms.jpg"
     },
     {
       "id": "hk-cantowords",
@@ -558,7 +558,7 @@
         "yue-Hans": "数据来源于网络公开词典，版权 © 2005-2024 Gene M. Chin。协议不明，使用同再分发时请尊重原作者并注明出处。",
         "yue-Hant": "數據來源於網絡公開詞典，版權 © 2005-2024 Gene M. Chin。協議不明，使用同再分發時請尊重原作者並註明出處。"
       },
-      "cover": "ts-english-dict.png"
+      "cover": "/ts-english-dict.png"
     }
   ],
   "last_updated": "2026-11-18T13:14:19.116Z",

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-parchment dark:bg-stone-950">
+  <div class="min-h-screen min-h-[100dvh] bg-parchment dark:bg-stone-950">
     <AppHeader
       v-model:search-query="searchQuery"
       v-model:reverse-search="enableReverseSearch"
@@ -9,6 +9,7 @@
 
     <main
       id="main-content"
+      tabindex="-1"
       class="max-w-7xl mx-auto px-6 md:px-8 py-8 font-cjk-ui"
     >
       <NuxtLink
@@ -33,9 +34,7 @@
       </NuxtLink>
 
       <div v-if="pending && !displayedBrowseData" class="text-center py-16">
-        <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
-        ></div>
+        <LoadingSpinner size="lg" />
       </div>
 
       <div
@@ -46,6 +45,7 @@
           {{ error.statusMessage || "Failed to load browse data" }}
         </p>
         <button
+          type="button"
           class="px-3 py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors"
           @click="retryBrowseLoad"
         >

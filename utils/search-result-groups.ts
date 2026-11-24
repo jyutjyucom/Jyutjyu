@@ -164,7 +164,7 @@ export const sortSearchGroups = (
     return [...groups];
   }
 
-  return [...groups].sort((a, b) => {
+  return groups.toSorted((a, b) => {
     const primaryA = a.primary;
     const primaryB = b.primary;
 

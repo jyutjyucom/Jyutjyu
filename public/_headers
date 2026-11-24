@@ -1,0 +1,17 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'none'
+
+/og.png
+  Cross-Origin-Resource-Policy: cross-origin
+
+/favicon.svg
+  Cross-Origin-Resource-Policy: cross-origin
+
+/tts/*
+  Cross-Origin-Resource-Policy: cross-origin

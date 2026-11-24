@@ -16,25 +16,44 @@
           </NuxtLink>
 
           <div class="flex flex-nowrap items-center gap-2 flex-1 min-w-0">
-            <div class="flex-1 min-w-0 max-w-2xl relative">
-              <input
-                :value="searchQuery"
-                type="text"
-                :placeholder="t('common.searchPlaceholder')"
-                :aria-label="t('common.searchDictionaryAria')"
-                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 focus:outline-none transition-colors"
-                @input="handleQueryInput"
-                @keyup.enter="handleSearch"
-              />
-              <button
-                class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 sm:py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors text-sm font-medium"
-                @click="handleSearch"
-              >
-                {{ t("common.searchButton") }}
-              </button>
+            <search class="flex-1 min-w-0 max-w-2xl">
+              <form class="relative" @submit.prevent="handleSearch">
+                <label :for="searchInputId" class="sr-only">
+                  {{ t("common.searchDictionaryAria") }}
+                </label>
+                <input
+                  :id="searchInputId"
+                  :value="searchQuery"
+                  type="search"
+                  enterkeyhint="search"
+                  autocomplete="off"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  :placeholder="t('common.searchPlaceholder')"
+                  :role="hasCombobox ? 'combobox' : undefined"
+                  :aria-autocomplete="hasCombobox ? 'list' : undefined"
+                  :aria-expanded="hasCombobox ? comboboxExpanded : undefined"
+                  :aria-controls="hasCombobox ? comboboxControlsId : undefined"
+                  :aria-activedescendant="
+                    hasCombobox && comboboxActiveDescendant
+                      ? comboboxActiveDescendant
+                      : undefined
+                  "
+                  class="w-full px-3 sm:px-4 py-1.5 sm:py-2 pr-16 sm:pr-20 border-none bg-surface-low dark:bg-stone-900 text-sm sm:text-base text-ink dark:text-stone-100 transition-colors"
+                  @input="handleQueryInput"
+                  @keydown="handleInputKeydown"
+                  @focus="emit('input-focus')"
+                />
+                <button
+                  type="submit"
+                  class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 py-1.5 sm:py-1.5 bg-kapok text-white hover:bg-kapok/90 transition-colors text-sm font-medium"
+                >
+                  {{ t("common.searchButton") }}
+                </button>
 
-              <slot name="search-popover" />
-            </div>
+                <slot name="search-popover" />
+              </form>
+            </search>
 
             <button
               v-if="showMobileOptionsButton"
@@ -54,6 +73,7 @@
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -112,11 +132,19 @@ interface Props {
   optionsExpanded: boolean;
   showReverseToggle?: boolean;
   showMobileOptionsButton?: boolean;
+  hasCombobox?: boolean;
+  comboboxExpanded?: boolean;
+  comboboxControlsId?: string;
+  comboboxActiveDescendant?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showReverseToggle: true,
   showMobileOptionsButton: true,
+  hasCombobox: false,
+  comboboxExpanded: false,
+  comboboxControlsId: undefined,
+  comboboxActiveDescendant: undefined,
 });
 
 const emit = defineEmits<{
@@ -125,11 +153,14 @@ const emit = defineEmits<{
   "update:optionsExpanded": [value: boolean];
   search: [];
   "query-input": [];
+  "input-keydown": [event: KeyboardEvent];
+  "input-focus": [];
   "height-change": [value: number];
 }>();
 
 const { t } = useI18n();
 const { homePath } = useAppRoutes();
+const searchInputId = useId();
 
 const headerEl = ref<HTMLElement | null>(null);
 let headerObserver: ResizeObserver | null = null;
@@ -175,6 +206,16 @@ const handleQueryInput = (event: Event) => {
 
 const handleSearch = () => {
   emit("search");
+};
+
+const handleInputKeydown = (event: KeyboardEvent) => {
+  if (event.isComposing || event.keyCode === 229) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+    return;
+  }
+  emit("input-keydown", event);
 };
 
 const handleReverseSearchUpdate = (value: boolean) => {

@@ -1,45 +1,57 @@
 <template>
   <div class="flex items-center gap-2">
-    <!-- 自定义下拉按钮，统一成和筛选栏一致的 UI 样式 -->
-    <div class="relative">
-      <button
-        class="flex items-center gap-2 px-1 py-1 text-sm transition-colors focus:outline-none"
-        :class="
-          showDropdown
-            ? 'text-kapok'
-            : 'text-graphite dark:text-stone-100 hover:text-kapok'
-        "
-        @click="toggleDropdown"
+    <button
+      ref="triggerEl"
+      type="button"
+      :popovertarget="popoverId"
+      class="flex items-center gap-2 px-2 py-1.5 min-h-8 text-sm transition-colors"
+      :class="
+        isOpen
+          ? 'text-kapok'
+          : 'text-graphite dark:text-stone-100 hover:text-kapok'
+      "
+      :aria-label="t('common.languageSwitcherLabel')"
+      :aria-expanded="isOpen"
+      :aria-controls="popoverId"
+    >
+      <span>{{ currentLocaleLabel }}</span>
+      <svg
+        class="w-4 h-4 transition-transform"
+        :class="isOpen ? 'rotate-180' : ''"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
       >
-        <span>{{ currentLocaleLabel }}</span>
-        <svg
-          class="w-4 h-4"
-          :class="showDropdown ? 'rotate-180' : ''"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </button>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"
+        />
+      </svg>
+    </button>
 
-      <!-- 下拉菜单 -->
+    <div
+      :id="popoverId"
+      ref="popoverEl"
+      popover="auto"
+      class="mwg-popover mwg-popover--align-end"
+      @toggle="handlePopoverToggle"
+    >
       <div
-        v-if="showDropdown"
-        class="absolute right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/10 dark:border-stone-800 shadow-lg py-1 z-30 min-w-[140px]"
+        class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[160px]"
       >
         <button
           v-for="option in locales"
           :key="option.code"
+          type="button"
+          :lang="option.code"
+          :aria-current="currentLocale === option.code ? 'true' : undefined"
           class="w-full px-4 py-2 text-left text-sm hover:bg-surface-low dark:hover:bg-stone-800 transition-colors"
           :class="
             currentLocale === option.code
-              ? 'text-kapok bg-kapok-container dark:bg-kapok/10'
+              ? 'text-kapok bg-kapok-container dark:bg-kapok/10 font-medium'
               : 'text-graphite dark:text-stone-100'
           "
           @click="selectLocale(option.code)"
@@ -55,24 +67,27 @@
 const { locale, locales, t } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
 
-const currentLocale = computed(() => locale.value);
+const popoverId = useId();
+const triggerEl = ref<HTMLButtonElement | null>(null);
+const popoverEl = ref<HTMLElement | null>(null);
+const isOpen = ref(false);
 
+const currentLocale = computed(() => locale.value);
 const currentLocaleLabel = computed(() => localeLabel(currentLocale.value));
 
-const showDropdown = ref(false);
-
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
+const handlePopoverToggle = (event: ToggleEvent) => {
+  isOpen.value = event.newState === "open";
 };
 
-const selectLocale = async (code: string) => {
+const selectLocale = async (code: typeof currentLocale.value) => {
+  popoverEl.value?.hidePopover?.();
   if (code !== currentLocale.value) {
     const nextPath = switchLocalePath(code);
     if (nextPath) {
       await navigateTo(nextPath);
     }
   }
-  showDropdown.value = false;
+  triggerEl.value?.focus();
 };
 
 const localeLabel = (code: string) => {

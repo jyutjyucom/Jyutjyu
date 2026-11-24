@@ -75,7 +75,7 @@
     </div>
 
     <!-- 内容：按词典分段 -->
-    <div class="card-body px-3 sm:px-6 py-3 sm:py-4">
+    <div class="card-body px-3 sm:px-6 py-3 sm:py-4 prose-pretty">
       <div
         v-for="(entry, entryIdx) in entries"
         :key="entry.id"
@@ -217,15 +217,12 @@
                 </span>
 
                 <p
-                  v-if="isCantoDict(entry)"
-                  class="text-ink dark:text-stone-100 text-sm sm:text-base leading-relaxed mb-2"
-                  v-html="formatDefinitionWithLinks(sense.definition)"
-                ></p>
-                <p
-                  v-else
                   class="text-ink dark:text-stone-100 text-sm sm:text-base leading-relaxed mb-2"
                 >
-                  {{ sense.definition }}
+                  <DefinitionText
+                    :text="sense.definition"
+                    :linkify="isCantoDict(entry)"
+                  />
                 </p>
 
                 <div
@@ -255,15 +252,12 @@
                         class="pl-4 border-l-2 border-outline-soft/20 dark:border-stone-800"
                       >
                         <p
-                          v-if="isCantoDict(entry)"
-                          class="text-ink/80 dark:text-stone-100 text-sm sm:text-base"
-                          v-html="formatDefinitionWithLinks(example.text)"
-                        ></p>
-                        <p
-                          v-else
                           class="text-ink/80 dark:text-stone-100 text-sm sm:text-base"
                         >
-                          {{ example.text }}
+                          <DefinitionText
+                            :text="example.text"
+                            :linkify="isCantoDict(entry)"
+                          />
                         </p>
                         <p
                           v-if="example.jyutping"
@@ -296,15 +290,12 @@
                     class="pl-4 border-l-2 border-outline-soft/20 dark:border-stone-800"
                   >
                     <p
-                      v-if="isCantoDict(entry)"
-                      class="text-ink/80 dark:text-stone-100 text-sm sm:text-base"
-                      v-html="formatDefinitionWithLinks(example.text)"
-                    ></p>
-                    <p
-                      v-else
                       class="text-ink/80 dark:text-stone-100 text-sm sm:text-base"
                     >
-                      {{ example.text }}
+                      <DefinitionText
+                        :text="example.text"
+                        :linkify="isCantoDict(entry)"
+                      />
                     </p>
                     <p
                       v-if="example.jyutping"
@@ -440,7 +431,6 @@ const {
   getEntryTypeLabel,
   getDialectLabel,
   isCantoDict,
-  formatDefinitionWithLinks,
   getEntryJyutpingList,
   getEntryOriginalPhonetic,
   getEntryOriginalPhoneticList,
@@ -500,7 +490,7 @@ const normalizeJyutpingList = (values: string[]): string[] => {
 };
 
 const createJyutpingComparisonKey = (values: string[]): string => {
-  return [...normalizeJyutpingList(values)].sort().join("||");
+  return normalizeJyutpingList(values).toSorted().join("||");
 };
 
 const dictionaryCount = computed(() => {
@@ -561,18 +551,20 @@ const shouldShowStandaloneOriginalPhonetic = (entry: DictionaryEntry) => {
 </script>
 
 <style scoped>
-.dict-card {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@media (prefers-reduced-motion: no-preference) {
+  .dict-card {
+    animation: fadeIn 0.3s ease-in;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

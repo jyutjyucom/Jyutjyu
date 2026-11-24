@@ -1,46 +1,61 @@
 <template>
   <div class="bg-parchment dark:bg-stone-900 p-6 w-full">
-    <div class="flex items-center gap-3 mb-6">
-      <div
-        class="w-10 h-10 bg-archive-green/10 dark:bg-archive-green/20 flex items-center justify-center"
-      >
-        <svg
-          class="w-5 h-5 text-archive-green"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <div class="flex items-start justify-between gap-3 mb-6">
+      <div class="flex items-center gap-3 min-w-0">
+        <div
+          class="w-10 h-10 bg-archive-green/10 dark:bg-archive-green/20 flex items-center justify-center shrink-0"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
+          <svg
+            class="w-5 h-5 text-archive-green"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <h1
+            :id="resolvedTitleId"
+            class="text-lg font-semibold text-ink dark:text-parchment"
+          >
+            {{ t("feedback.title") }}
+          </h1>
+          <p class="text-sm text-graphite dark:text-stone-400">
+            {{ t("feedback.subtitle") }}
+          </p>
+        </div>
       </div>
-      <div>
-        <h3 class="text-lg font-semibold text-ink dark:text-parchment">
-          {{ t("feedback.title") }}
-        </h3>
-        <p class="text-sm text-graphite dark:text-stone-400">
-          {{ t("feedback.subtitle") }}
-        </p>
-      </div>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center w-9 h-9 text-graphite dark:text-stone-400 hover:text-kapok hover:bg-surface-low dark:hover:bg-stone-800 transition-colors shrink-0"
+        :aria-label="t('feedback.cancel')"
+        @click="$emit('close')"
+      >
+        <X class="w-5 h-5" aria-hidden="true" />
+      </button>
     </div>
 
-    <form @submit.prevent="submitFeedback" class="space-y-4">
+    <form class="space-y-4" @submit.prevent="submitFeedback">
       <!-- 反馈类型 -->
-      <div>
-        <label
+      <fieldset class="border-0 p-0 m-0">
+        <legend
           class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-2"
         >
           {{ t("feedback.type.label") }}
-        </label>
+        </legend>
         <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
           <label
             v-for="type in feedbackTypes"
             :key="type.value"
-            class="relative flex cursor-pointer border-2 bg-surface-low dark:bg-stone-800 px-1.5 py-2 sm:px-2 sm:py-2.5 focus:outline-none transition-colors"
+            class="relative flex cursor-pointer border-2 bg-surface-low dark:bg-stone-800 px-1.5 py-2 sm:px-2 sm:py-2.5 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-kapok"
             :class="
               feedbackType === type.value
                 ? 'border-kapok'
@@ -62,31 +77,48 @@
             </span>
           </label>
         </div>
-      </div>
+      </fieldset>
 
       <!-- 标题 -->
       <div>
         <label
-          for="title"
+          :for="titleFieldId"
           class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-2"
         >
           {{ t("feedback.titleField.label") }}
         </label>
         <input
-          id="title"
+          :id="titleFieldId"
+          ref="titleInputEl"
           v-model="title"
           type="text"
+          autofocus
           :placeholder="t('feedback.titleField.placeholder')"
-          class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 transition-colors"
+          :aria-invalid="titleInvalid ? 'true' : 'false'"
+          :aria-describedby="titleInvalid ? titleErrorId : undefined"
+          :class="[
+            'mwg-field-control w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:ring-1 focus:ring-kapok/30 transition-colors',
+            titleFallbackInvalid && 'user-invalid-fallback',
+          ]"
           required
+          @input="syncFieldValidity('title', 'input')"
+          @blur="syncFieldValidity('title', 'blur')"
+          @invalid="syncFieldValidity('title', 'invalid')"
         />
+        <p
+          :id="titleErrorId"
+          class="mwg-field-error items-center gap-1.5 text-xs text-kapok mt-1.5"
+        >
+          <span aria-hidden="true">!</span>
+          <span>{{ t("feedback.titleField.requiredError") }}</span>
+        </p>
       </div>
 
       <!-- 描述 -->
       <div>
         <div class="flex items-center justify-between gap-3 mb-2">
           <label
-            for="description"
+            :for="descriptionFieldId"
             class="block text-sm font-medium text-ink/80 dark:text-stone-300"
           >
             {{ t("feedback.description.label") }}
@@ -95,49 +127,65 @@
             type="button"
             class="text-sm font-medium text-graphite/60 dark:text-stone-200 hover:text-kapok underline underline-offset-2 disabled:no-underline disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             :disabled="!description"
-            @click="description = ''"
+            @click="clearDescription"
           >
             {{ t("feedback.description.clear") }}
           </button>
         </div>
         <textarea
-          id="description"
+          :id="descriptionFieldId"
+          ref="descriptionInputEl"
           v-model="description"
           :placeholder="t('feedback.description.placeholder')"
-          rows="10"
-          class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 resize-vertical transition-colors"
+          rows="8"
+          :aria-invalid="descriptionInvalid ? 'true' : 'false'"
+          :aria-describedby="descriptionInvalid ? descriptionErrorId : undefined"
+          :class="[
+            'mwg-field-control mwg-auto-textarea px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:ring-1 focus:ring-kapok/30 transition-colors',
+            descriptionFallbackInvalid && 'user-invalid-fallback',
+          ]"
           required
+          @input="syncFieldValidity('description', 'input')"
+          @blur="syncFieldValidity('description', 'blur')"
+          @invalid="syncFieldValidity('description', 'invalid')"
         ></textarea>
+        <p
+          :id="descriptionErrorId"
+          class="mwg-field-error items-center gap-1.5 text-xs text-kapok mt-1.5"
+        >
+          <span aria-hidden="true">!</span>
+          <span>{{ t("feedback.description.requiredError") }}</span>
+        </p>
       </div>
 
       <!-- 词条相关信息（当反馈类型为词条错误时显示） -->
       <div v-if="feedbackType === 'entry-error'" class="space-y-3">
         <div>
           <label
-            for="entry-word"
+            :for="entryWordFieldId"
             class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-2"
           >
             {{ t("feedback.entry.word.label") }}
           </label>
           <input
-            id="entry-word"
+            :id="entryWordFieldId"
             v-model="entryWord"
             type="text"
             :placeholder="t('feedback.entry.word.placeholder')"
-            class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 transition-colors"
+            class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:ring-1 focus:ring-kapok/30 transition-colors"
           />
         </div>
         <div>
           <label
-            for="entry-source"
+            :for="entrySourceFieldId"
             class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-2"
           >
             {{ t("feedback.entry.source.label") }}
           </label>
           <select
-            id="entry-source"
+            :id="entrySourceFieldId"
             v-model="entrySource"
-            class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 transition-colors"
+            class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:ring-1 focus:ring-kapok/30 transition-colors"
           >
             <option value="">
               {{ t("feedback.entry.source.placeholder") }}
@@ -156,34 +204,42 @@
       <!-- 联系方式（可选） -->
       <div>
         <label
-          for="contact"
-          class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-2"
+          :for="contactFieldId"
+          class="block text-sm font-medium text-ink/80 dark:text-stone-300 mb-1"
         >
           {{ t("feedback.contact.label") }}
         </label>
-        <input
-          id="contact"
-          v-model="contact"
-          type="text"
-          :placeholder="t('feedback.contact.placeholder')"
-          class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-kapok/30 transition-colors"
-        />
-        <p class="text-xs text-graphite/60 dark:text-stone-200 mt-1">
+        <p
+          :id="contactHintId"
+          class="text-xs text-graphite/60 dark:text-stone-200 mb-2"
+        >
           {{ t("feedback.contact.hint") }}
         </p>
+        <input
+          :id="contactFieldId"
+          v-model="contact"
+          type="text"
+          autocomplete="email"
+          :aria-describedby="contactHintId"
+          :placeholder="t('feedback.contact.placeholder')"
+          class="w-full px-3 py-2 border-none bg-surface-low dark:bg-stone-800 text-ink dark:text-stone-100 focus:ring-1 focus:ring-kapok/30 transition-colors"
+        />
       </div>
 
       <!-- 提交行：左侧提示，右侧按钮 -->
       <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
         <div
           class="text-sm flex items-center gap-2 min-h-[28px] text-ink/80 dark:text-stone-300"
+          role="status"
+          aria-live="polite"
         >
           <template v-if="showSuccess && successUrl">
             <svg
-              class="w-4 h-4 text-archive-green"
+              class="w-4 h-4 text-archive-green shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -197,6 +253,7 @@
               <a
                 :href="successUrl"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="underline font-medium"
               >
                 {{ t("feedback.success.linkText") }}
@@ -204,12 +261,17 @@
               </a>
             </span>
           </template>
-          <template v-else-if="errorMessage">
+          <div
+            v-else-if="errorMessage"
+            role="alert"
+            class="flex items-center gap-2"
+          >
             <svg
-              class="w-4 h-4 text-kapok"
+              class="w-4 h-4 text-kapok shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -219,14 +281,14 @@
               />
             </svg>
             <span class="text-kapok">{{ errorMessage }}</span>
-          </template>
+          </div>
         </div>
 
         <div class="flex gap-3">
           <button
             type="button"
-            @click="$emit('close')"
             class="px-4 py-2 text-sm font-medium text-graphite dark:text-stone-400 bg-surface-low dark:bg-stone-800 hover:bg-surface-high dark:hover:bg-stone-700 transition-colors"
+            @click="$emit('close')"
           >
             {{ t("feedback.cancel") }}
           </button>
@@ -239,18 +301,17 @@
                 ? 'bg-kapok'
                 : showSuccess
                   ? 'bg-archive-green hover:bg-archive-green/90'
-                  : errorMessage
-                    ? 'bg-kapok hover:bg-kapok/90'
-                    : 'bg-kapok hover:bg-kapok/90',
+                  : 'bg-kapok hover:bg-kapok/90',
               'disabled:opacity-50 disabled:cursor-not-allowed',
             ]"
           >
             <svg
               v-if="isSubmitting"
-              class="w-4 h-4 animate-spin"
+              class="w-4 h-4 animate-spin motion-reduce:animate-none"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -275,9 +336,20 @@
 </template>
 
 <script setup lang="ts">
+import { X } from "lucide-vue-next";
 import { LOCALE_ROUTE_DEFINITIONS } from "~/utils/route-paths";
 
 const { t, locale } = useI18n();
+
+const fallbackTitleId = useId();
+const titleFieldId = useId();
+const titleErrorId = useId();
+const descriptionFieldId = useId();
+const descriptionErrorId = useId();
+const entryWordFieldId = useId();
+const entrySourceFieldId = useId();
+const contactFieldId = useId();
+const contactHintId = useId();
 
 // 根据当前语言获取词典名称
 const getDictionaryName = (name: string | Record<string, string>): string => {
@@ -304,13 +376,12 @@ const getDictionaryName = (name: string | Record<string, string>): string => {
       return name[localeCode];
     }
   }
-  // 最后尝试返回第一个可用的值
   const firstKey = Object.keys(name)[0];
   return firstKey ? name[firstKey] || "" : "";
 };
 
-// Props
 interface Props {
+  titleId?: string;
   entryData?: {
     word: string;
     source?: string;
@@ -325,10 +396,13 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  titleId: undefined,
   entryData: undefined,
   initialDescription: undefined,
   initialType: undefined,
 });
+
+const resolvedTitleId = computed(() => props.titleId || fallbackTitleId);
 
 interface DictionaryIndexItem {
   id: string;
@@ -339,21 +413,19 @@ interface DictionaryIndex {
   dictionaries: DictionaryIndexItem[];
 }
 
-const dictIndexUrl: string = "/dictionaries/index.json";
+const dictIndexUrl = "/dictionaries/index.json";
 
 const { data: dictIndex } = await useAsyncData<DictionaryIndex>(
   "feedback-dictionaries",
   () => $fetch<DictionaryIndex>(dictIndexUrl),
 );
 
-// Emits
-const emit = defineEmits<{
+defineEmits<{
   close: [];
   submitted: [];
 }>();
 
-// 反馈类型
-const feedbackTypes = [
+const feedbackTypes = computed(() => [
   {
     value: "bug",
     label: t("feedback.type.bug"),
@@ -366,9 +438,8 @@ const feedbackTypes = [
     value: "entry-error",
     label: t("feedback.type.entryError"),
   },
-];
+]);
 
-// 词典来源（动态加载）
 const dictionarySources = computed(
   () =>
     dictIndex.value?.dictionaries?.map((dict) => ({
@@ -382,45 +453,106 @@ type FeedbackType = "bug" | "feature" | "entry-error";
 // 表单数据
 const feedbackType = ref<FeedbackType>("bug");
 const title = ref("");
-// 描述默认使用外部传入的初始内容（如果有），便于用户在此基础上直接修改
 const description = ref(props.initialDescription || "");
 const entryWord = ref(props.entryData?.word || "");
 const entrySource = ref("");
 const contact = ref("");
 
-// 状态
+// 表单验证与状态（同步 :user-invalid 与 aria-invalid）
+const titleInputEl = ref<HTMLInputElement | null>(null);
+const descriptionInputEl = ref<HTMLTextAreaElement | null>(null);
+const titleInteracted = ref(false);
+const titleCommitted = ref(false);
+const titleInvalid = ref(false);
+const titleFallbackInvalid = ref(false);
+const descriptionInteracted = ref(false);
+const descriptionCommitted = ref(false);
+const descriptionInvalid = ref(false);
+const descriptionFallbackInvalid = ref(false);
+
+const supportsUserInvalid = () =>
+  typeof CSS !== "undefined" &&
+  typeof CSS.supports === "function" &&
+  CSS.supports("selector(:user-invalid)");
+
+const syncFieldValidity = (
+  field: "title" | "description",
+  trigger: "input" | "blur" | "invalid",
+) => {
+  const el =
+    field === "title" ? titleInputEl.value : descriptionInputEl.value;
+  if (!el) return;
+
+  const isTitle = field === "title";
+  const interacted = isTitle ? titleInteracted : descriptionInteracted;
+  const committed = isTitle ? titleCommitted : descriptionCommitted;
+  const invalidState = isTitle ? titleInvalid : descriptionInvalid;
+  const fallbackInvalid = isTitle
+    ? titleFallbackInvalid
+    : descriptionFallbackInvalid;
+
+  if (trigger === "input") {
+    interacted.value = true;
+  } else if (trigger === "blur") {
+    committed.value = true;
+  } else if (trigger === "invalid") {
+    interacted.value = true;
+    committed.value = true;
+  }
+
+  if (supportsUserInvalid()) {
+    const isNowInvalid =
+      trigger === "invalid" ? !el.validity.valid : el.matches(":user-invalid");
+    invalidState.value = isNowInvalid;
+    fallbackInvalid.value = false;
+    return;
+  }
+
+  const shouldEvaluate =
+    trigger === "invalid" || (interacted.value && committed.value);
+  if (!shouldEvaluate) return;
+
+  const isNowInvalid = !el.validity.valid;
+  invalidState.value = isNowInvalid;
+  fallbackInvalid.value = isNowInvalid;
+};
+
+const clearDescription = () => {
+  description.value = "";
+  nextTick(() => {
+    syncFieldValidity("description", "input");
+  });
+};
+
+// 提交状态
 const isSubmitting = ref(false);
 const showSuccess = ref(false);
 const errorMessage = ref("");
+const successUrl = ref<string | null>(null);
+const successIssueNumber = ref<number | null>(null);
 
 const normalizeEntrySource = (source?: string) => {
   if (!source) return "";
   const sources = dictionarySources.value;
   const dictionaries = dictIndex.value?.dictionaries || [];
 
-  // 若传入的是 value（dict id），直接返回
   if (sources.some((s) => s.value === source)) return source;
 
-  // 若传入的是 name/label（任意语言版本），映射为 value
-  // 优先检查所有语言版本的 name 字段（因为词条数据中的 source_book 可能是任意语言版本）
   for (const dict of dictionaries) {
     const name = dict.name;
     if (typeof name === "string") {
       if (name === source) return dict.id;
     } else {
-      // 检查所有语言版本的名称
       for (const langKey of Object.keys(name)) {
         if (name[langKey] === source) return dict.id;
       }
     }
   }
 
-  // 最后检查当前语言的 label（兼容性处理）
   const matched = sources.find((s) => s.label === source);
   return matched?.value || "";
 };
 
-// 初始化/同步：来自外部上下文时，默认切到"词条纠错"，并预填词语/来源
 watchEffect(() => {
   if (props.initialType) {
     feedbackType.value = props.initialType;
@@ -432,17 +564,14 @@ watchEffect(() => {
   entrySource.value = normalizeEntrySource(props.entryData?.source);
 });
 
-// 提交反馈
 const submitFeedback = async () => {
-  // 防止重复提交：如果正在提交或已经成功，直接返回
   if (isSubmitting.value || showSuccess.value) return;
 
   isSubmitting.value = true;
   errorMessage.value = "";
-  showSuccess.value = false; // 重置成功状态（如果之前有错误后重试）
+  showSuccess.value = false;
 
   try {
-    // 调用后端 API 创建 Issue
     const payload = {
       title: `[${feedbackType.value.toUpperCase()}] ${title.value}`,
       description: description.value,
@@ -471,7 +600,4 @@ const submitFeedback = async () => {
     isSubmitting.value = false;
   }
 };
-
-const successUrl = ref<string | null>(null);
-const successIssueNumber = ref<number | null>(null);
 </script>

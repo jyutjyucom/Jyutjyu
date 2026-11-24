@@ -142,7 +142,7 @@
     </div>
 
     <!-- 内容：释义 -->
-    <div class="card-body px-6 py-4">
+    <div class="card-body px-6 py-4 prose-pretty">
       <!-- 多义项 -->
       <div
         v-for="(sense, senseIdx) in entry.senses"
@@ -169,15 +169,12 @@
 
             <!-- 释义 -->
             <p
-              v-if="isCantoDict"
-              class="text-ink/90 dark:text-stone-200 text-base leading-relaxed mb-2"
-              v-html="formatDefinitionWithLinks(sense.definition)"
-            ></p>
-            <p
-              v-else
               class="text-ink/90 dark:text-stone-200 text-base leading-relaxed mb-2"
             >
-              {{ sense.definition }}
+              <DefinitionText
+                :text="sense.definition"
+                :linkify="isCantoDict"
+              />
             </p>
 
             <!-- 子义项（A) B) C) 等） -->
@@ -210,13 +207,11 @@
                     :key="exIdx"
                     class="pl-4 border-l-2 border-outline-soft/20 dark:border-stone-800"
                   >
-                    <p
-                      v-if="isCantoDict"
-                      class="text-ink/80 dark:text-stone-300 text-base"
-                      v-html="formatDefinitionWithLinks(example.text)"
-                    ></p>
-                    <p v-else class="text-ink/80 dark:text-stone-300 text-base">
-                      {{ example.text }}
+                    <p class="text-ink/80 dark:text-stone-300 text-base">
+                      <DefinitionText
+                        :text="example.text"
+                        :linkify="isCantoDict"
+                      />
                     </p>
                     <!-- 例句粤拼 -->
                     <p
@@ -251,13 +246,11 @@
                 :key="exIdx"
                 class="pl-4 border-l-2 border-outline-soft/20 dark:border-stone-800"
               >
-                <p
-                  v-if="isCantoDict"
-                  class="text-ink/80 dark:text-stone-300 text-base"
-                  v-html="formatDefinitionWithLinks(example.text)"
-                ></p>
-                <p v-else class="text-ink/80 dark:text-stone-300 text-base">
-                  {{ example.text }}
+                <p class="text-ink/80 dark:text-stone-300 text-base">
+                  <DefinitionText
+                    :text="example.text"
+                    :linkify="isCantoDict"
+                  />
                 </p>
                 <!-- 例句粤拼 -->
                 <p
@@ -372,39 +365,38 @@
       v-if="showDetails && hasExtraInfo"
       class="card-footer px-6 py-3 bg-surface-low dark:bg-stone-900/50 border-t border-outline-soft/20 dark:border-stone-800"
     >
-      <button
-        class="text-sm text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 flex items-center gap-1"
-        @click="detailsExpanded = !detailsExpanded"
-      >
-        <span
-          >{{ detailsExpanded ? t("dictCard.collapse") : t("dictCard.expand") }}
-          {{ t("dictCard.details") }}</span
+      <details class="mwg-details group">
+        <summary
+          class="list-none cursor-pointer text-sm text-graphite dark:text-stone-400 hover:text-ink dark:hover:text-stone-200 flex items-center gap-1 rounded [&::-webkit-details-marker]:hidden"
         >
-        <svg
-          class="w-4 h-4 transition-transform"
-          :class="{ 'rotate-180': detailsExpanded }"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-      </button>
+          <span>
+            <span class="group-open:hidden">{{ t("dictCard.expand") }}</span>
+            <span class="hidden group-open:inline">{{ t("dictCard.collapse") }}</span>
+            {{ t("dictCard.details") }}
+          </span>
+          <svg
+            class="w-4 h-4 transition-transform group-open:rotate-180"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </summary>
 
-      <div
-        v-show="detailsExpanded"
-        class="mt-3 text-sm text-graphite dark:text-stone-400 space-y-1"
-      >
-        <p v-if="entry.meta?.usage">
-          <span class="font-semibold">{{ t("dictCard.usage") }}</span>
-          {{ entry.meta.usage }}
-        </p>
-      </div>
+        <div class="mt-3 text-sm text-graphite dark:text-stone-400 space-y-1">
+          <p v-if="entry.meta?.usage">
+            <span class="font-semibold">{{ t("dictCard.usage") }}</span>
+            {{ entry.meta.usage }}
+          </p>
+        </div>
+      </details>
     </div>
   </div>
 </template>
@@ -417,7 +409,7 @@ import { getOriginalPhoneticForIndex } from "~/utils/phonetic-display";
 const { t } = useI18n();
 const { getLocalizedSourceBookLabel } = useLocalizedDictionary();
 const { wordPath } = useAppRoutes();
-const { getEntryFeedbackDescription: buildEntryFeedbackDescription, formatDefinitionWithLinks } =
+const { getEntryFeedbackDescription: buildEntryFeedbackDescription } =
   useDictionaryEntry();
 
 interface Props {
@@ -429,7 +421,6 @@ const props = withDefaults(defineProps<Props>(), {
   showDetails: true,
 });
 
-const detailsExpanded = ref(false);
 
 // 根据 source_book 获取本地化的词典名称
 const localizedSourceBook = computed(() =>
@@ -489,19 +480,21 @@ const getOriginalPhonetic = (entry: DictionaryEntry, idx: number) => {
 </script>
 
 <style scoped>
-.dict-card {
-  /* 卡片动画 */
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@media (prefers-reduced-motion: no-preference) {
+  .dict-card {
+    /* 卡片动画 */
+    animation: fadeIn 0.3s ease-in;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

@@ -1,24 +1,42 @@
 <template>
-  <div class="min-h-screen bg-parchment dark:bg-stone-950">
+  <div class="min-h-screen min-h-[100dvh] bg-parchment dark:bg-stone-950">
     <!-- Header with Search Bar -->
     <AppHeader
       v-model:search-query="searchQuery"
       v-model:reverse-search="enableReverseSearch"
       v-model:options-expanded="optionsExpanded"
+      :has-combobox="true"
+      :combobox-expanded="suggestions.length > 0 && showSuggestions"
+      :combobox-controls-id="suggestionsListboxId"
+      :combobox-active-descendant="activeSuggestionId"
       @search="handleSearch"
       @query-input="handleInput"
+      @input-keydown="handleSearchInputKeydown"
+      @input-focus="handleSearchInputFocus"
       @height-change="searchHeaderHeight = $event"
     >
       <template #search-popover>
         <div
           v-if="suggestions.length > 0 && showSuggestions"
+          :id="suggestionsListboxId"
+          role="listbox"
+          :aria-label="t('common.searchSuggestionsAria')"
           class="absolute top-full left-0 right-0 mt-1 bg-parchment dark:bg-stone-900 border border-outline-soft/20 dark:border-stone-800 shadow-lg max-h-60 overflow-y-auto z-20 font-cjk-content"
           data-search-interactive
         >
           <button
             v-for="(suggestion, idx) in suggestions"
+            :id="getSuggestionOptionId(idx)"
             :key="idx"
+            type="button"
+            role="option"
+            :aria-selected="idx === activeSuggestionIndex"
             class="w-full px-4 py-2 text-left hover:bg-surface-low dark:hover:bg-stone-800 transition-colors text-ink dark:text-stone-100"
+            :class="{
+              'bg-surface-low dark:bg-stone-800 text-kapok':
+                idx === activeSuggestionIndex,
+            }"
+            @mousedown.prevent="selectSuggestion(suggestion)"
             @click="selectSuggestion(suggestion)"
           >
             {{ suggestion }}
@@ -34,9 +52,6 @@
             :selected-type="selectedType"
             :disabled="!actualSearchQuery"
             :loading="loading || loadingMore"
-            :show-dict-dropdown="showDictDropdown"
-            :show-dialect-dropdown="showDialectDropdown"
-            :show-type-dropdown="showTypeDropdown"
             :available-dicts="availableDicts"
             :available-dialects="availableDialects"
             :available-types="availableTypes"
@@ -45,9 +60,6 @@
             :get-type-count="getTypeCount"
             :get-dialect-label="getDialectLabel"
             :get-type-name="getTypeName"
-            @toggle-dict="toggleDropdown('dict')"
-            @toggle-dialect="toggleDropdown('dialect')"
-            @toggle-type="toggleDropdown('type')"
             @select-dict="selectDict"
             @select-dialect="selectDialect"
             @select-type="selectType"
@@ -56,9 +68,7 @@
             <SearchSortSelect
               :sort-by="sortBy"
               :disabled="!actualSearchQuery"
-              :show-sort-dropdown="showSortDropdown"
               :get-sort-label="getSortLabel"
-              @toggle-sort="toggleDropdown('sort')"
               @select-sort="selectSort"
             />
             <SearchViewModeToggle
@@ -84,9 +94,6 @@
                 :selected-type="selectedType"
                 :disabled="!actualSearchQuery"
                 :loading="loading || loadingMore"
-                :show-dict-dropdown="showDictDropdown"
-                :show-dialect-dropdown="showDialectDropdown"
-                :show-type-dropdown="showTypeDropdown"
                 :available-dicts="availableDicts"
                 :available-dialects="availableDialects"
                 :available-types="availableTypes"
@@ -95,9 +102,6 @@
                 :get-type-count="getTypeCount"
                 :get-dialect-label="getDialectLabel"
                 :get-type-name="getTypeName"
-                @toggle-dict="toggleDropdown('dict')"
-                @toggle-dialect="toggleDropdown('dialect')"
-                @toggle-type="toggleDropdown('type')"
                 @select-dict="selectDict"
                 @select-dialect="selectDialect"
                 @select-type="selectType"
@@ -106,10 +110,8 @@
                 <SearchSortSelect
                   :sort-by="sortBy"
                   :disabled="!actualSearchQuery"
-                  :show-sort-dropdown="showSortDropdown"
                   :get-sort-label="getSortLabel"
                   dropdown-align="right"
-                  @toggle-sort="toggleDropdown('sort')"
                   @select-sort="selectSort"
                 />
                 <SearchViewModeToggle
@@ -126,14 +128,14 @@
     <!-- Main Content -->
     <main
       id="main-content"
+      tabindex="-1"
       class="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 min-h-[60vh] font-cjk-ui"
     >
       <ClientOnly>
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-16">
-          <div
-            class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
-          ></div>
+          <h1 class="sr-only">{{ t("common.searchHeader") }}</h1>
+          <LoadingSpinner size="lg" :label="t('common.searching')" />
           <p class="text-graphite dark:text-stone-400 mt-4">
             {{ t("common.searching") }}
           </p>
@@ -142,9 +144,11 @@
         <!-- Results Info -->
         <div
           v-else-if="actualSearchQuery"
+          aria-live="polite"
+          aria-atomic="true"
           class="mb-4 sm:mb-6 font-cjk-content"
         >
-          <h2
+          <h1
             class="text-lg sm:text-2xl text-ink dark:text-parchment flex flex-wrap items-center gap-1.5 sm:gap-2"
           >
             <span
@@ -157,7 +161,7 @@
               <span class="font-semibold">{{ totalCountLabel }}</span>
               {{ t("common.remainingSuffix") }}
             </span>
-          </h2>
+          </h1>
         </div>
 
         <!-- No Results -->
@@ -170,9 +174,9 @@
           "
           class="text-center py-16"
         >
-          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
+          <h2 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
             {{ t("common.noResultsTitle") }}
-          </h3>
+          </h2>
           <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t("common.noResultsDescription") }}
           </p>
@@ -210,6 +214,7 @@
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -258,6 +263,7 @@
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -307,6 +313,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
+                type="button"
                 class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore"
                 @click="loadMore"
@@ -332,6 +339,7 @@
             <!-- 加载更多按钮 -->
             <div v-if="hasMore" class="flex justify-center py-8">
               <button
+                type="button"
                 class="px-6 py-3 bg-kapok text-white hover:bg-kapok/90 transition-colors disabled:bg-graphite/30 disabled:cursor-not-allowed"
                 :disabled="loadingMore"
                 @click="loadMore"
@@ -345,9 +353,12 @@
 
         <!-- Empty State -->
         <div v-else-if="!loading" class="text-center py-16">
-          <h3 class="text-2xl font-semibold text-ink dark:text-parchment mb-2">
+          <component
+            :is="actualSearchQuery ? 'h2' : 'h1'"
+            class="text-2xl font-semibold text-ink dark:text-parchment mb-2"
+          >
             {{ t("common.startSearchTitle") }}
-          </h3>
+          </component>
           <p class="text-graphite dark:text-stone-400 mb-6">
             {{ t("common.startSearchDescription") }}
           </p>
@@ -359,6 +370,7 @@
             <button
               v-for="example in exampleSearches"
               :key="example"
+              type="button"
               class="px-3 py-1 text-sm bg-surface-low dark:bg-stone-800 hover:bg-archive-green/10 hover:text-archive-green dark:hover:bg-archive-green/20 dark:hover:text-archive-green text-graphite dark:text-stone-400 rounded-full transition-colors"
               @click="searchExample(example)"
             >
@@ -368,9 +380,8 @@
         </div>
         <template #fallback>
           <div class="text-center py-16">
-            <div
-              class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-kapok border-t-transparent"
-            ></div>
+            <h1 class="sr-only">{{ t("common.searchHeader") }}</h1>
+            <LoadingSpinner size="lg" />
             <p class="text-graphite dark:text-stone-400 mt-4">
               {{ t("common.loading") }}
             </p>
@@ -420,7 +431,7 @@ const warmContentFonts = useWarmContentFonts();
 const { searchPath, wordPathWithSearchOrigin } = useAppRoutes();
 
 // 开发时显示当前模式
-if (process.dev) {
+if (import.meta.dev) {
   console.log(`🔍 搜索模式: ${getMode()}`);
 }
 
@@ -443,6 +454,17 @@ const loading = ref(false);
 const loadingMore = ref(false);
 const suggestions = ref<string[]>([]);
 const showSuggestions = ref(false);
+const suggestionsListboxId = useId();
+const activeSuggestionIndex = ref(-1);
+const getSuggestionOptionId = (index: number) =>
+  `${suggestionsListboxId}-option-${index}`;
+const activeSuggestionId = computed(() =>
+  showSuggestions.value &&
+  activeSuggestionIndex.value >= 0 &&
+  activeSuggestionIndex.value < suggestions.value.length
+    ? getSuggestionOptionId(activeSuggestionIndex.value)
+    : undefined,
+);
 const redirectingToExactMatch = ref(false);
 const exactResultsReady = ref(false);
 const searchTotal = useState<SearchTotalMeta>("search-total", () => ({
@@ -494,37 +516,10 @@ const sortBy = useState<SearchSortOption>(
   "search-sort-by",
   () => (initialSearchRouteState.sort || "relevance") as SearchSortOption,
 ); // 排序方式
-const showDictDropdown = ref(false); // 词典下拉菜单显示状态
-const showDialectDropdown = ref(false); // 方言下拉菜单显示状态
-const showTypeDropdown = ref(false); // 类型下拉菜单显示状态
-const showSortDropdown = ref(false); // 排序下拉菜单显示状态
 const optionsExpanded = ref(true); // 移动端：选项面板（反查/语言/筛选/排序/视图）是否展开
 const searchHeaderHeight = ref(0);
 const chineseConverterReady = ref(false);
 
-// Dropdown toggle helper - 关闭其他dropdown再打开指定的
-const toggleDropdown = (dropdown: 'dict' | 'dialect' | 'type' | 'sort') => {
-  const wasOpen =
-    dropdown === 'dict'
-      ? showDictDropdown.value
-      : dropdown === 'dialect'
-        ? showDialectDropdown.value
-        : dropdown === 'type'
-          ? showTypeDropdown.value
-          : showSortDropdown.value;
-
-  showDictDropdown.value = false;
-  showDialectDropdown.value = false;
-  showTypeDropdown.value = false;
-  showSortDropdown.value = false;
-
-  if (wasOpen) return;
-
-  if (dropdown === 'dict') showDictDropdown.value = true;
-  if (dropdown === 'dialect') showDialectDropdown.value = true;
-  if (dropdown === 'type') showTypeDropdown.value = true;
-  if (dropdown === 'sort') showSortDropdown.value = true;
-};
 const showingSearchResultsView = computed(() =>
   isSearchResultsViewQuery(route.query),
 );
@@ -559,7 +554,7 @@ const getSearchResultWordPath = (headword: string): string => {
 };
 
 const replaceSearchRouteState = () => {
-  if (!process.client || !actualSearchQuery.value) return;
+  if (!import.meta.client || !actualSearchQuery.value) return;
 
   router.replace(
     searchPath(actualSearchQuery.value, enableReverseSearch.value, {
@@ -596,7 +591,7 @@ const ensureChineseConverterReady = async () => {
 
 const scheduleChineseConverterWarmup = () => {
   if (
-    !process.client ||
+    !import.meta.client ||
     chineseConverterReady.value ||
     chineseConverterInitPromise ||
     chineseConverterWarmupTimeout
@@ -620,14 +615,11 @@ const exampleSearches = ["我哋", "你哋", "佢", "dei6", "ngo5 dei6"];
 
 // 筛选函数
 const selectDict = (dict: string | null) => {
-  // 如果值未改变，只关闭dropdown
   if (selectedDict.value === dict) {
-    showDictDropdown.value = false;
     return;
   }
 
   selectedDict.value = dict;
-  showDictDropdown.value = false;
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
@@ -639,14 +631,11 @@ const selectDict = (dict: string | null) => {
 };
 
 const selectDialect = (dialect: string | null) => {
-  // 如果值未改变，只关闭dropdown
   if (selectedDialect.value === dialect) {
-    showDialectDropdown.value = false;
     return;
   }
 
   selectedDialect.value = dialect;
-  showDialectDropdown.value = false;
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
@@ -658,14 +647,11 @@ const selectDialect = (dialect: string | null) => {
 };
 
 const selectType = (type: string | null) => {
-  // 如果值未改变，只关闭dropdown
   if (selectedType.value === type) {
-    showTypeDropdown.value = false;
     return;
   }
 
   selectedType.value = type;
-  showTypeDropdown.value = false;
   currentPage.value = 1;
 
   // API模式下触发重新搜索（带筛选参数），让后端在完整数据集筛选
@@ -685,7 +671,6 @@ const getSelectedEntryType = (): EntryType | undefined => {
 
 const selectSort = (sort: SearchSortOption) => {
   sortBy.value = sort;
-  showSortDropdown.value = false;
   currentPage.value = 1;
   replaceSearchRouteState();
 };
@@ -952,26 +937,26 @@ const filteredGroups = computed(() => {
       })
     : otherResults
 
-  // 应用排序（非relevance时）- 复制数组后再排序，避免直接修改
+  // 应用排序（非relevance时）
   if (sortBy.value === 'headword') {
-    filteredExact = [...filteredExact].sort((a, b) =>
+    filteredExact = filteredExact.toSorted((a, b) =>
       (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
     )
-    filteredOther = [...filteredOther].sort((a, b) =>
+    filteredOther = filteredOther.toSorted((a, b) =>
       (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
     )
   } else if (sortBy.value === 'jyutping') {
-    filteredExact = [...filteredExact].sort((a, b) =>
+    filteredExact = filteredExact.toSorted((a, b) =>
       (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
     )
-    filteredOther = [...filteredOther].sort((a, b) =>
+    filteredOther = filteredOther.toSorted((a, b) =>
       (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
     )
   } else if (sortBy.value === 'dictionary') {
-    filteredExact = [...filteredExact].sort((a, b) =>
+    filteredExact = filteredExact.toSorted((a, b) =>
       (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
     )
-    filteredOther = [...filteredOther].sort((a, b) =>
+    filteredOther = filteredOther.toSorted((a, b) =>
       (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
     )
   }
@@ -1119,7 +1104,7 @@ const redirectToExactMatchIfNeeded = async (
   entries: DictionaryEntry[],
   query: string,
 ): Promise<boolean> => {
-  if (!process.client || redirectingToExactMatch.value) {
+  if (!import.meta.client || redirectingToExactMatch.value) {
     return false;
   }
 
@@ -1242,10 +1227,6 @@ const performSearch = async (
     sortBy.value = "relevance";
     viewMode.value = "card";
   }
-  showDictDropdown.value = false;
-  showDialectDropdown.value = false;
-  showTypeDropdown.value = false;
-  showSortDropdown.value = false;
 
   try {
     const normalizedQuery = query.trim();
@@ -1356,6 +1337,7 @@ const handleSearch = () => {
   if (!query) return;
 
   showSuggestions.value = false;
+  activeSuggestionIndex.value = -1;
   void navigateFromSearchInput({
     query,
     reverse: enableReverseSearch.value,
@@ -1374,9 +1356,11 @@ const handleInput = () => {
     if (searchQuery.value.length >= 2) {
       warmContentFonts();
       suggestions.value = await getSuggestions(searchQuery.value);
+      activeSuggestionIndex.value = -1;
       showSuggestions.value = suggestions.value.length > 0;
     } else {
       suggestions.value = [];
+      activeSuggestionIndex.value = -1;
       showSuggestions.value = false;
     }
   }, 300);
@@ -1386,11 +1370,61 @@ const handleInput = () => {
 const selectSuggestion = (suggestion: string) => {
   searchQuery.value = suggestion;
   showSuggestions.value = false;
+  activeSuggestionIndex.value = -1;
   void navigateFromSearchInput({
     query: suggestion,
     reverse: enableReverseSearch.value,
     knownExactHeadword: !enableReverseSearch.value,
   });
+};
+
+const handleSearchInputFocus = () => {
+  if (suggestions.value.length > 0 && searchQuery.value.trim().length >= 2) {
+    showSuggestions.value = true;
+  }
+};
+
+const handleSearchInputKeydown = (event: KeyboardEvent) => {
+  if (event.isComposing || event.keyCode === 229) return;
+
+  const count = suggestions.value.length;
+  if (event.key === "ArrowDown") {
+    if (count === 0) return;
+    event.preventDefault();
+    if (!showSuggestions.value) {
+      showSuggestions.value = true;
+      activeSuggestionIndex.value = 0;
+      return;
+    }
+    activeSuggestionIndex.value =
+      activeSuggestionIndex.value < count - 1
+        ? activeSuggestionIndex.value + 1
+        : 0;
+  } else if (event.key === "ArrowUp") {
+    if (count === 0 || !showSuggestions.value) return;
+    event.preventDefault();
+    activeSuggestionIndex.value =
+      activeSuggestionIndex.value > 0
+        ? activeSuggestionIndex.value - 1
+        : count - 1;
+  } else if (event.key === "Escape") {
+    if (showSuggestions.value) {
+      event.preventDefault();
+      showSuggestions.value = false;
+      activeSuggestionIndex.value = -1;
+    }
+  } else if (
+    event.key === "Enter" &&
+    showSuggestions.value &&
+    activeSuggestionIndex.value >= 0 &&
+    activeSuggestionIndex.value < count
+  ) {
+    event.preventDefault();
+    const selected = suggestions.value[activeSuggestionIndex.value];
+    if (selected) {
+      selectSuggestion(selected);
+    }
+  }
 };
 
 // 示例搜索
@@ -1437,7 +1471,7 @@ watch(
     sortBy.value = newSort;
     viewMode.value = newView;
     // 只在客户端执行搜索
-    if (process.client) {
+    if (import.meta.client) {
       if (trimmedQuery) {
         if (isSameCompletedSearch) {
           loading.value = false;
@@ -1464,17 +1498,14 @@ watch(viewMode, () => {
   replaceSearchRouteState();
 });
 
-// 点击外部关闭建议和筛选下拉菜单
+// 点击外部关闭建议菜单
 onMounted(async () => {
   clickOutsideHandler = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest('[data-search-interactive]')) return;
+    if (target.closest("[data-search-interactive]")) return;
 
     showSuggestions.value = false;
-    showDictDropdown.value = false;
-    showDialectDropdown.value = false;
-    showTypeDropdown.value = false;
-    showSortDropdown.value = false;
+    activeSuggestionIndex.value = -1;
   };
   document.addEventListener("click", clickOutsideHandler);
 });
@@ -1513,13 +1544,3 @@ useHead(() => {
   };
 });
 </script>
-
-<style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>
