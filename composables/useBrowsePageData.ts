@@ -146,6 +146,7 @@ const loadStaticBrowsePage = async (
 };
 
 export const useBrowsePageData = (params: BrowsePageParams) => {
+  const requestFetch = useRequestFetch();
   const manifestState = useState<BrowseManifest | null>(
     "browse-index-manifest",
     () => null,
@@ -200,7 +201,7 @@ export const useBrowsePageData = (params: BrowsePageParams) => {
         }
       }
 
-      return $fetch<BrowseResponse>("/api/browse", {
+      return requestFetch<BrowseResponse>("/api/browse", {
         query: toApiQuery(safeScope, safePage, safePageSize, safeSortBy),
       });
     },

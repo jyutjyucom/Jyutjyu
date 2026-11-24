@@ -113,17 +113,21 @@ const handleSearch = () => {
   }
 };
 
-const {
-  data: browseData,
-  pending,
-  error,
-  refresh,
-} = useBrowsePageData({
+const browseAsyncData = useBrowsePageData({
   scope: activeDictId,
   page: currentPage,
   pageSize: currentPageSize,
   sortBy: currentSortBy,
 });
+if (import.meta.server) {
+  await browseAsyncData;
+}
+const {
+  data: browseData,
+  pending,
+  error,
+  refresh,
+} = browseAsyncData;
 
 const displayedBrowseData = useState<BrowseResponse | null>(
   "browse-displayed-data",
