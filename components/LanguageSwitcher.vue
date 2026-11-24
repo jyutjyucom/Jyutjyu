@@ -13,6 +13,7 @@
       :aria-label="t('common.languageSwitcherLabel')"
       :aria-expanded="isOpen"
       :aria-controls="popoverId"
+      @click="toggle"
     >
       <span>{{ currentLocaleLabel }}</span>
       <svg
@@ -34,10 +35,11 @@
 
     <div
       :id="popoverId"
-      ref="popoverEl"
+      :ref="setPopoverEl"
       popover="auto"
       class="mwg-popover mwg-popover--align-end"
-      @toggle="handlePopoverToggle"
+      :data-popover-open="isOpen ? 'true' : undefined"
+      @toggle="handleToggle"
     >
       <div
         class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[160px]"
@@ -67,20 +69,21 @@
 const { locale, locales, t } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
 
-const popoverId = useId();
-const triggerEl = ref<HTMLButtonElement | null>(null);
-const popoverEl = ref<HTMLElement | null>(null);
-const isOpen = ref(false);
+const {
+  popoverId,
+  triggerEl,
+  setPopoverEl,
+  isOpen,
+  toggle,
+  close,
+  handleToggle,
+} = usePopoverMenu();
 
 const currentLocale = computed(() => locale.value);
 const currentLocaleLabel = computed(() => localeLabel(currentLocale.value));
 
-const handlePopoverToggle = (event: ToggleEvent) => {
-  isOpen.value = event.newState === "open";
-};
-
 const selectLocale = async (code: typeof currentLocale.value) => {
-  popoverEl.value?.hidePopover?.();
+  close();
   if (code !== currentLocale.value) {
     const nextPath = switchLocalePath(code);
     if (nextPath) {

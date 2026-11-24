@@ -163,7 +163,7 @@ const normalizeSort = (value: string | undefined): BrowseSort => {
 };
 
 const sortHeadwords = (headwords: string[]): string[] => {
-  return headwords.toSorted((a, b) => a.localeCompare(b, "zh-Hant"));
+  return [...headwords].sort((a, b) => a.localeCompare(b, "zh-Hant"));
 };
 
 const getPrimaryJyutping = (entry: DictionaryEntry): string => {

@@ -18,6 +18,7 @@
         :disabled="disabled"
         :aria-expanded="isOpen"
         :aria-controls="popoverId"
+        @click="toggle"
       >
         <span>{{ getSortLabel(sortBy) }}</span>
         <svg
@@ -38,11 +39,12 @@
       </button>
       <div
         :id="popoverId"
-        ref="popoverEl"
+        :ref="setPopoverEl"
         popover="auto"
         class="mwg-popover"
         :class="dropdownAlign === 'right' ? 'mwg-popover--align-end' : ''"
-        @toggle="handlePopoverToggle"
+        :data-popover-open="isOpen ? 'true' : undefined"
+        @toggle="handleToggle"
       >
         <div
           class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[140px]"
@@ -92,17 +94,18 @@ const emit = defineEmits<{
   "select-sort": [sort: SortOption];
 }>();
 
-const popoverId = useId();
-const triggerEl = ref<HTMLButtonElement | null>(null);
-const popoverEl = ref<HTMLElement | null>(null);
-const isOpen = ref(false);
-
-const handlePopoverToggle = (event: ToggleEvent) => {
-  isOpen.value = event.newState === "open";
-};
+const {
+  popoverId,
+  triggerEl,
+  setPopoverEl,
+  isOpen,
+  toggle,
+  close,
+  handleToggle,
+} = usePopoverMenu();
 
 const chooseSort = (sort: SortOption) => {
-  popoverEl.value?.hidePopover?.();
+  close();
   emit("select-sort", sort);
   triggerEl.value?.focus();
 };

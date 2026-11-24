@@ -742,7 +742,7 @@ const sortedDictionaries = computed(() => {
   const sortLocale = "zh-CN";
   return dictionaries
     .map(localizeDictionary)
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       // 注意：某些 locale/敏感度设置下，localeCompare 可能把不同字符串判成"相等"(返回 0)，
       // 从而导致排序在不同运行/水合阶段出现不稳定的相对顺序。这里加二级排序保证稳定。
       const cmp = a.lName.localeCompare(b.lName, sortLocale);

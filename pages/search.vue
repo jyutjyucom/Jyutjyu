@@ -938,27 +938,26 @@ const filteredGroups = computed(() => {
     : otherResults
 
   // 应用排序（非relevance时）
+  const sortGroupsCopy = (
+    list: typeof filteredExact,
+    compare: (a: (typeof filteredExact)[number], b: (typeof filteredExact)[number]) => number,
+  ) => [...list].sort(compare)
+
   if (sortBy.value === 'headword') {
-    filteredExact = filteredExact.toSorted((a, b) =>
+    const cmp = (a: (typeof filteredExact)[number], b: (typeof filteredExact)[number]) =>
       (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
-    )
-    filteredOther = filteredOther.toSorted((a, b) =>
-      (a.primary.headword.display || '').localeCompare(b.primary.headword.display || '')
-    )
+    filteredExact = sortGroupsCopy(filteredExact, cmp)
+    filteredOther = sortGroupsCopy(filteredOther, cmp)
   } else if (sortBy.value === 'jyutping') {
-    filteredExact = filteredExact.toSorted((a, b) =>
+    const cmp = (a: (typeof filteredExact)[number], b: (typeof filteredExact)[number]) =>
       (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
-    )
-    filteredOther = filteredOther.toSorted((a, b) =>
-      (a.primary.phonetic?.jyutping?.[0] || '').localeCompare(b.primary.phonetic?.jyutping?.[0] || '')
-    )
+    filteredExact = sortGroupsCopy(filteredExact, cmp)
+    filteredOther = sortGroupsCopy(filteredOther, cmp)
   } else if (sortBy.value === 'dictionary') {
-    filteredExact = filteredExact.toSorted((a, b) =>
+    const cmp = (a: (typeof filteredExact)[number], b: (typeof filteredExact)[number]) =>
       (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
-    )
-    filteredOther = filteredOther.toSorted((a, b) =>
-      (a.primary.source_book || '').localeCompare(b.primary.source_book || '')
-    )
+    filteredExact = sortGroupsCopy(filteredExact, cmp)
+    filteredOther = sortGroupsCopy(filteredOther, cmp)
   }
 
   return {

@@ -22,6 +22,7 @@
         :disabled="disabled"
         :aria-expanded="openPopover === 'dict'"
         :aria-controls="dictPopoverId"
+        @click="toggleDict"
       >
         <span>{{ selectedDict || t("common.allDictionaries") }}</span>
         <svg
@@ -42,10 +43,11 @@
       </button>
       <div
         :id="dictPopoverId"
-        ref="dictPopoverEl"
+        :ref="setDictPopoverEl"
         popover="auto"
         class="mwg-popover"
-        @toggle="handleToggle('dict', $event)"
+        :data-popover-open="openPopover === 'dict' ? 'true' : undefined"
+        @toggle="handleDictToggle"
       >
         <div
           class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[180px] max-h-80 overflow-y-auto"
@@ -102,6 +104,7 @@
         :disabled="disabled"
         :aria-expanded="openPopover === 'dialect'"
         :aria-controls="dialectPopoverId"
+        @click="toggleDialect"
       >
         <span>{{
           selectedDialect
@@ -126,10 +129,11 @@
       </button>
       <div
         :id="dialectPopoverId"
-        ref="dialectPopoverEl"
+        :ref="setDialectPopoverEl"
         popover="auto"
         class="mwg-popover"
-        @toggle="handleToggle('dialect', $event)"
+        :data-popover-open="openPopover === 'dialect' ? 'true' : undefined"
+        @toggle="handleDialectToggle"
       >
         <div
           class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[140px] max-h-80 overflow-y-auto"
@@ -186,6 +190,7 @@
         :disabled="disabled"
         :aria-expanded="openPopover === 'type'"
         :aria-controls="typePopoverId"
+        @click="toggleType"
       >
         <span>{{
           selectedType ? getTypeName(selectedType) : t("common.allTypes")
@@ -208,10 +213,11 @@
       </button>
       <div
         :id="typePopoverId"
-        ref="typePopoverEl"
+        :ref="setTypePopoverEl"
         popover="auto"
         class="mwg-popover"
-        @toggle="handleToggle('type', $event)"
+        :data-popover-open="openPopover === 'type' ? 'true' : undefined"
+        @toggle="handleTypeToggle"
       >
         <div
           class="bg-parchment dark:bg-stone-900 border border-outline-soft/15 dark:border-stone-800 shadow-lg py-1 min-w-[120px] max-h-80 overflow-y-auto"
@@ -278,44 +284,63 @@ const emit = defineEmits<{
   "select-type": [type: string | null];
 }>();
 
-const dictPopoverId = useId();
-const dialectPopoverId = useId();
-const typePopoverId = useId();
-
-const dictTriggerEl = ref<HTMLButtonElement | null>(null);
-const dialectTriggerEl = ref<HTMLButtonElement | null>(null);
-const typeTriggerEl = ref<HTMLButtonElement | null>(null);
-const dictPopoverEl = ref<HTMLElement | null>(null);
-const dialectPopoverEl = ref<HTMLElement | null>(null);
-const typePopoverEl = ref<HTMLElement | null>(null);
-
-const openPopover = ref<"dict" | "dialect" | "type" | null>(null);
-
-const handleToggle = (
-  kind: "dict" | "dialect" | "type",
-  event: ToggleEvent,
-) => {
-  if (event.newState === "open") {
-    openPopover.value = kind;
-  } else if (openPopover.value === kind) {
-    openPopover.value = null;
-  }
+const closeOtherMenus = (active: "dict" | "dialect" | "type") => {
+  if (active !== "dict") closeDict();
+  if (active !== "dialect") closeDialect();
+  if (active !== "type") closeType();
 };
 
+const {
+  popoverId: dictPopoverId,
+  triggerEl: dictTriggerEl,
+  setPopoverEl: setDictPopoverEl,
+  isOpen: dictOpen,
+  toggle: toggleDict,
+  close: closeDict,
+  handleToggle: handleDictToggle,
+} = usePopoverMenu({ onOpen: () => closeOtherMenus("dict") });
+
+const {
+  popoverId: dialectPopoverId,
+  triggerEl: dialectTriggerEl,
+  setPopoverEl: setDialectPopoverEl,
+  isOpen: dialectOpen,
+  toggle: toggleDialect,
+  close: closeDialect,
+  handleToggle: handleDialectToggle,
+} = usePopoverMenu({ onOpen: () => closeOtherMenus("dialect") });
+
+const {
+  popoverId: typePopoverId,
+  triggerEl: typeTriggerEl,
+  setPopoverEl: setTypePopoverEl,
+  isOpen: typeOpen,
+  toggle: toggleType,
+  close: closeType,
+  handleToggle: handleTypeToggle,
+} = usePopoverMenu({ onOpen: () => closeOtherMenus("type") });
+
+const openPopover = computed<"dict" | "dialect" | "type" | null>(() => {
+  if (dictOpen.value) return "dict";
+  if (dialectOpen.value) return "dialect";
+  if (typeOpen.value) return "type";
+  return null;
+});
+
 const chooseDict = (dict: string | null) => {
-  dictPopoverEl.value?.hidePopover?.();
+  closeDict();
   emit("select-dict", dict);
   dictTriggerEl.value?.focus();
 };
 
 const chooseDialect = (dialect: string | null) => {
-  dialectPopoverEl.value?.hidePopover?.();
+  closeDialect();
   emit("select-dialect", dialect);
   dialectTriggerEl.value?.focus();
 };
 
 const chooseType = (type: string | null) => {
-  typePopoverEl.value?.hidePopover?.();
+  closeType();
   emit("select-type", type);
   typeTriggerEl.value?.focus();
 };

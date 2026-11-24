@@ -84,8 +84,8 @@ const expandTraditionalAmbiguity = (text: string): string[] => {
   for (const char of chars) {
     // 原字已由 seed 覆蓋，展開時把「異體」排在前面，
     // 避免 32 個組合的預算被原字組合吃掉。
-    const options = (simplifiedToTraditionalMap[char] ?? [char])
-      .toSorted((left, right) => {
+    const options = [...(simplifiedToTraditionalMap[char] ?? [char])]
+      .sort((left, right) => {
         const leftIdentity = left === char ? 1 : 0;
         const rightIdentity = right === char ? 1 : 0;
         return leftIdentity - rightIdentity;

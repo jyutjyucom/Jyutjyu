@@ -186,12 +186,26 @@ html.dark dialog.mwg-dialog[open]::backdrop {
     width: auto;
     max-width: 24rem;
     margin-inline: auto;
+    max-height: 70vh;
     max-height: 70dvh;
     overflow-y: auto;
   }
 
   [popover].mwg-popover::backdrop {
     background-color: rgb(0 0 0 / 0.25);
+  }
+}
+
+@supports not selector(:popover-open) {
+  [popover].mwg-popover:not([data-popover-open="true"]) {
+    display: none;
+  }
+
+  [popover].mwg-popover[data-popover-open="true"] {
+    display: block;
+    opacity: 1;
+    transform: none;
+    z-index: 60;
   }
 }
 
@@ -242,7 +256,9 @@ textarea.mwg-auto-textarea {
   field-sizing: content;
   width: 100%;
   height: auto;
+  min-height: 11rem;
   min-block-size: 8lh;
+  max-height: 28rem;
   max-block-size: 20lh;
   resize: vertical;
 }
@@ -305,7 +321,7 @@ progress.mwg-spinner:indeterminate {
   --size: 2.5rem;
   --thickness: 3px;
   --spinner-color: #b53a25;
-  --track-color: light-dark(rgb(181 58 37 / 0.16), rgb(181 58 37 / 0.25));
+  --track-color: rgb(181 58 37 / 0.16);
   --spinner-duration: 1.2s;
   --_used-spinner-duration: var(--spinner-duration);
 
@@ -326,6 +342,10 @@ progress.mwg-spinner:indeterminate {
     var(--progress-dash-animation, );
 }
 
+html.dark progress.mwg-spinner:indeterminate {
+  --track-color: rgb(181 58 37 / 0.25);
+}
+
 @supports (background-clip: border-area) {
   progress.mwg-spinner:indeterminate {
     background-clip: border-area;
@@ -337,6 +357,11 @@ progress.mwg-spinner:indeterminate {
 @supports not (background-clip: border-area) {
   progress.mwg-spinner:indeterminate {
     --clip-boundary: calc(100% - var(--thickness));
+    -webkit-mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
     mask-image: radial-gradient(
       farthest-side,
       transparent var(--clip-boundary),

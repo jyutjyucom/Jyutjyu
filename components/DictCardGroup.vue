@@ -490,7 +490,7 @@ const normalizeJyutpingList = (values: string[]): string[] => {
 };
 
 const createJyutpingComparisonKey = (values: string[]): string => {
-  return normalizeJyutpingList(values).toSorted().join("||");
+  return [...normalizeJyutpingList(values)].sort().join("||");
 };
 
 const dictionaryCount = computed(() => {
